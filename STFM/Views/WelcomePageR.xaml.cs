@@ -59,6 +59,7 @@ public partial class WelcomePageR : ContentView
                 //SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
                 Submit_Button.Text = "Continue";
                 Calibrator_Button.Text = "Calibration";
+                UseCalibrationCheck_Label.Text = "Show calibration check in test settings";
                 break;
             case STFN.Utils.Constants.Languages.Swedish:
 
@@ -70,6 +71,7 @@ public partial class WelcomePageR : ContentView
                 //SoundFieldSimulation_Label.Text = "Tillåt ljudfältssimulering i hörlurar (kan göra appen långsam)";
                 Submit_Button.Text = "Fortsätt";
                 Calibrator_Button.Text = "Kalibrering";
+                UseCalibrationCheck_Label.Text = "Visa kalibreringskontroll i testinställningar";
                 break;
             default:
 
@@ -81,6 +83,7 @@ public partial class WelcomePageR : ContentView
                 //SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
                 Submit_Button.Text = "Continue";
                 Calibrator_Button.Text = "Calibration";
+                UseCalibrationCheck_Label.Text = "Show calibration check in test settings";
                 break;
         }
 
@@ -209,4 +212,8 @@ public partial class WelcomePageR : ContentView
 
     }
 
+    private void UseCalibrationCheck_Switch_Toggled(object sender, ToggledEventArgs e)
+    {
+        OstfBase.ShowCalibrationCheck = e.Value;
+    }
 }

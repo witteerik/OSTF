@@ -4596,10 +4596,63 @@ Public Class Form4
         'Input.SMA.InferNominalLevelToAllDescendants()
         'Input.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishHINT\Media\Standard_Sentences\CalibrationSignals\CalibrationSignal_-20dB.wav")
 
-        Dim Input = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\ForTablets_IHeAR-CS\IHEAR\OSTFMedia\SpeechMaterials\SwedishTP50\Media\CalibrationSignal_-25dB.wav")
-        Input.SMA.NominalLevel = -25
-        Input.SMA.InferNominalLevelToAllDescendants()
-        Input.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\ForTablets_IHeAR-CS\IHEAR\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker1-RVE\CalibrationSignals\CalibrationSignal_-25dB.wav")
+        'Dim Input = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\ForTablets_IHeAR-CS\IHEAR\OSTFMedia\SpeechMaterials\SwedishTP50\Media\CalibrationSignal_-25dB.wav")
+        'Input.SMA.NominalLevel = -25
+        'Input.SMA.InferNominalLevelToAllDescendants()
+        'Input.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\ForTablets_IHeAR-CS\IHEAR\OSTFMedia\SpeechMaterials\SwedishTP50\Media\Talker1-RVE\CalibrationSignals\CalibrationSignal_-25dB.wav")
+
+        'Dim Input = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishMatrixTest\Media\Standard_Sentences\CalibrationSignal_-20dB.wav")
+        'Input.SMA.NominalLevel = -20
+        'Input.SMA.InferNominalLevelToAllDescendants()
+        'Input.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishMatrixTest\Media\Standard_Sentences\CalibrationSignals\WarbleTone_1kHz_-20dB.wav")
+
+        'Dim Input = Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishMatrixTest\Media\Standard_Sentences\CalibrationSignal_-20dB.wav")
+        'Input.SMA.NominalLevel = -20
+        'Input.SMA.InferNominalLevelToAllDescendants()
+        'Input.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishMatrixTest\Media\Standard_Sentences\CalibrationSignals\WarbleTone_1kHz_-20dB.wav")
+
+
+        'Dim NominalLevel As Double = -21
+        'Dim FormatTemplateSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\TestWordRecordings\L00_Lista_1\Sound00.wav")
+        'Dim CalibSound = SpeechTestFramework.Audio.GenerateSound.CreateFrequencyModulatedSineWave(FormatTemplateSound.WaveFormat, 1, 1000, 1, 20, 0.125, , 30)
+
+        ''Setting the signal level
+        'SpeechTestFramework.Audio.DSP.MeasureAndAdjustSectionLevel(CalibSound, NominalLevel)
+
+        ''Fading in and out
+        'SpeechTestFramework.Audio.DSP.Fade(CalibSound, Nothing, 0,,, 0.1 * CalibSound.WaveFormat.SampleRate, SpeechTestFramework.Audio.DSP.FadeSlopeType.Smooth)
+        'SpeechTestFramework.Audio.DSP.Fade(CalibSound, 0, Nothing,, CalibSound.WaveData.ShortestChannelSampleCount - 0.1 * CalibSound.WaveFormat.SampleRate, Nothing, SpeechTestFramework.Audio.DSP.FadeSlopeType.Smooth)
+
+        'Dim CalibSoundStereo = New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(CalibSound.WaveFormat.SampleRate, CalibSound.WaveFormat.BitDepth, 2,, CalibSound.WaveFormat.Encoding))
+        'CalibSoundStereo.SMA.NominalLevel = NominalLevel
+        'CalibSoundStereo.SMA.InferNominalLevelToAllDescendants()
+
+        'CalibSoundStereo.WaveData.SampleData(1) = CalibSound.WaveData.SampleData(1)
+        'CalibSoundStereo.WaveData.SampleData(2) = CalibSound.WaveData.SampleData(1)
+
+        'CalibSoundStereo.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23\Media\Talker1-RVE\CalibrationSignals\WarbleTone_1kHz_-21dB.wav")
+
+
+
+        Dim NominalLevel As Double = -25
+        Dim FormatTemplateSound = SpeechTestFramework.Audio.Sound.LoadWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23 - backup - 2024-11-15 - Protocol B4 version\Media\Talker1-RVE\TestWordRecordings\L00_Lista_1\Sound00.wav")
+        Dim CalibSound = SpeechTestFramework.Audio.GenerateSound.CreateFrequencyModulatedSineWave(FormatTemplateSound.WaveFormat, 1, 1000, 1, 20, 0.125, , 30)
+
+        'Setting the signal level
+        SpeechTestFramework.Audio.DSP.MeasureAndAdjustSectionLevel(CalibSound, NominalLevel)
+
+        'Fading in and out
+        SpeechTestFramework.Audio.DSP.Fade(CalibSound, Nothing, 0,,, 0.1 * CalibSound.WaveFormat.SampleRate, SpeechTestFramework.Audio.DSP.FadeSlopeType.Smooth)
+        SpeechTestFramework.Audio.DSP.Fade(CalibSound, 0, Nothing,, CalibSound.WaveData.ShortestChannelSampleCount - 0.1 * CalibSound.WaveFormat.SampleRate, Nothing, SpeechTestFramework.Audio.DSP.FadeSlopeType.Smooth)
+
+        Dim CalibSoundStereo = New SpeechTestFramework.Audio.Sound(New SpeechTestFramework.Audio.Formats.WaveFormat(CalibSound.WaveFormat.SampleRate, CalibSound.WaveFormat.BitDepth, 2,, CalibSound.WaveFormat.Encoding))
+        CalibSoundStereo.SMA.NominalLevel = NominalLevel
+        CalibSoundStereo.SMA.InferNominalLevelToAllDescendants()
+
+        CalibSoundStereo.WaveData.SampleData(1) = CalibSound.WaveData.SampleData(1)
+        CalibSoundStereo.WaveData.SampleData(2) = CalibSound.WaveData.SampleData(1)
+
+        CalibSoundStereo.WriteWaveFile("C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishSpondees23 - backup - 2024-11-15 - Protocol B4 version\Media\Talker1-RVE\CalibrationSignals\WarbleTone_1kHz_-25dB.wav")
 
 
     End Sub

@@ -1,0 +1,2 @@
+2023-12-20 17:39:34
+The calibration signal (frequency modulated sine wave) in C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishHINT\Media\Standard\CalibrationSignal_-20dB.wav is frequency modulated around 1000 Hz by ±12,5 %, with a modulation frequency of 20 Hz. Samplerate: 44100 Hz, duration: 60 seconds.

@@ -256,121 +256,312 @@ Public MustInherit Class SpeechTest
 #Region "GuiTexts"
 
 
+    Private _TesterInstructionsButtonText As String = "Instruktioner för inställningar"
     <ExludeFromPropertyListing>
-    Public Property TesterInstructionsButtonText As String = "Instruktioner för inställningar"
-
-    <ExludeFromPropertyListing>
-    Public Property ParticipantInstructionsButtonText As String = "Patientinstruktioner"
-
-    <ExludeFromPropertyListing>
-    Public Property IsPractiseTestTitle As String = "Övningstest"
-
-    <ExludeFromPropertyListing>
-    Public Property SelectedPresetTitle As String = "Förval"
-
-    <ExludeFromPropertyListing>
-    Public Property ExperimentNumberTitle As String = "Experiment nr"
-
-    <ExludeFromPropertyListing>
-    Public Property StartListTitle As String = "StartLista"
-
-    <ExludeFromPropertyListing>
-    Public Property SelectedMediaSetTitle As String = "Mediaset"
-
-    <ExludeFromPropertyListing>
-    Public Property SelectedMediaSetsTitle As String = "Mediaset"
-
-    <ExludeFromPropertyListing>
-    Public ReadOnly Property ReferenceLevelTitle As String
+    Public Property TesterInstructionsButtonText As String
         Get
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    Return "Referensnivå (" & dBString() & ")"
-                Case Else
-                    Return "Reference level (" & dBString() & ")"
-            End Select
+            Return _TesterInstructionsButtonText
         End Get
+        Set(value As String)
+            _TesterInstructionsButtonText = value
+            OnPropertyChanged()
+        End Set
     End Property
 
+
+    Private _ParticipantInstructionsButtonText As String = "Patientinstruktioner"
     <ExludeFromPropertyListing>
-    Public ReadOnly Property TargetLevelTitle As String
+    Public Property ParticipantInstructionsButtonText As String
         Get
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    Return "Talnivå (" & dBString() & ")"
-                Case Else
-                    Return "Speech level (" & dBString() & ")"
-            End Select
+            Return _ParticipantInstructionsButtonText
         End Get
+        Set(value As String)
+            _ParticipantInstructionsButtonText = value
+            OnPropertyChanged()
+        End Set
     End Property
 
-    <ExludeFromPropertyListing>
-    Public ReadOnly Property MaskingLevelTitle As String
-        Get
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    Return "Maskeringsnivå (" & dBString() & ")"
-                Case Else
-                    Return "Masking level (" & dBString() & ")"
-            End Select
-        End Get
-    End Property
 
+    Private _IsPractiseTestTitle As String = "Övningstest"
     <ExludeFromPropertyListing>
-    Public ReadOnly Property BackgroundLevelTitle As String
+    Public Property IsPractiseTestTitle As String
         Get
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    Return "Bakgrundsnivå (" & dBString() & ")"
-                Case Else
-                    Return "Background level (" & dBString() & ")"
-            End Select
+            Return _IsPractiseTestTitle
         End Get
-    End Property
-
-    <ExludeFromPropertyListing>
-    Public ReadOnly Property ContralateralMaskingLevelTitle As String
-        Get
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    Return "Kontralat. maskeringsnivå (" & dBString() & ")"
-                Case Else
-                    Return "Contralat. masking level (" & dBString() & ")"
-            End Select
-        End Get
-    End Property
-
-    <ExludeFromPropertyListing>
-    Public Overridable ReadOnly Property TargetSNRTitle As String
-        Get
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    Return "SNR (" & dBString() & ")"
-                Case Else
-                    Return "SNR (" & dBString() & ")"
-            End Select
-        End Get
+        Set(value As String)
+            _IsPractiseTestTitle = value
+            OnPropertyChanged()
+        End Set
     End Property
 
 
 
+    Private _SelectedPresetTitle As String = "Förval"
     <ExludeFromPropertyListing>
-    Public Property SelectedTestModeTitle As String = "Testläge"
+    Public Property SelectedPresetTitle As String
+        Get
+            Return _SelectedPresetTitle
+        End Get
+        Set(value As String)
+            _SelectedPresetTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+
+    Private _ExperimentNumberTitle As String = "Experiment nr"
 
     <ExludeFromPropertyListing>
-    Public Property SelectedTestProtocolTitle As String = "Testprotokoll"
+    Public Property ExperimentNumberTitle As String
+        Get
+            Return _ExperimentNumberTitle
+        End Get
+        Set(value As String)
+            _ExperimentNumberTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+
+    Private _StartListTitle As String = "StartLista"
 
     <ExludeFromPropertyListing>
-    Public Property KeyWordScoringTitle As String = "Rätta på nyckelord"
+    Public Property StartListTitle As String
+        Get
+            Return _StartListTitle
+        End Get
+        Set(value As String)
+            _StartListTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+    Private _SelectedMediaSetTitle As String = "Mediaset"
 
     <ExludeFromPropertyListing>
-    Public Property ListOrderRandomizationTitle As String = "Slumpa listordning"
+    Public Property SelectedMediaSetTitle As String
+        Get
+            Return _SelectedMediaSetTitle
+        End Get
+        Set(value As String)
+            _SelectedMediaSetTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+
+    Private _SelectedMediaSetsTitle As String = "Mediaset"
+    <ExludeFromPropertyListing>
+    Public Property SelectedMediaSetsTitle As String
+        Get
+            Return _SelectedMediaSetsTitle
+        End Get
+        Set(value As String)
+            _SelectedMediaSetsTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+    Private _ReferenceLevelTitle As String = ""
+    <ExludeFromPropertyListing>
+    Public Property ReferenceLevelTitle As String
+        Get
+            Return _ReferenceLevelTitle
+        End Get
+        Set(value As String)
+
+            'Only updates if the new value differs
+            If _ReferenceLevelTitle <> value Then
+                _ReferenceLevelTitle = value
+                OnPropertyChanged()
+            End If
+
+        End Set
+    End Property
+
+
+
+    Private _TargetLevelTitle As String = ""
+    <ExludeFromPropertyListing>
+    Public Property TargetLevelTitle As String
+        Get
+            Return _TargetLevelTitle
+        End Get
+        Set(value As String)
+            'Only updates if the new value differs
+            If _TargetLevelTitle <> value Then
+                _TargetLevelTitle = value
+                OnPropertyChanged()
+            End If
+
+        End Set
+    End Property
+
+
+
+    Private _MaskingLevelTitle As String = ""
+    <ExludeFromPropertyListing>
+    Public Property MaskingLevelTitle As String
+        Get
+            Return _MaskingLevelTitle
+        End Get
+        Set(value As String)
+
+            'Only updates if the new value differs
+            If _MaskingLevelTitle <> value Then
+                _MaskingLevelTitle = value
+                OnPropertyChanged()
+            End If
+
+        End Set
+    End Property
+
+
+
+    Private _BackgroundLevelTitle As String = ""
+    <ExludeFromPropertyListing>
+    Public Property BackgroundLevelTitle As String
+        Get
+            Return _BackgroundLevelTitle
+        End Get
+        Set(value As String)
+
+            'Only updates if the new value differs
+            If _BackgroundLevelTitle <> value Then
+                _BackgroundLevelTitle = value
+                OnPropertyChanged()
+            End If
+
+        End Set
+    End Property
+
+
+
+    Private _ContralateralMaskingLevelTitle As String = ""
+    <ExludeFromPropertyListing>
+    Public Property ContralateralMaskingLevelTitle As String
+        Get
+            Return _ContralateralMaskingLevelTitle
+        End Get
+        Set(value As String)
+
+            'Only updates if the new value differs
+            If _ContralateralMaskingLevelTitle <> value Then
+                _ContralateralMaskingLevelTitle = value
+                OnPropertyChanged()
+            End If
+
+        End Set
+    End Property
+
+
+
+    Private _TargetSNRTitle As String = "SNR (dB)"
+    <ExludeFromPropertyListing>
+    Public Overridable Property TargetSNRTitle As String
+        Get
+            Return _TargetSNRTitle
+        End Get
+        Set(value As String)
+            _TargetSNRTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+
+    Private _SelectedTestModeTitle As String = "Testläge"
 
     <ExludeFromPropertyListing>
-    Public Property WithinListRandomizationTitle As String = "Slumpa inom listor"
+    Public Property SelectedTestModeTitle As String
+        Get
+            Return _SelectedTestModeTitle
+        End Get
+        Set(value As String)
+            _SelectedTestModeTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+
+    Private _SelectedTestProtocolTitle As String = "Testprotokoll"
+    <ExludeFromPropertyListing>
+    Public Property SelectedTestProtocolTitle As String
+        Get
+            Return _SelectedTestProtocolTitle
+        End Get
+        Set(value As String)
+            _SelectedTestProtocolTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+
+    Private _KeyWordScoringTitle As String = "Rätta på nyckelord"
 
     <ExludeFromPropertyListing>
-    Public Property AcrossListsRandomizationTitle As String = "Slumpa mellan listor"
+    Public Property KeyWordScoringTitle As String
+        Get
+            Return _KeyWordScoringTitle
+        End Get
+        Set(value As String)
+            _KeyWordScoringTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+
+    Private _ListOrderRandomizationTitle As String = "Slumpa listordning"
+    <ExludeFromPropertyListing>
+    Public Property ListOrderRandomizationTitle As String
+        Get
+            Return _ListOrderRandomizationTitle
+        End Get
+        Set(value As String)
+            _ListOrderRandomizationTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+    Private _WithinListRandomizationTitle As String = "Slumpa inom listor"
+
+    <ExludeFromPropertyListing>
+    Public Property WithinListRandomizationTitle As String
+        Get
+            Return _WithinListRandomizationTitle
+        End Get
+        Set(value As String)
+            _WithinListRandomizationTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+
+    Private _AcrossListsRandomizationTitle As String = "Slumpa mellan listor"
+
+    <ExludeFromPropertyListing>
+    Public Property AcrossListsRandomizationTitle As String
+        Get
+            Return _AcrossListsRandomizationTitle
+        End Get
+        Set(value As String)
+            _AcrossListsRandomizationTitle = value
+            OnPropertyChanged()
+        End Set
+    End Property
+
+
+    'TODO: Change all remaining GUI titles so that they call OnPropertyChanged...
 
     <ExludeFromPropertyListing>
     Public Property IsFreeRecallTitle As String = "Fri rapportering"
@@ -434,7 +625,7 @@ Public MustInherit Class SpeechTest
     Public Property PreListenSofterButtonTitle As String = "Minska nivån"
 
     <ExludeFromPropertyListing>
-    Public Property CalibrationCheckTitle As String = "Calibration check (play calibration signal at speech level)"
+    Public Property CalibrationCheckTitle As String = "Calibration check (play calibration signal mixed by the selected test)"
 
     <ExludeFromPropertyListing>
     Public Property CalibrationCheckPlayButtonTitle As String = "Play"
@@ -869,31 +1060,6 @@ Public MustInherit Class SpeechTest
     End Property
     Private _MediaSets As New MediaSetLibrary
 
-    Public ReadOnly Property HasCalibrationComponent As Boolean
-        Get
-
-            Return True
-
-            'If MediaSet IsNot Nothing Then
-
-            '    If SpeechMaterial IsNot Nothing Then
-
-            '        Dim CalibrationSounds = SpeechMaterial.GetCalibrationSounds(MediaSet, 0, 1)
-
-            '        If CalibrationSounds.Count > 0 Then
-            '            Return True
-            '        End If
-            '    End If
-
-            'ElseIf MediaSets.Count > 0 Then
-            '    Throw New NotImplementedException("Implementation of several selected media sets is not yet implemented")
-            'End If
-
-            ''Returns False if no calibration sound was found
-            'Return False
-        End Get
-    End Property
-
 
     Private _MinimumReferenceLevel As Double = 0
     Public Property MinimumReferenceLevel As Double
@@ -1274,6 +1440,9 @@ Public MustInherit Class SpeechTest
 
             RaiseEvent TransducerChanged(Me, New EventArgs)
 
+            'Updating titles
+            UpdateGUI_dB_Titles()
+
         End Set
     End Property
     Private _Transducer As AudioSystemSpecification
@@ -1288,24 +1457,53 @@ Public MustInherit Class SpeechTest
         End Get
         Set(value As Boolean)
 
-            _LevelsAreIn_dBHL = value
+            'Only updates if the new value differs
+            If _LevelsAreIn_dBHL <> value Then
 
-            If value = True And SimulatedSoundField = True Then
-                'Inactivates sound field simulation if dB HL values should be used
-                SimulatedSoundField = False
+                _LevelsAreIn_dBHL = value
+
+                If value = True And SimulatedSoundField = True Then
+                    'Inactivates sound field simulation if dB HL values should be used
+                    SimulatedSoundField = False
+                End If
+
+                'Updating titles
+                UpdateGUI_dB_Titles()
+
+                OnPropertyChanged()
+
             End If
 
-            OnPropertyChanged()
         End Set
     End Property
     Private _LevelsAreIn_dBHL As Boolean = False
+
+    Private Sub UpdateGUI_dB_Titles()
+
+        'Updating titles
+        Select Case GuiLanguage
+            Case Utils.Constants.Languages.Swedish
+                ReferenceLevelTitle = "Referensnivå (" & dBString() & ")"
+                TargetLevelTitle = "Talnivå (" & dBString() & ")"
+                MaskingLevelTitle = "Maskeringsnivå (" & dBString() & ")"
+                BackgroundLevelTitle = "Bakgrundsnivå (" & dBString() & ")"
+                ContralateralMaskingLevelTitle = "Kontralat. maskeringsnivå (" & dBString() & ")"
+            Case Else
+                ReferenceLevelTitle = "Reference level (" & dBString() & ")"
+                TargetLevelTitle = "Speech level (" & dBString() & ")"
+                MaskingLevelTitle = "Masking level (" & dBString() & ")"
+                BackgroundLevelTitle = "Background level (" & dBString() & ")"
+                ContralateralMaskingLevelTitle = "Contralat. masking level (" & dBString() & ")"
+        End Select
+
+    End Sub
 
     ''' <summary>
     ''' Returns the strings dB HL or dB SPL depending on the value of the property LevelsAreIn_dBHL
     ''' </summary>
     ''' <returns></returns>
     Public Function dBString() As String
-        If LevelsAreIn_dBHL = False Then
+        If _LevelsAreIn_dBHL = False Then
             Return "dB SPL"
         Else
             Return "dB HL"
@@ -1901,10 +2099,10 @@ Public MustInherit Class SpeechTest
 
     ''' <summary>
     ''' This method should return a calibration sound mixed to the currently set level (Target level in most tests, ReferenceLevel in SiP-tests), presented from the first indicated target sound source.
+    ''' This sound should be returned in Item1. Item2 should contain a description of the calibration signal to display in the GUI.
     ''' </summary>
-    ''' <param name="LevelType">The calibration level type</param>
     ''' <returns></returns>
-    Public MustOverride Function CreateCalibrationCheckSignal() As Audio.Sound
+    Public MustOverride Function CreateCalibrationCheckSignal() As Tuple(Of Audio.Sound, String)
 
     Public Enum CalibrationCheckLevelTypes
         TargetLevel
@@ -1916,7 +2114,7 @@ Public MustInherit Class SpeechTest
     ''' </summary>
     ''' <param name="UseNominalLevels">If True, applied gains are based on the nominal levels stored in the SMA object of each sound. If False, sound levels are re-calculated.</param>
     ''' <param name="ExportSounds">Can be used to debug or analyse presented sounds. Default value is False. Sounds are stored into the current log folder.</param>
-    Protected Function MixStandardCalibrationSound(ByVal UseNominalLevels As Boolean, ByVal LevelType As CalibrationCheckLevelTypes, Optional ExportSounds As Boolean = False) As Audio.Sound
+    Protected Function MixStandardCalibrationSound(ByVal UseNominalLevels As Boolean, ByVal LevelType As CalibrationCheckLevelTypes, Optional ExportSounds As Boolean = False) As Tuple(Of Audio.Sound, String)
 
         'Note that this sub should mix the calibration sound to the same level and location as single target in MixStandardTestTrialSound. It can be used to check that the calibration value and attenuator setting is correct, to ensure correct output levels in the transducer.
 
@@ -1926,12 +2124,16 @@ Public MustInherit Class SpeechTest
         Dim LevelGroup As Integer = 1 ' N.B. There is only one level group here, since there is only one calibration signal. The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
         Dim CurrentSampleRate As Integer = -1
 
+        Dim Description As String = ""
+
         ' **TARGET SOUNDS**
         If SignalLocations.Count > 0 Then
 
             'Getting the target sound (i.e. test words)
             Dim TargetSound = SpeechMaterial.GetCalibrationSignalSound(MediaSet, 0) ' Here we get the calibration signal instead of a test word. We use Index = 0. But this could well be updated to allow selection of specific calibration files.
             'Dim TargetSound = CurrentTestTrial.SpeechMaterialComponent.GetSound(MediaSet, 0, 1, , , , , False, False, False, , , False)
+
+            Description &= "File " & "'" & System.IO.Path.GetFileName(TargetSound.SourcePath) & "'"
 
             If TargetSound Is Nothing Then
                 'Returns Nothing if there is no calibration signal
@@ -1965,8 +2167,14 @@ Public MustInherit Class SpeechTest
                 Select Case LevelType
                     Case CalibrationCheckLevelTypes.TargetLevel
                         ItemList.Add(New SoundSceneItem(Targets(Index).Item1, 1, TargetLevel, LevelGroup, Targets(Index).Item2, SoundSceneItem.SoundSceneItemRoles.Target, TargetStartSample, TargetStartMeasureSample, TargetMeasureLength,, FadeSpecs_Target))
+
+                        Description &= " played at a speech level of " & TargetLevel
+
                     Case CalibrationCheckLevelTypes.ReferenceLevel
                         ItemList.Add(New SoundSceneItem(Targets(Index).Item1, 1, ReferenceLevel, LevelGroup, Targets(Index).Item2, SoundSceneItem.SoundSceneItemRoles.Target, TargetStartSample, TargetStartMeasureSample, TargetMeasureLength,, FadeSpecs_Target))
+
+                        Description &= " played at a reference level of " & ReferenceLevel
+
                     Case Else
                         Throw New ArgumentException("Unknown LevelType")
                 End Select
@@ -1979,7 +2187,6 @@ Public MustInherit Class SpeechTest
             Return Nothing
         End If
 
-
         Dim CurrentSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
         If SimulatedSoundField Then
             CurrentSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
@@ -1989,7 +2196,13 @@ Public MustInherit Class SpeechTest
         'Creating the mix by calling CreateSoundScene of the current Mixer
         Dim OutputSound = Transducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, LevelsAreIn_dBHL, CurrentSoundPropagationType, Transducer.LimiterThreshold, ExportSounds, "Calibration")
 
-        Return OutputSound
+        If LevelsAreIn_dBHL = True Then
+            Description &= " dB HL"
+        Else
+            Description &= " dB SPL"
+        End If
+
+        Return New Tuple(Of Audio.Sound, String)(OutputSound, Description)
 
     End Function
 

@@ -45,7 +45,7 @@ Public MustInherit Class SpeechAudiometryTest
     ''' This method returns a calibration sound mixed to the currently set target level, presented from the first indicated target sound source.
     ''' </summary>
     ''' <returns></returns>
-    Public Overrides Function CreateCalibrationCheckSignal() As Audio.Sound
+    Public Overrides Function CreateCalibrationCheckSignal() As Tuple(Of Audio.Sound, String)
 
         Return MixStandardCalibrationSound(True, CalibrationCheckLevelTypes.TargetLevel)
 

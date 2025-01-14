@@ -52,18 +52,17 @@ Public MustInherit Class SipBaseSpeechTest
     Public Overrides ReadOnly Property ShowGuiChoice_BackgroundLevel As Boolean = False
 
 
+    Private _TargetSNRTitle As String = "PNR (dB)"
     <ExludeFromPropertyListing>
-    Public Overrides ReadOnly Property TargetSNRTitle As String
+    Public Overrides Property TargetSNRTitle As String
         Get
-            Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    Return "PNR (dB)"
-                Case Else
-                    Return "PNR (dB)"
-            End Select
+            Return _TargetSNRTitle
         End Get
+        Set(value As String)
+            _TargetSNRTitle = value
+            OnPropertyChanged()
+        End Set
     End Property
-
 
     Protected CurrentSipTestMeasurement As SipMeasurement
 
@@ -236,7 +235,7 @@ Public MustInherit Class SipBaseSpeechTest
     ''' This method returns a calibration sound mixed to the currently set reference level, presented from the first indicated target sound source.
     ''' </summary>
     ''' <returns></returns>
-    Public Overrides Function CreateCalibrationCheckSignal() As Audio.Sound
+    Public Overrides Function CreateCalibrationCheckSignal() As Tuple(Of Audio.Sound, String)
 
         'Referencing the/a mediaset in SpeechTest.MediaSet, which is normally not used in the SiP-test but needed for the calibration signal
         'TODO: This function needs to read the selected SpeechTest.MediaSet. As of now, it just takes the first available MediaSet. The SiP-test does not yet read media set and stuff off the options control, but each test sets up it's own trials (including MediaSet selection in code.

@@ -1,7 +1,0 @@
-N.B. The level of the calibration signal described below, as well as the nominal level set in the SMA chunks of the OSTF version of the Hagerman lists sound files is set to -20 dB FS. This level differs somewhat to the level of the signal on the CD with Hagerman's sentences (Svensk Talaudiometri), which is -20.6 dB on the left track and -21.1 dB on the right track. Thus, if not corrected for, the OSTF implementation of the Hagerman materials will be 0.6 to 1.1 dB offset from that on the CD. 
-
-OSTF generated calibration signal info
-2023-12-20 18:12:08
-The calibration signal (frequency modulated sine wave) in C:\EriksDokument\source\repos\OSTF\OSTFMedia\SpeechMaterials\SwedishMatrixTest\Media\Standard\CalibrationSignal_-20dB.wav is frequency modulated around 1000 Hz by ±12,5 %, with a modulation frequency of 20 Hz. Samplerate: 44100 Hz, duration: 60 seconds.
-
-/Erik Witte

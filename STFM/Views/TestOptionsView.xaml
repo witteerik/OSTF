@@ -209,13 +209,16 @@
                 </VerticalStackLayout>
             </Frame>
 
-            <Frame x:Name="CalibrationCheckControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10" Margin="0,5,0,0" IsVisible="{Binding HasCalibrationComponent}">
+            <Frame x:Name="CalibrationCheckControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10" Margin="0,5,0,0">
                 <VerticalStackLayout>
                     <Label Text="{Binding CalibrationCheckTitle}" VerticalOptions="Center" HorizontalOptions="Start"  Margin="0,0,0,5" />
                     <Grid ColumnDefinitions="*, *">
                         <Button x:Name="CalibrationCheckPlayButton" Grid.Column="0" Text="{Binding CalibrationCheckPlayButtonTitle}"  Clicked="CalibrationCheckPlayButton_Clicked" HorizontalOptions="FillAndExpand" Margin="0,0,1,0" Background="Red" TextColor="White" />
                         <Button x:Name="CalibrationCheckStopButton" Grid.Column="1" Text="{Binding CalibrationCheckStopButtonTitle}"  Clicked="CalibrationCheckStopButton_Clicked" HorizontalOptions="FillAndExpand" Margin="1,0,0,0"/>
                     </Grid>
+                    <Frame Margin="0,8,0,0" Padding="0,0,0,0">
+                        <Label x:Name="CalibrationCheckInfoLabel" VerticalOptions="Center" HorizontalOptions="Center" FontAutoScalingEnabled="True" Padding="0,12,0,12"/>
+                    </Frame>
                 </VerticalStackLayout>
             </Frame>
 

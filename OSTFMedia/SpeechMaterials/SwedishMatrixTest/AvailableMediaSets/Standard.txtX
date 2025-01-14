@@ -17,6 +17,7 @@ CustomVariablesFolder = Media\Standard\CustomVariables
 MediaParentFolder = Media\Standard\TestWordRecordings
 MaskerParentFolder = Media\Standard\Maskers
 ContralateralMaskerParentFolder = Media\Standard\ContralateralMaskers
+CalibrationSignalParentFolder = Media\Standard\CalibrationSignals
 EffectiveContralateralMaskingGain = 5 // What value should we use here?
 BackgroundNonspeechParentFolder = 
 BackgroundNonspeechRealisticLevel = -999

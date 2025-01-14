@@ -37,6 +37,7 @@ public partial class OptionsViewAll : ContentView
         // Assign the custom instance of SpeechTest
         BindingContext = currentSpeechTest;
 
+        CalibrationCheckControl.IsVisible = OstfBase.ShowCalibrationCheck;
 
         if (CurrentSpeechTest.TesterInstructions.Trim() != "")
         {
@@ -140,7 +141,6 @@ public partial class OptionsViewAll : ContentView
         AvailablePhaseAudiometryTypes_Picker.IsVisible = false;
 
         PreListenControl.IsVisible = CurrentSpeechTest.SupportsPrelistening;
-
 
     }
 
@@ -412,16 +412,19 @@ public partial class OptionsViewAll : ContentView
 
     private void CalibrationCheckPlayButton_Clicked(object sender, EventArgs e)
     {
-        var PreTestStimulus = CurrentSpeechTest.CreateCalibrationCheckSignal();
-        if (PreTestStimulus != null)
+        var CalibrationStimulus = CurrentSpeechTest.CreateCalibrationCheckSignal();
+        if (CalibrationStimulus != null)
         {
-            OstfBase.SoundPlayer.SwapOutputSounds(ref PreTestStimulus);
+            STFN.Audio.Sound CalibrationSignal = CalibrationStimulus.Item1;
+            OstfBase.SoundPlayer.SwapOutputSounds(ref CalibrationSignal);
+            CalibrationCheckInfoLabel.Text = CalibrationStimulus.Item2;
         }
     }
 
     private void CalibrationCheckStopButton_Clicked(object sender, EventArgs e)
     {
         OstfBase.SoundPlayer.FadeOutPlayback();
+        CalibrationCheckInfoLabel.Text = "";
     }
 
     //private void PreListenLouderButton_Clicked(object sender, EventArgs e)
