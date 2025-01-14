@@ -189,7 +189,9 @@ Public Module OstfBase
 
         'Using optimization libraries if available (currently only on Windows)
         Select Case PlatForm
-            Case Platforms.WinUI, Platforms.UWP, Platforms.Android
+            Case Platforms.WinUI, Platforms.UWP
+                UseOptimizationLibraries = True
+            Case Platforms.Android
                 UseOptimizationLibraries = True
         End Select
 
