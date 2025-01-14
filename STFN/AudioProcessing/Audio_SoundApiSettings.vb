@@ -693,7 +693,7 @@ Namespace Audio
 
         End Sub
 
-        Public Function GetAllAvailableDevices() As String
+        Public Shared Function GetAllAvailableDevices() As String
 
             Try
 

@@ -29,6 +29,14 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+		<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+		<PackageCertificateKeyFile>OstfTabletSuite_TemporaryKey.pfx</PackageCertificateKeyFile>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -105,10 +113,6 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
 	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\STFM\STFM.csproj" />
-  </ItemGroup>
-
 	<ItemGroup>
 	  <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
 	</ItemGroup>
@@ -122,8 +126,11 @@
 	</ItemGroup>
 	
 	<ItemGroup>
+	  <Reference Include="STFM">
+	    <HintPath>..\STFM\bin\Release\net8.0\STFM.dll</HintPath>
+	  </Reference>
 	  <Reference Include="STFN">
-	    <HintPath>..\STFN\bin\Debug\net8.0\STFN.dll</HintPath>
+	    <HintPath>..\STFN\bin\Release\net8.0\STFN.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 

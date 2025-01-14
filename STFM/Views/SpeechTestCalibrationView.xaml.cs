@@ -560,10 +560,10 @@ public partial class SpeechTestCalibrationView : ContentView
 
         if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.AudioTrackBased)
         {
-            SoundDeviceInfoString = AndroidAudioTrackPlayer.GetAvaliableDeviceInformation();
+            SoundDeviceInfoString = "Currently available sound devices:\n\n" + AndroidAudioTrackPlayer.GetAvaliableDeviceInformation();
         }else
         {
-            SoundDeviceInfoString = "Function not yet implemented on the current platform";
+            SoundDeviceInfoString = "Currently available sound devices:\n\n" + STFN.Audio.PortAudioApiSettings.GetAllAvailableDevices();
         }
 
         Messager.MsgBox(SoundDeviceInfoString, Messager.MsgBoxStyle.Information, "Avaliable sound devices", "Close");
