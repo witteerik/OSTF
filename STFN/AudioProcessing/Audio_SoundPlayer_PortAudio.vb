@@ -828,6 +828,13 @@ Namespace Audio
                     NewSound = CreateBufferHoldersOnNewThread(NewOutputSound, Mixer, FramesPerBuffer, NumberOfOutputChannels)
                 End If
 
+                'Exports the output sound
+                If NewOutputSound IsNot Nothing Then
+                    If OstfBase.LogAllPlayedSoundFiles = True Then
+                        NewOutputSound.WriteWaveFile(Utils.GetSoundFileExportLogPath(Mixer.GetOutputRoutingToString()))
+                    End If
+                End If
+
                 Return True
 
             End Function

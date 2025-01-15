@@ -60,6 +60,7 @@ public partial class WelcomePageR : ContentView
                 Submit_Button.Text = "Continue";
                 Calibrator_Button.Text = "Calibration";
                 UseCalibrationCheck_Label.Text = "Show calibration check in test settings";
+                ExportAllSounds_Label.Text = "Export all played sounds";
                 break;
             case STFN.Utils.Constants.Languages.Swedish:
 
@@ -72,6 +73,7 @@ public partial class WelcomePageR : ContentView
                 Submit_Button.Text = "Fortsätt";
                 Calibrator_Button.Text = "Kalibrering";
                 UseCalibrationCheck_Label.Text = "Visa kalibreringskontroll i testinställningar";
+                ExportAllSounds_Label.Text = "Exportera alla uppspelade ljud";
                 break;
             default:
 
@@ -84,6 +86,7 @@ public partial class WelcomePageR : ContentView
                 Submit_Button.Text = "Continue";
                 Calibrator_Button.Text = "Calibration";
                 UseCalibrationCheck_Label.Text = "Show calibration check in test settings";
+                ExportAllSounds_Label.Text = "Export all played sounds";
                 break;
         }
 
@@ -215,5 +218,10 @@ public partial class WelcomePageR : ContentView
     private void UseCalibrationCheck_Switch_Toggled(object sender, ToggledEventArgs e)
     {
         OstfBase.ShowCalibrationCheck = e.Value;
+    }
+
+    private void ExportAllSounds_Switch_Toggled(object sender, ToggledEventArgs e)
+    {
+        OstfBase.LogAllPlayedSoundFiles = e.Value;
     }
 }

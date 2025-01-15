@@ -277,7 +277,8 @@ Namespace Utils
 
 
         ''' <summary>
-        ''' Adds the two arrays using fast SIMD (Single Instruction, Multiple Data) operations. Arrays need to be the same lengths, otherwise an exception is thrown.
+        ''' Adds the two arrays. Either fast SIMD (Single Instruction, Multiple Data) operations are used, or if OstfBase.UseOptimizationLibraries is True using the LibOstfDsp.
+        ''' Arrays need to be the same lengths, otherwise an exception is thrown.
         ''' </summary>
         ''' <param name="Array1">The first input/output data array. Upon return this corresponding data array contains the sum of the values in array1 And array2</param>
         ''' <param name="Array2">The the input data array containing the values which should be added to array1</param>
@@ -286,35 +287,41 @@ Namespace Utils
 
             If Array1.Length <> Array2.Length Then Throw New ArgumentException("Arrays 1 and 2 need to have the same lengths.")
 
-            Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
+            If OstfBase.UseOptimizationLibraries = False Then
 
-            Dim i As Integer
-            For i = 0 To Array1.Length - VectorSize Step VectorSize
-                Dim v1 As New System.Numerics.Vector(Of Single)(Array1, i)
-                Dim v2 As New System.Numerics.Vector(Of Single)(Array2, i)
-                v1 += v2
-                v1.CopyTo(Array1, i)
-            Next
+                Dim VectorSize As Integer = System.Numerics.Vector(Of Single).Count
 
-            ' Handle any remaining elements at the end that don't fit into a full vector.
-            For i = i To Array1.Length - 1
-                Array1(i) += Array2(i)
-            Next
+                Dim i As Integer
+                For i = 0 To Array1.Length - VectorSize Step VectorSize
+                    Dim v1 As New System.Numerics.Vector(Of Single)(Array1, i)
+                    Dim v2 As New System.Numerics.Vector(Of Single)(Array2, i)
+                    v1 += v2
+                    v1.CopyTo(Array1, i)
+                Next
+
+                ' Handle any remaining elements at the end that don't fit into a full vector.
+                For i = i To Array1.Length - 1
+                    Array1(i) += Array2(i)
+                Next
 
 
-            'Untested paralell processing alternative
-            'Parallel.For(0, Array1.Length \ VectorSize, Sub(i)
-            '                                                Dim offset = i * VectorSize
-            '                                                Dim v1 As New System.Numerics.Vector(Of Single)(Array1, offset)
-            '                                                Dim v2 As New System.Numerics.Vector(Of Single)(Array2, offset)
-            '                                                v1 += v2
-            '                                                v1.CopyTo(Array1, offset)
-            '                                            End Sub)
+                'Untested paralell processing alternative
+                'Parallel.For(0, Array1.Length \ VectorSize, Sub(i)
+                '                                                Dim offset = i * VectorSize
+                '                                                Dim v1 As New System.Numerics.Vector(Of Single)(Array1, offset)
+                '                                                Dim v2 As New System.Numerics.Vector(Of Single)(Array2, offset)
+                '                                                v1 += v2
+                '                                                v1.CopyTo(Array1, offset)
+                '                                            End Sub)
 
-            '' Handle any remaining elements
-            'For i = (Array1.Length \ VectorSize) * VectorSize To Array1.Length - 1
-            '    Array1(i) += Array2(i)
-            'Next
+                '' Handle any remaining elements
+                'For i = (Array1.Length \ VectorSize) * VectorSize To Array1.Length - 1
+                '    Array1(i) += Array2(i)
+                'Next
+
+            Else
+                LibOstfDsp_VB.AddTwoFloatArrays(Array1, Array2)
+            End If
 
         End Sub
 

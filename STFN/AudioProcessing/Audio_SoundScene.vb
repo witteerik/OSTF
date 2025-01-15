@@ -924,7 +924,39 @@ Namespace Audio.SoundScene
 
         End Sub
 
+        ''' <summary>
+        ''' Returns a representation of the output routing suitable for use in filenames. The string lists hardware output channels for each sound file channel, in the (increasing) order of the sound file channels.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetOutputRoutingToString() As String
 
+            If OutputRouting Is Nothing Then Return ""
+
+            Dim InverseRoutingList As New SortedList(Of Integer, List(Of Integer)) 'Wave sound channel, Hardware output channels
+            For Each kvp In OutputRouting
+
+                Dim WaveSoundChannel = kvp.Value
+                Dim HardwareOutputChannel = kvp.Key
+
+                If InverseRoutingList.ContainsKey(WaveSoundChannel) = False Then
+                    InverseRoutingList.Add(WaveSoundChannel, New List(Of Integer) From {HardwareOutputChannel})
+                Else
+                    InverseRoutingList(WaveSoundChannel).Add(HardwareOutputChannel)
+                End If
+            Next
+
+            Dim WaveChannelSortedOutputRoutings As New List(Of String)
+            For Each kvp In InverseRoutingList
+                WaveChannelSortedOutputRoutings.Add(String.Join("-", kvp.Value))
+            Next
+
+            If WaveChannelSortedOutputRoutings.Count > 0 Then
+                Return String.Join("_", WaveChannelSortedOutputRoutings)
+            Else
+                Return ""
+            End If
+
+        End Function
 
     End Class
 

@@ -72,9 +72,9 @@ Namespace Utils
 
                 If OmitDateInFileName = False Then
                     If LogFileNameWithoutExtension = "" Then
-                        FileNameToUse = "log-" & DateTime.Now.ToShortDateString.Replace("/", "-") & ".txt"
+                        FileNameToUse = "log-" & CreateDateTimeStringForFileNames() & ".txt"
                     Else
-                        FileNameToUse = LogFileNameWithoutExtension & "-" & DateTime.Now.ToShortDateString.Replace("/", "-") & ".txt"
+                        FileNameToUse = LogFileNameWithoutExtension & "-" & CreateDateTimeStringForFileNames() & ".txt"
                     End If
                 Else
                     If LogFileNameWithoutExtension = "" Then
@@ -137,6 +137,35 @@ Namespace Utils
             End Try
 
         End Sub
+
+        ''' <summary>
+        ''' Creates a string containing year month day hours minutes seconds and milliseconds sutiable for use in filenames.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function CreateDateTimeStringForFileNames() As String
+            Return DateTime.Now.ToString("yyyyMMdd_HHmmss_fff")
+        End Function
+
+        Private SoundFileExportFilenameLogLock As New Object
+
+        ''' <summary>
+        ''' Creates the path needed for file export
+        ''' </summary>
+        ''' <param name="RoutingString">This string should contain the output routing for the channels, in the format 
+        ''' 1_2-6_5-6 meaning wave channels 1 goes to hardware channel 1, wave channel 2 goes to  hardware channels 2 and 6, and wave channel 3 goes to hardware channel 5 and 6...</param>
+        ''' <returns></returns>
+        Public Function GetSoundFileExportLogPath(ByVal RoutingString As String) As String
+
+            SyncLock SoundFileExportFilenameLogLock
+
+                Return IO.Path.Combine(logFilePath, "PlayedSoundsLog", CreateDateTimeStringForFileNames() & "_" & RoutingString & ".wav")
+
+                'Sleeps two milliseconds two prevent the same log file name being created twice
+                Thread.Sleep(2)
+
+            End SyncLock
+
+        End Function
 
         Public Sub Errors(ByVal errorText As String, Optional ByVal errorTitle As String = "Error")
 

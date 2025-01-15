@@ -440,6 +440,16 @@ namespace STFM
             //'Setting NewSound to the NewOutputSound to indicate that the output sound should be swapped by the callback
             NewSound = STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.CreateBufferHoldersOnNewThread(ref NewOutputSound, ref Mixer, AudioSettings.FramesPerBuffer, ref NumberOfOutputChannels, BitdepthScaling);
 
+            //Exports the output sound
+            if (NewOutputSound != null)
+            {
+                if (STFN.OstfBase.LogAllPlayedSoundFiles == true)
+                {
+                    string logFilePath = STFN.Utils.Logging.GetSoundFileExportLogPath(Mixer.GetOutputRoutingToString());
+                    NewOutputSound.WriteWaveFile(ref logFilePath);
+                }
+            }
+
             return true;
 
         }

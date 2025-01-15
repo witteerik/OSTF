@@ -260,63 +260,67 @@ Public Class AdaptiveSiP
 
     Private Sub PrepareSounds()
 
-        SpeechMaterialComponent.ClearAllLoadedSounds()
+        Try
 
-        'Collecting sounds
-        Dim SoundsToUse As New SortedList(Of String, Audio.Sound) ' Path, just remember to not overwrite the files!!!
-        For Each Trial In PlannedTestTrials
-            For Each SubTrial As SipTrial In Trial.SubTrials
 
-                'Loading test word sounds
-                For i = 0 To SubTrial.MediaSet.MediaAudioItems - 1
 
-                    Dim SmaComponents As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
-                    Dim LoadedSound = SubTrial.SpeechMaterialComponent.GetSound(SubTrial.MediaSet, i, 1,,,,,,,,, SmaComponents)
+            SpeechMaterialComponent.ClearAllLoadedSounds()
 
-                    If SmaComponents.Count = 1 Then
-                        LoadedSound.SourcePath = SmaComponents(0).SourceFilePath
-                    Else
-                        Throw New Exception("Error in expected test word sound files.")
-                    End If
+            'Collecting sounds
+            Dim SoundsToUse As New SortedList(Of String, Audio.Sound) ' Path, just remember to not overwrite the files!!!
+            For Each Trial In PlannedTestTrials
+                For Each SubTrial As SipTrial In Trial.SubTrials
 
-                    If SoundsToUse.ContainsKey(LoadedSound.SourcePath) = False Then
+                    'Loading test word sounds
+                    For i = 0 To SubTrial.MediaSet.MediaAudioItems - 1
 
-                        'Storing the Nominal level into the sound file as loaded in the (68.34 dB SPL is the reference level used in SiP-test material)
-                        SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = 68.34 - Audio.Standard_dBFS_dBSPL_Difference
-                        SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.InferNominalLevelToAllDescendants()
+                        Dim SmaComponents As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+                        Dim LoadedSound = SubTrial.SpeechMaterialComponent.GetSound(SubTrial.MediaSet, i, 1,,,,,,,,, SmaComponents)
 
-                        SoundsToUse.Add(LoadedSound.SourcePath, LoadedSound)
-                    End If
+                        If SmaComponents.Count = 1 Then
+                            LoadedSound.SourcePath = SmaComponents(0).SourceFilePath
+                        Else
+                            Throw New Exception("Error in expected test word sound files.")
+                        End If
 
-                Next
+                        If SoundsToUse.ContainsKey(LoadedSound.SourcePath) = False Then
 
-                'Loading maskers sounds
-                For i = 0 To SubTrial.MediaSet.MaskerAudioItems - 1
-                    Dim LoadedSound = SubTrial.SpeechMaterialComponent.GetMaskerSound(SubTrial.MediaSet, i)
+                            'Storing the Nominal level into the sound file as loaded in the (68.34 dB SPL is the reference level used in SiP-test material)
+                            SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = 68.34 - Audio.Standard_dBFS_dBSPL_Difference
+                            SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.InferNominalLevelToAllDescendants()
 
-                    If SoundsToUse.ContainsKey(LoadedSound.SourcePath) = False Then
+                            SoundsToUse.Add(LoadedSound.SourcePath, LoadedSound)
+                        End If
 
-                        'Setting all maskers to their ReferenceContrastingPhonemesLevel_SPL (converted to dB FS)
+                    Next
 
-                        Dim CentralRegionLevel = LoadedSound.SMA.ChannelData(1)(0)(1).UnWeightedLevel
-                        Dim TargetCentralRegionLevel = SubTrial.ReferenceContrastingPhonemesLevel_SPL - Audio.Standard_dBFS_dBSPL_Difference
+                    'Loading maskers sounds
+                    For i = 0 To SubTrial.MediaSet.MaskerAudioItems - 1
+                        Dim LoadedSound = SubTrial.SpeechMaterialComponent.GetMaskerSound(SubTrial.MediaSet, i)
 
-                        Dim GainToTargetLevel = TargetCentralRegionLevel - CentralRegionLevel
-                        Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
+                        If SoundsToUse.ContainsKey(LoadedSound.SourcePath) = False Then
 
-                        ''Shortering the maskers if TaskStandardTime is less than three seconds (standard masker length)
-                        'Dim MaskerDuration As Double = LoadedSound.WaveData.SampleData(1).Length / LoadedSound.WaveFormat.SampleRate
-                        'If TaskStandardTime < MaskerDuration Then
+                            'Setting all maskers to their ReferenceContrastingPhonemesLevel_SPL (converted to dB FS)
 
-                        '    Dim ProportionToUse = TaskStandardTime / MaskerDuration
-                        '    Dim CropLength As Integer = System.Math.Floor(ProportionToUse * LoadedSound.WaveData.SampleData(1).Length)
-                        '    Dim CropStartSample As Integer = System.Math.Floor((LoadedSound.WaveData.SampleData(1).Length - CropLength) / 2)
-                        '    Audio.DSP.CropSection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), CropStartSample, CropLength)
+                            Dim CentralRegionLevel = LoadedSound.SMA.ChannelData(1)(0)(1).UnWeightedLevel
+                            Dim TargetCentralRegionLevel = SubTrial.ReferenceContrastingPhonemesLevel_SPL - Audio.Standard_dBFS_dBSPL_Difference
 
-                        'End If
+                            Dim GainToTargetLevel = TargetCentralRegionLevel - CentralRegionLevel
+                            Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
 
-                        'Storing the new CentralRegionLevel as the Nominal level
-                        SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = TargetCentralRegionLevel
+                            ''Shortering the maskers if TaskStandardTime is less than three seconds (standard masker length)
+                            'Dim MaskerDuration As Double = LoadedSound.WaveData.SampleData(1).Length / LoadedSound.WaveFormat.SampleRate
+                            'If TaskStandardTime < MaskerDuration Then
+
+                            '    Dim ProportionToUse = TaskStandardTime / MaskerDuration
+                            '    Dim CropLength As Integer = System.Math.Floor(ProportionToUse * LoadedSound.WaveData.SampleData(1).Length)
+                            '    Dim CropStartSample As Integer = System.Math.Floor((LoadedSound.WaveData.SampleData(1).Length - CropLength) / 2)
+                            '    Audio.DSP.CropSection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), CropStartSample, CropLength)
+
+                            'End If
+
+                            'Storing the new CentralRegionLevel as the Nominal level
+                            SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = TargetCentralRegionLevel
                             SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.InferNominalLevelToAllDescendants()
 
                             'Check the level (it should agree with TargetCentralRegionLevel)
@@ -324,42 +328,45 @@ Public Class AdaptiveSiP
 
                             SoundsToUse.Add(LoadedSound.SourcePath, LoadedSound)
                         End If
-                Next
+                    Next
 
-                'Loading the background sound
-                For i = 0 To 0 ' There's only one such sound available for he SiP-test (TODO: and also, their numbers aren't specified in the MediaSet class. Perhaps that should be changed in the future?)
-                    Dim LoadedSound = SubTrial.SpeechMaterialComponent.GetBackgroundNonspeechSound(SubTrial.MediaSet, i)
+                    'Loading the background sound
+                    For i = 0 To 0 ' There's only one such sound available for he SiP-test (TODO: and also, their numbers aren't specified in the MediaSet class. Perhaps that should be changed in the future?)
+                        Dim LoadedSound = SubTrial.SpeechMaterialComponent.GetBackgroundNonspeechSound(SubTrial.MediaSet, i)
 
-                    If SoundsToUse.ContainsKey(LoadedSound.SourcePath) = False Then
+                        If SoundsToUse.ContainsKey(LoadedSound.SourcePath) = False Then
 
-                        'Measure the LoadedSound
-                        Dim ActualLevel_dBFS = Audio.DSP.MeasureSectionLevel(LoadedSound, 1)
+                            'Measure the LoadedSound
+                            Dim ActualLevel_dBFS = Audio.DSP.MeasureSectionLevel(LoadedSound, 1)
 
-                        'Setting it to the intended BackgroundNonspeechRealisticLevel (with 2 sound sources, i.e. appr - 3 dB), so that it does not have to be modified when used later
-                        Dim TargetLevel_dBFS = SubTrial.MediaSet.BackgroundNonspeechRealisticLevel - Audio.Standard_dBFS_dBSPL_Difference - 10 * System.Math.Log10(2)
+                            'Setting it to the intended BackgroundNonspeechRealisticLevel (with 2 sound sources, i.e. appr - 3 dB), so that it does not have to be modified when used later
+                            Dim TargetLevel_dBFS = SubTrial.MediaSet.BackgroundNonspeechRealisticLevel - Audio.Standard_dBFS_dBSPL_Difference - 10 * System.Math.Log10(2)
 
-                        Dim GainToTargetLevel = TargetLevel_dBFS - ActualLevel_dBFS
-                        Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
+                            Dim GainToTargetLevel = TargetLevel_dBFS - ActualLevel_dBFS
+                            Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
 
-                        'Storing the new TargetLevel_dBFS as the Nominal level
-                        SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = TargetLevel_dBFS
-                        SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.InferNominalLevelToAllDescendants()
+                            'Storing the new TargetLevel_dBFS as the Nominal level
+                            SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = TargetLevel_dBFS
+                            SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.InferNominalLevelToAllDescendants()
 
-                        'Check the level (it should agree with TargetLevel_dBFS)
-                        'Dim CheckLevel = Audio.DSP.MeasureSectionLevel(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), 1)
+                            'Check the level (it should agree with TargetLevel_dBFS)
+                            'Dim CheckLevel = Audio.DSP.MeasureSectionLevel(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), 1)
 
-                        'SubTrial.ReferenceContrastingPhonemesLevel_SPL = 
+                            'SubTrial.ReferenceContrastingPhonemesLevel_SPL = 
 
 
-                        SoundsToUse.Add(LoadedSound.SourcePath, LoadedSound)
-                    End If
+                            SoundsToUse.Add(LoadedSound.SourcePath, LoadedSound)
+                        End If
+                    Next
                 Next
             Next
-        Next
 
-        'Now all sounds needed in the test should have been loaded
+            'Now all sounds needed in the test should have been loaded
 
 
+        Catch ex As Exception
+            Messager.MsgBox(ex.ToString)
+        End Try
 
 
     End Sub

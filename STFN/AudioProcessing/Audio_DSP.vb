@@ -1285,7 +1285,9 @@ Namespace Audio
                         For c = 1 To OutputSound.WaveFormat.Channels
                             Dim OutputSoundChannelArray = OutputSoundLayers(0)(c)
                             For i = 1 To InputSounds.Count - 1
-                                LibOstfDsp_VB.AddTwoFloatArrays(OutputSoundChannelArray, OutputSoundLayers(i)(c))
+
+                                Utils.AddTwoArrays(OutputSoundChannelArray, OutputSoundLayers(i)(c))
+
                             Next
                             OutputSound.WaveData.SampleData(c) = OutputSoundChannelArray
                         Next

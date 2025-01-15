@@ -49,6 +49,9 @@ Public Module OstfBase
     ''' <returns></returns>
     Public Property ShowCalibrationCheck As Boolean = False
 
+
+    Public Property LogAllPlayedSoundFiles As Boolean = False
+
     ' Log location 
 
 

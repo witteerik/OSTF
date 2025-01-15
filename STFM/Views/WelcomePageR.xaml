@@ -49,12 +49,12 @@
         </Frame>
 
         <Grid Grid.Row="2" Grid.Column="0" 
-                RowDefinitions= "1*, 1*"
+                RowDefinitions= "1*, 1* ,1*"
                 ColumnDefinitions="3*,1*"
                 HorizontalOptions="Center" VerticalOptions="End" 
                 WidthRequest="400" Margin="0,0,0,15" >
 
-            <Label x:Name="UseCalibrationCheck_Label" 
+            <Label x:Name="ExportAllSounds_Label" 
                        Grid.Row="0" Grid.Column="0"  
                        HorizontalOptions="Fill" 
                        VerticalOptions="Fill" 
@@ -62,13 +62,26 @@
                        HorizontalTextAlignment="Center"
                        Padding="0,0,10,0"/>
 
-            <Switch x:Name="UseCalibrationCheck_Switch" 
+            <Switch x:Name="ExportAllSounds_Switch" 
                         Grid.Row="0" Grid.Column="1"  
+                        IsToggled="False" Toggled="ExportAllSounds_Switch_Toggled" 
+                        HorizontalOptions="Center" VerticalOptions="Fill" />
+
+            <Label x:Name="UseCalibrationCheck_Label" 
+                       Grid.Row="1" Grid.Column="0"  
+                       HorizontalOptions="Fill" 
+                       VerticalOptions="Fill" 
+                       VerticalTextAlignment="Center"
+                       HorizontalTextAlignment="Center"
+                       Padding="0,0,10,0"/>
+
+            <Switch x:Name="UseCalibrationCheck_Switch" 
+                        Grid.Row="1" Grid.Column="1"  
                         IsToggled="False" Toggled="UseCalibrationCheck_Switch_Toggled"  
                         HorizontalOptions="Center" VerticalOptions="Fill" />
 
             <Button x:Name="Calibrator_Button" 
-                        Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                        Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
                         HorizontalOptions="Fill" VerticalOptions="Fill" 
                         Clicked="Calibrator_Button_Clicked" 
                         BackgroundColor="Red"></Button>
