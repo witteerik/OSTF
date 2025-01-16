@@ -34,9 +34,10 @@
 		<PackageCertificateKeyFile>OstfTabletSuite_TemporaryKey.pfx</PackageCertificateKeyFile>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
-		<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
 		<GenerateTestArtifacts>True</GenerateTestArtifacts>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -107,7 +108,23 @@
 	<ItemGroup>
 	  <MauiIcon Include="Resources\AppIcon\appicon.jpg" />
 	</ItemGroup>
-	
+
+  <!-- Android -->
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != true">
+    <Compile Remove="**\**\*.android.cs" />
+    <None Include="**\**\*.android.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <Compile Remove="**\android\**\*.cs" />
+    <None Include="**\android\**\*.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+  </ItemGroup>
+
+  <!-- Non-Android -->
+  <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != false">
+    <Compile Remove="**\**\*.non-andrd.cs" />
+    <None Include="**\**\*.non-andrd.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+    <Compile Remove="**\non-andrd\**\*.cs" />
+    <None Include="**\non-andrd\**\*.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="7.0.1" />
 		<PackageReference Include="MathNet.Numerics" Version="5.0.0" />
@@ -124,6 +141,10 @@
 	
 	<ItemGroup>
 	  <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.7" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Properties\PublishProfiles\" />
 	</ItemGroup>
 	
 	<ItemGroup>

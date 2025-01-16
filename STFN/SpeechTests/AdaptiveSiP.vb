@@ -123,9 +123,9 @@ Public Class AdaptiveSiP
         'Setting the start PNR value. (Easier in the practise test.)
         Dim InitialAdaptiveValue As Double
         If IsPractiseTest = True Then
-            InitialAdaptiveValue = 14
+            InitialAdaptiveValue = 8
         Else
-            InitialAdaptiveValue = 10
+            InitialAdaptiveValue = 8
         End If
 
         TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = InitialAdaptiveValue, .TestStage = 0, .TestLength = TrialCount})
