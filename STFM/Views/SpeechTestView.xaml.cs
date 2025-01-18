@@ -793,6 +793,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                             Application.Current.OpenWindow(secondWindow);
                         }
 
+                        // Testing with a basic text only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
                         break;
 
                     case "Svenska HINT":
@@ -818,6 +823,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                         CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
+                        // Testing with a basic text only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
                         break;
 
 
@@ -839,6 +849,11 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         TestReponseGrid.Children.Add(CurrentResponseView);
 
+                        // Testing with a basic text only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
                         break;
 
 
@@ -858,6 +873,12 @@ public partial class SpeechTestView : ContentView, IDrawable
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
                         TestReponseGrid.Children.Add(CurrentResponseView);
+
+                        // Testing with a basic text only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultView_Adaptive();
+                        //CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
 
                         break;
 
@@ -893,6 +914,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                         CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
+                        // Testing with a basic text only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
                         break;
 
 
@@ -914,6 +940,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                         TestReponseGrid.Children.Add(CurrentResponseView);
 
                         CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
+
+                        // Testing with a basic text only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
 
                         break;
 
@@ -948,6 +979,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                         CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
+                        // Testing with a basic text only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
                         break;
 
                     case "SiP-testet (Adaptivt)":
@@ -956,6 +992,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                         TestReponseGrid.Children.Add(CurrentResponseView);
                         CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
 
+                        // Testing with a basic text only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
                         break;
 
                     case "SiP-testet (Adaptivt) - Övning":
@@ -963,6 +1004,11 @@ public partial class SpeechTestView : ContentView, IDrawable
                         CurrentResponseView = new ResponseView_AdaptiveSiP();
                         TestReponseGrid.Children.Add(CurrentResponseView);
                         CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
+
+                        // Testing with a basic text only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
 
                         break;
 
@@ -1712,14 +1758,10 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Showing result panel
         SetBottomPanelShow(true);
 
-        // TODO: Present results in some way
-        // Use "results" to generate some kind of results view
-
-        // Testing with a basic text only view
-        TestResultGrid.Children.Clear();
-        CurrentTestResultsView = new TestResultsView_Text();
-        TestResultGrid.Children.Add(CurrentTestResultsView);
-        CurrentTestResultsView.ShowTestResults(results);
+        if (CurrentTestResultsView != null)
+        {
+            CurrentTestResultsView.ShowTestResults(results);
+        }
 
         // Also shows the settings panel
         SetLeftPanelShow(true);
