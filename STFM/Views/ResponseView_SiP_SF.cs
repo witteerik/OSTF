@@ -33,8 +33,8 @@ public class ResponseView_SiP_SF : ResponseView
 
         // Creating a main grid
         MainGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
-        MainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(25, GridUnitType.Star) });
         MainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        MainGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(30, GridUnitType.Absolute) });
         for (int i = 0; i < 3; i++)
         {
             MainGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
@@ -64,6 +64,8 @@ public class ResponseView_SiP_SF : ResponseView
         ProgressBarFrame.Content = PtcProgressBar;
         MainGrid.Add(ProgressBarFrame, 0, 1);
         MainGrid.SetColumnSpan(ProgressBarFrame, 3);
+        // Hides the progress-bar frame, until used
+        ProgressBarFrame.IsVisible = false;
 
 
         ResponseAlternativeFrame = new Frame
@@ -92,7 +94,6 @@ public class ResponseView_SiP_SF : ResponseView
 
         if (ResponseAlternativeGrid != null) { ResponseAlternativeGrid.Clear(); }
 
-        ProgressBarFrame.IsVisible = true;
     }
 
     public override void StopAllTimers()
@@ -245,13 +246,14 @@ public class ResponseView_SiP_SF : ResponseView
 
     public void ClearMainGrid()
     {
-        ResponseAlternativeFrame.IsVisible = false;
+        //ResponseAlternativeFrame.IsVisible = false;
         if (ResponseAlternativeGrid != null) { ResponseAlternativeGrid.Clear(); }
         MainGrid.Remove(MessageButton);
     }
 
     public override void HideVisualCue()
     {
+        // Ignored in this view
         //throw new NotImplementedException();
     }
 
@@ -307,6 +309,7 @@ public class ResponseView_SiP_SF : ResponseView
 
     public override void ShowVisualCue()
     {
+        // Ignored in this view
         //throw new NotImplementedException();
     }
 
@@ -314,6 +317,7 @@ public class ResponseView_SiP_SF : ResponseView
     {
         if (PtcProgressBar != null)
         {
+            ProgressBarFrame.IsVisible = true;
             double range = Maximum - Minimum;
             double progressProp = Value / range;
             await PtcProgressBar.ProgressTo(progressProp, 50, Easing.Linear);
@@ -334,6 +338,7 @@ public class ResponseView_SiP_SF : ResponseView
     public override void HideAllItems()
     {
         ClearMainGrid();
+        ResponseAlternativeFrame.IsVisible = false;
         ProgressBarFrame.IsVisible = false;
     }
 

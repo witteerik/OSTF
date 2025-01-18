@@ -898,8 +898,19 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     case "Quick SiP":
 
-                        CurrentResponseView = new ResponseView_SiP_SF();
-                        //CurrentResponseView = new ResponseView_Mafc();
+
+                        // Response view
+                        if (CurrentSpeechTest.Transducer.IsHeadphones())
+                        {
+                            // Using normal mafc response view when presented in headphones
+                            CurrentResponseView = new ResponseView_Mafc();
+                        }
+                        else
+                        {
+                            // Using mafc response view with side-panel presentation (for head movements) when presented in sound field
+                            CurrentResponseView = new ResponseView_SiP_SF();
+                        }
+
                         TestReponseGrid.Children.Add(CurrentResponseView);
 
                         CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
@@ -1227,8 +1238,11 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Note that this is allways done twice, both before and after the SleepMilliseconds delay described below.
         if (TestIsPaused == true) { return; }
 
-
-        int SleepMilliseconds = 10;
+        
+        int SleepMilliseconds = 300; // N.B. The dalay works fine at 10 ms, but if we need to show a GUI response such as flashing the response
+                                     // alternatives in red when no response is given, this delay needs to be longer. Setting it to 300 ms across all tests forces an extra interstimulus interval of 300 ms. 
+                                     // Perhaps this should be set specifically by each test...
+        //int SleepMilliseconds = 10;
         // A call to this method should allways be done from a worker thread, in order to allow the GUI to be updated after a response is given.
         // Effectively, the delay places the calls made in this method later in the MainThread Que than the GUI update. (Or at least, that's what I think it does...)
         // However, to avoid problems associated with multiple threads in the application, the call is directed back to the main thread already at this point,
@@ -1261,7 +1275,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
 
 
-        switch (CurrentSpeechTest.GetSpeechTestReply(sender, e))
+        var SpeechTestReply = CurrentSpeechTest.GetSpeechTestReply(sender, e);
+        switch (SpeechTestReply)
         {
 
             case SpeechTest.SpeechTestReplies.ContinueTrial:
@@ -1325,11 +1340,14 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         }
 
-        // Updating progress 
-        STFN.Utils.ProgressInfo CurrentProgress = CurrentSpeechTest.GetProgress();
-        if (CurrentProgress != null)
+        // Updating progress (if test is not completed)
+        if (SpeechTestReply != SpeechTest.SpeechTestReplies.TestIsCompleted)
         {
-            UpdateTestFormProgressbar(CurrentProgress.Value, CurrentProgress.Maximum, CurrentProgress.Minimum);
+            STFN.Utils.ProgressInfo CurrentProgress = CurrentSpeechTest.GetProgress();
+            if (CurrentProgress != null)
+            {
+                UpdateTestFormProgressbar(CurrentProgress.Value, CurrentProgress.Maximum, CurrentProgress.Minimum);
+            }
         }
 
         // Showing results if results view is visible

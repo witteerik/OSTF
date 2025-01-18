@@ -24,6 +24,9 @@ namespace STFM.Views
             OrderGrid.IsVisible = false;
             MessageButton.IsVisible = false;
 
+            // Hides the ProgressFrame until used
+            ProgressFrame.IsVisible = false;
+
             // Assign the custom drawable to the GraphicsView
             ArrowView.Drawable = new ArrowDrawable(ArrowView);
             ArrowDrawable arrowDrawable = (ArrowDrawable)ArrowView.Drawable;
@@ -63,6 +66,7 @@ namespace STFM.Views
             TestWordMatrix.IsVisible = false;
             MessageButton.IsVisible = false;
             OrderGrid.IsVisible = false;
+            ProgressFrame.IsVisible = false;    
         }
 
         private void ResetGui_TimerTick(object sender, EventArgs e)
@@ -365,6 +369,7 @@ namespace STFM.Views
 
         public async override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
         {
+            ProgressFrame.IsVisible = true;
             double range = Maximum - Minimum;
             double progressProp = Value / range;
             await PtcProgressBar.ProgressTo(progressProp, 50, Easing.Linear);
