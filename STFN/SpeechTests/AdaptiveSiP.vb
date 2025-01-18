@@ -63,6 +63,8 @@ Public Class AdaptiveSiP
 
     Private TaskStandardTime As Double = 3 ' The time each test word sound occupies
 
+    Private PractisePNR As Double = 8
+    Private StartPNR As Double = 8
 
     Private PlannedTestTrials As New TestTrialCollection
     Protected ObservedTrials As New TestTrialCollection
@@ -74,7 +76,7 @@ Public Class AdaptiveSiP
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        Transducer = AvaliableTransducers(0)
+        'Transducer = AvaliableTransducers(0)
 
         CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, AdaptiveTypes.Fixed, SelectedTestparadigm)
 
@@ -123,9 +125,9 @@ Public Class AdaptiveSiP
         'Setting the start PNR value. (Easier in the practise test.)
         Dim InitialAdaptiveValue As Double
         If IsPractiseTest = True Then
-            InitialAdaptiveValue = 8
+            InitialAdaptiveValue = PractisePNR
         Else
-            InitialAdaptiveValue = 8
+            InitialAdaptiveValue = StartPNR
         End If
 
         TestProtocol.InitializeProtocol(New TestProtocol.NextTaskInstruction With {.AdaptiveValue = InitialAdaptiveValue, .TestStage = 0, .TestLength = TrialCount})
@@ -522,6 +524,11 @@ Public Class AdaptiveSiP
             PlannedTestTrials.RemoveAt(0)
 
             ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
+
+            'Overriding the adaptive level in the ProtocolReply by the start level if in practise test mode
+            If IsPractiseTest = True Then
+                ProtocolReply.AdaptiveValue = PractisePNR
+            End If
 
             ''Updating the speech level only after three trials (i.e. when all words in each TWG has been presented)
             'If ObservedTrials.Count Mod 3 = 0 Then
