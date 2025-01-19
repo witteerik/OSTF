@@ -142,6 +142,10 @@ namespace STFM.Views
         {
 
             StopAllTimers();
+
+            TestWordMatrix.IsVisible = false;
+            OrderGrid.IsVisible = false; 
+
             MessageButton.IsVisible = true;
             MessageButton.Text = Message;
             MessageButton.FontSize = 25;

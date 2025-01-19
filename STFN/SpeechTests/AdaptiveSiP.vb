@@ -48,6 +48,10 @@ Public Class AdaptiveSiP
 
         ResponseAlternativeDelay = 0.1
 
+        SupportsManualPausing = True
+
+        GuiResultType = GuiResultTypes.VisualResults
+
     End Sub
 
     <ExludeFromPropertyListing>
@@ -120,7 +124,7 @@ Public Class AdaptiveSiP
         'End If
 
         'Creating a test protocol
-        TestProtocol = New BrandKollmeier2002_TestProtocol() With {.TargetThreshold = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
+        TestProtocol = New BrandKollmeier2002_TestProtocol() With {.TargetScore = 2 / 3} 'Setting the target threshold to 2/3 as this is the expected midpoint of the psychometric function, given that chance score is 1/3.
 
         'Setting the start PNR value. (Easier in the practise test.)
         Dim InitialAdaptiveValue As Double
@@ -502,7 +506,11 @@ Public Class AdaptiveSiP
                 If ResponseSpelling = "" Then
                     'Randomizing a score 
                     Dim PossibleScoresList As New List(Of Integer) From {1, 0, 0}
-                    CurrentTestTrial.ScoreList.Add(PossibleScoresList(CurrentSipTestMeasurement.Randomizer.Next(0, PossibleScoresList.Count)))
+                    Dim RandomScore = PossibleScoresList(CurrentSipTestMeasurement.Randomizer.Next(0, PossibleScoresList.Count))
+                    CurrentTestTrial.ScoreList.Add(RandomScore)
+
+                    'Adding the score also to the subtrial
+                    CurrentTestTrial.SubTrials(i).ScoreList.Add(RandomScore)
 
                 Else
 
@@ -510,8 +518,16 @@ Public Class AdaptiveSiP
                     Dim CorrectSpelling As String = CurrentTestTrial.SubTrials(i).SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
                     If ResponseSpelling = CorrectSpelling Then
                         CurrentTestTrial.ScoreList.Add(1)
+
+                        'Adding the score also to the subtrial
+                        CurrentTestTrial.SubTrials(i).ScoreList.Add(1)
+
                     Else
                         CurrentTestTrial.ScoreList.Add(0)
+
+                        'Adding the score also to the subtrial
+                        CurrentTestTrial.SubTrials(i).ScoreList.Add(0)
+
                     End If
                 End If
             Next
@@ -768,6 +784,37 @@ Public Class AdaptiveSiP
         End If
 
         Return String.Join(vbCrLf, TestResultSummaryLines)
+
+    End Function
+
+    Public Function GetSubGroupResults() As SortedList(Of String, Double)
+
+        Dim SubScoreList As New SortedList(Of String, List(Of Integer))
+
+        Dim ObservedTrials = GetObservedTestTrials()
+        If ObservedTrials.Count = 0 Then Return Nothing
+
+        For Each Trial In ObservedTrials
+
+            For Each SubTrial In Trial.SubTrials
+
+                Dim SubGroupName = SubTrial.SpeechMaterialComponent.ParentComponent.PrimaryStringRepresentation.Replace("_", ", ")
+                Dim Score As Double = SubTrial.ScoreList.Average
+
+                If SubScoreList.ContainsKey(SubGroupName) = False Then SubScoreList.Add(SubGroupName, New List(Of Integer))
+
+                SubScoreList(SubGroupName).Add(Score)
+
+            Next
+
+        Next
+
+        Dim Output As New SortedList(Of String, Double)
+        For Each kvp In SubScoreList
+            Output.Add(kvp.Key, kvp.Value.Average)
+        Next
+
+        Return Output
 
     End Function
 

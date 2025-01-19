@@ -189,4 +189,8 @@
         FinalThreshold = Double.NaN
     End Sub
 
+    Public Overrides Function GetCurrentAdaptiveValue() As Double?
+        Return NextAdaptiveLevel
+    End Function
+
 End Class

@@ -2367,6 +2367,13 @@ Public MustInherit Class SpeechTest
 
 #Region "TestResults"
 
+    Public Enum GuiResultTypes
+        StringResults
+        VisualResults
+    End Enum
+
+    Public GuiResultType As GuiResultTypes = GuiResultTypes.StringResults
+
     Public Shared Function GetAverageScore(ByVal Trials As IEnumerable(Of TestTrial)) As Double?
 
         Dim ScoreList As New List(Of Integer)

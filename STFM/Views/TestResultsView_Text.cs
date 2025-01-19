@@ -29,4 +29,15 @@ public class TestResultsView_Text : TestResultsView
     {
         ResultsLabel.Text = results;
      }
+
+    public override void ShowTestResults(SpeechTest speechTest)
+    {
+
+    }
+
+    public override void UpdateStartButtonText(string text) 
+    {
+        // Ignores this
+    }
+
 }

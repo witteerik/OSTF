@@ -18,6 +18,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     ResponseView CurrentResponseView;
     TestResultsView CurrentTestResultsView;
+    Window CurrentExternalTestResultWindow;
 
     string SelectedSpeechMaterialName = "";
 
@@ -142,6 +143,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Setting a default talkback gain 
         TalkbackGain = 0;
 
+        // Views the settings view
+        SetLayoutConfiguration(LayoutConfiguration.Settings);
+
     }
 
     #region Region_panels_show_hide
@@ -168,64 +172,104 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-    private void SetBottomPanelShow(bool show)
+
+    private bool HasExternalResultsView = false;
+
+    private enum LayoutConfiguration
+    {
+        Settings,
+        Settings_Result_Response,
+        Settings_Response,
+        Response_Result,
+        Settings_Result,
+        Response
+    }
+
+    private void SetLayoutConfiguration(LayoutConfiguration layoutConfiguration)
     {
 
-        // Directing the call to the main thread if not already on the main thread
-        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [show]); }); return; }
+        MainSpeechTestGrid.Clear();
 
-        // Storing the original height specified in the xaml code, so that it can be reused.
-        if (originalBottomPanelHeight == null)
+        switch (layoutConfiguration)
         {
-            originalBottomPanelHeight = RightSideGrid.RowDefinitions[1];
-        }
+            case LayoutConfiguration.Settings:
 
-        if (show)
-        {
-            TestResultGrid.IsVisible = true;
-            RightSideGrid.RowDefinitions[1] = originalBottomPanelHeight;
-        }
-        else
-        {
-            TestResultGrid.IsVisible = false;
-            RightSideGrid.RowDefinitions[1] = new RowDefinition(0);
+                MainSpeechTestGrid.Add(TestSettingsGrid, 0, 0);
+                MainSpeechTestGrid.SetColumnSpan(TestSettingsGrid, 2);
+                MainSpeechTestGrid.SetRowSpan(TestSettingsGrid, 2);
+
+                break;
+            case LayoutConfiguration.Settings_Result_Response:
+
+                MainSpeechTestGrid.Add(TestSettingsGrid, 0, 0);
+                MainSpeechTestGrid.SetColumnSpan(TestSettingsGrid, 1);
+                MainSpeechTestGrid.SetRowSpan(TestSettingsGrid, 2);
+
+                MainSpeechTestGrid.Add(TestResultGrid, 1, 0);
+                MainSpeechTestGrid.SetColumnSpan(TestResultGrid, 1);
+                MainSpeechTestGrid.SetRowSpan(TestResultGrid, 1);
+
+                MainSpeechTestGrid.Add(TestReponseGrid, 1, 1);
+                MainSpeechTestGrid.SetColumnSpan(TestReponseGrid, 1);
+                MainSpeechTestGrid.SetRowSpan(TestReponseGrid, 1);
+
+                break;
+            case LayoutConfiguration.Settings_Response:
+
+                MainSpeechTestGrid.Add(TestSettingsGrid, 0, 0);
+                MainSpeechTestGrid.SetColumnSpan(TestSettingsGrid, 1);
+                MainSpeechTestGrid.SetRowSpan(TestSettingsGrid, 2);
+
+                MainSpeechTestGrid.Add(TestReponseGrid, 1, 0);
+                MainSpeechTestGrid.SetColumnSpan(TestReponseGrid, 1);
+                MainSpeechTestGrid.SetRowSpan(TestReponseGrid, 2);
+
+                break;
+            case LayoutConfiguration.Response_Result:
+
+                MainSpeechTestGrid.Add(TestResultGrid, 0, 0);
+                MainSpeechTestGrid.SetColumnSpan(TestResultGrid, 2);
+                MainSpeechTestGrid.SetRowSpan(TestResultGrid, 1);
+
+                MainSpeechTestGrid.Add(TestReponseGrid, 0, 1);
+                MainSpeechTestGrid.SetColumnSpan(TestReponseGrid, 2);
+                MainSpeechTestGrid.SetRowSpan(TestReponseGrid, 1);
+
+                break;
+
+            case LayoutConfiguration.Settings_Result:
+
+                MainSpeechTestGrid.Add(TestSettingsGrid, 0, 0);
+                MainSpeechTestGrid.SetColumnSpan(TestSettingsGrid, 1);
+                MainSpeechTestGrid.SetRowSpan(TestSettingsGrid, 2);
+
+                MainSpeechTestGrid.Add(TestResultGrid, 1, 0);
+                MainSpeechTestGrid.SetColumnSpan(TestResultGrid, 1);
+                MainSpeechTestGrid.SetRowSpan(TestResultGrid, 2);
+
+                break;
+            case LayoutConfiguration.Response:
+
+                MainSpeechTestGrid.Add(TestReponseGrid, 0, 0);
+                MainSpeechTestGrid.SetColumnSpan(TestReponseGrid, 2);
+                MainSpeechTestGrid.SetRowSpan(TestReponseGrid, 2);
+
+                break;
+            default:
+                break;
         }
 
     }
 
-    private void SetLeftPanelShow(bool show)
-    {
-
-        // Directing the call to the main thread if not already on the main thread
-        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [show]); }); return; }
-
-
-        // Storing the original width specified in the xaml code, so that it can be reused.
-        if (originalLeftPanelWidth == null)
-        {
-            originalLeftPanelWidth = MainSpeechTestGrid.ColumnDefinitions[0];
-        }
-
-        if (show)
-        {
-            TestSettingsGrid.IsVisible = true;
-            MainSpeechTestGrid.ColumnDefinitions[0] = originalLeftPanelWidth;
-        }
-        else
-        {
-            TestSettingsGrid.IsVisible = false;
-            MainSpeechTestGrid.ColumnDefinitions[0] = new ColumnDefinition(0);
-        }
-    }
 
     public void OnEnterFullScreenMode(Object sender, EventArgs e)
     {
-        SetLeftPanelShow(false);
+        SetLayoutConfiguration(LayoutConfiguration.Response);
     }
 
     public void OnExitFullScreenMode(Object sender, EventArgs e)
     {
-        SetLeftPanelShow(true);
+        SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
     }
 
     #endregion
@@ -271,6 +315,36 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         // Setting TestIsInitiated to false to allow starting a new test
         TestIsInitiated = false;
+
+        // Restting HasExternalResultsView 
+        HasExternalResultsView = false;
+
+        //// Closing any previous external test-results window
+        //if (CurrentExternalTestResultWindow != null)
+        //{
+        //    try
+        //    {
+        //        Application.Current.CloseWindow(CurrentExternalTestResultWindow);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        // Ignores any error here for now
+        //    }
+        //}
+
+        // Closing all extra windows (such as testresult windows) except this first one
+        var windows = Application.Current.Windows.ToList();
+        foreach (Window window in windows)
+        {
+            if (window != this.Window)
+            {
+                Application.Current.CloseWindow(window);
+            }
+        }
+
+
+        // Setting layout
+        SetLayoutConfiguration(LayoutConfiguration.Settings);
 
         // Resets the text on the start button, as this may have been changed if test was paused.
         switch (STFN.SharedSpeechTestObjects.GuiLanguage)
@@ -346,7 +420,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     // Updating settings needed for the loaded test
                     OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
 
-                    SetBottomPanelShow(false);
+                    SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
                     StartTestBtn.IsEnabled = false;
 
                     var audioMeterView = new ScreeningAudiometerView();
@@ -377,7 +451,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     // Updating settings needed for the loaded test
                     OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
 
-                    SetBottomPanelShow(false);
+                    SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
+
                     StartTestBtn.IsEnabled = false;
 
                     var audiometerCalibView = new ScreeningAudiometerView();
@@ -540,6 +615,35 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsASipTestView);
                     CurrentTestOptionsView = newOptionsASipTestView;
 
+
+                    // Creating test result view
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    {
+
+                        HasExternalResultsView = true;
+
+                        CurrentTestResultsView = new TestResultView_Adaptive();
+
+                        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
+                        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
+                        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
+
+                        TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
+                        CurrentExternalTestResultWindow = new Window(NewTestResultPage);
+                        CurrentExternalTestResultWindow.Title = "Test result view";
+                        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
+
+                    }
+                    else
+                    {
+
+                        // Using a basic text-only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
+                    }
+
                     break;
 
                 case "SiP-testet (Adaptivt) - Övning":
@@ -558,6 +662,30 @@ public partial class SpeechTestView : ContentView, IDrawable
                     var newOptionsPASipTestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsPASipTestView);
                     CurrentTestOptionsView = newOptionsPASipTestView;
+
+
+                    // Creating test result view
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    {
+
+                        CurrentTestResultsView = new TestResultView_Adaptive();
+
+                        TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
+                        Window NewTestResultWindow = new Window(NewTestResultPage);
+                        NewTestResultWindow.Title = "Test result view";
+                        Application.Current.OpenWindow(NewTestResultWindow);
+
+                    }
+                    else
+                    {
+
+                        // Using a basic text-only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
+                    }
+
 
                     break;
 
@@ -876,8 +1004,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         // Testing with a basic text only view
                         TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultView_Adaptive();
-                        //CurrentTestResultsView = new TestResultsView_Text();
+                        //CurrentTestResultsView = new TestResultView_Adaptive();
+                        CurrentTestResultsView = new TestResultsView_Text();
                         TestResultGrid.Children.Add(CurrentTestResultsView);
 
                         break;
@@ -992,11 +1120,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                         TestReponseGrid.Children.Add(CurrentResponseView);
                         CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
 
-                        // Testing with a basic text only view
-                        TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
-                        TestResultGrid.Children.Add(CurrentTestResultsView);
-
                         break;
 
                     case "SiP-testet (Adaptivt) - Övning":
@@ -1004,11 +1127,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                         CurrentResponseView = new ResponseView_AdaptiveSiP();
                         TestReponseGrid.Children.Add(CurrentResponseView);
                         CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-
-                        // Testing with a basic text only view
-                        TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
-                        TestResultGrid.Children.Add(CurrentTestResultsView);
 
                         break;
 
@@ -1155,8 +1273,28 @@ public partial class SpeechTestView : ContentView, IDrawable
         if (CurrentSpeechTest.SupportsManualPausing) { PauseTestBtn.IsEnabled = true; }
 
         // Showing / hiding panels during test
-        SetBottomPanelShow(CurrentSpeechTest.IsFreeRecall);
-        SetLeftPanelShow(CurrentSpeechTest.IsFreeRecall);
+        if (HasExternalResultsView)
+        {
+            if (CurrentSpeechTest.IsFreeRecall)
+            {
+                SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
+            }
+            else
+            {
+                SetLayoutConfiguration(LayoutConfiguration.Response);
+            }
+        }
+        else
+        {
+            if (CurrentSpeechTest.IsFreeRecall)
+            {
+                SetLayoutConfiguration(LayoutConfiguration.Settings_Result_Response);
+            }
+            else
+            {
+                SetLayoutConfiguration(LayoutConfiguration.Response);
+            }
+        }
 
         StopTestBtn.IsEnabled = true;
         TestReponseGrid.IsEnabled = true;
@@ -1178,6 +1316,11 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Directing the call to the main thread if not already on the main thread
         /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
+        if (CurrentSpeechTest == null) { return; }
+
+        // Just ignores this call if the current test does not support pausing
+        if (CurrentSpeechTest.SupportsManualPausing == false) { return; }
+
         TestIsPaused = true;
 
         OstfBase.SoundPlayer.FadeOutPlayback();
@@ -1185,60 +1328,60 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Pause testing
         StopAllTrialEventTimers();
 
-        if (CurrentSpeechTest.IsFreeRecall == true)
+        // The test administrator must resume the test
+        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
         {
+            case STFN.Utils.Constants.Languages.Swedish:
+                StartTestBtn.Text = "Fortsätt";
 
-            // The test administrator must resume the test
+                if (CurrentTestResultsView != null)
+                {
+                    CurrentTestResultsView.UpdateStartButtonText("Fortsätt");
+                }
 
+                break;
+            default:
+                StartTestBtn.Text = "Continue";
+
+                if (CurrentTestResultsView != null)
+                {
+                    CurrentTestResultsView.UpdateStartButtonText("Continue");
+                }
+
+                break;
+        }
+
+        ShowResults();
+
+        if (CurrentSpeechTest.PauseInformation == "")
+        {
             switch (STFN.SharedSpeechTestObjects.GuiLanguage)
             {
                 case STFN.Utils.Constants.Languages.Swedish:
-                    StartTestBtn.Text = "Fortsätt";
+                    CurrentSpeechTest.PauseInformation = "Testet är pausat";
                     break;
                 default:
-                    StartTestBtn.Text = "Continue";
+                    CurrentSpeechTest.PauseInformation = "The test has been paused";
                     break;
             }
-
-            ShowResults(CurrentSpeechTest.GetResultStringForGui());
-
-            if (CurrentSpeechTest.PauseInformation != "")
-            {
-
-                // Registering timed trial event
-                if (CurrentSpeechTest.CurrentTestTrial != null)
-                {
-                    CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.PauseMessageShown, DateTime.Now));
-                }
-
-                // Reduplicating the message also in the caption to get at larger font size... (lazy idea, TOSO: improve in future versions)
-                await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
-            }
-
-            StartTestBtn.IsEnabled = true;
-            PauseTestBtn.IsEnabled = false;
-            StopTestBtn.IsEnabled = true;
-            TestResultGrid.IsEnabled = true;
-
         }
-        else
+
+        // Registering timed trial event
+        if (CurrentSpeechTest.CurrentTestTrial != null)
         {
-
-            // The testee is expected to resume the test
-            // Waiting for user to press OK
-
-            // Registering timed trial event
-            if (CurrentSpeechTest.CurrentTestTrial != null)
-            {
-                CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.PauseMessageShown, DateTime.Now));
-            }
-
-            // Reduplicating the message also in the caption to get at larger font size... (lazy idea, TOSO: improve in future versions)
-            await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
-
-            // Restarting test
-            StartTest();
+            CurrentSpeechTest.CurrentTestTrial.TimedEventsList.Add(new Tuple<TestTrial.TimedTrialEvents, DateTime>(TestTrial.TimedTrialEvents.PauseMessageShown, DateTime.Now));
         }
+
+        // Reduplicating the message also in the caption to get at larger font size... (lazy idea, TOSO: improve in future versions)
+        //await Messager.MsgBoxAsync(CurrentSpeechTest.PauseInformation, Messager.MsgBoxStyle.Information, CurrentSpeechTest.PauseInformation, "OK");
+
+        CurrentResponseView.ShowMessage(CurrentSpeechTest.PauseInformation);
+
+        StartTestBtn.IsEnabled = true;
+        PauseTestBtn.IsEnabled = false;
+        StopTestBtn.IsEnabled = true;
+        TestResultGrid.IsEnabled = true;
+
     }
 
 
@@ -1284,19 +1427,19 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Note that this is allways done twice, both before and after the SleepMilliseconds delay described below.
         if (TestIsPaused == true) { return; }
 
-        
+
         int SleepMilliseconds = 300; // N.B. The dalay works fine at 10 ms, but if we need to show a GUI response such as flashing the response
                                      // alternatives in red when no response is given, this delay needs to be longer. Setting it to 300 ms across all tests forces an extra interstimulus interval of 300 ms. 
                                      // Perhaps this should be set specifically by each test...
-        //int SleepMilliseconds = 10;
-        // A call to this method should allways be done from a worker thread, in order to allow the GUI to be updated after a response is given.
-        // Effectively, the delay places the calls made in this method later in the MainThread Que than the GUI update. (Or at least, that's what I think it does...)
-        // However, to avoid problems associated with multiple threads in the application, the call is directed back to the main thread already at this point,
-        // after applying a delay to the worker thread of SleepMilliseconds ms, giving the MainThread time to update the GUI. 
-        // (If this for som ereason should fail, the GUI will not be immediately updated, but the next trial should be loaded just fine.)
-        // If SleepMilliseconds is not enough for the GUI to get updated, its value should be increased.
-        // Thus, any calls to this method will cause a SleepMilliseconds ms delay. This is corrected for in the registration of timed events below.
-        // The follwoing code block directs the call to the main thread (if not already on the main thread)
+                                     //int SleepMilliseconds = 10;
+                                     // A call to this method should allways be done from a worker thread, in order to allow the GUI to be updated after a response is given.
+                                     // Effectively, the delay places the calls made in this method later in the MainThread Que than the GUI update. (Or at least, that's what I think it does...)
+                                     // However, to avoid problems associated with multiple threads in the application, the call is directed back to the main thread already at this point,
+                                     // after applying a delay to the worker thread of SleepMilliseconds ms, giving the MainThread time to update the GUI. 
+                                     // (If this for som ereason should fail, the GUI will not be immediately updated, but the next trial should be loaded just fine.)
+                                     // If SleepMilliseconds is not enough for the GUI to get updated, its value should be increased.
+                                     // Thus, any calls to this method will cause a SleepMilliseconds ms delay. This is corrected for in the registration of timed events below.
+                                     // The follwoing code block directs the call to the main thread (if not already on the main thread)
         if (MainThread.IsMainThread == false)
         {
             Thread.Sleep(SleepMilliseconds);
@@ -1397,10 +1540,10 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
 
         // Showing results if results view is visible
-        if (TestResultGrid.IsVisible == true)
-        {
-            ShowResults(CurrentSpeechTest.GetResultStringForGui());
-        }
+        //if (TestResultGrid.IsVisible == true)
+        //{
+        ShowResults();
+        //}
 
     }
 
@@ -1672,8 +1815,14 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
 
         // Showing panels again
-        SetBottomPanelShow(true);
-        SetLeftPanelShow(true);
+        if (HasExternalResultsView)
+        {
+            SetLayoutConfiguration(LayoutConfiguration.Settings);
+        }
+        else
+        {
+            SetLayoutConfiguration(LayoutConfiguration.Settings_Result);
+        }
 
         // Restting start button text
         switch (STFN.SharedSpeechTestObjects.GuiLanguage)
@@ -1706,7 +1855,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             // Getting test results
 
             // Displaying test results
-            ShowResults(CurrentSpeechTest.GetResultStringForGui());
+            ShowResults();
 
             // Saving test results to file
             // CurrentSpeechTest.SaveTableFormatedTestResults();
@@ -1749,23 +1898,27 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
     }
 
-    void ShowResults(string results)
+    void ShowResults()
     {
 
-        // Directing the call to the main thread if not already on the main thread
-        /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [results]); }); return; }
-
-        // Showing result panel
-        SetBottomPanelShow(true);
-
-        if (CurrentTestResultsView != null)
+        if (CurrentSpeechTest != null)
         {
-            CurrentTestResultsView.ShowTestResults(results);
+            switch (CurrentSpeechTest.GuiResultType)
+            {
+                case SpeechTest.GuiResultTypes.StringResults:
+
+                    CurrentTestResultsView.ShowTestResults(CurrentSpeechTest.GetResultStringForGui());
+
+                    break;
+                case SpeechTest.GuiResultTypes.VisualResults:
+
+                    CurrentTestResultsView.ShowTestResults(CurrentSpeechTest);
+
+                    break;
+                default:
+                    break;
+            }
         }
-
-        // Also shows the settings panel
-        SetLeftPanelShow(true);
-
     }
 
     #endregion

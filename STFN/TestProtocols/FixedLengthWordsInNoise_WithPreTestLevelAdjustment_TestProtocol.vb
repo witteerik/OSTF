@@ -117,4 +117,8 @@
         FinalizeProtocol(TrialHistory)
     End Sub
 
+    Public Overrides Function GetCurrentAdaptiveValue() As Double?
+        Return Nothing
+    End Function
+
 End Class

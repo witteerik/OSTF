@@ -7,16 +7,16 @@
 
     <Grid x:Name="MainSpeechTestGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*" />
+            <RowDefinition Height="0.25*" />
+            <RowDefinition Height="0.75*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.35*" />
             <ColumnDefinition Width="0.65*" />
         </Grid.ColumnDefinitions>
 
-        <Grid 
-            x:Name="TestSettingsGrid"
-            Grid.Row="0" Grid.RowSpan="1"
+        <Grid x:Name="TestSettingsGrid"
+            Grid.Row="0" Grid.RowSpan="2"
             Grid.Column="0" Grid.ColumnSpan="1"
             Padding="2">
             <Grid.RowDefinitions>
@@ -147,74 +147,36 @@
 
         </Grid>
 
-        <Grid x:Name="RightSideGrid"
-            Grid.Row="0" Grid.RowSpan="1"
-            Grid.Column="1" Grid.ColumnSpan="1">
+        <Grid 
+                x:Name="TestResultGrid"
+                Grid.Row="0" Grid.RowSpan="1"
+                Grid.Column="0" Grid.ColumnSpan="1">
             <Grid.RowDefinitions>
-                <RowDefinition Height="0.75*" />
-                <RowDefinition Height="0.25*" />
+                <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
 
-            <Grid 
+        </Grid>
+
+
+        <Grid 
                 x:Name="TestReponseGrid"
-                Grid.Row="0" Grid.RowSpan="1"
+                Grid.Row="1" Grid.RowSpan="1"
                 Grid.Column="0" Grid.ColumnSpan="1"
                 BackgroundColor="DarkSlateGray">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-
-                    <!--TODO: Here we can leave room for a test progress bar-->
-                    <!--<RowDefinition Height="0.05*" />-->
-
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
 
 
-            </Grid>
-
-            <Grid 
-                x:Name="TestResultGrid"
-                Grid.Row="1" Grid.RowSpan="1"
-                Grid.Column="0" Grid.ColumnSpan="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                </Grid.ColumnDefinitions>
-
-                <Label 
-                x:Name="BottomThing"
-                   Grid.Row="1" Grid.RowSpan="1"
-                   Grid.Column="0" Grid.ColumnSpan="1"
-                   BackgroundColor="Crimson"
-                   Margin="0,1,1,0"/>
-
-            </Grid>
         </Grid>
+       
     </Grid>
-
-    <!--<VerticalStackLayout>
-        <Label 
-            Text="This is the speech test view!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-
-        <drawable:AudiogramView
-                x:Name="MyAudiogramView"
-                                WidthRequest="500"
-                    HeightRequest="500">
-            -->
-    <!--VerticalOptions="Fill"
-                    HorizontalOptions="Fill"-->
-    <!--
-        </drawable:AudiogramView>
-    </VerticalStackLayout>-->
 
 
 </ContentView>

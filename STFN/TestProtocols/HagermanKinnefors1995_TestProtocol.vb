@@ -215,4 +215,8 @@ Public Class HagermanKinnefors1995_TestProtocol
         FinalizeProtocol(TrialHistory)
     End Sub
 
+    Public Overrides Function GetCurrentAdaptiveValue() As Double?
+        Return NextAdaptiveLevel
+    End Function
+
 End Class

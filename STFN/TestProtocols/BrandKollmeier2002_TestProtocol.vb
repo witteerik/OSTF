@@ -32,12 +32,10 @@ Public Class BrandKollmeier2002_TestProtocol
         End Set
     End Property
 
-
     Private NextAdaptiveLevel As Double = 0
     Private FinalThreshold As Double? = Nothing
 
     Private TestLength As Integer
-    Public Property TargetThreshold As Double = 0.5 'This is the 'tar' variable in Brand and Kollmeier 2002, indicating the target threshold percentage correct
     Public Property Slope As Double = 0.16 'This is the slope of the psychometric function of the test material (0.16 is the slope for the Swedish Hagerman test according to Kollmeier et al 2015)' This parameter could be read from the MediaSet specification file to allow for different speech materials 
 
     Public Overrides Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
@@ -103,7 +101,7 @@ Public Class BrandKollmeier2002_TestProtocol
         'Calculates the 'prev' (proportion correct taks in the previous trial)
         Dim LastTrial_ProportionTasksCorrect As Double = TrialHistory.Last.GetProportionTasksCorrect
         'Calculated the stepsize, DeltaL 
-        Dim DeltaL As Double = -(fi * (LastTrial_ProportionTasksCorrect - TargetThreshold)) / Slope
+        Dim DeltaL As Double = -(fi * (LastTrial_ProportionTasksCorrect - TargetScore)) / Slope ' N.B. TargetScore is the 'tar' variable in Brand and Kollmeier 2002, indicating the target percentage correct
 
         'Modifying the NextAdaptiveLevel by DeltaL
         NextAdaptiveLevel += DeltaL
@@ -122,6 +120,10 @@ Public Class BrandKollmeier2002_TestProtocol
         'Continues the test
         Return New NextTaskInstruction With {.AdaptiveValue = NextAdaptiveLevel, .AdaptiveStepSize = DeltaL, .Decision = SpeechTest.SpeechTestReplies.GotoNextTrial}
 
+    End Function
+
+    Public Overrides Function GetCurrentAdaptiveValue() As Double?
+        Return NextAdaptiveLevel
     End Function
 
     Private Sub FinalizeProtocol(ByRef TrialHistory As TestTrialCollection)

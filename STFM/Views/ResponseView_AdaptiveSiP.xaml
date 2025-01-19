@@ -574,12 +574,13 @@
 
         <Button x:Name="MessageButton"
                 Grid.Row="0" Grid.RowSpan="1"
-                Grid.Column="1" Grid.ColumnSpan="1" 
+                Grid.Column="1" Grid.ColumnSpan="3" 
                 HorizontalOptions="FillAndExpand" 
                 VerticalOptions="FillAndExpand"
-                BackgroundColor="LightGray"
+                BackgroundColor="#FFFF80"
                 TextColor="#282828"
-                CornerRadius="20" >
+                CornerRadius="20" 
+                Margin="20,100,20,100">
 
         </Button>
 

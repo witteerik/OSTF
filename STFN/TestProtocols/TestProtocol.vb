@@ -83,6 +83,14 @@ Public MustInherit Class TestProtocol
     'End Function
 
     ''' <summary>
+    ''' Should hold the target score in adaptive tests, i.e. 50 % for the SNR where 50 % of items are correctly repeated.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Property TargetScore As Double? = Nothing
+
+    Public MustOverride Function GetCurrentAdaptiveValue() As Double?
+
+    ''' <summary>
     ''' Should hold a text description of the type of the value stored in the final result, e.g. SRT, WRS, etc
     ''' </summary>
     ''' <returns></returns>
