@@ -2,7 +2,7 @@
 <custom:TestResultsView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:custom="clr-namespace:STFM.Views"
-             x:Class="STFM.Views.TestResultView_Adaptive"
+             x:Class="STFM.Views.TestResultView_AdaptiveSiP"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls">
 
     <Grid Background="#EDEDED" 
@@ -21,7 +21,7 @@
         <Frame x:Name="SummaryFrame" 
                Grid.Row="0" Grid.RowSpan="1"
                Grid.Column="1" Grid.ColumnSpan="1" 
-               Margin="3"
+               Margin="3" Padding="12,12,12,12"
                Background="DarkSlateGray">
 
             <Grid >
@@ -139,7 +139,7 @@
         <Frame x:Name="SnrFrame" 
                Grid.Row="0" Grid.RowSpan="1"
                Grid.Column="2" Grid.ColumnSpan="1" 
-               Margin="3"
+               Margin="3" Padding="0"
                Background="White">
 
         <Grid x:Name="SnrGrid"
@@ -190,7 +190,7 @@
         <Frame x:Name="DetailsFrame" 
                Grid.Row="0" Grid.RowSpan="1"
                Grid.Column="3" Grid.ColumnSpan="1"
-               Margin="3"
+               Margin="3" Padding="12,10,5,10"
                Background="DarkSlateGray">
 
             <Grid  >
@@ -206,139 +206,179 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
                 <!--Adding controls -->
 
-
-                <Label x:Name="TwgNameLabel1" 
-                   Grid.Row="0" Grid.Column="0" 
+                <Label x:Name="GroupScoreTitleLabel" 
+                   Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
                    HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Start"
-                   VerticalTextAlignment="Center"
-                       Text="kil, fil, sil"
-                       TextColor="AntiqueWhite">
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Start"
+                       Text="Average scores in last 10 trials"
+                       TextColor="AntiqueWhite" 
+                       FontAttributes="Bold">
                 </Label>
 
-                <Label x:Name="TwgNameLabel2" 
+
+                <Label x:Name="TwgNameLabel1" 
                    Grid.Row="1" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
-                       Text="mark, märk, mörk"
+                       Text="Group 1"
                        TextColor="AntiqueWhite">
                 </Label>
 
-                <Label x:Name="TwgNameLabel3" 
+                <Label x:Name="TwgNameLabel2" 
                    Grid.Row="2" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
-                       Text="farm, charm, larm"
+                       Text="Group 2"
                        TextColor="AntiqueWhite">
                 </Label>
 
-                <Label x:Name="TwgNameLabel4" 
+                <Label x:Name="TwgNameLabel3" 
                    Grid.Row="3" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
-                       Text="fyr, skyr, syr"
+                       Text="Group 3"
+                       TextColor="AntiqueWhite">
+                </Label>
+
+                <Label x:Name="TwgNameLabel4" 
+                   Grid.Row="4" Grid.Column="0" 
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   HorizontalTextAlignment="Start"
+                   VerticalTextAlignment="Center"
+                       Text="Group 4"
                        TextColor="AntiqueWhite">
                 </Label>
 
 
                 <Label x:Name="TwgNameLabel5" 
-                   Grid.Row="4" Grid.Column="0" 
+                   Grid.Row="5" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
-                       Text="paj, pall, pang"
+                       Text="Group 5"
                        TextColor="AntiqueWhite">
                 </Label>
 
-                <Frame Grid.Row="0" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
+                <Frame Grid.Row="1" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
                     <ProgressBar x:Name="TwgProgressBar1" 
                                  ScaleY="2"
                              Background="Transparent"
                              ProgressColor="#E97C7C"
-                             Progress="0.5" Margin="0"/>
+                             Progress="1" Margin="0"/>
                 </Frame>
 
-                <Frame Grid.Row="1" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
+                <Frame Grid.Row="2" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
                     <ProgressBar x:Name="TwgProgressBar2" 
                                  ScaleY="2"
                              Background="Transparent"
                              ProgressColor="#80D73E"
-                             Progress="0.4" Margin="0"/>
+                             Progress="1" Margin="0"/>
                 </Frame>
 
-                <Frame Grid.Row="2" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
+                <Frame Grid.Row="3" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
                     <ProgressBar x:Name="TwgProgressBar3" 
                                  ScaleY="2"
                              Background="Transparent"
                              ProgressColor="#3ACFD2"
-                             Progress="0.6" Margin="0"/>
+                             Progress="1" Margin="0"/>
                 </Frame>
 
-                <Frame Grid.Row="3" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
+                <Frame Grid.Row="4" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
                     <ProgressBar x:Name="TwgProgressBar4" 
                                  ScaleY="2"
                              Background="Transparent"
                              ProgressColor="#3667D0"
-                             Progress="0.8" Margin="0"/>
+                             Progress="1" Margin="0"/>
                 </Frame>
 
-                <Frame Grid.Row="4" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
+                <Frame Grid.Row="5" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
                     <ProgressBar x:Name="TwgProgressBar5" 
                                  ScaleY="2"
                              Background="Transparent"
                              ProgressColor="#C936D9"
-                             Progress="0.2" Margin="0"/>
+                             Progress="1" Margin="0"/>
                 </Frame>
 
                 <Label x:Name="TwgScoreLabel1" 
-                   Grid.Row="0" Grid.Column="2"
-                   HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Center"
-                   VerticalTextAlignment="Center"
-                   Text="50%"
-                       TextColor="AntiqueWhite">
-                </Label>
-
-                <Label x:Name="TwgScoreLabel2" 
                    Grid.Row="1" Grid.Column="2"
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
-                   Text="40%"
+                   Text="%"
                        TextColor="AntiqueWhite">
                 </Label>
 
-                <Label x:Name="TwgScoreLabel3" 
+                <Label x:Name="TwgScoreLabel2" 
                    Grid.Row="2" Grid.Column="2"
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
-                   Text="60%"
+                   Text="%"
                        TextColor="AntiqueWhite">
                 </Label>
 
-                <Label x:Name="TwgScoreLabel4" 
+                <Label x:Name="TwgScoreLabel3" 
                    Grid.Row="3" Grid.Column="2"
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
-                   Text="80%"
+                   Text="%"
                        TextColor="AntiqueWhite">
                 </Label>
 
-                <Label x:Name="TwgScoreLabel5" 
+                <Label x:Name="TwgScoreLabel4" 
                    Grid.Row="4" Grid.Column="2"
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
-                   Text="20%"
+                   Text="%"
+                       TextColor="AntiqueWhite">
+                </Label>
+
+                <Label x:Name="TwgScoreLabel5" 
+                   Grid.Row="5" Grid.Column="2"
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   Text="%"
+                       TextColor="AntiqueWhite">
+                </Label>
+                
+                               
+                <!--Overall score-->
+                <Label x:Name="TenLastScoreNameLabel" 
+                   Grid.Row="6" Grid.Column="0" 
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   HorizontalTextAlignment="Start"
+                   VerticalTextAlignment="Center"
+                       Text="Overall score"
+                       TextColor="AntiqueWhite">
+                </Label>
+
+                <Frame Grid.Row="6" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
+                    <ProgressBar x:Name="TenLastScoreProgressBar" 
+                                 ScaleY="2"
+                             Background="Transparent"
+                             ProgressColor="#36FA12"
+                             Progress="1" Margin="0"/>
+                </Frame>
+
+                <Label x:Name="TenLastScoreLabel" 
+                   Grid.Row="6" Grid.Column="2"
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   Text="%"
                        TextColor="AntiqueWhite">
                 </Label>
 
@@ -364,6 +404,9 @@
 
                 <Button x:Name="StartButton" 
                     Grid.Row="0" 
+                        HorizontalOptions="Fill" VerticalOptions="Fill"
+                        MinimumHeightRequest="0" MinimumWidthRequest="0"
+                        Padding="0"
                     Clicked="StartButton_Clicked"   
                     Text="Start" 
                     Margin="4,4,4,5"
@@ -372,6 +415,9 @@
 
                 <Button x:Name="PauseButton" 
                     Grid.Row="1" 
+                        HorizontalOptions="Fill" VerticalOptions="Fill"
+                        MinimumHeightRequest="0" MinimumWidthRequest="0"
+                        Padding="0"
                     Clicked="PauseButton_Clicked"      
                     Text="Pause" 
                     Margin="4,5,4,5" 
@@ -380,6 +426,9 @@
 
                 <Button x:Name="StopButton" 
                     Grid.Row="2" 
+                        HorizontalOptions="Fill" VerticalOptions="Fill"
+                        MinimumHeightRequest="0" MinimumWidthRequest="0"
+                        Padding="0"
                     Clicked="StopButton_Clicked"   
                     Text="Stop" 
                     Margin="4,5,4,4" 

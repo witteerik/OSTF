@@ -25,6 +25,11 @@ public class TestResultsView_Text : TestResultsView
         Content = MainScrollView;
     }
 
+    public override void SetPlayState(SpeechTestView.TestPlayStates currentTestPlayState)
+    {
+        // Ignores any call
+    }
+
     public override void ShowTestResults(string results)
     {
         ResultsLabel.Text = results;

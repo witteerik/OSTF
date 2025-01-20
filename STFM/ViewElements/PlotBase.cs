@@ -57,6 +57,14 @@ public class PlotBase : IDrawable
     protected string[] YaxisTextValues;
     protected float YaxisTextSize = 1;
 
+    public enum AxisTextSizeModificationStrategy
+    {
+        Vertical,
+        Horizontal
+    }
+
+    protected AxisTextSizeModificationStrategy axisTextSizeModificationStrategy = AxisTextSizeModificationStrategy.Vertical;
+
     public PlotBase()
     {
         //AddSomeLinesAndPoints();
@@ -96,6 +104,25 @@ public class PlotBase : IDrawable
         XaxisTextValues = axisTextValues;
         parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
+
+    public void SetTextSizeAxisY(float textSize)
+    {
+        YaxisTextSize = textSize;
+        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+    }
+
+    public void SetTextSizeAxisX(float textSize)
+    {
+        XaxisTextSize = textSize;
+        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+    }
+
+    public void SetAxisTextSizeModificationStrategy(AxisTextSizeModificationStrategy axisTextSizeModificationStrategy)
+    {
+        this.axisTextSizeModificationStrategy = axisTextSizeModificationStrategy;
+        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+    }
+
 
     private void AddSomeLinesAndPoints()
     {
@@ -426,7 +453,23 @@ public class PlotBase : IDrawable
             //canvas.Font = Microsoft.Maui.Graphics.Font.DefaultBold;
             canvas.Font = Microsoft.Maui.Graphics.Font.Default;
             canvas.FontColor = Colors.Black;
-            float currentXaxisTextSize = (float)0.05 * PlotAreaHeight * XaxisTextSize;
+
+            float textSizeModificationFactor;
+            switch (axisTextSizeModificationStrategy)
+            {
+                case AxisTextSizeModificationStrategy.Vertical:
+                    textSizeModificationFactor = PlotAreaHeight;
+                    break;
+                case AxisTextSizeModificationStrategy.Horizontal:
+                    textSizeModificationFactor = PlotAreaWidth;
+                    break;
+                default:
+                    // Using vertical if not properly set
+                    textSizeModificationFactor = PlotAreaHeight;
+                    break;
+            }
+
+            float currentXaxisTextSize = (float)0.05 * textSizeModificationFactor * XaxisTextSize;
             float halfCurrentXaxisTextSize = currentXaxisTextSize / 2;
             canvas.FontSize = currentXaxisTextSize;
 
@@ -467,7 +510,23 @@ public class PlotBase : IDrawable
             //canvas.Font = Microsoft.Maui.Graphics.Font.DefaultBold;
             canvas.Font = Microsoft.Maui.Graphics.Font.Default;
             canvas.FontColor = Colors.Black;
-            float currentYaxisTextSize = (float)0.05 * PlotAreaHeight * YaxisTextSize;
+
+            float textSizeModificationFactor; 
+            switch (axisTextSizeModificationStrategy)
+            {
+                case AxisTextSizeModificationStrategy.Vertical:
+                    textSizeModificationFactor = PlotAreaHeight;
+                    break;
+                case AxisTextSizeModificationStrategy.Horizontal:
+                    textSizeModificationFactor = PlotAreaWidth;
+                    break;
+                default:
+                    // Using vertical if not properly set
+                    textSizeModificationFactor = PlotAreaHeight;
+                    break;
+            }
+
+            float currentYaxisTextSize = (float)0.05 * textSizeModificationFactor * YaxisTextSize;
             float halfCurrentYaxisTextSize = currentYaxisTextSize / 2;
             canvas.FontSize = currentYaxisTextSize;
 

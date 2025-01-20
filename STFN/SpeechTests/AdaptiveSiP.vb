@@ -791,19 +791,36 @@ Public Class AdaptiveSiP
 
         Dim SubScoreList As New SortedList(Of String, List(Of Integer))
 
-        Dim ObservedTrials = GetObservedTestTrials()
+        Dim ObservedTrials = GetObservedTestTrials().ToList
         If ObservedTrials.Count = 0 Then Return Nothing
 
-        For Each Trial In ObservedTrials
+        Dim TenLastTrials As New List(Of TestTrial)
+
+        'Getting the ten last test trials, or all if ObservedTrials is shorter than ten
+        If ObservedTrials.Count < 11 Then
+            TenLastTrials.AddRange(ObservedTrials)
+        Else
+            TenLastTrials.AddRange(ObservedTrials.GetRange(ObservedTrials.Count - 10, 10))
+        End If
+
+        Dim OverallList As New List(Of Integer)
+
+        For Each Trial In TenLastTrials
 
             For Each SubTrial In Trial.SubTrials
 
+                'Getting the sub score name and score
                 Dim SubGroupName = SubTrial.SpeechMaterialComponent.ParentComponent.PrimaryStringRepresentation.Replace("_", ", ")
                 Dim Score As Double = SubTrial.ScoreList.Average
 
+                'Adding the sub group is not already done
                 If SubScoreList.ContainsKey(SubGroupName) = False Then SubScoreList.Add(SubGroupName, New List(Of Integer))
 
+                'Adding the score to the sub-score list
                 SubScoreList(SubGroupName).Add(Score)
+
+                'Adding the score to the overall score list
+                OverallList.Add(Score)
 
             Next
 
@@ -813,6 +830,22 @@ Public Class AdaptiveSiP
         For Each kvp In SubScoreList
             Output.Add(kvp.Key, kvp.Value.Average)
         Next
+
+        'Adding the overall list
+        Dim OverallGroupName As String = ""
+        Select Case GuiLanguage
+            Case Languages.Swedish
+                OverallGroupName = "Totalt"
+            Case Languages.English
+                OverallGroupName = "In total"
+            Case Else
+                OverallGroupName = "In total"
+        End Select
+
+        'Adding it only if the key does not already exist (which is unlikely), otherwise an exception will be thrown.
+        If Output.ContainsKey(OverallGroupName) = False Then
+            Output.Add(OverallGroupName, OverallList.Average)
+        End If
 
         Return Output
 

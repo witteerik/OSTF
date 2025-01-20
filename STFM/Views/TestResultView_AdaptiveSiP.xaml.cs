@@ -6,9 +6,9 @@ namespace STFM.Views
 {
 
     [ToolboxItem(true)] // Marks this class as available for the Toolbox
-    public partial class TestResultView_Adaptive : TestResultsView
+    public partial class TestResultView_AdaptiveSiP : TestResultsView
     {
-        public TestResultView_Adaptive()
+        public TestResultView_AdaptiveSiP()
         {
             InitializeComponent();
             //this.LoadFromXaml(typeof(TestResultView_Adaptive));
@@ -17,6 +17,7 @@ namespace STFM.Views
             // Assign the custom drawable to the GraphicsView
             SnrView.Drawable = new SnrDiagram(SnrView);
             SnrDiagram MySnrDiagram = (SnrDiagram)SnrView.Drawable;
+            MySnrDiagram.SetAxisTextSizeModificationStrategy(PlotBase.AxisTextSizeModificationStrategy.Horizontal);
             MySnrDiagram.SetXlim(0.5f, 1.5f);
             MySnrDiagram.SetYlim(-10, 10);
             //MySnrDiagram.TransitionHeightRatio = 0.86f;
@@ -159,6 +160,11 @@ namespace STFM.Views
                     PresentedTrials.Add(presentedTrialIndex);
                 }
 
+
+                MySnrDiagram.SetAxisTextSizeModificationStrategy(PlotBase.AxisTextSizeModificationStrategy.Horizontal);
+                MySnrDiagram.SetTextSizeAxisX(0.8f);
+                MySnrDiagram.SetTextSizeAxisY(0.8f);
+
                 MySnrDiagram.SetXlim(0.5f, PresentedPnrs.Count + 0.5f);
 
                 float Ymin = PresentedPnrs.Min() - 5f;
@@ -241,33 +247,84 @@ namespace STFM.Views
                     TwgScoreLabel5.Text = System.Math.Round(100 * SubGroupResults.Values[4]).ToString() + "%";
                 }
 
+                if (SubGroupResults.Keys.Count > 5)
+                {
+                    TenLastScoreNameLabel.Text = SubGroupResults.Keys[5];
+                    TenLastScoreProgressBar.Progress = SubGroupResults.Values[5];
+                    TenLastScoreLabel.Text = System.Math.Round(100 * SubGroupResults.Values[5]).ToString() + "%";
+                }
 
             }
         }
 
         private void StartButton_Clicked(object sender, EventArgs e)
         {
-            StartButton.IsEnabled = false;
-            PauseButton.IsEnabled = true;
-            StopButton.IsEnabled = true;
             OnStartedFromTestResultView(new EventArgs());
         }
 
         private void PauseButton_Clicked(object sender, EventArgs e)
         {
-            StartButton.IsEnabled = true;
-            PauseButton.IsEnabled = false;
-            StopButton.IsEnabled = true;
             OnPausedFromTestResultView(new EventArgs());
         }
         private void StopButton_Clicked(object sender, EventArgs e)
         {
-            StartButton.IsEnabled = false;
-            PauseButton.IsEnabled = false;
-            StopButton.IsEnabled = false;
             OnStoppedFromTestResultView(new EventArgs());
         }
 
+
+        public override void SetPlayState(SpeechTestView.TestPlayStates currentTestPlayState)
+        {
+
+            switch (currentTestPlayState)
+            {
+                case SpeechTestView.TestPlayStates.InitialState:
+                    StartButton.IsEnabled = false;
+                    PauseButton.IsEnabled = false;
+                    StopButton.IsEnabled = false;
+
+                    break;
+
+                case SpeechTestView.TestPlayStates.ShowTestSelection:
+                    StartButton.IsEnabled = false;
+                    PauseButton.IsEnabled = false;
+                    StopButton.IsEnabled = false;
+
+                    break;
+                case SpeechTestView.TestPlayStates.ShowSpeechMaterialSelection:
+                    StartButton.IsEnabled = false;
+                    PauseButton.IsEnabled = false;
+                    StopButton.IsEnabled = false;
+
+                    break;
+                case SpeechTestView.TestPlayStates.ShowTestOptionsAndStartButton:
+                    StartButton.IsEnabled = true;
+                    PauseButton.IsEnabled = false;
+                    StopButton.IsEnabled = false;
+
+                    break;
+                case SpeechTestView.TestPlayStates.TestIsRunning:
+                    StartButton.IsEnabled = false;
+                    PauseButton.IsEnabled = true;
+                    StopButton.IsEnabled = true;
+
+                    break;
+                case SpeechTestView.TestPlayStates.TestIsPaused:
+                    StartButton.IsEnabled = true;
+                    PauseButton.IsEnabled = false;
+                    StopButton.IsEnabled = true;
+
+                    break;
+                case SpeechTestView.TestPlayStates.TestIsStopped:
+                    StartButton.IsEnabled = false;
+                    PauseButton.IsEnabled = false;
+                    StopButton.IsEnabled = false;
+
+                    break;
+                default:
+                    break;
+            }
+
+        }
     }
 
     public class SnrDiagram : PlotBase, IDrawable

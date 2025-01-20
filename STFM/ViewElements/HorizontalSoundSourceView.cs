@@ -118,8 +118,8 @@ public class HorizontalSoundSourceView : Frame
 
     public HorizontalSoundSourceView() {
 
-        this.WidthRequest = 200;
-        this.HeightRequest = 200 * (9/8);
+        this.WidthRequest = 250;
+        this.HeightRequest = 250 * (9/8);
 
         this.BackgroundColor = Colors.White;
 
@@ -173,6 +173,7 @@ public class HorizontalSoundSourceView : Frame
         labelL.Text = "L";
         labelL.HorizontalTextAlignment = TextAlignment.Center;
         labelL.VerticalTextAlignment= TextAlignment.Center;
+        labelL.FontSize = 18;
 
         SoundSourceLayout.Children.Add(labelL);
         SoundSourceLayout.SetLayoutBounds(labelL, new Rect(0.05, 0.05, 0.15, 0.15));
@@ -183,6 +184,7 @@ public class HorizontalSoundSourceView : Frame
         labelR.Text = "R";
         labelR.HorizontalTextAlignment = TextAlignment.Center;
         labelR.VerticalTextAlignment = TextAlignment.Center;
+        labelR.FontSize = 18;
 
         SoundSourceLayout.Children.Add(labelR);
         SoundSourceLayout.SetLayoutBounds(labelR, new Rect(0.95, 0.05, 0.15, 0.15));

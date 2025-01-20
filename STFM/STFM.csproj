@@ -51,8 +51,8 @@
 	  <Compile Update="Views\TestOptionsView.xaml.cs">
 	    <DependentUpon>TestOptionsView.xaml</DependentUpon>
 	  </Compile>
-    <Compile Update="Views\TestResultView_Adaptive.xaml.cs">
-      <DependentUpon>TestResultView_Adaptive.xaml</DependentUpon>
+    <Compile Update="Views\TestResultView_AdaptiveSiP.xaml.cs">
+      <DependentUpon>TestResultView_AdaptiveSiP.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -66,7 +66,7 @@
 	  <MauiXaml Update="Views\ScreeningAudiometerView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\TestResultView_Adaptive.xaml">
+	  <MauiXaml Update="Views\TestResultView_AdaptiveSiP.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\TwoChannelAudiometerView.xaml">
