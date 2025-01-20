@@ -94,7 +94,7 @@ namespace STFM.Views
             TestResultsDiagram MySnrDiagram = (TestResultsDiagram)SnrView.Drawable;
             TestProtocol testProtocol = speechTest.TestProtocol;
 
-            if (speechTest.TestProtocol != null)
+            if (speechTest.TestProtocol == null)
             {
                 // This works bad without a test protocol. Returning to prevent exceptions
                 return;

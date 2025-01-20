@@ -88,8 +88,6 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
                 <!--Adding controls -->
@@ -226,7 +224,7 @@
 
         <Frame x:Name="SummaryFrameRight" 
                Grid.Row="0" Grid.RowSpan="1"
-               Grid.Column="1" Grid.ColumnSpan="1" 
+               Grid.Column="4" Grid.ColumnSpan="1" 
                Margin="3" Padding="12,12,12,12"
                Background="DarkSlateGray">
 
@@ -237,8 +235,6 @@
                     <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
-                    <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
@@ -266,7 +262,7 @@
                 </Frame>
 
                 <Label x:Name="TenLastScoreNameLabel" 
-                   Grid.Row="0" Grid.Column="0" 
+                   Grid.Row="1" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
@@ -274,7 +270,7 @@
                        TextColor="AntiqueWhite">
                 </Label>
 
-                <Frame Grid.Row="0" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
+                <Frame Grid.Row="1" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
                     <Label x:Name="TenLastScoreValueLabel" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
@@ -284,7 +280,7 @@
                 </Frame>
 
                 <Label x:Name="TrialNumberNameLabel" 
-                   Grid.Row="4" Grid.Column="0" 
+                   Grid.Row="2" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
@@ -292,7 +288,7 @@
                        TextColor="AntiqueWhite">
                 </Label>
 
-                <Frame Grid.Row="4" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
+                <Frame Grid.Row="2" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
                     <Label x:Name="TrialNumberValueLabel" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
@@ -302,7 +298,7 @@
                 </Frame>
 
                 <Label x:Name="FinalResultNameLabel" 
-                   Grid.Row="5" Grid.Column="0" 
+                   Grid.Row="3" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
@@ -311,7 +307,7 @@
                        FontAttributes="Bold">
                 </Label>
 
-                <Frame Grid.Row="5" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
+                <Frame Grid.Row="3" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
                     <Label x:Name="FinalResultValueLabel" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"

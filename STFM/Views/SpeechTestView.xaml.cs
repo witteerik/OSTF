@@ -633,7 +633,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = newOptionsHintTestView;
 
                     // Creating test result view
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
                     {
 
                         HasExternalResultsView = true;
@@ -654,9 +654,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     else
                     {
 
-                        // Using a basic text-only view
                         TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
+                        CurrentTestResultsView = new TestResultView_Adaptive();
                         TestResultGrid.Children.Add(CurrentTestResultsView);
 
                     }
@@ -685,7 +684,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = newOptionsMatrixTestView;
 
                     // Creating test result view
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
                     {
 
                         HasExternalResultsView = true;
@@ -706,9 +705,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     else
                     {
 
-                        // Using a basic text-only view
                         TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
+                        CurrentTestResultsView = new TestResultView_Adaptive();
                         TestResultGrid.Children.Add(CurrentTestResultsView);
 
                     }
@@ -737,7 +735,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = newOptionsSrtTestView;
 
                     // Creating test result view
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
                     {
 
                         HasExternalResultsView = true;
@@ -758,9 +756,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     else
                     {
 
-                        // Using a basic text-only view
                         TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
+                        CurrentTestResultsView = new TestResultView_Adaptive();
                         TestResultGrid.Children.Add(CurrentTestResultsView);
 
                     }
@@ -814,7 +811,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                     // Creating test result view
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
                     {
 
                         HasExternalResultsView = true;
@@ -835,9 +832,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     else
                     {
 
-                        // Using a basic text-only view
                         TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
+                        CurrentTestResultsView = new TestResultView_Adaptive();
                         TestResultGrid.Children.Add(CurrentTestResultsView);
 
                     }
@@ -865,7 +861,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                     // Creating test result view
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
                     {
 
                         HasExternalResultsView = true;
@@ -886,9 +882,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     else
                     {
 
-                        // Using a basic text-only view
                         TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
+                        CurrentTestResultsView = new TestResultView_Adaptive();
                         TestResultGrid.Children.Add(CurrentTestResultsView);
 
                     }
@@ -917,7 +912,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
 
                     // Creating test result view
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
                     {
 
                         HasExternalResultsView = true;
@@ -938,9 +933,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                     else
                     {
 
-                        // Using a basic text-only view
                         TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
+                        CurrentTestResultsView = new TestResultView_Adaptive();
                         TestResultGrid.Children.Add(CurrentTestResultsView);
 
                     }

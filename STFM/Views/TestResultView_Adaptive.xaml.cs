@@ -88,7 +88,7 @@ namespace STFM.Views
             TestResultsDiagram MySnrDiagram = (TestResultsDiagram)SnrView.Drawable;
             TestProtocol testProtocol = speechTest.TestProtocol;
 
-            if (speechTest.TestProtocol != null)
+            if (speechTest.TestProtocol == null)
             {
                 // This works bad without a test protocol. Returning to prevent exceptions
                 return;
@@ -98,8 +98,8 @@ namespace STFM.Views
 
 
             // Speech and noise levels
-            SpeechLevelValueLabel.Text = System.Math.Round(speechTest.TargetLevel, 1).ToString() + speechTest.dBString();
-            NoiseLevelValueLabel.Text = System.Math.Round(speechTest.MaskingLevel, 1).ToString() + speechTest.dBString();
+            SpeechLevelValueLabel.Text = System.Math.Round(speechTest.TargetLevel, 1).ToString() + " " +  speechTest.dBString();
+            NoiseLevelValueLabel.Text = System.Math.Round(speechTest.MaskingLevel, 1).ToString() + " " + speechTest.dBString();
 
             // PNR
             double? CurrentAdaptiveValue = testProtocol.GetCurrentAdaptiveValue();
@@ -113,7 +113,7 @@ namespace STFM.Views
             }
 
             // Contralateral level
-            ContralateralNoiseLevelValueLabel.Text = System.Math.Round(speechTest.ContralateralMaskingLevel,1).ToString() + speechTest.dBString();
+            ContralateralNoiseLevelValueLabel.Text = System.Math.Round(speechTest.ContralateralMaskingLevel,1).ToString() + " " + speechTest.dBString();
 
 
             // Target score

@@ -43,6 +43,9 @@ Public Module OstfBase
     'Other basic settings
     Public Property AllowDirectionalSimulation As Boolean = True
 
+    Public Property UseExtraWindows As Boolean = False
+
+
     ''' <summary>
     ''' Determines if a calibration check control should be displayed in the test settings.
     ''' </summary>

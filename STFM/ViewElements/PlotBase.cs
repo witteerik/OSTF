@@ -311,6 +311,13 @@ public class PlotBase : IDrawable
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
+
+        if (dirtyRect.Width == 0 | dirtyRect.Height == 0)
+        {
+            // Exits if draw is attempted when size is zero
+            return;
+        }
+
         float PlotAreaMarginLeft = PlotAreaRelativeMarginLeft * dirtyRect.Width;
         float PlotAreaMarginRight = PlotAreaRelativeMarginRight * dirtyRect.Width;
         float PlotAreaMarginTop = PlotAreaRelativeMarginTop * dirtyRect.Height;
