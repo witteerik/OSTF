@@ -57,13 +57,13 @@ public class PlotBase : IDrawable
     protected string[] YaxisTextValues;
     protected float YaxisTextSize = 1;
 
-    public enum AxisTextSizeModificationStrategy
+    public enum SizeModificationStrategies
     {
         Vertical,
         Horizontal
     }
 
-    protected AxisTextSizeModificationStrategy axisTextSizeModificationStrategy = AxisTextSizeModificationStrategy.Vertical;
+    protected SizeModificationStrategies sizeModificationStrategy = SizeModificationStrategies.Vertical;
 
     public PlotBase()
     {
@@ -117,12 +117,40 @@ public class PlotBase : IDrawable
         parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
-    public void SetAxisTextSizeModificationStrategy(AxisTextSizeModificationStrategy axisTextSizeModificationStrategy)
+    public void UpdateLayout()
     {
-        this.axisTextSizeModificationStrategy = axisTextSizeModificationStrategy;
         parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
+    public void SetSizeModificationStrategy(SizeModificationStrategies sizeModificationStrategy)
+    {
+        this.sizeModificationStrategy = sizeModificationStrategy;
+        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+    }
+
+    public void SetXaxisDashedGridLinePositions(List<float> xValues)
+    {
+        XaxisDashedGridLinePositions = xValues;
+        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+    }
+
+    public void SetYaxisDashedGridLinePositions(List<float> yValues)
+    {
+        YaxisDashedGridLinePositions = yValues;
+        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+    }
+
+    public void SetXaxisGridLinePositions(List<float> xValues)
+    {
+        XaxisGridLinePositions = xValues;
+        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+    }
+
+    public void SetYaxisGridLinePositions(List<float> yValues)
+    {
+        YaxisGridLinePositions = yValues;
+        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+    }
 
     private void AddSomeLinesAndPoints()
     {
@@ -341,7 +369,20 @@ public class PlotBase : IDrawable
         }
 
         // DrawHorizontalGridLines
-        LineWidth = (float)0.003 * PlotAreaHeight;
+        switch (sizeModificationStrategy)
+        {
+            case SizeModificationStrategies.Vertical:
+                LineWidth = (float)0.003 * PlotAreaHeight;
+                break;
+            case SizeModificationStrategies.Horizontal:
+                LineWidth = (float)0.003 * PlotAreaWidth;
+                break;
+            default:
+                // Using vertical if not properly set
+                LineWidth = (float)0.003 * PlotAreaHeight;
+                break;
+        }
+
         foreach (int l in YaxisGridLinePositions)
         {
             canvas.StrokeColor = GridLineColor;
@@ -455,12 +496,12 @@ public class PlotBase : IDrawable
             canvas.FontColor = Colors.Black;
 
             float textSizeModificationFactor;
-            switch (axisTextSizeModificationStrategy)
+            switch (sizeModificationStrategy)
             {
-                case AxisTextSizeModificationStrategy.Vertical:
+                case SizeModificationStrategies.Vertical:
                     textSizeModificationFactor = PlotAreaHeight;
                     break;
-                case AxisTextSizeModificationStrategy.Horizontal:
+                case SizeModificationStrategies.Horizontal:
                     textSizeModificationFactor = PlotAreaWidth;
                     break;
                 default:
@@ -481,7 +522,7 @@ public class PlotBase : IDrawable
                 for (int n = 0; n < DrawCount; n++)
                 {
                     float x = XValueToCoordinate(XaxisTextPositions[n], PlotAreaLeft, PlotAreaWidth, Xrange);
-                    canvas.DrawString(XaxisTextValues[n], x - XaxisTextWidth, y - halfCurrentXaxisTextSize, 2*XaxisTextWidth, currentXaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
+                    canvas.DrawString(XaxisTextValues[n], x - (2*XaxisTextWidth), y - halfCurrentXaxisTextSize, 4*XaxisTextWidth, currentXaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
                     //canvas.DrawString(XaxisTextValues[n], x - halfXaxisTextWidth, y - halfCurrentXaxisTextSize, XaxisTextWidth, currentXaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
                 }
             }
@@ -492,7 +533,7 @@ public class PlotBase : IDrawable
                 for (int n = 0; n < DrawCount; n++)
                 {
                     float x = XValueToCoordinate(XaxisTextPositions[n], PlotAreaLeft, PlotAreaWidth, Xrange);
-                    canvas.DrawString(XaxisTextValues[n], x - currentXaxisTextSize, y - halfCurrentXaxisTextSize, 2*currentXaxisTextSize, currentXaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
+                    canvas.DrawString(XaxisTextValues[n], x - (2*currentXaxisTextSize), y - halfCurrentXaxisTextSize, 4*currentXaxisTextSize, currentXaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
                     //canvas.DrawString(XaxisTextValues[n], x - halfCurrentXaxisTextSize, y - halfCurrentXaxisTextSize, currentXaxisTextSize, currentXaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
                 }
             }
@@ -512,12 +553,12 @@ public class PlotBase : IDrawable
             canvas.FontColor = Colors.Black;
 
             float textSizeModificationFactor; 
-            switch (axisTextSizeModificationStrategy)
+            switch (sizeModificationStrategy)
             {
-                case AxisTextSizeModificationStrategy.Vertical:
+                case SizeModificationStrategies.Vertical:
                     textSizeModificationFactor = PlotAreaHeight;
                     break;
-                case AxisTextSizeModificationStrategy.Horizontal:
+                case SizeModificationStrategies.Horizontal:
                     textSizeModificationFactor = PlotAreaWidth;
                     break;
                 default:
@@ -536,7 +577,7 @@ public class PlotBase : IDrawable
                 for (int n = 0; n < DrawCount; n++)
                 {
                     float y = YValueToCoordinate(YaxisTextPositions[n], PlotAreaTop, PlotAreaBottom, PlotAreaHeight, Yrange);
-                    canvas.DrawString(YaxisTextValues[n], x - currentYaxisTextSize, y - halfCurrentYaxisTextSize, 2*currentYaxisTextSize, currentYaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
+                    canvas.DrawString(YaxisTextValues[n], x - (2*currentYaxisTextSize), y - halfCurrentYaxisTextSize, 4*currentYaxisTextSize, currentYaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
                     //canvas.DrawString(YaxisTextValues[n], x - halfCurrentYaxisTextSize, y - halfCurrentYaxisTextSize, currentYaxisTextSize, currentYaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
                 }
             }
@@ -547,7 +588,7 @@ public class PlotBase : IDrawable
                 for (int n = 0; n < DrawCount; n++)
                 {
                     float y = YValueToCoordinate(YaxisTextPositions[n], PlotAreaTop, PlotAreaBottom, PlotAreaHeight, Yrange);
-                    canvas.DrawString(YaxisTextValues[n], x - currentYaxisTextSize, y - halfCurrentYaxisTextSize, 2*currentYaxisTextSize, currentYaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
+                    canvas.DrawString(YaxisTextValues[n], x - (2*currentYaxisTextSize), y - halfCurrentYaxisTextSize, 4*currentYaxisTextSize, currentYaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
                     //canvas.DrawString(YaxisTextValues[n], x - halfCurrentYaxisTextSize, y - halfCurrentYaxisTextSize, currentYaxisTextSize, currentYaxisTextSize, HorizontalAlignment.Center, VerticalAlignment.Center, TextFlow.OverflowBounds);
                 }
             }

@@ -113,7 +113,7 @@ Public MustInherit Class SipBaseSpeechTest
                 Case CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
                     CurrentTestTrial.ScoreList.Add(1)
                     DirectCast(CurrentTestTrial, SipTrial).Result = PossibleResults.Correct
-                    DirectCast(CurrentTestTrial, SipTrial).IsCorrect = True
+                    CurrentTestTrial.IsCorrect = True
 
                 Case ""
                     CurrentTestTrial.ScoreList.Add(0)
@@ -122,12 +122,12 @@ Public MustInherit Class SipBaseSpeechTest
                     'Randomizing IsCorrect with a 1/3 chance for True
                     Dim ChanceList As New List(Of Boolean) From {True, False, False}
                     Dim RandomIndex As Integer = Randomizer.Next(ChanceList.Count)
-                    DirectCast(CurrentTestTrial, SipTrial).IsCorrect = ChanceList(RandomIndex)
+                    CurrentTestTrial.IsCorrect = ChanceList(RandomIndex)
 
                 Case Else
                     CurrentTestTrial.ScoreList.Add(0)
                     DirectCast(CurrentTestTrial, SipTrial).Result = PossibleResults.Incorrect
-                    DirectCast(CurrentTestTrial, SipTrial).IsCorrect = False
+                    CurrentTestTrial.IsCorrect = False
 
             End Select
 
@@ -222,7 +222,7 @@ Public MustInherit Class SipBaseSpeechTest
 
             Dim NewProgressInfo As New ProgressInfo
             NewProgressInfo.Value = GetObservedTestTrials.Count + 1 ' Adds one to signal started trials
-            NewProgressInfo.Maximum = GetObservedTestTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count
+            NewProgressInfo.Maximum = GetTotalTrialCount()
             Return NewProgressInfo
 
         End If
@@ -230,6 +230,15 @@ Public MustInherit Class SipBaseSpeechTest
         Return Nothing
 
     End Function
+
+    Public Overrides Function GetTotalTrialCount() As Integer
+        If CurrentSipTestMeasurement IsNot Nothing Then
+            Return GetObservedTestTrials.Count + CurrentSipTestMeasurement.PlannedTrials.Count
+        Else
+            Return -1
+        End If
+    End Function
+
 
     ''' <summary>
     ''' This method returns a calibration sound mixed to the currently set reference level, presented from the first indicated target sound source.

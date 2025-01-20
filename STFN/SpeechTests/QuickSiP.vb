@@ -44,6 +44,10 @@ Public Class QuickSiP
         ShowGuiChoice_BackgroundNonSpeechLocations = False
         ShowGuiChoice_BackgroundSpeechLocations = False
 
+        SupportsManualPausing = True
+
+        GuiResultType = GuiResultTypes.VisualResults
+
     End Sub
 
     Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = False
@@ -98,13 +102,26 @@ Public Class QuickSiP
 
     Dim SipTestLists As New List(Of QuickSipList)
 
-    Private Class QuickSipList
+    Public Class QuickSipList
         Public SMC As SpeechMaterialComponent
         Public MediaSet As MediaSet
         Public PNR As Double
     End Class
 
-    Private Function GetPnrScores() As SortedList(Of Double, Tuple(Of QuickSipList, Double))
+    Public Overrides Function GetScorePerLevel() As Tuple(Of String, SortedList(Of Double, Double))
+
+        Dim PnrScoresList = GetPnrScores()
+        Dim OutputList = New SortedList(Of Double, Double)
+
+        For Each kvp In PnrScoresList
+            OutputList.Add(kvp.Key, kvp.Value.Item2)
+        Next
+
+        Return New Tuple(Of String, SortedList(Of Double, Double))("PNR (dB)", OutputList)
+
+    End Function
+
+    Public Function GetPnrScores() As SortedList(Of Double, Tuple(Of QuickSipList, Double))
 
         Dim ResultList As New List(Of Tuple(Of QuickSipList, Double)) ' QuickSipList, MeanScore
 
@@ -127,7 +144,7 @@ Public Class QuickSiP
                 End If
             Next
 
-            Dim AverageScore As Double = -1
+            Dim AverageScore As Double = Double.NaN
             If CurrentScoresList.Count > 0 Then
                 AverageScore = CurrentScoresList.Average
             End If
@@ -144,6 +161,129 @@ Public Class QuickSiP
 
     End Function
 
+    Public Overrides Function GetSubGroupResults() As List(Of Tuple(Of String, Double))
+
+        Dim ObservedTrials = GetObservedTestTrials().ToList
+        If ObservedTrials.Count = 0 Then Return Nothing
+
+        'Adding keys in the intended order 
+        Dim GroupScoreList As New Dictionary(Of String, List(Of Integer))
+        GroupScoreList.Add("Vokaler", New List(Of Integer))
+        GroupScoreList.Add("Konsonanter", New List(Of Integer))
+
+        Dim DirectionsList As New SortedSet(Of String)
+        For Each Trial In ObservedTrials
+            Dim CurrentHorizontalAzimuth As Double = DirectCast(Trial, SipTrial).TargetStimulusLocations(0).HorizontalAzimuth ' Using the first target location only
+            Select Case CurrentHorizontalAzimuth
+                Case > 0
+                    DirectionsList.Add("Höger (" & CurrentHorizontalAzimuth & "°)")
+                Case < 0
+                    DirectionsList.Add("Vänster (" & CurrentHorizontalAzimuth & "°)")
+                Case Else
+                    'This should not be used in Quick SiP
+                    DirectionsList.Add("Framifrån")
+            End Select
+        Next
+
+        For Each Trial In CurrentSipTestMeasurement.PlannedTrials
+            Dim CurrentHorizontalAzimuth As Double = DirectCast(Trial, SipTrial).TargetStimulusLocations(0).HorizontalAzimuth ' Using the first target location only
+            Select Case CurrentHorizontalAzimuth
+                Case > 0
+                    DirectionsList.Add("Höger (" & CurrentHorizontalAzimuth & "°)")
+                Case < 0
+                    DirectionsList.Add("Vänster (" & CurrentHorizontalAzimuth & "°)")
+                Case Else
+                    'This should not be used in Quick SiP
+                    DirectionsList.Add("Framifrån")
+            End Select
+        Next
+
+        For Each item In DirectionsList
+            GroupScoreList.Add(item, New List(Of Integer))
+        Next
+
+        GroupScoreList.Add("Man", New List(Of Integer))
+        GroupScoreList.Add("Kvinna", New List(Of Integer))
+
+        'Adding data
+        For Each Trial In ObservedTrials
+
+            'Getting the sub score 
+            Dim Score As Double = Trial.ScoreList.Average
+
+            'Step 1 - Consonants / vowels
+            'Getting the group
+            Dim SubGroupName1 As String
+            Select Case Trial.SpeechMaterialComponent.ParentComponent.PrimaryStringRepresentation
+                Case "fyr_skyr_syr", "kil_fil_sil", "tuff_tuss_tusch"
+                    SubGroupName1 = "Konsonanter"
+                Case "sitt_sytt_sött", "mark_märk_mörk"
+                    SubGroupName1 = "Vokaler"
+                Case Else
+                    Throw New Exception("Unexpected test list in Quick SiP")
+            End Select
+
+            'Adding the score to the sub-score list
+            GroupScoreList(SubGroupName1).Add(Score)
+
+
+            'Step 2 - Left / right side azimuth
+            Dim SubGroupName2 As String
+            Dim CurrentHorizontalAzimuth As Double = DirectCast(Trial, SipTrial).TargetStimulusLocations(0).HorizontalAzimuth ' Using the first target location only
+            Select Case CurrentHorizontalAzimuth
+                Case > 0
+                    SubGroupName2 = "Höger (" & CurrentHorizontalAzimuth & "°)"
+                Case < 0
+                    SubGroupName2 = "Vänster (" & CurrentHorizontalAzimuth & "°)"
+                Case Else
+                    SubGroupName2 = "Framifrån"
+            End Select
+
+            'Adding the score to the sub-score list
+            GroupScoreList(SubGroupName2).Add(Score)
+
+
+            'Step 3 - Male / female
+            Dim SubGroupName3 As String
+            Select Case DirectCast(Trial, SipTrial).MediaSet.TalkerGender
+                Case MediaSet.Genders.Male
+                    SubGroupName3 = "Man"
+                Case MediaSet.Genders.Female
+                    SubGroupName3 = "Kvinna"
+                Case Else
+                    Throw New Exception("Unexpected talker gender in Quick SiP")
+            End Select
+
+            'Adding the score to the sub-score list
+            GroupScoreList(SubGroupName3).Add(Score)
+
+        Next
+
+        Dim Output As New List(Of Tuple(Of String, Double))
+        For Each kvp In GroupScoreList
+            If kvp.Value.Any Then
+                Output.Add(New Tuple(Of String, Double)(kvp.Key, kvp.Value.Average))
+            Else
+                Output.Add(New Tuple(Of String, Double)(kvp.Key, 0))
+            End If
+        Next
+
+        Return Output
+
+    End Function
+
+    Public Shared Function GetTestPnrs() As List(Of Double)
+
+        Dim PNRs As New List(Of Double)
+        Dim TempPnr As Double = 15
+        For i = 0 To 9
+            PNRs.Add(TempPnr)
+            TempPnr -= 3.5
+        Next
+
+        Return PNRs
+
+    End Function
 
     Private Sub PlanQuickSiPTrials(ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
@@ -211,12 +351,7 @@ Public Class QuickSiP
         CurrentSipTestMeasurement.ClearTrials()
 
         'Talker in front
-        Dim PNRs As New List(Of Double)
-        Dim TempPnr As Double = 15
-        For i = 0 To 9
-            PNRs.Add(TempPnr)
-            TempPnr -= 3.5
-        Next
+        Dim PNRs As List(Of Double) = GetTestPnrs()
 
         SipTestLists.Add(New QuickSipList With {.SMC = Preset(0), .MediaSet = SelectedMediaSets(1), .PNR = PNRs(0)})
         SipTestLists.Add(New QuickSipList With {.SMC = Preset(1), .MediaSet = SelectedMediaSets(0), .PNR = PNRs(1)})
@@ -525,59 +660,46 @@ Public Class QuickSiP
     End Sub
 
 
-    Private Function GetAverageQuickSipHeadTurnScores(Optional ByVal TurnedRight As Boolean? = Nothing)
+    Public Overrides Function GetAverageScore(Optional IncludeTrialsFromEnd As Integer? = Nothing) As Double?
 
-        Dim TrialScoreList As New List(Of Integer)
-        For Each TestUnit In CurrentSipTestMeasurement.TestUnits
-            For Each Trial In TestUnit.ObservedTrials
+        'Getting all trials
+        Dim ObservedTrials = GetObservedTestTrials().ToList
 
-                If TurnedRight.HasValue = False Then
+        'Returning Nothing if no trials have been observed
+        If ObservedTrials.Count = 0 Then Return Nothing
 
-                    'Getting all results
-                    If Trial.IsCorrect = True Then
-                        TrialScoreList.Add(1)
-                    Else
-                        TrialScoreList.Add(0)
-                    End If
+        'Creating a list to store observed trials to include
+        Dim TrialsToInclude As New List(Of TestTrial)
 
-                Else
+        If IncludeTrialsFromEnd.HasValue Then
 
-                    Dim TrialIsTurnRight As Boolean
-                    If Trial.TargetStimulusLocations(0).HorizontalAzimuth = -10 Then
-                        TrialIsTurnRight = True
-                    ElseIf Trial.TargetStimulusLocations(0).HorizontalAzimuth = 10 Then
-                        TrialIsTurnRight = False
-                    Else
-                        Throw New Exception("Incompatible head-turn data. This is a bug!")
-                    End If
+            'Getting the IncludeTrialsFromEnd last test trials, or all if ObservedTrials is shorter than IncludeTrialsFromEnd
+            If ObservedTrials.Count < IncludeTrialsFromEnd + 1 Then
+                TrialsToInclude.AddRange(ObservedTrials)
+            Else
+                TrialsToInclude.AddRange(ObservedTrials.GetRange(ObservedTrials.Count - IncludeTrialsFromEnd, IncludeTrialsFromEnd))
+            End If
 
-                    'Getting results only from the indicated head turn
-                    If TurnedRight = True And TrialIsTurnRight = True Then
-                        If Trial.IsCorrect = True Then
-                            TrialScoreList.Add(1)
-                        Else
-                            TrialScoreList.Add(0)
-                        End If
-                    End If
+        Else
+            'Getting all trials
+            TrialsToInclude.AddRange(ObservedTrials)
+        End If
 
-                    If TurnedRight = False And TrialIsTurnRight = False Then
-                        If Trial.IsCorrect = True Then
-                            TrialScoreList.Add(1)
-                        Else
-                            TrialScoreList.Add(0)
-                        End If
-                    End If
+        'Calculating average score
+        Dim ScoreList As New List(Of Integer)
+        For Each Trial In TrialsToInclude
 
-                End If
+            'Getting all results
+            If Trial.IsCorrect = True Then
+                ScoreList.Add(1)
+            Else
+                ScoreList.Add(0)
+            End If
 
-            Next
         Next
 
-        If TrialScoreList.Count > 0 Then
-            Return TrialScoreList.Average
-        Else
-            Return -1
-        End If
+        Return ScoreList.Average
+
 
     End Function
 
@@ -586,9 +708,10 @@ Public Class QuickSiP
 
         Dim Output As New List(Of String)
 
-        Output.Add("Overall score: " & Math.Rounding(100 * GetAverageQuickSipHeadTurnScores(Nothing)) & " %")
-        'Output.Add("Head turned left: " & Math.Rounding(100 * GetAverageQuickSipHeadTurnScores(False)) & " %")
-        'Output.Add("Head turned right : " & Math.Rounding(100 * GetAverageQuickSipHeadTurnScores(True)) & " %")
+        Dim AverageScore As Double? = GetAverageScore()
+        If AverageScore.HasValue Then
+            Output.Add("Overall score: " & Math.Rounding(100 * GetAverageScore()) & "%")
+        End If
 
         ResultsSummary = GetPnrScores()
 

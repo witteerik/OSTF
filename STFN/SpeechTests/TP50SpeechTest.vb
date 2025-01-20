@@ -546,17 +546,28 @@ Public Class TP50SpeechTest
 
     Public Overrides Function GetProgress() As Utils.ProgressInfo
 
-        If TestProtocol IsNot Nothing Then
-            If TestProtocol.TotalTrialCount <> -1 Then
-                Dim NewProgressInfo As New Utils.ProgressInfo
-                NewProgressInfo.Value = GetObservedTestTrials.Count
-                NewProgressInfo.Maximum = TestProtocol.TotalTrialCount
-                Return NewProgressInfo
-            End If
+        If GetTotalTrialCount() <> -1 Then
+            Dim NewProgressInfo As New Utils.ProgressInfo
+            NewProgressInfo.Value = GetObservedTestTrials.Count
+            NewProgressInfo.Maximum = GetTotalTrialCount()
+            Return NewProgressInfo
         End If
 
         Return Nothing
 
+    End Function
+
+    Public Overrides Function GetSubGroupResults() As List(Of Tuple(Of String, Double))
+        Return Nothing
+    End Function
+
+    Public Overrides Function GetTotalTrialCount() As Integer
+        If TestProtocol Is Nothing Then Return -1
+        Return TestProtocol.TotalTrialCount
+    End Function
+
+    Public Overrides Function GetScorePerLevel() As Tuple(Of String, SortedList(Of Double, Double))
+        Return Nothing
     End Function
 
 

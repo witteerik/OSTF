@@ -6,13 +6,14 @@ namespace STFM.Views
 {
 
     [ToolboxItem(true)] // Marks this class as available for the Toolbox
-    public partial class TestResultView_AdaptiveSiP : TestResultsView
+    public partial class TestResultView_Adaptive : TestResultsView
     {
-        public TestResultView_AdaptiveSiP()
+        public TestResultView_Adaptive()
         {
             InitializeComponent();
             //this.LoadFromXaml(typeof(TestResultView_Adaptive));
 
+            // Setting up diagram 1
 
             // Assign the custom drawable to the GraphicsView
             SnrView.Drawable = new TestResultsDiagram(SnrView);
@@ -34,44 +35,37 @@ namespace STFM.Views
                     StopButton.Text = "Stop";
                     PauseButton.Text = "Pause";
 
-                    TargetScoreNameLabel.Text = "Mål, andel korrekt:";
-                    ReferenceLevelNameLabel.Text = "Referensnivå:";
+                    SpeechLevelNameLabel.Text = "Talnivå:";
+                    NoiseLevelNameLabel.Text = "Brusnivå";
                     AdaptiveLevelNameLabel.Text = "Adaptiv nivå:";
-                    TrialNumberNameLabel.Text = "Försök nummer:";
-                    FinalResultNameLabel.Text = "Hörtröskel:";
+                    ContralateralNoiseNameLabel.Text = "Kontralat. maskeringsnivå:";
 
                     SnrGridLabelY.Text = "PNR (dB)";
                     SnrGridLabelX.Text = "Försök nummer";
 
-                    GroupScoreTitleLabel.Text = "Andel korrekt sista 10 försöken";
-                    TwgNameLabel1.Text = "Grupp 1";
-                    TwgNameLabel2.Text = "Grupp 2";
-                    TwgNameLabel3.Text = "Grupp 3";
-                    TwgNameLabel4.Text = "Grupp 4";
-                    TwgNameLabel5.Text = "Grupp 5";
-                    TenLastScoreNameLabel.Text = "Alla grupper";
+                    TargetScoreNameLabel.Text = "Mål, andel korrekt:";
+                    TenLastScoreNameLabel.Text = "Andel korrekt, sista 10:";
+                    TrialNumberNameLabel.Text = "Försök nummer:";
+                    FinalResultNameLabel.Text = "Hörtröskel:";
 
                     break;
                 default:
                     StartButton.Text = "Start";
                     StopButton.Text = "Stop";
                     PauseButton.Text = "Pause";
+
+                    SpeechLevelNameLabel.Text = "Speech level:";
+                    NoiseLevelNameLabel.Text = "Noise level";
+                    AdaptiveLevelNameLabel.Text = "Adaptive level:";
+                    ContralateralNoiseNameLabel.Text = "Contralat. masking level";
+
                     SnrGridLabelY.Text = "PNR (dB)";
                     SnrGridLabelX.Text = "Test trial";
 
                     TargetScoreNameLabel.Text = "Target score:";
-                    ReferenceLevelNameLabel.Text = "Reference level:";
-                    AdaptiveLevelNameLabel.Text = "Adaptive level:";
+                    TenLastScoreNameLabel.Text = "Average scores, last 10:";
                     TrialNumberNameLabel.Text = "Trial number:";
                     FinalResultNameLabel.Text = "SRT";
-
-                    GroupScoreTitleLabel.Text = "Average scores in last 10 trials";
-                    TwgNameLabel1.Text = "Group 1";
-                    TwgNameLabel2.Text = "Group 2";
-                    TwgNameLabel3.Text = "Group 3";
-                    TwgNameLabel4.Text = "Group 4";
-                    TwgNameLabel5.Text = "Group 5";
-                    TenLastScoreNameLabel.Text = "Overall score";
 
                     break;
             }
@@ -102,6 +96,26 @@ namespace STFM.Views
 
             var ObservedTestTrials = speechTest.GetObservedTestTrials();
 
+
+            // Speech and noise levels
+            SpeechLevelValueLabel.Text = System.Math.Round(speechTest.TargetLevel, 1).ToString() + speechTest.dBString();
+            NoiseLevelValueLabel.Text = System.Math.Round(speechTest.MaskingLevel, 1).ToString() + speechTest.dBString();
+
+            // PNR
+            double? CurrentAdaptiveValue = testProtocol.GetCurrentAdaptiveValue();
+            if (CurrentAdaptiveValue.HasValue)
+            {
+                AdaptiveLevelValueLabel.Text = System.Math.Round(CurrentAdaptiveValue.Value,1).ToString() + " dB PNR";
+            }
+            else
+            {
+                AdaptiveLevelValueLabel.Text = "";
+            }
+
+            // Contralateral level
+            ContralateralNoiseLevelValueLabel.Text = System.Math.Round(speechTest.ContralateralMaskingLevel,1).ToString() + speechTest.dBString();
+
+
             // Target score
             if (testProtocol.TargetScore.HasValue)
             {
@@ -115,19 +129,17 @@ namespace STFM.Views
                 }
             }
 
-            // Reference level
-            ReferenceLevelValueLabel.Text = speechTest.ReferenceLevel.ToString() + " dB SPL";
+            // Ten last trials' score
+            double? averageScore = speechTest.GetAverageScore(10);
+            if (averageScore.HasValue)
+            {
+                TenLastScoreValueLabel.Text = System.Math.Round(100 * averageScore.Value, 0).ToString();
+            }
+            else 
+            {
+                TenLastScoreValueLabel.Text = "";
+            }
 
-            // PNR
-            double? CurrentAdaptiveValue = testProtocol.GetCurrentAdaptiveValue();
-            if (CurrentAdaptiveValue.HasValue)
-            {
-                AdaptiveLevelValueLabel.Text = System.Math.Round(CurrentAdaptiveValue.Value,1).ToString() + " dB PNR";
-            }
-            else
-            {
-                AdaptiveLevelValueLabel.Text = "";
-            }
 
             // Trial count / progress
             if (ObservedTestTrials.Count() > 0)
@@ -141,56 +153,18 @@ namespace STFM.Views
 
             // SRT:
             double? FinalResult = testProtocol.GetFinalResultValue();
-            if (speechTest.IsPractiseTest == false)
+            if (FinalResult.HasValue)
             {
-                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
-                {
-                    case STFN.Utils.Constants.Languages.English:
-                        FinalResultNameLabel.Text = "SRT:";
-                        break;
-                    case STFN.Utils.Constants.Languages.Swedish:
-                        FinalResultNameLabel.Text = "Hörtröskel:";
-                        break;
-                    default:
-                        FinalResultNameLabel.Text = "SRT:";
-                        break;
-                }
-                if (FinalResult.HasValue)
-                {
-                    FinalResultValueLabel.Text = System.Math.Round(FinalResult.Value, 1).ToString() + " dB PNR";
-                }
-                else
-                {
-                    FinalResultValueLabel.Text = "---";
-                }
+                FinalResultValueLabel.Text = System.Math.Round(FinalResult.Value, 1).ToString() + " dB SNR";
             }
             else
             {
-                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
-                {
-                    case STFN.Utils.Constants.Languages.English:
-                        FinalResultNameLabel.Text = "Score:";
-                        break;
-                    case STFN.Utils.Constants.Languages.Swedish:
-                        FinalResultNameLabel.Text = "Andel korrekt:";
-                        break;
-                    default:
-                        FinalResultNameLabel.Text = "Score:";
-                        break;
-                }
-                if (FinalResult.HasValue)
-                {
-                    FinalResultValueLabel.Text = System.Math.Round(100 * FinalResult.Value, 0).ToString() + " %";
-                }
-                else
-                {
-                    FinalResultValueLabel.Text = "---";
-                }
+                FinalResultValueLabel.Text = "---";
             }
 
 
-            // SNR diagram (Not updating the SNR diagram in practise tests)
-            if (speechTest.IsPractiseTest == false)
+            // SNR diagram 
+            if (ObservedTestTrials.Any())
             {
 
                 List<float> PresentedPnrs = new List<float>();
@@ -210,7 +184,6 @@ namespace STFM.Views
                     PresentedPnrs.Add((float)CurrentAdaptiveValue.Value);
                     PresentedTrials.Add(presentedTrialIndex);
                 }
-
 
                 MySnrDiagram.SetSizeModificationStrategy(PlotBase.SizeModificationStrategies.Horizontal);
                 MySnrDiagram.SetTextSizeAxisX(0.8f);
@@ -257,56 +230,6 @@ namespace STFM.Views
 
             }
 
-
-            // Result details
-            List<Tuple< string,double>> SubGroupResults = speechTest.GetSubGroupResults();
-
-            if (SubGroupResults != null)
-            {
-
-                if (SubGroupResults.Count > 0)
-                {
-                    TwgNameLabel1.Text = SubGroupResults[0].Item1;
-                    TwgProgressBar1.Progress = SubGroupResults[0].Item2;
-                    TwgScoreLabel1.Text = System.Math.Round(100* SubGroupResults[0].Item2).ToString() + "%";
-                }
-
-                if (SubGroupResults.Count > 1)
-                {
-                    TwgNameLabel2.Text = SubGroupResults[1].Item1;
-                    TwgProgressBar2.Progress = SubGroupResults[1].Item2;
-                    TwgScoreLabel2.Text = System.Math.Round(100 * SubGroupResults[1].Item2).ToString() + "%";
-                }
-
-                if (SubGroupResults.Count > 2)
-                {
-                    TwgNameLabel3.Text = SubGroupResults[2].Item1;
-                    TwgProgressBar3.Progress = SubGroupResults[2].Item2;
-                    TwgScoreLabel3.Text = System.Math.Round(100 * SubGroupResults[2].Item2).ToString() + "%";
-                }
-
-                if (SubGroupResults.Count > 3)
-                {
-                    TwgNameLabel4.Text = SubGroupResults[3].Item1;
-                    TwgProgressBar4.Progress = SubGroupResults[3].Item2;
-                    TwgScoreLabel4.Text = System.Math.Round(100 * SubGroupResults[3].Item2).ToString() + "%";
-                }
-
-                if (SubGroupResults.Count > 4)
-                {
-                    TwgNameLabel5.Text = SubGroupResults[4].Item1;
-                    TwgProgressBar5.Progress = SubGroupResults[4].Item2;
-                    TwgScoreLabel5.Text = System.Math.Round(100 * SubGroupResults[4].Item2).ToString() + "%";
-                }
-
-                if (SubGroupResults.Count > 5)
-                {
-                    TenLastScoreNameLabel.Text = SubGroupResults[5].Item1;
-                    TenLastScoreProgressBar.Progress = SubGroupResults[5].Item2;
-                    TenLastScoreLabel.Text = System.Math.Round(100 * SubGroupResults[5].Item2).ToString() + "%";
-                }
-
-            }
         }
 
         private void StartButton_Clicked(object sender, EventArgs e)
@@ -378,5 +301,6 @@ namespace STFM.Views
 
         }
     }
+
 
 }

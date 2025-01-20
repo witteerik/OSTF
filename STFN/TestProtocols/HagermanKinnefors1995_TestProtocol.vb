@@ -52,6 +52,9 @@ Public Class HagermanKinnefors1995_TestProtocol
     ''' <returns></returns>
     Public Overrides Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
+        ' Setting the target score, which is 40 % in the the Hagerman procedure
+        TargetScore = 0.4
+
         'Setting the (initial) adaptive level (should be the speech level) specified by the calling code
         NextAdaptiveLevel = InitialTaskInstruction.AdaptiveValue
 

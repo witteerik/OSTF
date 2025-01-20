@@ -45,6 +45,12 @@
 	  <Compile Update="Views\ResponseView_AdaptiveSiP.xaml.cs">
 	    <DependentUpon>ResponseView_AdaptiveSiP.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\TestResultView_Adaptive.xaml.cs">
+	    <DependentUpon>TestResultView_Adaptive.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="Views\TestResultView_QuickSiP.xaml.cs">
+	    <DependentUpon>TestResultView_QuickSiP.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\WelcomePageR.xaml.cs">
 	    <DependentUpon>WelcomePageR.xaml</DependentUpon>
 	  </Compile>
@@ -64,6 +70,12 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ScreeningAudiometerView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\TestResultView_Adaptive.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\TestResultView_QuickSiP.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\TestResultView_AdaptiveSiP.xaml">

@@ -2374,42 +2374,64 @@ Public MustInherit Class SpeechTest
 
     Public GuiResultType As GuiResultTypes = GuiResultTypes.StringResults
 
-    Public Shared Function GetAverageScore(ByVal Trials As IEnumerable(Of TestTrial)) As Double?
+    ''' <summary>
+    ''' Should return the average proportion correct in the observed test trials, of Nothing if no test trials have been presented
+    ''' </summary>
+    ''' <returns></returns>
+    Public Overridable Function GetAverageScore(Optional IncludeTrialsFromEnd As Integer? = Nothing) As Double?
 
-        Dim ScoreList As New List(Of Integer)
-        For Each Trial In Trials
-            If Trial.IsCorrect = True Then
-                ScoreList.Add(1)
+        'Getting all trials
+        Dim ObservedTrials = GetObservedTestTrials().ToList
+
+        'Returning Nothing if no trials have been observed
+        If ObservedTrials.Count = 0 Then Return Nothing
+
+        'Creating a list to store observed trials to include
+        Dim TrialsToInclude As New List(Of TestTrial)
+
+        If IncludeTrialsFromEnd.HasValue Then
+
+            'Getting the IncludeTrialsFromEnd last test trials, or all if ObservedTrials is shorter than IncludeTrialsFromEnd
+            If ObservedTrials.Count < IncludeTrialsFromEnd + 1 Then
+                TrialsToInclude.AddRange(ObservedTrials)
             Else
-                ScoreList.Add(0)
+                TrialsToInclude.AddRange(ObservedTrials.GetRange(ObservedTrials.Count - IncludeTrialsFromEnd, IncludeTrialsFromEnd))
             End If
-        Next
-        If ScoreList.Count > 0 Then
-            Return ScoreList.Average
+
         Else
-            Return Nothing
+            'Getting all trials
+            TrialsToInclude.AddRange(ObservedTrials)
         End If
+
+        'Calculating average score
+        Dim ScoreList As New List(Of Integer)
+        For Each Trial In TrialsToInclude
+            ScoreList.AddRange(Trial.ScoreList)
+        Next
+
+        Return ScoreList.Average
 
     End Function
 
-    Public Shared Function GetNumbersOfCorrectTrials(ByVal Trials As IEnumerable(Of TestTrial)) As Double?
+    ''' <summary>
+    ''' Should return the total number of (observed + planned) trials in a test, or -1 if not possible to determine
+    ''' </summary>
+    ''' <returns></returns>
+    Public MustOverride Function GetTotalTrialCount() As Integer
 
-        Dim ScoreList As New List(Of Integer)
-        For Each Trial In Trials
-            If Trial.IsCorrect = True Then
-                ScoreList.Add(1)
-            Else
-                ScoreList.Add(0)
-            End If
-        Next
-        If ScoreList.Count > 0 Then
-            Return ScoreList.Sum
-        Else
-            Return Nothing
-        End If
+    ''' <summary>
+    ''' Should return a list of sub-test results to display in a test-result GUI. Item1s are the group title, and Item2s are the corresponding scores. Should return Nothing if sub-group scores are not used.
+    ''' </summary>
+    ''' <returns></returns>
+    Public MustOverride Function GetSubGroupResults() As List(Of Tuple(Of String, Double))
 
-    End Function
-
+    ''' <summary>
+    ''' This method should return data suitable for presenting in a x/y plot. Item1 gives the X-axis label indicating type of level. 
+    ''' In Item2, keys are presentation levels or SNRs, and values are scores as proportion (0-1).
+    ''' Should be Nothing if not used by the current test.
+    ''' </summary>
+    ''' <returns></returns>
+    Public MustOverride Function GetScorePerLevel() As Tuple(Of String, SortedList(Of Double, Double))
 
 
 #End Region

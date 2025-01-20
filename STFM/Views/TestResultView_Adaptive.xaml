@@ -2,7 +2,7 @@
 <custom:TestResultsView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:custom="clr-namespace:STFM.Views"
-             x:Class="STFM.Views.TestResultView_AdaptiveSiP"
+             x:Class="STFM.Views.TestResultView_Adaptive"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls">
 
     <Grid Background="#EDEDED" 
@@ -71,7 +71,7 @@
 
         </Frame>
 
-        <Frame x:Name="SummaryFrame" 
+        <Frame x:Name="SummaryFrameLeft" 
                Grid.Row="0" Grid.RowSpan="1"
                Grid.Column="1" Grid.ColumnSpan="1" 
                Margin="3" Padding="12,12,12,12"
@@ -89,21 +89,23 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
                 <!--Adding controls -->
 
-                <Label x:Name="TargetScoreNameLabel" 
+
+                <Label x:Name="SpeechLevelNameLabel" 
                    Grid.Row="0" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
-                       Text="Target score:"
+                       Text="Reference level:"
                        TextColor="AntiqueWhite">
                 </Label>
 
                 <Frame Grid.Row="0" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
-                    <Label x:Name="TargetScoreValueLabel" 
+                    <Label x:Name="SpeechLevelValueLabel" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
@@ -111,7 +113,7 @@
                     </Label>
                 </Frame>
 
-                <Label x:Name="ReferenceLevelNameLabel" 
+                <Label x:Name="NoiseLevelNameLabel" 
                    Grid.Row="1" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
@@ -121,14 +123,14 @@
                 </Label>
 
                 <Frame Grid.Row="1" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
-                    <Label x:Name="ReferenceLevelValueLabel" 
+                    <Label x:Name="NoiseLevelValueLabel" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
                       Text="">
                     </Label>
                 </Frame>
-
+                
                 <Label x:Name="AdaptiveLevelNameLabel" 
                    Grid.Row="2" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
@@ -147,17 +149,17 @@
                     </Label>
                 </Frame>
 
-                <Label x:Name="TrialNumberNameLabel" 
+                <Label x:Name="ContralateralNoiseNameLabel" 
                    Grid.Row="3" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
-                       Text="Trial number:"
+                       Text="Reference level:"
                        TextColor="AntiqueWhite">
                 </Label>
 
                 <Frame Grid.Row="3" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
-                    <Label x:Name="TrialNumberValueLabel" 
+                    <Label x:Name="ContralateralNoiseLevelValueLabel" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
@@ -165,25 +167,7 @@
                     </Label>
                 </Frame>
 
-                <Label x:Name="FinalResultNameLabel" 
-                   Grid.Row="4" Grid.Column="0" 
-                   HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Start"
-                   VerticalTextAlignment="Center"
-                       Text="SRT:"
-                       TextColor="AntiqueWhite"
-                       FontAttributes="Bold">
-                </Label>
-
-                <Frame Grid.Row="4" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
-                    <Label x:Name="FinalResultValueLabel" 
-                   HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Center"
-                   VerticalTextAlignment="Center"
-                      Text=""
-                           FontAttributes="Bold">
-                    </Label>
-                </Frame>
+            
 
             </Grid>
 
@@ -240,21 +224,19 @@
         </Frame>
 
 
-        <Frame x:Name="DetailsFrame" 
+        <Frame x:Name="SummaryFrameRight" 
                Grid.Row="0" Grid.RowSpan="1"
-               Grid.Column="3" Grid.ColumnSpan="1"
-               Margin="3" Padding="12,10,5,10"
+               Grid.Column="1" Grid.ColumnSpan="1" 
+               Margin="3" Padding="12,12,12,12"
                Background="DarkSlateGray">
 
-            <Grid  >
+            <Grid >
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*" />
                     <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
@@ -265,182 +247,85 @@
 
                 <!--Adding controls -->
 
-                <Label x:Name="GroupScoreTitleLabel" 
-                   Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+                <Label x:Name="TargetScoreNameLabel" 
+                   Grid.Row="0" Grid.Column="0" 
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   HorizontalTextAlignment="Start"
+                   VerticalTextAlignment="Center"
+                       Text="Target score:"
+                       TextColor="AntiqueWhite">
+                </Label>
+
+                <Frame Grid.Row="0" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
+                    <Label x:Name="TargetScoreValueLabel" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
-                   VerticalTextAlignment="Start"
-                       Text="Average scores in last 10 trials"
-                       TextColor="AntiqueWhite" 
-                       FontAttributes="Bold">
-                </Label>
+                   VerticalTextAlignment="Center"
+                      Text="">
+                    </Label>
+                </Frame>
 
-
-                <Label x:Name="TwgNameLabel1" 
-                   Grid.Row="1" Grid.Column="0" 
+                <Label x:Name="TenLastScoreNameLabel" 
+                   Grid.Row="0" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
-                       Text="Group 1"
+                       Text="Target score:"
                        TextColor="AntiqueWhite">
                 </Label>
 
-                <Label x:Name="TwgNameLabel2" 
-                   Grid.Row="2" Grid.Column="0" 
+                <Frame Grid.Row="0" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
+                    <Label x:Name="TenLastScoreValueLabel" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Start"
+                   HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
-                       Text="Group 2"
-                       TextColor="AntiqueWhite">
-                </Label>
+                      Text="">
+                    </Label>
+                </Frame>
 
-                <Label x:Name="TwgNameLabel3" 
-                   Grid.Row="3" Grid.Column="0" 
-                   HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Start"
-                   VerticalTextAlignment="Center"
-                       Text="Group 3"
-                       TextColor="AntiqueWhite">
-                </Label>
-
-                <Label x:Name="TwgNameLabel4" 
+                <Label x:Name="TrialNumberNameLabel" 
                    Grid.Row="4" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
-                       Text="Group 4"
+                       Text="Trial number:"
                        TextColor="AntiqueWhite">
                 </Label>
 
+                <Frame Grid.Row="4" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
+                    <Label x:Name="TrialNumberValueLabel" 
+                   HorizontalOptions="Fill" VerticalOptions="Fill"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                      Text="">
+                    </Label>
+                </Frame>
 
-                <Label x:Name="TwgNameLabel5" 
+                <Label x:Name="FinalResultNameLabel" 
                    Grid.Row="5" Grid.Column="0" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Start"
                    VerticalTextAlignment="Center"
-                       Text="Group 5"
-                       TextColor="AntiqueWhite">
-                </Label>
-
-                <Frame Grid.Row="1" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
-                    <ProgressBar x:Name="TwgProgressBar1" 
-                                 ScaleY="2"
-                             Background="Transparent"
-                             ProgressColor="#E97C7C"
-                             Progress="1" Margin="0"/>
-                </Frame>
-
-                <Frame Grid.Row="2" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
-                    <ProgressBar x:Name="TwgProgressBar2" 
-                                 ScaleY="2"
-                             Background="Transparent"
-                             ProgressColor="#80D73E"
-                             Progress="1" Margin="0"/>
-                </Frame>
-
-                <Frame Grid.Row="3" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
-                    <ProgressBar x:Name="TwgProgressBar3" 
-                                 ScaleY="2"
-                             Background="Transparent"
-                             ProgressColor="#3ACFD2"
-                             Progress="1" Margin="0"/>
-                </Frame>
-
-                <Frame Grid.Row="4" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
-                    <ProgressBar x:Name="TwgProgressBar4" 
-                                 ScaleY="2"
-                             Background="Transparent"
-                             ProgressColor="#3667D0"
-                             Progress="1" Margin="0"/>
-                </Frame>
-
-                <Frame Grid.Row="5" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
-                    <ProgressBar x:Name="TwgProgressBar5" 
-                                 ScaleY="2"
-                             Background="Transparent"
-                             ProgressColor="#C936D9"
-                             Progress="1" Margin="0"/>
-                </Frame>
-
-                <Label x:Name="TwgScoreLabel1" 
-                   Grid.Row="1" Grid.Column="2"
-                   HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Center"
-                   VerticalTextAlignment="Center"
-                   Text="%"
-                       TextColor="AntiqueWhite">
-                </Label>
-
-                <Label x:Name="TwgScoreLabel2" 
-                   Grid.Row="2" Grid.Column="2"
-                   HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Center"
-                   VerticalTextAlignment="Center"
-                   Text="%"
-                       TextColor="AntiqueWhite">
-                </Label>
-
-                <Label x:Name="TwgScoreLabel3" 
-                   Grid.Row="3" Grid.Column="2"
-                   HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Center"
-                   VerticalTextAlignment="Center"
-                   Text="%"
-                       TextColor="AntiqueWhite">
-                </Label>
-
-                <Label x:Name="TwgScoreLabel4" 
-                   Grid.Row="4" Grid.Column="2"
-                   HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Center"
-                   VerticalTextAlignment="Center"
-                   Text="%"
-                       TextColor="AntiqueWhite">
-                </Label>
-
-                <Label x:Name="TwgScoreLabel5" 
-                   Grid.Row="5" Grid.Column="2"
-                   HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Center"
-                   VerticalTextAlignment="Center"
-                   Text="%"
-                       TextColor="AntiqueWhite">
-                </Label>
-                
-                               
-                <!--Overall score-->
-                <Label x:Name="TenLastScoreNameLabel" 
-                   Grid.Row="6" Grid.Column="0" 
-                   HorizontalOptions="Fill" VerticalOptions="Fill"
-                   HorizontalTextAlignment="Start"
-                   VerticalTextAlignment="Center"
-                       Text="Overall score"
+                       Text="SRT:"
                        TextColor="AntiqueWhite"
                        FontAttributes="Bold">
                 </Label>
 
-                <Frame Grid.Row="6" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="20">
-                    <ProgressBar x:Name="TenLastScoreProgressBar" 
-                                 ScaleY="2"
-                             Background="Transparent"
-                             ProgressColor="#36FA12"
-                             Progress="1" Margin="0"/>
-                </Frame>
-
-                <Label x:Name="TenLastScoreLabel" 
-                   Grid.Row="6" Grid.Column="2"
+                <Frame Grid.Row="5" Grid.Column="1" Background="AntiqueWhite"  CornerRadius="2" Margin="0" Padding="2" HeightRequest="25">
+                    <Label x:Name="FinalResultValueLabel" 
                    HorizontalOptions="Fill" VerticalOptions="Fill"
                    HorizontalTextAlignment="Center"
                    VerticalTextAlignment="Center"
-                   Text="%"
-                       TextColor="AntiqueWhite"
-                       FontAttributes="Bold">
-                </Label>
+                      Text=""
+                           FontAttributes="Bold">
+                    </Label>
+                </Frame>
 
             </Grid>
 
-
         </Frame>
+
+
     </Grid>
     
 </custom:TestResultsView>

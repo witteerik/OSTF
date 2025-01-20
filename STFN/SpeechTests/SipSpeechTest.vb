@@ -605,8 +605,12 @@ Public Class SipSpeechTest
         Return New List(Of String)
     End Function
 
+    Public Overrides Function GetSubGroupResults() As List(Of Tuple(Of String, Double))
+        Return Nothing
+    End Function
 
-
-
+    Public Overrides Function GetScorePerLevel() As Tuple(Of String, SortedList(Of Double, Double))
+        Return Nothing
+    End Function
 
 End Class

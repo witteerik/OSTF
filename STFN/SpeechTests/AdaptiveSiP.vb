@@ -787,7 +787,7 @@ Public Class AdaptiveSiP
 
     End Function
 
-    Public Function GetSubGroupResults() As SortedList(Of String, Double)
+    Public Overrides Function GetSubGroupResults() As List(Of Tuple(Of String, Double))
 
         Dim SubScoreList As New SortedList(Of String, List(Of Integer))
 
@@ -809,26 +809,25 @@ Public Class AdaptiveSiP
 
             For Each SubTrial In Trial.SubTrials
 
-                'Getting the sub score name and score
+                'Getting the sub score name 
                 Dim SubGroupName = SubTrial.SpeechMaterialComponent.ParentComponent.PrimaryStringRepresentation.Replace("_", ", ")
-                Dim Score As Double = SubTrial.ScoreList.Average
 
                 'Adding the sub group is not already done
                 If SubScoreList.ContainsKey(SubGroupName) = False Then SubScoreList.Add(SubGroupName, New List(Of Integer))
 
                 'Adding the score to the sub-score list
-                SubScoreList(SubGroupName).Add(Score)
+                SubScoreList(SubGroupName).AddRange(SubTrial.ScoreList)
 
                 'Adding the score to the overall score list
-                OverallList.Add(Score)
+                OverallList.AddRange(SubTrial.ScoreList)
 
             Next
 
         Next
 
-        Dim Output As New SortedList(Of String, Double)
+        Dim Output As New List(Of Tuple(Of String, Double))
         For Each kvp In SubScoreList
-            Output.Add(kvp.Key, kvp.Value.Average)
+            Output.Add(New Tuple(Of String, Double)(kvp.Key, kvp.Value.Average))
         Next
 
         'Adding the overall list
@@ -842,14 +841,13 @@ Public Class AdaptiveSiP
                 OverallGroupName = "In total"
         End Select
 
-        'Adding it only if the key does not already exist (which is unlikely), otherwise an exception will be thrown.
-        If Output.ContainsKey(OverallGroupName) = False Then
-            Output.Add(OverallGroupName, OverallList.Average)
-        End If
+        ' Adding also the overall value
+        Output.Add(New Tuple(Of String, Double)(OverallGroupName, OverallList.Average))
 
         Return Output
 
     End Function
+
 
     ''' <summary>
     ''' This function should list the names of variables included SpeechTestDump of each test trial to be exported in the "selected-variables" export file.
@@ -863,9 +861,13 @@ Public Class AdaptiveSiP
 
         Dim NewProgressInfo As New ProgressInfo
         NewProgressInfo.Value = GetObservedTestTrials.Count + 1 ' Adds one to show started instead of completed trials.
-        NewProgressInfo.Maximum = TrialCount
+        NewProgressInfo.Maximum = GetTotalTrialCount()
         Return NewProgressInfo
 
+    End Function
+
+    Public Overrides Function GetTotalTrialCount() As Integer
+        Return TrialCount
     End Function
 
     Public Overrides Function GetTestCompletedGuiMessage() As String
@@ -905,5 +907,7 @@ Public Class AdaptiveSiP
 
     End Function
 
-
+    Public Overrides Function GetScorePerLevel() As Tuple(Of String, SortedList(Of Double, Double))
+        Return Nothing
+    End Function
 End Class

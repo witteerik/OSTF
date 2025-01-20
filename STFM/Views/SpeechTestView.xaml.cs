@@ -443,6 +443,19 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     #region Test_setup
 
+    private void CloseExtraWindows()
+    {
+        // Closing all extra windows (such as testresult windows) except this first one
+        var windows = Application.Current.Windows.ToList();
+        foreach (Window window in windows)
+        {
+            if (window != this.Window)
+            {
+                Application.Current.CloseWindow(window);
+            }
+        }
+    }
+
     private void NewTest()
     {
 
@@ -471,16 +484,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         //    }
         //}
 
-        // Closing all extra windows (such as testresult windows) except this first one
-        var windows = Application.Current.Windows.ToList();
-        foreach (Window window in windows)
-        {
-            if (window != this.Window)
-            {
-                Application.Current.CloseWindow(window);
-            }
-        }
 
+        // Closing all extra windows (such as testresult windows) except this first one
+        CloseExtraWindows();
 
         // Setting layout
         SetLayoutConfiguration(LayoutConfiguration.Settings);
@@ -520,6 +526,9 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             // Note that if, in the future, different audio formats will exist within the same SpeechMaterial, a SpeechMaterialChanged Event will also have to be implemented.
         }
+
+        // Closing all extra windows (such as testresult windows) except this first one
+        CloseExtraWindows();
 
         // Inactivates tackback
         InactivateTalkback();
@@ -623,6 +632,35 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsHintTestView);
                     CurrentTestOptionsView = newOptionsHintTestView;
 
+                    // Creating test result view
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    {
+
+                        HasExternalResultsView = true;
+                        CurrentTestResultsView = new TestResultView_Adaptive();
+
+                        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
+                        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
+                        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
+
+                        TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
+                        CurrentExternalTestResultWindow = new Window(NewTestResultPage);
+                        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Quick SiP";
+                        CurrentExternalTestResultWindow.Height = 240;
+                        CurrentExternalTestResultWindow.Width = 1200;
+                        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
+
+                    }
+                    else
+                    {
+
+                        // Using a basic text-only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
+                    }
+
                     // Setting CurrentTestPlayState 
                     CurrentTestPlayState = TestPlayStates.ShowTestOptionsAndStartButton;
 
@@ -646,6 +684,35 @@ public partial class SpeechTestView : ContentView, IDrawable
                     TestOptionsGrid.Children.Add(newOptionsMatrixTestView);
                     CurrentTestOptionsView = newOptionsMatrixTestView;
 
+                    // Creating test result view
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    {
+
+                        HasExternalResultsView = true;
+                        CurrentTestResultsView = new TestResultView_Adaptive();
+
+                        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
+                        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
+                        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
+
+                        TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
+                        CurrentExternalTestResultWindow = new Window(NewTestResultPage);
+                        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Quick SiP";
+                        CurrentExternalTestResultWindow.Height = 240;
+                        CurrentExternalTestResultWindow.Width = 1200;
+                        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
+
+                    }
+                    else
+                    {
+
+                        // Using a basic text-only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
+                    }
+
                     // Setting CurrentTestPlayState 
                     CurrentTestPlayState = TestPlayStates.ShowTestOptionsAndStartButton;
 
@@ -668,6 +735,35 @@ public partial class SpeechTestView : ContentView, IDrawable
                     var newOptionsSrtTestView = new OptionsViewAll(CurrentSpeechTest);
                     TestOptionsGrid.Children.Add(newOptionsSrtTestView);
                     CurrentTestOptionsView = newOptionsSrtTestView;
+
+                    // Creating test result view
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI)
+                    {
+
+                        HasExternalResultsView = true;
+                        CurrentTestResultsView = new TestResultView_Adaptive();
+
+                        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
+                        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
+                        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
+
+                        TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
+                        CurrentExternalTestResultWindow = new Window(NewTestResultPage);
+                        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Quick SiP";
+                        CurrentExternalTestResultWindow.Height = 240;
+                        CurrentExternalTestResultWindow.Width = 1200;
+                        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
+
+                    }
+                    else
+                    {
+
+                        // Using a basic text-only view
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultsView_Text();
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
+                    }
 
                     // Setting CurrentTestPlayState 
                     CurrentTestPlayState = TestPlayStates.ShowTestOptionsAndStartButton;
@@ -722,7 +818,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     {
 
                         HasExternalResultsView = true;
-                        CurrentTestResultsView = new TestResultView_AdaptiveSiP();
+                        CurrentTestResultsView = new TestResultView_QuickSiP();
 
                         CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
                         CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
@@ -730,7 +826,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
                         CurrentExternalTestResultWindow = new Window(NewTestResultPage);
-                        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window";
+                        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Quick SiP";
                         CurrentExternalTestResultWindow.Height = 240;
                         CurrentExternalTestResultWindow.Width = 1200;
                         Application.Current.OpenWindow(CurrentExternalTestResultWindow);
@@ -781,7 +877,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
                         CurrentExternalTestResultWindow = new Window(NewTestResultPage);
-                        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window";
+                        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Adaptive SiP-test";
                         CurrentExternalTestResultWindow.Height = 240;
                         CurrentExternalTestResultWindow.Width = 1200;
                         Application.Current.OpenWindow(CurrentExternalTestResultWindow);
@@ -833,7 +929,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
                         CurrentExternalTestResultWindow = new Window(NewTestResultPage);
-                        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window (practise test)";
+                        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Adaptive SiP-test (practise)";
                         CurrentExternalTestResultWindow.Height = 240;
                         CurrentExternalTestResultWindow.Width = 1200;
                         Application.Current.OpenWindow(CurrentExternalTestResultWindow);
@@ -1104,11 +1200,6 @@ public partial class SpeechTestView : ContentView, IDrawable
                         CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
                         CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
-                        // Testing with a basic text only view
-                        TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
-                        TestResultGrid.Children.Add(CurrentTestResultsView);
-
                         break;
 
 
@@ -1130,11 +1221,6 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         TestReponseGrid.Children.Add(CurrentResponseView);
 
-                        // Testing with a basic text only view
-                        TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
-                        TestResultGrid.Children.Add(CurrentTestResultsView);
-
                         break;
 
 
@@ -1155,11 +1241,6 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         TestReponseGrid.Children.Add(CurrentResponseView);
 
-                        // Testing with a basic text only view
-                        TestResultGrid.Children.Clear();
-                        //CurrentTestResultsView = new TestResultView_Adaptive();
-                        CurrentTestResultsView = new TestResultsView_Text();
-                        TestResultGrid.Children.Add(CurrentTestResultsView);
 
                         break;
 
@@ -1222,10 +1303,10 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
 
-                        // Testing with a basic text only view
-                        TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
-                        TestResultGrid.Children.Add(CurrentTestResultsView);
+                        //// Testing with a basic text only view
+                        //TestResultGrid.Children.Clear();
+                        //CurrentTestResultsView = new TestResultsView_Text();
+                        //TestResultGrid.Children.Add(CurrentTestResultsView);
 
                         break;
 

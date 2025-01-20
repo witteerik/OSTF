@@ -43,6 +43,9 @@ Public Class SrtSwedishHint2018_TestProtocol
 
     Public Overrides Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
+        ' Setting the target score, which is 100 % in the HINT test
+        TargetScore = 1
+
         NextAdaptiveLevel = InitialTaskInstruction.AdaptiveValue
 
         Return True

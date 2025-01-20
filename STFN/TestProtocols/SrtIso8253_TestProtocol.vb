@@ -50,6 +50,9 @@
 
     Public Overrides Function InitializeProtocol(ByRef InitialTaskInstruction As NextTaskInstruction) As Boolean
 
+        ' Setting the target score, which is 50 % in the ISO 8253 procedure
+        TargetScore = 0.5
+
         'Setting the (initial) speech level specified by the calling code (this should be 20 or 30 dB above the PTA of 0.5, 1 and 2 kHz
         NextAdaptiveLevel = InitialTaskInstruction.AdaptiveValue
 

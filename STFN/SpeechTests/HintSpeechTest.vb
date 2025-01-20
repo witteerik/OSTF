@@ -72,6 +72,8 @@ Public Class HintSpeechTest
         ShowGuiChoice_TargetLocations = True
         ShowGuiChoice_MaskerLocations = True
 
+        GuiResultType = GuiResultTypes.VisualResults
+
     End Sub
 
     Public Overrides ReadOnly Property ShowGuiChoice_TargetLevel As Boolean = True
@@ -458,7 +460,7 @@ Public Class HintSpeechTest
 
             If CurrentTestTrial IsNot Nothing Then
 
-                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & TestProtocol.TotalTrialCount)
+                Output.Add("Mening nummer " & ObservedTrials.Count + 1 & " av " & GetTotalTrialCount())
                 Output.Add("SNR = " & Math.Round(CurrentSNR) & " " & dBString())
                 Output.Add("Talnivå = " & Math.Round(TargetLevel) & " " & dBString())
                 Output.Add("Brusnivå = " & Math.Round(MaskingLevel) & " " & dBString())
@@ -493,19 +495,29 @@ Public Class HintSpeechTest
 
         Dim NewProgressInfo As New Utils.ProgressInfo
         NewProgressInfo.Value = GetObservedTestTrials.Count
-        If IsPractiseTest = True Then
-            'Manually specifies 30 trials here, as the test was started in practise mode (TODO: this could be solved in a better way, asking the used TestProtocol instead...)
-            NewProgressInfo.Maximum = 30
-        Else
-            'Manually specifies 20 trials here, as the test was not started in practise mode (TODO: this could be solved in a better way, asking the used TestProtocol instead...)
-            NewProgressInfo.Maximum = 20
-        End If
+        NewProgressInfo.Maximum = GetTotalTrialCount()
 
         Return NewProgressInfo
 
     End Function
 
+    Public Overrides Function GetSubGroupResults() As List(Of Tuple(Of String, Double))
+        Return Nothing
+    End Function
 
+    Public Overrides Function GetTotalTrialCount() As Integer
+        If IsPractiseTest = True Then
+            'Manually specifies 30 trials here, as the test was started in practise mode (TODO: this could be solved in a better way, asking the used TestProtocol instead...)
+            Return 30
+        Else
+            'Manually specifies 20 trials here, as the test was not started in practise mode (TODO: this could be solved in a better way, asking the used TestProtocol instead...)
+            Return 20
+        End If
+    End Function
+
+    Public Overrides Function GetScorePerLevel() As Tuple(Of String, SortedList(Of Double, Double))
+        Return Nothing
+    End Function
 End Class
 
 
