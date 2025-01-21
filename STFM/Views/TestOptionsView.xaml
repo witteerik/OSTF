@@ -12,13 +12,13 @@
 
     <ScrollView VerticalOptions="FillAndExpand" >
 
-        <VerticalStackLayout x:Name="MainStackLayout" Padding="10, 5, 10, 5">
+        <VerticalStackLayout x:Name="MainStackLayout" Padding="0, 0, 0, 4">
 
-            <Frame BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,5,10,5" Margin="0,5,0,15" CornerRadius="3" MinimumHeightRequest="4">
-            </Frame>
+            <!--<Frame BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,5,10,5" Margin="0,5,0,15" CornerRadius="3" MinimumHeightRequest="4">
+            </Frame>-->
 
-            <Button x:Name="ShowTesterInstructionsButton" Text="{Binding TesterInstructionsButtonText}" Clicked="ShowTesterInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="0,2,1,1"></Button>
-            <Button x:Name="ShowParticipantInstructionsButton" Text="{Binding ParticipantInstructionsButtonText}" Clicked="ShowParticipantInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="1,1,0,10"></Button>
+            <Button x:Name="ShowTesterInstructionsButton" Text="{Binding TesterInstructionsButtonText}" Clicked="ShowTesterInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="0,2,1,2"></Button>
+            <Button x:Name="ShowParticipantInstructionsButton" Text="{Binding ParticipantInstructionsButtonText}" Clicked="ShowParticipantInstructionsButton_Clicked" HorizontalOptions="FillAndExpand" Margin="1,2,0,10"></Button>
 
             <Picker x:Name="SelectedTransducer_Picker" SelectedIndexChanged="SelectedTransducer_Picker_SelectedIndexChanged"  Title="{Binding TransducerTitle}" ItemsSource="{Binding CurrentlySupportedTransducers}" SelectedItem="{Binding Transducer}" MinimumWidthRequest="160" Margin="0,10,0,10" HorizontalOptions="FillAndExpand"/>
 
@@ -109,10 +109,10 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider x:Name="ReferenceLevelSlider" Margin="10,0,10,5" Maximum="{Binding MaximumReferenceLevel }" Minimum="{Binding MinimumReferenceLevel }" Value="{Binding ReferenceLevel}" MinimumTrackColor="DarkSlateGrey" ThumbColor="DarkSlateGrey"/>
+                <Slider x:Name="ReferenceLevelSlider" Margin="0,0,0,5" Maximum="{Binding MaximumReferenceLevel }" Minimum="{Binding MinimumReferenceLevel }" Value="{Binding ReferenceLevel}" MinimumTrackColor="DarkSlateGrey" ThumbColor="DarkSlateGrey"/>
             </VerticalStackLayout>
 
-            <VerticalStackLayout x:Name="SpeechLevelControl">
+            <VerticalStackLayout x:Name="SpeechLevelControl" >
                 <Label HorizontalOptions="Center" Margin="0,5,0,0">
                     <Label.FormattedText>
                         <FormattedString>
@@ -121,7 +121,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider x:Name="SpeechLevelSlider" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_Targets }" Minimum="{Binding MinimumLevel_Targets }"  Value="{Binding TargetLevel}" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
+                <Slider x:Name="SpeechLevelSlider" Margin="0,0,0,5" Maximum="{Binding MaximumLevel_Targets }" Minimum="{Binding MinimumLevel_Targets }"  Value="{Binding TargetLevel}" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
             </VerticalStackLayout>
 
             <VerticalStackLayout x:Name="TargetSNRControl">
@@ -133,7 +133,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider x:Name="TargetSNRSlider" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_TargetSNR }" Minimum="{Binding MinimumLevel_TargetSNR }"  Value="{Binding TargetSNR}" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
+                <Slider x:Name="TargetSNRSlider" Margin="0,0,0,5" Maximum="{Binding MaximumLevel_TargetSNR }" Minimum="{Binding MinimumLevel_TargetSNR }"  Value="{Binding TargetSNR}" MinimumTrackColor="LightGreen" ThumbColor="LightGreen"/>
             </VerticalStackLayout>
 
             <VerticalStackLayout x:Name="MaskerLevelControl">
@@ -145,7 +145,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider x:Name="MaskerLevelSlider" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_Maskers }" Minimum="{Binding MinimumLevel_Maskers }" Value="{Binding MaskingLevel}" MinimumTrackColor="Red" ThumbColor="Red"/>
+                <Slider x:Name="MaskerLevelSlider" Margin="0,0,0,5" Maximum="{Binding MaximumLevel_Maskers }" Minimum="{Binding MinimumLevel_Maskers }" Value="{Binding MaskingLevel}" MinimumTrackColor="Red" ThumbColor="Red"/>
             </VerticalStackLayout>
 
             <VerticalStackLayout x:Name="BackgroundLevelControl">
@@ -157,7 +157,7 @@
                         </FormattedString>
                     </Label.FormattedText>
                 </Label>
-                <Slider  x:Name="BackgroundLevelSlider" Margin="10,0,10,5" Maximum="{Binding MaximumLevel_Background}" Minimum="{Binding MinimumLevel_Background}" Value="{Binding BackgroundLevel}" MinimumTrackColor="Pink" ThumbColor="Pink"/>
+                <Slider  x:Name="BackgroundLevelSlider" Margin="0,0,0,5" Maximum="{Binding MaximumLevel_Background}" Minimum="{Binding MinimumLevel_Background}" Value="{Binding BackgroundLevel}" MinimumTrackColor="Pink" ThumbColor="Pink"/>
             </VerticalStackLayout>
 
             <Frame x:Name="UseContralateralMaskingControl" BackgroundColor="WhiteSmoke"  BorderColor="Black" Padding="10,10,10,10" Margin="0,5,0,0">

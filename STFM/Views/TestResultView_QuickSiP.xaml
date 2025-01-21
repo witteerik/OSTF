@@ -5,7 +5,7 @@
              x:Class="STFM.Views.TestResultView_QuickSiP"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls">
 
-    <Grid Background="#EDEDED" 
+    <Grid Background="White"
           Padding="3">
 
         <Grid.ColumnDefinitions>

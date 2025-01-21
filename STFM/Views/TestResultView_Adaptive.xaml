@@ -5,7 +5,7 @@
              x:Class="STFM.Views.TestResultView_Adaptive"
              xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls">
 
-    <Grid Background="#EDEDED" 
+    <Grid Background="White"
           Padding="3">
 
         <Grid.ColumnDefinitions>
@@ -186,7 +186,7 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*" />
-                <RowDefinition Height="20" />
+                <RowDefinition Height="25" />
             </Grid.RowDefinitions>
             
             <GraphicsView x:Name="SnrView"
