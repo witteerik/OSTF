@@ -49,7 +49,7 @@ public abstract class TestResultsView : ContentView
 
     public abstract void ShowTestResults(SpeechTest speechTest);
 
-    public abstract void SetPlayState(SpeechTestView.TestPlayStates currentTestPlayState);
+    public abstract void SetGuiLayoutState(SpeechTestView.GuiLayoutStates currentTestPlayState);
 
 
 }

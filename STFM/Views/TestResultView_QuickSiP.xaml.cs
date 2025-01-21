@@ -56,6 +56,7 @@ namespace STFM.Views
             MyScoreSnrDiagram.SetSizeModificationStrategy(PlotBase.SizeModificationStrategies.Horizontal);
             MyScoreSnrDiagram.SetTextSizeAxisX(0.8f);
             MyScoreSnrDiagram.SetTextSizeAxisY(0.8f);
+            MyScoreSnrDiagram.UpdateLayout();
 
             //MySnrDiagram.TransitionHeightRatio = 0.86f;
             //MySnrDiagram.Background = Colors.DarkSlateGray;
@@ -136,7 +137,7 @@ namespace STFM.Views
             }
             else
             {
-                PnrValueLabel.Text = "";
+                PnrValueLabel.Text = "—";
             }
 
             // Trial count / progress
@@ -157,7 +158,7 @@ namespace STFM.Views
             }
             else
             {
-                FinalResultValueLabel.Text = "---";
+                FinalResultValueLabel.Text = "—";
             }
 
 
@@ -255,49 +256,55 @@ namespace STFM.Views
         }
 
 
-        public override void SetPlayState(SpeechTestView.TestPlayStates currentTestPlayState)
+        public override void SetGuiLayoutState(SpeechTestView.GuiLayoutStates currentTestPlayState)
         {
+
 
             switch (currentTestPlayState)
             {
-                case SpeechTestView.TestPlayStates.InitialState:
+                case SpeechTestView.GuiLayoutStates.InitialState:
                     StartButton.IsEnabled = false;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
 
                     break;
-
-                case SpeechTestView.TestPlayStates.ShowTestSelection:
+                case SpeechTestView.GuiLayoutStates.TestSelection:
                     StartButton.IsEnabled = false;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
 
                     break;
-                case SpeechTestView.TestPlayStates.ShowSpeechMaterialSelection:
+                case SpeechTestView.GuiLayoutStates.SpeechMaterialSelection:
                     StartButton.IsEnabled = false;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
 
                     break;
-                case SpeechTestView.TestPlayStates.ShowTestOptionsAndStartButton:
+                case SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm:
                     StartButton.IsEnabled = true;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
 
                     break;
-                case SpeechTestView.TestPlayStates.TestIsRunning:
+                case SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm:
+                    StartButton.IsEnabled = true;
+                    PauseButton.IsEnabled = false;
+                    StopButton.IsEnabled = false;
+
+                    break;
+                case SpeechTestView.GuiLayoutStates.TestIsRunning:
                     StartButton.IsEnabled = false;
                     PauseButton.IsEnabled = true;
                     StopButton.IsEnabled = true;
 
                     break;
-                case SpeechTestView.TestPlayStates.TestIsPaused:
+                case SpeechTestView.GuiLayoutStates.TestIsPaused:
                     StartButton.IsEnabled = true;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = true;
 
                     break;
-                case SpeechTestView.TestPlayStates.TestIsStopped:
+                case SpeechTestView.GuiLayoutStates.TestIsStopped:
                     StartButton.IsEnabled = false;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
@@ -306,6 +313,7 @@ namespace STFM.Views
                 default:
                     break;
             }
+
 
         }
     }

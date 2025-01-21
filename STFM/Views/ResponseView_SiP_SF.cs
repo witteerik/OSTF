@@ -290,7 +290,7 @@ public class ResponseView_SiP_SF : ResponseView
         //HideAllItems();
 
         var myHeight = this.Height;
-        var textSize = Math.Round(myHeight / (12));
+        var textSize = Math.Round(myHeight / (20));
 
         MessageButton = new Button()
         {
@@ -300,10 +300,14 @@ public class ResponseView_SiP_SF : ResponseView
             TextColor = Color.FromRgb(40, 40, 40),
             FontSize = textSize,
             HorizontalOptions = LayoutOptions.Fill,
-            VerticalOptions = LayoutOptions.Fill
+            VerticalOptions = LayoutOptions.Fill,
+            Margin = new Thickness(0,150,0,150)
         };
 
-        MainGrid.Add(MessageButton, 1, 1);
+        if (ResponseAlternativeGrid != null) { ResponseAlternativeGrid.Clear(); }
+        ResponseAlternativeFrame.IsVisible = false;
+
+        MainGrid.Add(MessageButton, 1, 0);
     }
 
 

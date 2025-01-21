@@ -401,7 +401,7 @@ public class ResponseView_Mafc : ResponseView
         //HideAllItems();
 
         var myHeight = this.Height;
-        var textSize = Math.Round(myHeight / (12));
+        var textSize = Math.Round(myHeight / (20));
 
         // Putting the MessageButton in the response view
         ClearMainGrid();

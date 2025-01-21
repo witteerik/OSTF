@@ -54,7 +54,6 @@ public class ResponseView_FreeRecall : ResponseView
         List<SpeechTestResponseAlternative> localResponseAlternatives = ResponseAlternatives[0];
 
         int nItems = localResponseAlternatives.Count;
-        int nRows = 3;
         int nCols = nItems;
 
         // Creating a grid
@@ -62,10 +61,9 @@ public class ResponseView_FreeRecall : ResponseView
         responseAlternativeGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
 
         // Setting up rows and columns
-        for (int i = 0; i < nRows; i++)
-        {
-            responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        }
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(2, GridUnitType.Star) });
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(2, GridUnitType.Star) });
 
         for (int i = 0; i < nCols; i++)
         {
@@ -147,7 +145,7 @@ public class ResponseView_FreeRecall : ResponseView
                 CornerRadius = 8,
                 ClassId = "NextButton",
                 Padding = 10,
-                Margin = new Thickness(200, 30),
+                Margin = new Thickness(200, 60),
                 Content = controlButton
             };
 
@@ -279,7 +277,7 @@ public class ResponseView_FreeRecall : ResponseView
         //HideAllItems();
 
         var myHeight = this.Height;
-        var textSize = Math.Round(myHeight / (12));
+        var textSize = Math.Round(myHeight / (20));
 
         var messageBtn = new Button()
         {
@@ -292,8 +290,21 @@ public class ResponseView_FreeRecall : ResponseView
             VerticalOptions = LayoutOptions.Fill
         };
 
+        responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
+        responseAlternativeGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
+
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) });
+        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
         //Content = messageBtn;
-        responseAlternativeGrid.Add(messageBtn, 0, 0);
+        responseAlternativeGrid.Add(messageBtn, 1, 1);
+
+        Content = responseAlternativeGrid;
 
     }
 

@@ -25,7 +25,7 @@ public class TestResultsView_Text : TestResultsView
         Content = MainScrollView;
     }
 
-    public override void SetPlayState(SpeechTestView.TestPlayStates currentTestPlayState)
+    public override void SetGuiLayoutState(SpeechTestView.GuiLayoutStates currentTestPlayState)
     {
         // Ignores any call
     }

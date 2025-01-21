@@ -6,27 +6,53 @@ namespace STFM.Views
 {
 
     [ToolboxItem(true)] // Marks this class as available for the Toolbox
-    public partial class TestResultView_Adaptive : TestResultsView
+    public partial class TestResultView_ConstantStimuli : TestResultsView
     {
-        public TestResultView_Adaptive()
+        public TestResultView_ConstantStimuli()
         {
             InitializeComponent();
             //this.LoadFromXaml(typeof(TestResultView_Adaptive));
 
-            // Setting up diagram 1
+            // Setting up the diagram
 
             // Assign the custom drawable to the GraphicsView
-            SnrView.Drawable = new TestResultsDiagram(SnrView);
-            TestResultsDiagram MySnrDiagram = (TestResultsDiagram)SnrView.Drawable;
-            MySnrDiagram.SetSizeModificationStrategy(PlotBase.SizeModificationStrategies.Horizontal);
-            MySnrDiagram.SetXlim(0.5f, 1.5f);
-            MySnrDiagram.SetYlim(-10, 10);
-            //MySnrDiagram.TransitionHeightRatio = 0.86f;
-            //MySnrDiagram.Background = Colors.DarkSlateGray;
-            MySnrDiagram.UpdateLayout();
+            DiagramView.Drawable = new TestResultsDiagram(DiagramView);
+            TestResultsDiagram MyDiagram = (TestResultsDiagram)DiagramView.Drawable;
+            MyDiagram.SetSizeModificationStrategy(PlotBase.SizeModificationStrategies.Horizontal);
+
+            // Setting up default scales in the diagram
+            MyDiagram.SetYlim(0f,1f);
+            MyDiagram.SetXlim(0, 105);
+
+            List<float> XaxisLinePositions = new List<float>();
+            List<float> XaxisTextPositions = new List<float>();
+            List<string> XaxisTextValues = new List<string>();
+            for (int i = 0; i < 100 + 10; i += 20)
+            {
+                XaxisTextPositions.Add((float)i);
+                XaxisTextValues.Add(i.ToString());
+                if (i != 0) { XaxisLinePositions.Add((float)i); }
+            }
+
+            MyDiagram.SetTickTextsX(XaxisTextPositions, XaxisTextValues.ToArray());
+            MyDiagram.SetTickTextsY(new[] { 0.5f }.ToList(), new[] {""}.ToArray());
+
+            MyDiagram.SetXaxisDashedGridLinePositions(XaxisLinePositions);
+
+            MyDiagram.SetSizeModificationStrategy(PlotBase.SizeModificationStrategies.Horizontal);
+            MyDiagram.SetTextSizeAxisX(0.8f);
+            MyDiagram.SetTextSizeAxisY(0.8f);
+
+            MyDiagram.PlotAreaRelativeMarginLeft = 0.05f;
+            MyDiagram.PlotAreaRelativeMarginRight = 0.05f;
+            MyDiagram.PlotAreaRelativeMarginTop = 0.05f;
+            MyDiagram.PlotAreaRelativeMarginBottom = 0.15f;
+
+            MyDiagram.UpdateLayout();
+
 
             // Force redraw on size change
-            SnrView.SizeChanged += (s, e) => SnrView.Invalidate();
+            DiagramView.SizeChanged += (s, e) => DiagramView.Invalidate();
 
 
             switch (STFN.SharedSpeechTestObjects.GuiLanguage)
@@ -38,16 +64,12 @@ namespace STFM.Views
 
                     SpeechLevelNameLabel.Text = "Talnivå:";
                     NoiseLevelNameLabel.Text = "Brusnivå";
-                    AdaptiveLevelNameLabel.Text = "Adaptiv nivå:";
-                    ContralateralNoiseNameLabel.Text = "Kontralat. maskeringsnivå:";
-
-                    SnrGridLabelY.Text = "SNR (dB)";
-                    SnrGridLabelX.Text = "Försök nummer";
-
-                    TargetScoreNameLabel.Text = "Mål, andel korrekt:";
-                    TenLastScoreNameLabel.Text = "Andel korrekt, sista 10:";
+                    SnrNameLabel.Text = "SNR:";
+                    ContralateralNoiseNameLabel.Text = "Kontralat. mask.:";
                     TrialNumberNameLabel.Text = "Försök nummer:";
-                    FinalResultNameLabel.Text = "Hörtröskel:";
+                    FinalResultNameLabel.Text = "Resultat, TP:";
+
+                    SnrGridLabelX.Text = "Resultat, TP (%)";
 
                     break;
                 default:
@@ -57,16 +79,12 @@ namespace STFM.Views
 
                     SpeechLevelNameLabel.Text = "Speech level:";
                     NoiseLevelNameLabel.Text = "Noise level";
-                    AdaptiveLevelNameLabel.Text = "Adaptive level:";
-                    ContralateralNoiseNameLabel.Text = "Contralat. masking level";
-
-                    SnrGridLabelY.Text = "SNR (dB)";
-                    SnrGridLabelX.Text = "Test trial";
-
-                    TargetScoreNameLabel.Text = "Target score:";
-                    TenLastScoreNameLabel.Text = "Average scores, last 10:";
+                    SnrNameLabel.Text = "SNR:";
+                    ContralateralNoiseNameLabel.Text = "Contralat. mask.:";
                     TrialNumberNameLabel.Text = "Trial number:";
-                    FinalResultNameLabel.Text = "SRT";
+                    FinalResultNameLabel.Text = "Result, SRS";
+
+                    SnrGridLabelX.Text = "Score (%)";
 
                     break;
             }
@@ -85,8 +103,8 @@ namespace STFM.Views
 
         public override void ShowTestResults(SpeechTest speechTest)
         {
-            // Referencing the SnrDiagram locally
-            TestResultsDiagram MySnrDiagram = (TestResultsDiagram)SnrView.Drawable;
+            // Referencing the diagram locally
+            TestResultsDiagram MyDiagram = (TestResultsDiagram)DiagramView.Drawable;
             TestProtocol testProtocol = speechTest.TestProtocol;
 
             if (speechTest.TestProtocol == null)
@@ -110,15 +128,14 @@ namespace STFM.Views
                 NoiseLevelValueLabel.Text = "—";
             }
 
-            // PNR
-            double? CurrentAdaptiveValue = testProtocol.GetCurrentAdaptiveValue();
-            if (CurrentAdaptiveValue.HasValue)
+            // SNR
+            if (speechTest.MaskerLocations.Any()) // Showing SNR only if there is a masker
             {
-                AdaptiveLevelValueLabel.Text = System.Math.Round(CurrentAdaptiveValue.Value,1).ToString() + " dB PNR";
+                SnrValueLabel.Text = System.Math.Round(speechTest.CurrentSNR,1).ToString() + " dB";
             }
             else
             {
-                AdaptiveLevelValueLabel.Text = "—";
+                SnrValueLabel.Text = "—";
             }
 
             // Contralateral level
@@ -132,31 +149,6 @@ namespace STFM.Views
             }
 
 
-            // Target score
-            if (testProtocol.TargetScore.HasValue)
-            {
-                if (speechTest.IsPractiseTest == false)
-                {
-                    TargetScoreValueLabel.Text = System.Math.Round(100 * testProtocol.TargetScore.Value, 0).ToString() + "%";
-                }
-                else
-                {
-                    TargetScoreValueLabel.Text = "—";
-                }
-            }
-
-            // Ten last trials' score
-            double? averageScore = speechTest.GetAverageScore(10);
-            if (averageScore.HasValue)
-            {
-                TenLastScoreValueLabel.Text = System.Math.Round(100 * averageScore.Value, 0).ToString();
-            }
-            else 
-            {
-                TenLastScoreValueLabel.Text = "—";
-            }
-
-
             // Trial count / progress
             if (ObservedTestTrials.Count() > 0)
             {
@@ -167,85 +159,30 @@ namespace STFM.Views
                 TrialNumberValueLabel.Text = "1 / " + speechTest.GetTotalTrialCount().ToString();
             }
 
-            // SRT:
-            double? FinalResult = testProtocol.GetFinalResultValue();
-            if (FinalResult.HasValue)
-            {
-                FinalResultValueLabel.Text = System.Math.Round(FinalResult.Value, 1).ToString() + " dB SNR";
-            }
-            else
-            {
-                FinalResultValueLabel.Text = "—";
-            }
 
-
-            // SNR diagram 
             if (ObservedTestTrials.Any())
             {
 
-                List<float> PresentedPnrs = new List<float>();
-                List<float> PresentedTrials = new List<float>();
-
-                float presentedTrialIndex = 1;
-                foreach (TestTrial trial in ObservedTestTrials)
+                // Getting the score so far
+                double? averageScore = speechTest.GetAverageScore();
+                // Diagram 
+                if (averageScore.HasValue)
                 {
-                    PresentedPnrs.Add((float)trial.AdaptiveProtocolValue);
-                    PresentedTrials.Add(presentedTrialIndex);
-                    presentedTrialIndex += 1;
-                }
 
-                // Adding also the current adaptive value (which has not yet been stored)
-                if (CurrentAdaptiveValue != null)
+                FinalResultValueLabel.Text = System.Math.Round(100 * averageScore.Value, 0).ToString() + "%";
+
+                MyDiagram.Areas.Clear();
+
+                    MyDiagram.Areas.Add(new Area() { Color = Color.FromRgb(4, 255, 61), Alpha = 0.4f, XValues = new[] { 0f, (float)(100 * averageScore) }, YValuesLower = [0.2f, 0.2f], YValuesUpper = [0.8f, 0.8f] });
+
+                MyDiagram.UpdateLayout();
+
+                }
+                else
                 {
-                    PresentedPnrs.Add((float)CurrentAdaptiveValue.Value);
-                    PresentedTrials.Add(presentedTrialIndex);
+                    FinalResultValueLabel.Text = "—";
                 }
-
-                MySnrDiagram.SetSizeModificationStrategy(PlotBase.SizeModificationStrategies.Horizontal);
-                MySnrDiagram.SetTextSizeAxisX(0.8f);
-                MySnrDiagram.SetTextSizeAxisY(0.8f);
-
-                MySnrDiagram.SetXlim(0.5f, PresentedPnrs.Count + 0.5f);
-
-                float Ymin = PresentedPnrs.Min() - 5f;
-                float Ymax = PresentedPnrs.Max() + 5f;
-                MySnrDiagram.SetYlim(Ymin, Ymax);
-
-
-                List<float> YaxisTextPositions = new List<float>();
-                List<string> YaxisTextValues = new List<string>();
-
-                int Steps = 6;
-                int StepSize = (int)((Ymax - Ymin) / Steps);
-                for (int i = 0; i < Steps +10; i ++)
-                {
-                    YaxisTextPositions.Add((float)System.Math.Round( Ymin ,0) + (i * StepSize));
-                    YaxisTextValues.Add(((float)System.Math.Round(Ymin, 0) + (i * StepSize)).ToString());
-                }
-
-                List<float> XaxisTextPositions = new List<float>();
-                List<string> XaxisTextValues = new List<string>();
-
-                int TrialSteps = 1+ (int)(PresentedTrials.Count / 15);
-                for (int i = 0; i < PresentedTrials.Count; i+= TrialSteps)
-                {
-                    XaxisTextPositions.Add(PresentedTrials[i]);
-                    XaxisTextValues.Add(PresentedTrials[i].ToString());
-                }
-
-                MySnrDiagram.SetTickTextsY(YaxisTextPositions, YaxisTextValues.ToArray());
-                MySnrDiagram.SetTickTextsX(XaxisTextPositions, XaxisTextValues.ToArray());
-
-                MySnrDiagram.PointSeries.Clear();
-                MySnrDiagram.Lines.Clear();
-
-                MySnrDiagram.PointSeries.Add(new PointSerie() { Color = Colors.Red, PointSize = 1, Type = PointSerie.PointTypes.Cross, XValues = PresentedTrials.ToArray(), YValues = PresentedPnrs.ToArray() });
-                MySnrDiagram.Lines.Add(new Line() { Color = Colors.Blue, Dashed = false, LineWidth = 2, XValues = PresentedTrials.ToArray(), YValues = PresentedPnrs.ToArray() });
-
-                MySnrDiagram.UpdateLayout();
-
             }
-
         }
 
         private void StartButton_Clicked(object sender, EventArgs e)
@@ -265,6 +202,7 @@ namespace STFM.Views
 
         public override void SetGuiLayoutState(SpeechTestView.GuiLayoutStates currentTestPlayState)
         {
+
 
             switch (currentTestPlayState)
             {

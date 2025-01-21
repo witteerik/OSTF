@@ -43,7 +43,7 @@ Public Module OstfBase
     'Other basic settings
     Public Property AllowDirectionalSimulation As Boolean = True
 
-    Public Property UseExtraWindows As Boolean = False
+    Public Property UseExtraWindows As Boolean = True
 
 
     ''' <summary>

@@ -183,7 +183,7 @@ public class ResponseView_Matrix : ResponseView
         HideAllItems();
 
         var myHeight = this.Height;
-        var textSize = Math.Round(myHeight / (12));
+        var textSize = Math.Round(myHeight / (20));
 
         var messageBtn = new Button()
         {

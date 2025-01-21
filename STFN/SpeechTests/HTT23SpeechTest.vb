@@ -93,7 +93,12 @@ Public Class HTT23SpeechTest
 
         'Checking/updating things that may have changed since initial initalization on every call
         If SignalLocations.Count = 0 Then
-            Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
+            Select Case Utils.Constants.Languages.Swedish
+                Case Utils.Constants.Languages.Swedish
+                    Return New Tuple(Of Boolean, String)(False, "Du måste välja en ljudkälla för tal!")
+                Case Else
+                    Return New Tuple(Of Boolean, String)(False, "You must select a signal sound source!")
+            End Select
         End If
 
         'Ensuring that contralateral masking level is always used with contralateral masking

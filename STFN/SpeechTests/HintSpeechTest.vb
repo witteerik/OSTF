@@ -102,11 +102,22 @@ Public Class HintSpeechTest
         If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
         If SignalLocations.Count = 0 Then
-            Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
+            Select Case Utils.Constants.Languages.Swedish
+                Case Utils.Constants.Languages.Swedish
+                    Return New Tuple(Of Boolean, String)(False, "Du måste välja minst en ljudkälla för tal!")
+                Case Else
+                    Return New Tuple(Of Boolean, String)(False, "You must select a signal sound source!")
+            End Select
+
         End If
 
         If MaskerLocations.Count = 0 And TestMode = TestModes.AdaptiveNoise Then
-            Return New Tuple(Of Boolean, String)(False, "You must select at least one masker sound source in tests with adaptive noise!")
+            Select Case Utils.Constants.Languages.Swedish
+                Case Utils.Constants.Languages.Swedish
+                    Return New Tuple(Of Boolean, String)(False, "Du måste välja minst en ljudkälla för brus!")
+                Case Else
+                    Return New Tuple(Of Boolean, String)(False, "You must select at least one masker sound source!")
+            End Select
         End If
 
         Dim StartAdaptiveLevel As Double

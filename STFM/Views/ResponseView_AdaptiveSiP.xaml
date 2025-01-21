@@ -580,7 +580,7 @@
                 BackgroundColor="#FFFF80"
                 TextColor="#282828"
                 CornerRadius="20" 
-                Margin="20,100,20,100">
+                Margin="20,150,20,150">
 
         </Button>
 

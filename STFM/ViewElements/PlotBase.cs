@@ -81,40 +81,46 @@ public class PlotBase : IDrawable
     {
         YlimMin = min;
         YlimMax = max;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     public void SetXlim(float min, float max)
     {
         XlimMin = min;
         XlimMax = max;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     public void SetTickTextsY(List<float> axisTextPositions, string[] axisTextValues)
     {
         YaxisTextPositions = axisTextPositions;
         YaxisTextValues = axisTextValues;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     public void SetTickTextsX(List<float> axisTextPositions, string[] axisTextValues)
     {
         XaxisTextPositions = axisTextPositions;
         XaxisTextValues = axisTextValues;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     public void SetTextSizeAxisY(float textSize)
     {
         YaxisTextSize = textSize;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     public void SetTextSizeAxisX(float textSize)
     {
         XaxisTextSize = textSize;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     public void UpdateLayout()
@@ -125,31 +131,36 @@ public class PlotBase : IDrawable
     public void SetSizeModificationStrategy(SizeModificationStrategies sizeModificationStrategy)
     {
         this.sizeModificationStrategy = sizeModificationStrategy;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     public void SetXaxisDashedGridLinePositions(List<float> xValues)
     {
         XaxisDashedGridLinePositions = xValues;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     public void SetYaxisDashedGridLinePositions(List<float> yValues)
     {
         YaxisDashedGridLinePositions = yValues;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     public void SetXaxisGridLinePositions(List<float> xValues)
     {
         XaxisGridLinePositions = xValues;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     public void SetYaxisGridLinePositions(List<float> yValues)
     {
         YaxisGridLinePositions = yValues;
-        parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
+        // Inactivating Invalidate. The calling code should call UpdateLayout instead, when all changes has been applied.
+        //parentView?.Invalidate(); // Trigger a redraw of the GraphicsView
     }
 
     private void AddSomeLinesAndPoints()
@@ -831,7 +842,7 @@ public class Area
     public float[] YValuesLower { get; set; }
     public float[] XValues { get; set; }
     public Microsoft.Maui.Graphics.Color Color { get; set; } = Colors.Yellow;
-    public byte Alpha { get; set; } = 40;
+    public float Alpha { get; set; } = 0.3f;
 }
 
 public class Line

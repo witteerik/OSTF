@@ -398,7 +398,7 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
         //HideAllItems();
 
         var myHeight = this.Height;
-        var textSize = Math.Round(myHeight / (12));
+        var textSize = Math.Round(myHeight / (20));
 
         var messageBtn = new Button()
         {
@@ -411,8 +411,21 @@ public class ResponseView_FreeRecallWithHistory : ResponseView
             VerticalOptions = LayoutOptions.Fill
         };
 
+        responseAlternativeGrid = new Grid { HorizontalOptions = LayoutOptions.Fill, VerticalOptions = LayoutOptions.Fill };
+        responseAlternativeGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
+
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        responseAlternativeGrid.AddRowDefinition(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(5, GridUnitType.Star) });
+        responseAlternativeGrid.AddColumnDefinition(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
         //Content = messageBtn;
-        responseAlternativeGrid.Add(messageBtn, 0, 0);
+        responseAlternativeGrid.Add(messageBtn, 1, 1);
+
+        Content = responseAlternativeGrid;
 
     }
 
