@@ -126,6 +126,10 @@ Public Class BrandKollmeier2002_TestProtocol
         Return NextAdaptiveLevel
     End Function
 
+    Public Overrides Sub OverrideCurrentAdaptiveValue(ByVal NewValue As Double)
+        NextAdaptiveLevel = NewValue
+    End Sub
+
     Private Sub FinalizeProtocol(ByRef TrialHistory As TestTrialCollection)
 
         If TrialHistory.Count > 0 Then

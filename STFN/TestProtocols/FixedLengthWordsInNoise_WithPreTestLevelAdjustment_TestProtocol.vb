@@ -121,4 +121,9 @@
         Return Nothing
     End Function
 
+    Public Overrides Sub OverrideCurrentAdaptiveValue(ByVal NewValue As Double)
+        'Any value is ignored since the protocol is not adaptive
+    End Sub
+
+
 End Class

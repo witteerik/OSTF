@@ -100,10 +100,10 @@ namespace STFM.Views
 
 
             // Speech and noise levels
-            SpeechLevelValueLabel.Text = System.Math.Round(speechTest.TargetLevel, 1).ToString() + " " + speechTest.dBString();
+            SpeechLevelValueLabel.Text = System.Math.Round(speechTest.TargetLevel, 0).ToString() + " " + speechTest.dBString();
             if (speechTest.MaskerLocations.Any())
             {
-                NoiseLevelValueLabel.Text = System.Math.Round(speechTest.MaskingLevel, 1).ToString() + " " + speechTest.dBString();
+                NoiseLevelValueLabel.Text = System.Math.Round(speechTest.MaskingLevel, 0).ToString() + " " + speechTest.dBString();
             }
             else
             {
@@ -114,7 +114,16 @@ namespace STFM.Views
             double? CurrentAdaptiveValue = testProtocol.GetCurrentAdaptiveValue();
             if (CurrentAdaptiveValue.HasValue)
             {
-                AdaptiveLevelValueLabel.Text = System.Math.Round(CurrentAdaptiveValue.Value,1).ToString() + " dB PNR";
+                if (speechTest.MaskerLocations.Any())
+                {
+                    // Assuming an adaptive SNR
+                    AdaptiveLevelValueLabel.Text = System.Math.Round(CurrentAdaptiveValue.Value, 0).ToString() + " dB SNR";
+                }
+                else
+                {
+                    // Assuming an adaptive speech level
+                    AdaptiveLevelValueLabel.Text = System.Math.Round(CurrentAdaptiveValue.Value, 0).ToString() + " " + speechTest.dBString();
+                }
             }
             else
             {
@@ -124,7 +133,7 @@ namespace STFM.Views
             // Contralateral level
             if (speechTest.ContralateralMasking)
             {
-                ContralateralNoiseLevelValueLabel.Text = System.Math.Round(speechTest.ContralateralMaskingLevel, 1).ToString() + " " + speechTest.dBString();
+                ContralateralNoiseLevelValueLabel.Text = System.Math.Round(speechTest.ContralateralMaskingLevel, 0).ToString() + " " + speechTest.dBString();
             }
             else
             {
@@ -171,7 +180,17 @@ namespace STFM.Views
             double? FinalResult = testProtocol.GetFinalResultValue();
             if (FinalResult.HasValue)
             {
-                FinalResultValueLabel.Text = System.Math.Round(FinalResult.Value, 1).ToString() + " dB SNR";
+
+                if (speechTest.MaskerLocations.Any())
+                {
+                    // Assuming an adaptive SNR
+                    FinalResultValueLabel.Text = System.Math.Round(FinalResult.Value, 0).ToString() + " dB SNR";
+                }
+                else
+                {
+                    // Assuming an adaptive speech level
+                    FinalResultValueLabel.Text = System.Math.Round(FinalResult.Value, 0).ToString() + " " + speechTest.dBString();
+                }
             }
             else
             {

@@ -118,10 +118,10 @@ namespace STFM.Views
 
 
             // Speech and noise levels
-            SpeechLevelValueLabel.Text = System.Math.Round(speechTest.TargetLevel, 1).ToString() + " " + speechTest.dBString();
+            SpeechLevelValueLabel.Text = System.Math.Round(speechTest.TargetLevel, 0).ToString() + " " + speechTest.dBString();
             if (speechTest.MaskerLocations.Any())
             {
-                NoiseLevelValueLabel.Text = System.Math.Round(speechTest.MaskingLevel, 1).ToString() + " " + speechTest.dBString();
+                NoiseLevelValueLabel.Text = System.Math.Round(speechTest.MaskingLevel, 0).ToString() + " " + speechTest.dBString();
             }
             else
             {
@@ -131,7 +131,7 @@ namespace STFM.Views
             // SNR
             if (speechTest.MaskerLocations.Any()) // Showing SNR only if there is a masker
             {
-                SnrValueLabel.Text = System.Math.Round(speechTest.CurrentSNR,1).ToString() + " dB";
+                SnrValueLabel.Text = System.Math.Round(speechTest.CurrentSNR,0).ToString() + " dB";
             }
             else
             {
@@ -141,7 +141,7 @@ namespace STFM.Views
             // Contralateral level
             if (speechTest.ContralateralMasking)
             {
-                ContralateralNoiseLevelValueLabel.Text = System.Math.Round(speechTest.ContralateralMaskingLevel, 1).ToString() + " " + speechTest.dBString();
+                ContralateralNoiseLevelValueLabel.Text = System.Math.Round(speechTest.ContralateralMaskingLevel, 0).ToString() + " " + speechTest.dBString();
             }
             else
             {

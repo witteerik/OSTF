@@ -90,6 +90,9 @@ Public MustInherit Class TestProtocol
 
     Public MustOverride Function GetCurrentAdaptiveValue() As Double?
 
+    Public MustOverride Sub OverrideCurrentAdaptiveValue(ByVal NewValue As Double)
+
+
     ''' <summary>
     ''' Should hold a text description of the type of the value stored in the final result, e.g. SRT, WRS, etc
     ''' </summary>

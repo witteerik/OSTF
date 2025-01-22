@@ -544,6 +544,8 @@ Public Class AdaptiveSiP
             'Overriding the adaptive level in the ProtocolReply by the start level if in practise test mode
             If IsPractiseTest = True Then
                 ProtocolReply.AdaptiveValue = PractisePNR
+                'And also overriding it in the protocol itself
+                TestProtocol.OverrideCurrentAdaptiveValue(PractisePNR)
             End If
 
             ''Updating the speech level only after three trials (i.e. when all words in each TWG has been presented)

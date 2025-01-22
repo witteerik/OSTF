@@ -141,9 +141,9 @@ namespace STFM.Views
             }
 
             // SRT:
-            double? FinalResult = testProtocol.GetFinalResultValue();
             if (speechTest.IsPractiseTest == false)
             {
+                double? FinalResult = testProtocol.GetFinalResultValue();
                 switch (STFN.SharedSpeechTestObjects.GuiLanguage)
                 {
                     case STFN.Utils.Constants.Languages.English:
@@ -167,6 +167,7 @@ namespace STFM.Views
             }
             else
             {
+                double? PractiseTestScore = speechTest.GetAverageScore();
                 switch (STFN.SharedSpeechTestObjects.GuiLanguage)
                 {
                     case STFN.Utils.Constants.Languages.English:
@@ -179,9 +180,9 @@ namespace STFM.Views
                         FinalResultNameLabel.Text = "Score:";
                         break;
                 }
-                if (FinalResult.HasValue)
+                if (PractiseTestScore.HasValue)
                 {
-                    FinalResultValueLabel.Text = System.Math.Round(100 * FinalResult.Value, 0).ToString() + " %";
+                    FinalResultValueLabel.Text = System.Math.Round(100 * PractiseTestScore.Value, 0).ToString() + " %";
                 }
                 else
                 {

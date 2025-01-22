@@ -175,4 +175,8 @@
         Return NextAdaptiveLevel
     End Function
 
+    Public Overrides Sub OverrideCurrentAdaptiveValue(ByVal NewValue As Double)
+        NextAdaptiveLevel = NewValue
+    End Sub
+
 End Class
