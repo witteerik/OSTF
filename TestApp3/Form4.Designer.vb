@@ -76,6 +76,7 @@ Partial Class Form4
         Me.Button43 = New System.Windows.Forms.Button()
         Me.Button44 = New System.Windows.Forms.Button()
         Me.Button45 = New System.Windows.Forms.Button()
+        Me.Button46 = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Button1
@@ -557,12 +558,21 @@ Partial Class Form4
         '
         'Button45
         '
-        Me.Button45.Location = New System.Drawing.Point(959, 471)
+        Me.Button45.Location = New System.Drawing.Point(945, 461)
         Me.Button45.Name = "Button45"
         Me.Button45.Size = New System.Drawing.Size(75, 23)
         Me.Button45.TabIndex = 63
         Me.Button45.Text = "Button45"
         Me.Button45.UseVisualStyleBackColor = True
+        '
+        'Button46
+        '
+        Me.Button46.Location = New System.Drawing.Point(945, 489)
+        Me.Button46.Name = "Button46"
+        Me.Button46.Size = New System.Drawing.Size(75, 23)
+        Me.Button46.TabIndex = 64
+        Me.Button46.Text = "Button46"
+        Me.Button46.UseVisualStyleBackColor = True
         '
         'Form4
         '
@@ -570,6 +580,7 @@ Partial Class Form4
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.BackColor = System.Drawing.SystemColors.Control
         Me.ClientSize = New System.Drawing.Size(1094, 526)
+        Me.Controls.Add(Me.Button46)
         Me.Controls.Add(Me.Button45)
         Me.Controls.Add(Me.Button44)
         Me.Controls.Add(Me.Button43)
@@ -684,4 +695,5 @@ Partial Class Form4
     Friend WithEvents Button43 As Button
     Friend WithEvents Button44 As Button
     Friend WithEvents Button45 As Button
+    Friend WithEvents Button46 As Button
 End Class

@@ -99,7 +99,8 @@ Public Class TP50SpeechTest
 
     Private PreTestWordIndex As Integer = 0
 
-
+    ' This filed should be removed in the future
+    Private DoubleCheckMaskingIsActive As Boolean = True
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
@@ -333,6 +334,19 @@ Public Class TP50SpeechTest
             'Mixing trial sound
             'MixNextTrialSound()
 
+            'Double check masking. TODO: this should be removed in the future
+            If DoubleCheckMaskingIsActive = True Then
+                If MaskerLocations.Count = 0 Then
+                    Select Case GuiLanguage
+                        Case Utils.Constants.Languages.Swedish
+                            Messager.MsgBox("Inget maskeringsljud har aktiverats! Prova att starta om testet!", , "Varning!")
+                        Case Utils.Constants.Languages.English
+                            Messager.MsgBox("No masking sound has been activated! Try to restart the test!", , "Varning!")
+                    End Select
+                End If
+            End If
+
+
             'Mixing trial sound
             MixStandardTestTrialSound(UseNominalLevels:=True, MaximumSoundDuration:=MaximumSoundDuration,
                                       TargetPresentationTime:=TestWordPresentationTime,
@@ -535,6 +549,18 @@ Public Class TP50SpeechTest
 
         'Setting masker level, based on the selected TargetSNR (Not that the limitations in MaskingLevel may cause a mismatch between the the intended TargetSNR and the actual SNR (CurrentSNR)
         MaskingLevel = TargetLevel - TargetSNR
+
+        'Double check masking. TODO: this should be removed in the future
+        If DoubleCheckMaskingIsActive = True Then
+            If MaskerLocations.Count = 0 Then
+                Select Case GuiLanguage
+                    Case Utils.Constants.Languages.Swedish
+                        Messager.MsgBox("Inget maskeringsljud har aktiverats! Prova att starta om testet!", , "Varning!")
+                    Case Utils.Constants.Languages.English
+                        Messager.MsgBox("No masking sound has been activated! Try to restart the test!", , "Varning!")
+                End Select
+            End If
+        End If
 
         MixStandardTestTrialSound(UseNominalLevels:=True,
                                   MaximumSoundDuration:=MaximumSoundDuration,

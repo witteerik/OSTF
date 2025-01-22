@@ -270,6 +270,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         //    YValuesUpper = new[] { 40F, 50F, 60F, 70F }
         //});
 
+        //TestResultGrid.BackgroundColor = Color.FromRgb(40, 40, 40);
+
         Initialize();
 
     }
@@ -546,6 +548,13 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Restting HasExternalResultsView 
         HasExternalResultsView = false;
 
+        // Clearing the test-results view
+        TestResultGrid.Children.Clear();
+        if (CurrentTestResultsView != null)
+        {
+            CurrentTestResultsView = null;
+        }
+
         //// Closing any previous external test-results window
         //if (CurrentExternalTestResultWindow != null)
         //{
@@ -605,11 +614,18 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Closing all extra windows (such as testresult windows) except this first one
         CloseExtraWindows();
 
+        // Restting HasExternalResultsView 
+        HasExternalResultsView = false;
+
         // Inactivates tackback
         InactivateTalkback();
 
-        // Restting HasExternalResultsView 
-        HasExternalResultsView = false;
+        // Clearing the test-results view
+        TestResultGrid.Children.Clear();
+        if (CurrentTestResultsView != null)
+        {
+            CurrentTestResultsView = null;
+        }
 
         var picker = (Picker)sender;
         var selectedItem = picker.SelectedItem;
@@ -1200,8 +1216,11 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         // Testing with a basic text only view
                         TestResultGrid.Children.Clear();
-                        CurrentTestResultsView = new TestResultsView_Text();
-                        TestResultGrid.Children.Add(CurrentTestResultsView);
+                        if (CurrentTestResultsView != null)
+                        {
+                            CurrentTestResultsView = new TestResultsView_Text();
+                            TestResultGrid.Children.Add(CurrentTestResultsView);
+                        }
 
                         break;
 

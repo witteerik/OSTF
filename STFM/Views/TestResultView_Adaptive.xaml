@@ -186,7 +186,7 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*" />
-                <RowDefinition Height="25" />
+                <RowDefinition Height="40" />
             </Grid.RowDefinitions>
             
             <GraphicsView x:Name="SnrView"

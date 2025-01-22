@@ -341,7 +341,7 @@ Namespace Audio
             For c = 1 To OutputSound.WaveFormat.Channels
 
                 'Copying and converting the sample data
-                Dim NewChannelArray(WaveData.SampleData(c).Length - 1) As Single
+                Dim NewChannelArray(WaveData.SampleData(1).Length - 1) As Single
                 OutputSound.WaveData.SampleData(c) = NewChannelArray
                 For n = 0 To OutputSound.WaveData.SampleData(c).Length - 1
                     OutputSound.WaveData.SampleData(c)(n) = WaveData.SampleData(1)(n) * SampleConversionFactor

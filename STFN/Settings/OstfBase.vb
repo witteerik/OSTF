@@ -38,7 +38,7 @@ Public Module OstfBase
     Public CurrentMediaPlayerType As MediaPlayerTypes
 
     'Optimization libraries
-    Public Property UseOptimizationLibraries As Boolean = True ' This can be used to determine if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
+    Public Property UseOptimizationLibraries As Boolean = False ' This can be used to determine if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
 
     'Other basic settings
     Public Property AllowDirectionalSimulation As Boolean = True

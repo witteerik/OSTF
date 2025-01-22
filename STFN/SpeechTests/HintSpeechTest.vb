@@ -95,6 +95,8 @@ Public Class HintSpeechTest
 
     Private MaximumNumberOfTestSentences As Integer = 40
 
+    ' This filed should be removed in the future
+    Private DoubleCheckMaskingIsActive As Boolean = True
 
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
@@ -425,6 +427,18 @@ Public Class HintSpeechTest
 
         'Storing other data into CurrentTestTrial (TODO: this should probably be moved out of this function)
         CurrentTestTrial.MaximumResponseTime = MaximumResponseTime
+
+        'Double check masking. TODO: this should be removed in the future
+        If DoubleCheckMaskingIsActive = True Then
+            If MaskerLocations.Count = 0 Then
+                Select Case GuiLanguage
+                    Case Utils.Constants.Languages.Swedish
+                        Messager.MsgBox("Inget maskeringsljud har aktiverats! Prova att starta om testet!", , "Varning!")
+                    Case Utils.Constants.Languages.English
+                        Messager.MsgBox("No masking sound has been activated! Try to restart the test!", , "Varning!")
+                End Select
+            End If
+        End If
 
         'Mixing trial sound
         MixStandardTestTrialSound(UseNominalLevels:=True,

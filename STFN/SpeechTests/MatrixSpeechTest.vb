@@ -79,6 +79,9 @@ Public Class MatrixSpeechTest
 
     Private HasNoise As Boolean
 
+    ' This filed should be removed in the future
+    Private DoubleCheckMaskingIsActive As Boolean = True
+
 
 #Region "Settings"
 
@@ -491,6 +494,19 @@ Public Class MatrixSpeechTest
 
         'Adding the list
         CurrentTestTrial.ResponseAlternativeSpellings = ResponseAlternativeList
+
+        'Double check masking. TODO: this should be removed in the future
+        If DoubleCheckMaskingIsActive = True Then
+            If MaskerLocations.Count = 0 Then
+                Select Case GuiLanguage
+                    Case Utils.Constants.Languages.Swedish
+                        Messager.MsgBox("Inget maskeringsljud har aktiverats! Prova att starta om testet!", , "Varning!")
+                    Case Utils.Constants.Languages.English
+                        Messager.MsgBox("No masking sound has been activated! Try to restart the test!", , "Varning!")
+                End Select
+            End If
+        End If
+
 
         'Mixing trial sound
         MixStandardTestTrialSound(UseNominalLevels:=True,

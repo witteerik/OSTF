@@ -4682,9 +4682,53 @@ Public Class Form4
 
         'Next
 
+    End Sub
 
+    Private Sub Button46_Click(sender As Object, e As EventArgs) Handles Button46.Click
 
+        'Fixing AMTEST sounds
 
+        Dim Fix As Boolean = False
+
+        If Fix = True Then
+            'Fixing the sounds
+
+            Dim TemplateFile = Audio.Sound.LoadWaveFile("C:\Temp6000\Materials from GSI-2025-01-10\AMTAS_sv\AMTAS_sv\Spondees_sv\Armband.wav")
+
+            Dim Files = Utils.GetFilesIncludingAllSubdirectories("C:\Temp8000\AllFiles (1)\OnlySoundFiles")
+
+            For Each WaveFilePath In Files
+
+                Dim CurrentSound = Audio.Sound.LoadWaveFile(WaveFilePath)
+
+                CurrentSound = CurrentSound.BitDepthConversion(TemplateFile.WaveFormat)
+
+                CurrentSound = CurrentSound.ZeroPad(0.2, 0.2, False)
+
+                CurrentSound = CurrentSound.ConvertMonoToMultiChannel(2)
+
+                CurrentSound.SMA = Nothing
+
+                Dim OutputPath As String = WaveFilePath.Replace("OnlySoundFiles", "OnlySoundFilesPadded")
+
+                CurrentSound.WriteWaveFile(OutputPath)
+
+            Next
+
+        Else
+
+            'Checking the sounds
+            Dim InputFileFormat1 = Audio.Sound.ReadWaveFileFormat("C:\Temp6000\Materials from GSI-2025-01-10\AMTAS_sv\AMTAS_sv\Spondees_sv\Armband.wav")
+
+            Dim InputFileFormat2 = Audio.Sound.ReadWaveFileFormat("C:\Temp8000\AllFiles (1)\OnlySoundFilesPadded\spondeeSwedish\Armband.wav")
+
+            MsgBox(InputFileFormat1 & vbCrLf & vbCrLf & InputFileFormat2)
+
+        End If
+
+        MsgBox("Finished")
+
+        'MsgBox(InputFileFormat)
 
     End Sub
 End Class

@@ -189,7 +189,7 @@
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*" />
-                <RowDefinition Height="20" />
+                <RowDefinition Height="40" />
             </Grid.RowDefinitions>
             
             <GraphicsView x:Name="ScoreSnrView"
@@ -251,10 +251,10 @@
 
                 <!--Adding controls -->
 
-                <Frame Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="15,0,15,0" BackgroundColor="AntiqueWhite" 
+                <!--<Frame Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="15,0,15,0" BackgroundColor="AntiqueWhite" 
                        BorderColor="#B9AD9C" HeightRequest="3" ></Frame>
                 <Frame Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="15,0,15,0" BackgroundColor="AntiqueWhite" 
-                       BorderColor="#B9AD9C" HeightRequest="3" ></Frame>
+                       BorderColor="#B9AD9C" HeightRequest="3" ></Frame>-->
 
                 <Label x:Name="GroupNameLabel1" 
                    Grid.Row="0" Grid.Column="0" 
