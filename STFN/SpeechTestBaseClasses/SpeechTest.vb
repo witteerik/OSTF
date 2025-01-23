@@ -2510,6 +2510,23 @@ Public MustInherit Class SpeechTest
 
     End Function
 
+    Public Function GetTestResultScreenDumpExportPath() As String
+
+        Dim LanguageBit As String
+        Select Case GuiLanguage
+            Case Utils.Constants.Languages.Swedish
+                LanguageBit = "Sparade skärmdumpar"
+            Case Else
+                LanguageBit = "SavedScreenDumps"
+        End Select
+
+        Dim OutputFolder = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, LanguageBit, Me.FilePathRepresentation)
+        Dim OutputFilename = Me.FilePathRepresentation & "_" & SharedSpeechTestObjects.CurrentParticipantID & "_" & Utils.CreateDateTimeStringForFileNames & ".png"
+        Dim OutputPath = System.IO.Path.Combine(OutputFolder, OutputFilename)
+        Return OutputPath
+
+    End Function
+
     'Public Function SaveTableFormatedTestResults() As Boolean
 
     '    'Skipping saving data if it's the demo ptc ID

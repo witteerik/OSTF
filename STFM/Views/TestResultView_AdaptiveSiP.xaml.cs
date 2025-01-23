@@ -34,6 +34,7 @@ namespace STFM.Views
                     StartButton.Text = "Start";
                     StopButton.Text = "Stop";
                     PauseButton.Text = "Pause";
+                    ScreenShotButton.Text = "Spara";
 
                     TargetScoreNameLabel.Text = "Mål, andel korrekt:";
                     ReferenceLevelNameLabel.Text = "Referensnivå:";
@@ -57,6 +58,8 @@ namespace STFM.Views
                     StartButton.Text = "Start";
                     StopButton.Text = "Stop";
                     PauseButton.Text = "Pause";
+                    ScreenShotButton.Text = "Save";
+
                     SnrGridLabelY.Text = "PNR (dB)";
                     SnrGridLabelX.Text = "Test trial";
 
@@ -325,7 +328,10 @@ namespace STFM.Views
             OnStoppedFromTestResultView(new EventArgs());
         }
 
-
+        private void ScreenShotButton_Clicked(object sender, EventArgs e)
+        {
+            TakeScreenShot();
+        }
         public override void SetGuiLayoutState(SpeechTestView.GuiLayoutStates currentTestPlayState)
         {
 

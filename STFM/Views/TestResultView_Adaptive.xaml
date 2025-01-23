@@ -32,6 +32,7 @@
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
 
                 <Button x:Name="StartButton" 
@@ -66,6 +67,18 @@
                     Margin="4,5,4,4" 
                         TextColor="AntiqueWhite">
                 </Button>
+
+                <Button x:Name="ScreenShotButton" 
+                    Grid.Row="3" 
+                        HorizontalOptions="Fill" VerticalOptions="Fill"
+                        MinimumHeightRequest="0" MinimumWidthRequest="0"
+                        Padding="0"
+                    Clicked="ScreenShotButton_Clicked"
+                    Text="Screen shot" 
+                    Margin="4,5,4,4" 
+                        TextColor="AntiqueWhite">
+                </Button>
+               
 
             </Grid>
 

@@ -400,6 +400,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         Settings_Result_Response,
     }
 
+
+    LayoutConfiguration currentLayoutConfiguration = LayoutConfiguration.Settings;
+
     private void SetLayoutConfiguration(LayoutConfiguration layoutConfiguration)
     {
 
@@ -475,6 +478,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                 break;
         }
 
+        currentLayoutConfiguration = layoutConfiguration;
+
     }
 
 
@@ -513,7 +518,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     private void StopTestBtn_Clicked(object sender, EventArgs e)
     {
-        FinalizeTest(true);
+       FinalizeTest(true);
     }
 
     #endregion
@@ -1567,34 +1572,6 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         CurrentGuiLayoutState = GuiLayoutStates.TestIsRunning;
 
-
-        //// Showing / hiding panels during test
-        //if (HasExternalResultsView)
-        //{
-        //    if (CurrentSpeechTest.IsFreeRecall)
-        //    {
-        //        SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
-        //    }
-        //    else
-        //    {
-        //        SetLayoutConfiguration(LayoutConfiguration.Response);
-        //    }
-        //}
-        //else
-        //{
-        //    if (CurrentSpeechTest.IsFreeRecall)
-        //    {
-        //        SetLayoutConfiguration(LayoutConfiguration.Settings_Result_Response);
-        //    }
-        //    else
-        //    {
-        //        SetLayoutConfiguration(LayoutConfiguration.Response);
-        //    }
-        //}
-
-
-        //CurrentResponseView.ShowMessage("Testet börjar strax...");
-
         // Calling NewSpeechTestInput with e as null
         // Making the call on a separate a background thread so that the GUI changes doesn't have to wait for the creation of the initial test stimuli 
         await Task.Run(() => HandleResponseView_ResponseGiven(null, null));
@@ -1731,7 +1708,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             Thread.Sleep(SleepMilliseconds);
             MethodBase currentMethod = MethodBase.GetCurrentMethod();
             MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, [sender, e]); });
-            //MainThread.InvokeOnMainThreadAsync(() => { currentMethod.Invoke(this, [sender, e]); });
+            //await MainThread.InvokeOnMainThreadAsync(() => { currentMethod.Invoke(this, [sender, e]); });
             return;
         }
 
@@ -1786,6 +1763,27 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 CurrentSpeechTest.SaveTestTrialResults();
 
+                //if (CurrentSpeechTest != null)
+                //{
+                //    if (CurrentTestResultsView != null) {
+
+                //        // Closing all extra windows (such as testresult windows) except this first one
+                //        var windows = Application.Current.Windows.ToList();
+                //        foreach (Window window in windows)
+                //        {
+                //            if (window != this.Window)
+                //            {
+
+                //            }
+                //        }
+
+                //        CurrentTestResultsView.TakeScreenShot(CurrentSpeechTest);
+
+                //        Thread.Sleep(2000);
+
+                //    }
+                //}
+
                 switch (STFN.SharedSpeechTestObjects.GuiLanguage)
                 {
                     case STFN.Utils.Constants.Languages.Swedish:
@@ -1805,8 +1803,16 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 CurrentSpeechTest.SaveTestTrialResults();
 
-                AbortTest(false);
+                //if (CurrentSpeechTest != null)
+                //{
+                //    if (CurrentTestResultsView != null) { CurrentTestResultsView.TakeScreenShot(CurrentSpeechTest); }
+                //}
 
+                //CurrentTestResultsView.Focus();
+
+                //Thread.Sleep(2000);
+
+                AbortTest(false);
 
                 break;
 
@@ -1826,10 +1832,12 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
 
         // Showing results if results view is visible
-        //if (TestResultGrid.IsVisible == true)
-        //{
+        if (currentLayoutConfiguration == LayoutConfiguration.Settings_Result |
+            currentLayoutConfiguration == LayoutConfiguration.Settings_Result_Response | 
+            HasExternalResultsView == true )
+        {
         ShowResults();
-        //}
+        }
 
     }
 
@@ -2138,9 +2146,13 @@ public partial class SpeechTestView : ContentView, IDrawable
 
             // Saving test results to file
             // CurrentSpeechTest.SaveTableFormatedTestResults();
+
         }
 
     }
+
+
+
 
     async void AbortTest(bool closeApp)
     {

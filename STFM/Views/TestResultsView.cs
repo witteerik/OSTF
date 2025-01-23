@@ -31,6 +31,7 @@ public abstract class TestResultsView : ContentView
 
     protected virtual void OnStoppedFromTestResultView(EventArgs e)
     {
+
         EventHandler handler = StoppedFromTestResultView;
         if (handler != null)
         {
@@ -51,5 +52,18 @@ public abstract class TestResultsView : ContentView
 
     public abstract void SetGuiLayoutState(SpeechTestView.GuiLayoutStates currentTestPlayState);
 
+    public async void TakeScreenShot()
+    {
+
+        if (SharedSpeechTestObjects.CurrentSpeechTest != null)
+        {
+            // Taking screen shot
+            await ScreenShooter.TakeScreenshotAndSaveAsync(SharedSpeechTestObjects.CurrentSpeechTest.GetTestResultScreenDumpExportPath());
+
+            // Sleeping 100 to prevent focus shifting to other windows during save
+            Thread.Sleep(100);
+        }
+
+    }
 
 }
