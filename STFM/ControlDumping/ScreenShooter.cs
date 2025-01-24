@@ -1,4 +1,6 @@
 ﻿
+using STFN;
+
 public static class ScreenShooter
 {
 
@@ -26,17 +28,41 @@ public static class ScreenShooter
                 IScreenshotResult screen = await Screenshot.Default.CaptureAsync();
                 Stream stream = await screen.OpenReadAsync();
 
+                // Creating the directory if it doesn't exist
+                System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(filePath));
+
                 // Save the screenshot to a file
                 using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
                 {
                     await stream.CopyToAsync(fileStream);
                 }
             }
+            else
+            {
+                switch (SharedSpeechTestObjects.GuiLanguage)
+                {
+                    case STFN.Utils.Constants.Languages.Swedish:
+                        await STFN.Messager.MsgBoxAsync("Skärmdumpar stöds inte på denna enhet!", Messager.MsgBoxStyle.Information, "Kunde inte ta skärmdump!");
+                        break;
+                    default:
+                        await STFN.Messager.MsgBoxAsync("Screen shots are not supported on this device", Messager.MsgBoxStyle.Information, "Could not take a screen shot!");
+                        break;
+                }
+            }
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            // Ignoring any error here
-            //throw;
+
+            switch (SharedSpeechTestObjects.GuiLanguage)
+            {
+                case STFN.Utils.Constants.Languages.Swedish:
+                    await STFN.Messager.MsgBoxAsync("Misslyckades med att ta skärmdump!\n\n" + e.ToString(),  Messager.MsgBoxStyle.Information, "Något gick fel!");
+                    break;
+                default:
+                    await STFN.Messager.MsgBoxAsync("Failed to take a screen shot!\n\n" + e.ToString(), Messager.MsgBoxStyle.Information, "Something went wrong!");
+                    break;
+            }
+
         }
 
 

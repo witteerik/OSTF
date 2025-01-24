@@ -58,12 +58,24 @@ public abstract class TestResultsView : ContentView
         if (SharedSpeechTestObjects.CurrentSpeechTest != null)
         {
             // Taking screen shot
-            await ScreenShooter.TakeScreenshotAndSaveAsync(SharedSpeechTestObjects.CurrentSpeechTest.GetTestResultScreenDumpExportPath());
+            string savePath = SharedSpeechTestObjects.CurrentSpeechTest.GetTestResultScreenDumpExportPath();
 
-            // Sleeping 100 to prevent focus shifting to other windows during save
-            Thread.Sleep(100);
+            await ScreenShooter.TakeScreenshotAndSaveAsync(savePath);
+
+            // Sleeping 200 to prevent focus shifting to other windows during save
+            Thread.Sleep(200);
+
+            switch (SharedSpeechTestObjects.GuiLanguage)
+            {
+                case STFN.Utils.Constants.Languages.Swedish:
+                    Messager.MsgBox("Resultaten sparades till:\n\n " + savePath, Messager.MsgBoxStyle.Information, "Resultaten sparades!");
+
+                    break;
+                default:
+
+                    Messager.MsgBox("The test results were saved to;\n\n " + savePath, Messager.MsgBoxStyle.Information, "The results were saved!");
+                    break;
+            }
         }
-
     }
-
 }

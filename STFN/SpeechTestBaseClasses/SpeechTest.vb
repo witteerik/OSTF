@@ -2517,7 +2517,7 @@ Public MustInherit Class SpeechTest
             Case Utils.Constants.Languages.Swedish
                 LanguageBit = "Sparade skärmdumpar"
             Case Else
-                LanguageBit = "SavedScreenDumps"
+                LanguageBit = "SavedScreenShot"
         End Select
 
         Dim OutputFolder = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, LanguageBit, Me.FilePathRepresentation)

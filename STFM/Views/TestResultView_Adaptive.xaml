@@ -42,7 +42,7 @@
                         Padding="0"
                     Clicked="StartButton_Clicked"   
                     Text="Start" 
-                    Margin="4,4,4,5"
+                    Margin="2,2,2,3"
                         TextColor="AntiqueWhite">
                 </Button>
 
@@ -53,7 +53,7 @@
                         Padding="0"
                     Clicked="PauseButton_Clicked"      
                     Text="Pause" 
-                    Margin="4,5,4,5" 
+                    Margin="2,3,2,3" 
                         TextColor="AntiqueWhite">
                 </Button>
 
@@ -64,7 +64,7 @@
                         Padding="0"
                     Clicked="StopButton_Clicked"   
                     Text="Stop" 
-                    Margin="4,5,4,4" 
+                    Margin="2,3,2,3" 
                         TextColor="AntiqueWhite">
                 </Button>
 
@@ -75,7 +75,7 @@
                         Padding="0"
                     Clicked="ScreenShotButton_Clicked"
                     Text="Screen shot" 
-                    Margin="4,5,4,4" 
+                    Margin="2,3,2,2" 
                         TextColor="AntiqueWhite">
                 </Button>
                

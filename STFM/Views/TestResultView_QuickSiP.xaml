@@ -43,7 +43,7 @@
                         Padding="0"
                     Clicked="StartButton_Clicked"   
                     Text="Start" 
-                    Margin="4,4,4,5"
+                    Margin="2,2,2,3"
                         TextColor="AntiqueWhite">
                 </Button>
 
@@ -54,7 +54,7 @@
                         Padding="0"
                     Clicked="PauseButton_Clicked"      
                     Text="Pause" 
-                    Margin="4,5,4,5" 
+                    Margin="2,3,2,3" 
                         TextColor="AntiqueWhite">
                 </Button>
 
@@ -65,7 +65,7 @@
                         Padding="0"
                     Clicked="StopButton_Clicked"   
                     Text="Stop" 
-                    Margin="4,5,4,4" 
+                    Margin="2,3,2,3" 
                         TextColor="AntiqueWhite">
                 </Button>
 
@@ -76,7 +76,7 @@
                         Padding="0"
                     Clicked="ScreenShotButton_Clicked"
                     Text="Screen shot" 
-                    Margin="4,5,4,4" 
+                    Margin="2,3,2,2" 
                         TextColor="AntiqueWhite">
                 </Button>
 
@@ -263,10 +263,10 @@
 
                 <!--Adding controls -->
 
-                <!--<Frame Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="15,0,15,0" BackgroundColor="AntiqueWhite" 
-                       BorderColor="#B9AD9C" HeightRequest="3" ></Frame>
+                <Frame Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="15,0,15,0" BackgroundColor="AntiqueWhite" 
+                       BorderColor="#B9AD9C" HeightRequest="3" Padding="0" ></Frame>
                 <Frame Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="15,0,15,0" BackgroundColor="AntiqueWhite" 
-                       BorderColor="#B9AD9C" HeightRequest="3" ></Frame>-->
+                       BorderColor="#B9AD9C" HeightRequest="3"  Padding="0" ></Frame>
 
                 <Label x:Name="GroupNameLabel1" 
                    Grid.Row="0" Grid.Column="0" 

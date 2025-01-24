@@ -342,48 +342,56 @@ namespace STFM.Views
                     StartButton.IsEnabled = false;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
+                    ScreenShotButton.IsEnabled = false;
 
                     break;
                 case SpeechTestView.GuiLayoutStates.TestSelection:
                     StartButton.IsEnabled = false;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
+                    ScreenShotButton.IsEnabled = false;
 
                     break;
                 case SpeechTestView.GuiLayoutStates.SpeechMaterialSelection:
                     StartButton.IsEnabled = false;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
+                    ScreenShotButton.IsEnabled = false;
 
                     break;
                 case SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm:
                     StartButton.IsEnabled = true;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
+                    ScreenShotButton.IsEnabled = false;
 
                     break;
                 case SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm:
                     StartButton.IsEnabled = true;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
+                    ScreenShotButton.IsEnabled = false;
 
                     break;
                 case SpeechTestView.GuiLayoutStates.TestIsRunning:
                     StartButton.IsEnabled = false;
                     PauseButton.IsEnabled = true;
                     StopButton.IsEnabled = true;
+                    ScreenShotButton.IsEnabled = false;
 
                     break;
                 case SpeechTestView.GuiLayoutStates.TestIsPaused:
                     StartButton.IsEnabled = true;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = true;
+                    ScreenShotButton.IsEnabled = true;
 
                     break;
                 case SpeechTestView.GuiLayoutStates.TestIsStopped:
                     StartButton.IsEnabled = false;
                     PauseButton.IsEnabled = false;
                     StopButton.IsEnabled = false;
+                    ScreenShotButton.IsEnabled = true;
 
                     break;
                 default:

@@ -178,7 +178,9 @@
     <Compile Include="ParticipantInterfaces\PC\SpatializedStilmuliTesteeControl.designer.vb">
       <DependentUpon>SpatializedStilmuliTesteeControl.vb</DependentUpon>
     </Compile>
-    <Compile Include="ParticipantInterfaces\PC\SpatializedStilmuliTesteeControl.vb" />
+    <Compile Include="ParticipantInterfaces\PC\SpatializedStilmuliTesteeControl.vb">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="ParticipantInterfaces\PC\TesteeForm.designer.vb">
       <DependentUpon>TesteeForm.vb</DependentUpon>
     </Compile>
