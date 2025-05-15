@@ -82,6 +82,7 @@
                     HorizontalTextAlignment="Start"
                     VerticalTextAlignment="Center" 
                     FontSize="Body"
+               FontFamily="monospace"
                    Margin="3,3,3,3"/>
 
     </Grid>

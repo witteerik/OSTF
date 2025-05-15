@@ -2040,44 +2040,42 @@ Namespace Audio
                                     Optional ByVal freq As Double = 1000, Optional ByVal intensity As Decimal = 1,
                                        Optional intensityUnit As SoundDataUnit = SoundDataUnit.unity,
                                        Optional ByVal duration As Double = 1, Optional durationTimeUnit As TimeUnits = TimeUnits.seconds,
-                                       Optional ByVal Phase As Double = 0) As Sound
+                                       Optional ByVal Phase As Double = 0, Optional ByVal OverrideLevelCheck As Boolean = False) As Sound
                 Try
-
-
-
 
                     Dim outputSound As New Sound(format)
                     Dim AudioOutputConstructor As New AudioOutputConstructor(format, channel)
 
-
                     'Checking valid input intensity values
-                    Select Case intensityUnit
-                        Case SoundDataUnit.unity
-                            If intensity > 1 Then
-                                intensity = 1
-                                MsgBox("Level was outside allowed value (0 through 1)" & vbCr & vbCr & "The level was adjusted to 1",, "CreateSineWave")
-                            End If
+                    If OverrideLevelCheck = False Then
+                        Select Case intensityUnit
+                            Case SoundDataUnit.unity
+                                If intensity > 1 Then
+                                    intensity = 1
+                                    MsgBox("Level was outside allowed value (0 through 1)" & vbCr & vbCr & "The level was adjusted to 1",, "CreateSineWave")
+                                End If
 
-                            If intensity < 0 Then
-                                intensity = 1
-                                MsgBox("Level was outside allowed value (0 through 1)" & vbCr & vbCr & "The level was adjusted to 1",, "CreateSineWave")
-                            End If
-                        Case SoundDataUnit.dB
-                            If intensity > 0 Then
-                                intensity = 0
-                                MsgBox("Level was above allowed max value (0 dBFS)" & vbCr & vbCr & "The level was adjusted To 0 dBFS",, "CreateSineWave")
-                            End If
-                        Case SoundDataUnit.linear
-                            If intensity > format.PositiveFullScale Then
-                                intensity = format.PositiveFullScale
-                                MsgBox("Level was outside allowed value (0 through " & format.PositiveFullScale & ")" & vbCr & vbCr & "The level was adjusted To " & format.PositiveFullScale,, "Waring from createSineWave")
-                            End If
+                                If intensity < 0 Then
+                                    intensity = 1
+                                    MsgBox("Level was outside allowed value (0 through 1)" & vbCr & vbCr & "The level was adjusted to 1",, "CreateSineWave")
+                                End If
+                            Case SoundDataUnit.dB
+                                If intensity > 0 Then
+                                    intensity = 0
+                                    MsgBox("Level was above allowed max value (0 dBFS)" & vbCr & vbCr & "The level was adjusted To 0 dBFS",, "CreateSineWave")
+                                End If
+                            Case SoundDataUnit.linear
+                                If intensity > format.PositiveFullScale Then
+                                    intensity = format.PositiveFullScale
+                                    MsgBox("Level was outside allowed value (0 through " & format.PositiveFullScale & ")" & vbCr & vbCr & "The level was adjusted To " & format.PositiveFullScale,, "Waring from createSineWave")
+                                End If
 
-                            If intensity < 0 Then
-                                intensity = format.PositiveFullScale
-                                MsgBox("Level was outside allowed value (0 through " & format.PositiveFullScale & ")" & vbCr & vbCr & "The level was adjusted To " & format.PositiveFullScale,, "CreateSineWave")
-                            End If
-                    End Select
+                                If intensity < 0 Then
+                                    intensity = format.PositiveFullScale
+                                    MsgBox("Level was outside allowed value (0 through " & format.PositiveFullScale & ")" & vbCr & vbCr & "The level was adjusted To " & format.PositiveFullScale,, "CreateSineWave")
+                                End If
+                        End Select
+                    End If
 
                     'Converting intensity values
                     Select Case intensityUnit

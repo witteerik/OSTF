@@ -265,11 +265,11 @@ public partial class UoAudView : ContentView
         // CurrentMixer.GetParentTransducerSpecification.CalibrationGain();
         // Skipping this for now
 
-        if (RetSplCorrectedLevel_FS > -3)
-        {
-            Messager.MsgBox("This level (" + CurrentTrial.ToneLevel.ToString() + " dB HL) exceeds the maximum level of the output device for the frequency " + CurrentTrial.ParentSubTest.Frequency.ToString() + " Hz.\n\nThe tone will not be played.", Messager.MsgBoxStyle.Information, "Maximum output level reached!");
-            return;
-        }
+        //if (RetSplCorrectedLevel_FS > -3)
+        //{
+        //    Messager.MsgBox("This level (" + CurrentTrial.ToneLevel.ToString() + " dB HL) exceeds the maximum level of the output device for the frequency " + CurrentTrial.ParentSubTest.Frequency.ToString() + " Hz.\n\nThe tone will not be played.", Messager.MsgBoxStyle.Information, "Maximum output level reached!");
+        //    return;
+        //}
 
 
         // Creating the sine 
@@ -289,7 +289,8 @@ public partial class UoAudView : ContentView
         }
 
         // Creating the sine
-        STFN.Audio.Sound SineSound = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat, 1, CurrentTrial.ParentSubTest.Frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, CurrentTrial.ToneDuration.TotalSeconds);
+        STFN.Audio.Sound SineSound = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat, 1, CurrentTrial.ParentSubTest.Frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, 
+            CurrentTrial.ToneDuration.TotalSeconds, STFN.Audio.BasicAudioEnums.TimeUnits.seconds, 0, true);
         STFN.Audio.DSP.Transformations.Fade(ref SineSound, null, 0, 1, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
         STFN.Audio.DSP.Transformations.Fade(ref SineSound, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.1), null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
 

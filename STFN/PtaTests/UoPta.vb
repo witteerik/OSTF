@@ -1,4 +1,5 @@
 ﻿
+
 Public Class UoPta
 
     Private Shared FilePathRepresentation As String = "UoPta"
@@ -106,33 +107,27 @@ Public Class UoPta
 
             Dim NeedsReinitiation As Boolean = False
 
-            'Determining the index of the first trial which was not heard or presented at the minimum presentation level, here called the LevelDescentBreakPointTrial 
-            Dim LevelDescentBreakPointTrialIndex As Integer = -1
-            For i = 0 To Trials.Count - 1
-                'Looking for the first non-heard trial
-                If Trials(i).Result <> PtaResults.TruePositive Then
-                    LevelDescentBreakPointTrialIndex = i
-                    Exit For
-                End If
-                'And the first trial at the minimum presentation level, regardless if it was heard or not 
-                If Trials(i).ToneLevel = MinPresentationLevel Then
-                    LevelDescentBreakPointTrialIndex = i
-                    Exit For
-                End If
-            Next
-
-            'Returns False if the level-descent break point has not yet been reached
-            If LevelDescentBreakPointTrialIndex = -1 Then Return False
-
             'Creating a list of threshold-candidate trials (starting from the level-descent break point trial)
             ' Including the heard trials after the first non-heard
             ' Including also non-heard trials at the maximum output level (as these are needed to determine non-reached thresholds)
             Dim ThresholdCandidateTrials As New List(Of PtaTrial)
-            For i = LevelDescentBreakPointTrialIndex To Trials.Count - 1
-                If Trials(i).Result = PtaResults.TruePositive Then
+            For i = 0 To Trials.Count - 1
+
+                'Always including trials at the maximum presentation level, regardless of their result
+                If Trials(i).ToneLevel = MaxPresentationLevel Then
                     ThresholdCandidateTrials.Add(Trials(i))
+                    'Continue the for loop so that trials do not get included twice
+                    Continue For
+                End If
+
+                'Including trials if they were correct and preceded by an non-heard trial
+                If i = 0 Then
+                    'However, the special case of the first trial, which has no preceding trial, is always included if it was heard
+                    If Trials(i).Result = PtaResults.TruePositive Then
+                        ThresholdCandidateTrials.Add(Trials(i))
+                    End If
                 Else
-                    If Trials(i).ToneLevel = MaxPresentationLevel Then
+                    If Trials(i).Result = PtaResults.TruePositive And Trials(i - 1).Result <> PtaResults.TruePositive Then
                         ThresholdCandidateTrials.Add(Trials(i))
                     End If
                 End If
@@ -205,7 +200,8 @@ Public Class UoPta
                     End If
                 Next
                 If TempLastTruePositivelevel.HasValue Then
-                    LastTruePositiveLevel = TempLastTruePositivelevel.Value
+                    'Setting the level to 10 dB above the last heard level
+                    LastTruePositiveLevel = TempLastTruePositivelevel.Value + 10
                 Else
                     LastTruePositiveLevel = 40
                 End If
@@ -259,19 +255,24 @@ Public Class UoPta
 
                 Dim IncreaseStepSize As Integer = 10 ' Setting the increase step size to 10 dB
                 'Checking if any has been heard yet
-                For Each Trial In Trials
-                    If Trial.Result = PtaResults.TruePositive Then
+                Dim FirstHeardTrialIndex As Integer = 0
+                For i = 0 To Trials.Count - 1
+                    If Trials(i).Result = PtaResults.TruePositive Then
                         'Tones have been heard, changing the increase step to 5 dB
                         IncreaseStepSize = 5
+
+                        'Noting the index of the first heard trial
+                        FirstHeardTrialIndex = i
+
                         Exit For
                     End If
                 Next
 
-                'Checking if any tone has been missed so far
+                'Checking if any tone has been missed after the first heard trial
                 Dim DecreaseStepSize As Integer = 20 ' Setting the decrease step size to 20 dB
-                For Each Trial In Trials
-                    If Trial.Result <> PtaResults.TruePositive Then
-                        'Tones have been missed, changing the decrease step to 10 dB
+                For i = FirstHeardTrialIndex To Trials.Count - 1
+                    If Trials(i).Result <> PtaResults.TruePositive Then
+                        'Tones have been missed after the first heard trial, changing the decrease step to 10 dB
                         DecreaseStepSize = 10
                         Exit For
                     End If
@@ -618,7 +619,16 @@ Public Class UoPta
 
         Dim ResultList As New List(Of String)
         ResultList.Add("Audiogram type:")
-        ResultList.Add("Side" & vbTab & "Type" & vbTab & "Fit" & vbTab & "RMSE")
+
+        Dim ColumnWidth1 As Integer = 8
+        Dim ColumnWidth2 As Integer = 8
+        Dim ColumnWidth3 As Integer = 8
+        Dim ColumnWidth4 As Integer = 8
+
+        ResultList.Add("Side".PadRight(ColumnWidth1) &
+                       "Type".PadRight(ColumnWidth2) &
+                       "Fit".PadRight(ColumnWidth3) &
+                       "RMSE".PadRight(ColumnWidth4))
 
         Dim Sides() As Utils.Sides = {Utils.Sides.Right, Utils.Sides.Left}
 
@@ -650,7 +660,10 @@ Public Class UoPta
             'Approximating to a Bissgaard audiogram
             Dim ApproxResult = ApproximateBisgaardType(SingleSideAudiogram)
 
-            ResultList.Add(Side.ToString & vbTab & ApproxResult.Item1 & vbTab & ApproxResult.Item2.ToString & vbTab & Math.Round(ApproxResult.Item3, 1))
+            ResultList.Add(Side.ToString.PadRight(ColumnWidth1) &
+                           ApproxResult.Item1.ToString.PadRight(ColumnWidth2) &
+                           ApproxResult.Item2.ToString.PadRight(ColumnWidth3) &
+                           Math.Round(ApproxResult.Item3, 1).ToString.PadRight(ColumnWidth4))
 
         Next
 
@@ -774,15 +787,28 @@ Public Class UoPta
         End If
 
         Dim AudiogramList As New List(Of String)
-        AudiogramList.Add("Side" & vbTab & "Frequency" & vbTab & "Threshold" & vbTab & "ThresholdStatus")
+        Dim ColumnWidth1 As Integer = 8
+        Dim ColumnWidth2 As Integer = 12
+        Dim ColumnWidth3 As Integer = 12
+        Dim ColumnWidth4 As Integer = 18
+
+        AudiogramList.Add("Side".PadRight(ColumnWidth1) &
+                          "Frequency".PadRight(ColumnWidth2) &
+                          "Threshold".PadRight(ColumnWidth3) &
+                          "ThresholdStatus".PadRight(ColumnWidth4))
+
         For Each SubTest In SubTests
-            AudiogramList.Add(SubTest.Side.ToString & vbTab & SubTest.Frequency & vbTab & SubTest.Threshold & vbTab & SubTest.ThresholdStatus.ToString)
+            AudiogramList.Add(SubTest.Side.ToString.PadRight(ColumnWidth1) &
+                              SubTest.Frequency.ToString.PadRight(ColumnWidth2) &
+                              SubTest.Threshold.ToString.PadRight(ColumnWidth3) &
+                              SubTest.ThresholdStatus.ToString.PadRight(ColumnWidth4))
+
         Next
 
         AudiogramList.Add("")
         AudiogramList.Add(ApproximateBisgaardType())
 
-        AudiogramList.Add("Test-retest difference (1 kHz)" & TestRetestDifference & " dB HL")
+        AudiogramList.Add("Test-retest difference (1 kHz): " & TestRetestDifference & " dB HL")
 
         Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, UoPta.FilePathRepresentation)
         Dim OutputFilename = UoPta.FilePathRepresentation & "_AudiogramData_" & SharedSpeechTestObjects.CurrentParticipantID
