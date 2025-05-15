@@ -2204,7 +2204,7 @@ Partial Class MediaSetSetupControl
         Me.TableLayoutPanel4.RowCount = 2
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
         Me.TableLayoutPanel4.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50.0!))
-        Me.TableLayoutPanel4.Size = New System.Drawing.Size(607, 297)
+        Me.TableLayoutPanel4.Size = New System.Drawing.Size(551, 297)
         Me.TableLayoutPanel4.TabIndex = 1
         '
         'CreateSipTestMaskersButton
@@ -2218,7 +2218,7 @@ Partial Class MediaSetSetupControl
         '
         'CalculateSipTestMaskerSpectrumLevels_Button
         '
-        Me.CalculateSipTestMaskerSpectrumLevels_Button.Location = New System.Drawing.Point(306, 3)
+        Me.CalculateSipTestMaskerSpectrumLevels_Button.Location = New System.Drawing.Point(278, 3)
         Me.CalculateSipTestMaskerSpectrumLevels_Button.Name = "CalculateSipTestMaskerSpectrumLevels_Button"
         Me.CalculateSipTestMaskerSpectrumLevels_Button.Size = New System.Drawing.Size(184, 44)
         Me.CalculateSipTestMaskerSpectrumLevels_Button.TabIndex = 1
@@ -2236,7 +2236,7 @@ Partial Class MediaSetSetupControl
         '
         'ExportSpelledSoundFiles_Button
         '
-        Me.ExportSpelledSoundFiles_Button.Location = New System.Drawing.Point(306, 151)
+        Me.ExportSpelledSoundFiles_Button.Location = New System.Drawing.Point(278, 151)
         Me.ExportSpelledSoundFiles_Button.Name = "ExportSpelledSoundFiles_Button"
         Me.ExportSpelledSoundFiles_Button.Size = New System.Drawing.Size(234, 49)
         Me.ExportSpelledSoundFiles_Button.TabIndex = 3

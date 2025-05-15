@@ -2,8 +2,9 @@
 // Available tests need to be specified by name below, one test per row.
 // Exact test names are required, possible values are:
 
-// Screening audiometer
-// Screening audiometer (Calibration mode)
+User-operated audiometry
+Screening audiometer
+Screening audiometer (Calibration mode)
 
 Svenska HINT
 Hagermans meningar (Matrix)

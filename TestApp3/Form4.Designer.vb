@@ -522,7 +522,7 @@ Partial Class Form4
         '
         'Button41
         '
-        Me.Button41.Location = New System.Drawing.Point(796, 432)
+        Me.Button41.Location = New System.Drawing.Point(1017, 432)
         Me.Button41.Name = "Button41"
         Me.Button41.Size = New System.Drawing.Size(75, 23)
         Me.Button41.TabIndex = 59
@@ -549,7 +549,7 @@ Partial Class Form4
         '
         'Button44
         '
-        Me.Button44.Location = New System.Drawing.Point(945, 432)
+        Me.Button44.Location = New System.Drawing.Point(936, 432)
         Me.Button44.Name = "Button44"
         Me.Button44.Size = New System.Drawing.Size(75, 23)
         Me.Button44.TabIndex = 62
@@ -558,7 +558,7 @@ Partial Class Form4
         '
         'Button45
         '
-        Me.Button45.Location = New System.Drawing.Point(945, 461)
+        Me.Button45.Location = New System.Drawing.Point(936, 460)
         Me.Button45.Name = "Button45"
         Me.Button45.Size = New System.Drawing.Size(75, 23)
         Me.Button45.TabIndex = 63
@@ -567,7 +567,7 @@ Partial Class Form4
         '
         'Button46
         '
-        Me.Button46.Location = New System.Drawing.Point(945, 489)
+        Me.Button46.Location = New System.Drawing.Point(936, 489)
         Me.Button46.Name = "Button46"
         Me.Button46.Size = New System.Drawing.Size(75, 23)
         Me.Button46.TabIndex = 64

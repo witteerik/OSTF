@@ -4731,4 +4731,61 @@ Public Class Form4
         'MsgBox(InputFileFormat)
 
     End Sub
+
+    Private Sub Button41_Click(sender As Object, e As EventArgs) Handles Button41.Click
+
+        'Fixing three AMTEST sounds that for some reason went missing:
+        'BLODPROV
+        'FARMOR
+        'MISSTAG
+
+        Dim Fix As Boolean = False
+
+        Dim OutputFolder = "C:\Temp\AMTAS_sv\AMTAS_sv\AMTAS_sv\spondeeSwedish_extra"
+
+        If Fix = True Then
+            'Fixing the sounds
+
+            Dim TemplateFile = Audio.Sound.LoadWaveFile("C:\TempSuper\Temp6000\Materials from GSI-2025-01-10\AMTAS_sv\AMTAS_sv\Spondees_sv\Armband.wav")
+
+            Dim Files = {"C:\TempSuper\Temp8000\AllFiles (1)\OnlySoundFiles\spondeeSwedish\Blodprov.wav",
+                "C:\TempSuper\Temp8000\AllFiles (1)\OnlySoundFiles\spondeeSwedish\Farmor.wav",
+                "C:\TempSuper\Temp8000\AllFiles (1)\OnlySoundFiles\spondeeSwedish\Misstag.wav"}
+
+            For Each WaveFilePath In Files
+
+                Dim CurrentSound = Audio.Sound.LoadWaveFile(WaveFilePath)
+
+                CurrentSound = CurrentSound.BitDepthConversion(TemplateFile.WaveFormat)
+
+                CurrentSound = CurrentSound.ZeroPad(0.2, 0.2, False)
+
+                CurrentSound = CurrentSound.ConvertMonoToMultiChannel(2)
+
+                CurrentSound.SMA = Nothing
+
+                Dim OutputPath As String = IO.Path.Combine(OutputFolder, IO.Path.GetFileName(WaveFilePath))
+
+                CurrentSound.WriteWaveFile(OutputPath)
+
+            Next
+
+        Else
+
+            'Checking the sounds
+            Dim InputFileFormat1 = Audio.Sound.ReadWaveFileFormat("C:\TempSuper\Temp6000\Materials from GSI-2025-01-10\AMTAS_sv\AMTAS_sv\Spondees_sv\Armband.wav")
+
+            Dim InputFileFormat2 = Audio.Sound.ReadWaveFileFormat(IO.Path.Combine(OutputFolder, "Blodprov.wav"))
+
+            MsgBox(InputFileFormat1 & vbCrLf & vbCrLf & InputFileFormat2)
+
+        End If
+
+        MsgBox("Finished")
+
+        'MsgBox(InputFileFormat)
+
+    End Sub
+
+
 End Class

@@ -645,6 +645,35 @@ public partial class SpeechTestView : ContentView, IDrawable
             switch (selectedItem)
             {
 
+                case "User-operated audiometry":
+
+                    TestOptionsGrid.Children.Clear();
+                    CurrentSpeechTest = null;
+                    CurrentTestOptionsView = null;
+
+                    // Updating settings needed for the loaded test
+                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
+
+                    SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
+                    StartTestBtn.IsEnabled = false;
+
+                    var UoAudiometerView = new UoAudView();
+                    TestReponseGrid.Children.Add(UoAudiometerView);
+
+                    TestReponseGrid.IsEnabled = true;
+
+                    UoAudiometerView.EnterFullScreenMode -= OnEnterFullScreenMode;
+                    UoAudiometerView.ExitFullScreenMode -= OnExitFullScreenMode;
+                    UoAudiometerView.EnterFullScreenMode += OnEnterFullScreenMode;
+                    UoAudiometerView.ExitFullScreenMode += OnExitFullScreenMode;
+
+                    NewTestBtn.IsEnabled = true;
+                    SpeechTestPicker.IsEnabled = false;
+                    TestOptionsGrid.IsEnabled = false;
+
+                    // Returns right here to skip test-related adjustments
+                    return;
+
                 case "Screening audiometer":
 
                     TestOptionsGrid.Children.Clear();

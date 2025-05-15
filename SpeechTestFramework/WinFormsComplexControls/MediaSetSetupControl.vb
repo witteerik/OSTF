@@ -612,6 +612,11 @@ Public Class MediaSetSetupControl
         'N.B. This can instead be called (and stored) on the phoneme level using:
         'SelectedMediaSet.CalculateSpectrumlevels(SpeechMaterialComponent.LinguisticLevels.Phoneme, 1, True, False,)
 
+        'If other levels are required (used in the PDL-article)
+        SelectedMediaSet.CalculateConcatenatedComponentSpectrumLevels(SpeechMaterialComponent.LinguisticLevels.List, SpeechMaterialComponent.LinguisticLevels.Word, True, 1, False,,,,, "ListSL")
+        SelectedMediaSet.CalculateConcatenatedComponentSpectrumLevels(SpeechMaterialComponent.LinguisticLevels.ListCollection, SpeechMaterialComponent.LinguisticLevels.Word, True, 1, True,,,,, "VoiceSL")
+
+
         SelectedMediaSet.CalculateAverageMaxLevelOfCousinComponents(SpeechMaterialComponent.LinguisticLevels.List, SpeechMaterialComponent.LinguisticLevels.Phoneme, 1, False)
 
         SelectedMediaSet.CalculateComponentLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection, 1, ,,,, True)
@@ -636,7 +641,10 @@ Public Class MediaSetSetupControl
 
     Private Sub CalculateSipTestMaskerSpectrumLevels_Button_Click(sender As Object, e As EventArgs) Handles CalculateSipTestMaskerSpectrumLevels_Button.Click
 
-        SelectedMediaSet.CalculateMaskerSpectrumLevels()
+        'SelectedMediaSet.CalculateMaskerSpectrumLevels()
+
+        'The below function was used to calculate overall spectra for the MediaSet maskers for the PDL paper
+        SelectedMediaSet.CalculateGrandAverageMediaSetMaskerSpectrumLevels()
 
     End Sub
 

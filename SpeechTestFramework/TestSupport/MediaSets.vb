@@ -1785,6 +1785,129 @@ Public Class MediaSet
     End Sub
 
 
+    ''' <summary>
+    ''' Calculates the average (SII critical bands) spectrum levels of the sound recordings of all maskers in the MediaSet.
+    ''' </summary>
+    ''' <param name="SoundChannel">The audio / wave file channel in which the speech is recorded (channel 1, for mono sounds).</param>
+    ''' <param name="MaskerCrossFadeDuration">A duration by which the masker sound sections for concatenations will be cross-faded prior to spectrum level calculations.</param>
+    ''' <param name="FadeConcatenatedSound">If set to true, the concatenated sounds will be slightly faded initially and finally (in order to avoid impulse-like onsets and offsets) prior to spectrum level calculations.</param>
+    ''' <param name="RemoveDcComponent">If set to true, the DC component of the concatenated sounds will be set to zero prior to spectrum level calculations.</param>
+    Public Sub CalculateGrandAverageMediaSetMaskerSpectrumLevels(Optional ByVal SoundChannel As Integer = 1,
+                                                                 Optional ByVal MaskerCrossFadeDuration As Double = 0.001,
+                                                                 Optional ByVal FadeConcatenatedSound As Boolean = True,
+                                                                 Optional ByVal RemoveDcComponent As Boolean = True,
+                                                                 Optional ByVal VariableNamePrefix As String = "MSLm",
+                                                                 Optional ByVal AdjustToMaxLevelOfContrastingComponents As Boolean = True,
+                                                                 Optional ByVal ContrastingComponentRefMaxLevel_VariableName As String = "RLxs",
+                                                                 Optional ByVal ExcludePractiseComponents As Boolean = True)
+
+        Dim SmaHighjackedSentenceIndex As Integer = 0
+
+        'Sets of some objects which are reused between the loops in the code below
+        Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+        Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
+        Dim dBSPL_FSdifference As Double? = Audio.Standard_dBFS_dBSPL_Difference
+
+        Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
+
+        'And these are only used to be able to export the values used
+        Dim ActualLowerLimitFrequencyList As List(Of Double) = Nothing
+        Dim ActualUpperLimitFrequencyList As List(Of Double) = Nothing
+
+        'Clears previously loaded sounds
+        SpeechMaterialComponent.ClearAllLoadedSounds()
+
+        Dim SummaryComponents = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(Me.SharedMaskersLevel, ExcludePractiseComponents)
+
+
+
+        Dim MaskerList As New List(Of Audio.Sound)
+
+        For Each SummaryComponent In SummaryComponents
+
+            For m = 0 To Me.MaskerAudioItems - 1
+                Dim MaskerPath = SummaryComponent.GetMaskerPath(Me, m, False)
+
+                Dim LoadedMasker = Audio.Sound.LoadWaveFile(MaskerPath)
+
+                'Stores the wave format
+                If WaveFormat Is Nothing Then WaveFormat = LoadedMasker.WaveFormat
+
+                'Getting the central masking region, encoded as sentence: SmaHighjackedSentenceIndex, word: 1 (i.e. the second word)
+                Dim CentralMaskerRegion = LoadedMasker.SMA.ChannelData(SoundChannel)(SmaHighjackedSentenceIndex)(1).GetSoundFileSection(SoundChannel)
+                MaskerList.Add(CentralMaskerRegion)
+
+            Next
+
+            If AdjustToMaxLevelOfContrastingComponents = True Then
+                'New 2020-12-30
+                'Getting the contrasting phonemes level (RLxs)
+                'Dim ContrastedPhonemesLevel_FS = SoundLibrary.GetAverageTestPhonemeMaxLevel_FS(TestWordList, SpeakerId)
+                Dim ContrastedPhonemesLevel_FS = SummaryComponent.GetNumericMediaSetVariableValue(Me, ContrastingComponentRefMaxLevel_VariableName)
+                If ContrastedPhonemesLevel_FS Is Nothing Then
+                    MsgBox("Missing value for the numeric media set variable ")
+                    Exit Sub
+                End If
+
+                'Setting each masker to the ContrastedPhonemesLevel_FS
+                For n = 0 To MaskerList.Count - 1
+                    Audio.DSP.MeasureAndAdjustSectionLevel(MaskerList(n), ContrastedPhonemesLevel_FS, 1)
+                Next
+                'End new 2020-12-30
+            End If
+        Next
+
+        'Getting concatenated sounds
+        Dim ConcatenatedSound = Audio.DSP.ConcatenateSounds(MaskerList, False,,,,, MaskerCrossFadeDuration * WaveFormat.SampleRate, False, 10, True)
+
+        'Fading very slightly to avoid initial and final impulses
+        If FadeConcatenatedSound = True Then
+            Audio.DSP.Fade(ConcatenatedSound, Nothing, 0,,, ConcatenatedSound.WaveFormat.SampleRate * 0.01, Audio.DSP.FadeSlopeType.Linear)
+            Audio.DSP.Fade(ConcatenatedSound, 0, Nothing,, ConcatenatedSound.WaveData.SampleData(1).Length - ConcatenatedSound.WaveFormat.SampleRate * 0.01,, Audio.DSP.FadeSlopeType.Linear)
+        End If
+
+        'Removing DC-component
+        If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(ConcatenatedSound)
+
+        'Calculates spectrum levels
+        Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(ConcatenatedSound, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference)
+
+        'Stores the same values into (also to the practise components regardless of whether they were included into the measurement or not) all SummaryComponents as a custom media set variable
+        Dim SummaryComponentsAll = Me.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(Me.SharedMaskersLevel)
+
+        For Each SummaryComponent In SummaryComponentsAll
+
+            For b = 0 To SpectrumLevels.Count - 1
+
+                'Creates a variable name (How on earth is are calling functions going to figure out this name???) Perhaps better to use band 1,2,3... instead of centre frequencies?
+                Dim VariableName As String = VariableNamePrefix & "_" & Math.Round(BandBank(b).CentreFrequency).ToString("00000")
+
+                SummaryComponent.SetNumericMediaSetVariableValue(Me, VariableName, SpectrumLevels(b))
+
+            Next
+        Next
+
+        'Finally writes the results to file
+        Dim OutputDirectory = Me.WriteCustomVariables()
+
+        'Send info about calculation to log (only if WriteCustomVariables returned an output folder)
+        If OutputDirectory <> "" Then
+            Dim LogList As New List(Of String)
+            LogList.Add("Method name: " & System.Reflection.MethodInfo.GetCurrentMethod.Name)
+            LogList.Add("dBSPL to  FS difference used :" & dBSPL_FSdifference.ToString)
+            LogList.Add("Filter specifications (Critical bands based on the SII standard):")
+            LogList.Add(String.Join(vbTab, New List(Of String) From {"Band", "CentreFrequency", "LowerFrequencyLimit", "UpperFrequencyLimit", "Bandwidth", "ActualLowerLimitFrequency", "ActualUpperLimitFrequency"}))
+            For b = 0 To BandBank.Count - 1
+                LogList.Add(String.Join(vbTab, New List(Of String) From {CDbl((b + 1)), BandBank(b).CentreFrequency, BandBank(b).LowerFrequencyLimit, BandBank(b).UpperFrequencyLimit, BandBank(b).Bandwidth, ActualLowerLimitFrequencyList(b), ActualUpperLimitFrequencyList(b)}))
+            Next
+            Utils.SendInfoToLog(String.Join(vbCrLf, LogList), "Log_for_function_" & System.Reflection.MethodInfo.GetCurrentMethod.Name, OutputDirectory, False)
+        End If
+
+
+    End Sub
+
+
+
     Public Sub CalculateAverageMaxLevelOfCousinComponents(ByVal SummaryLevel As SpeechMaterialComponent.LinguisticLevels,
                                                                ByVal ContrastLevel As SpeechMaterialComponent.LinguisticLevels,
                                                                ByVal SoundChannel As Integer,
