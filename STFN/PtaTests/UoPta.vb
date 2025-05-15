@@ -4,6 +4,15 @@ Public Class UoPta
     Private Shared FilePathRepresentation As String = "UoPta"
     Public Shared SaveAudiogramDataToFile As Boolean = True
     Public Shared LogTrialData As Boolean = True
+    Public ResultSummary As String = ""
+
+#Region "Evaluation settings"
+
+    Private GoodFitLimit As Double = 10
+    Private MediumFitLimit As Double = 20
+
+#End Region
+
 
 #Region "Level settings"
 
@@ -57,6 +66,8 @@ Public Class UoPta
 
     Private Randomizer As New Random
 
+    Private TestRetestDifference As Integer? = Nothing
+
     ''' <summary>
     ''' Runs and stores the threshold procedure for a single side and frequency
     ''' </summary>
@@ -69,7 +80,7 @@ Public Class UoPta
         Public Randomizer As Random
         Public IsReliabilityCheck As Boolean
 
-        Private IsInitiatingRepeatedThresholdProcedure As Boolean = False 'This variable is used (and temporarily set to True) when the threshold procedure must re-initiated, according to point 6 in the guidelines
+        Private IsInitiatingRepeatedThresholdProcedure As Boolean = False 'This variable is used (and temporarily set to True) when the threshold procedure must be re-initiated, according to point 6 in the guidelines
         Private LastTruePositiveLevel As Integer
 
         Public PresentedTrials As Integer = 0
@@ -583,6 +594,166 @@ Public Class UoPta
         Return Nothing
     End Function
 
+    Public Enum BisgaardAudiogramsLimited
+        NH
+        N1
+        N2
+        N3
+        N4
+        N5
+        N67
+        S1
+        S2
+        S3
+    End Enum
+
+    Public Enum BisgaardAudiogramsLimitedFit
+        Good
+        Medium
+        Poor
+    End Enum
+
+
+    Public Function ApproximateBisgaardType() As String
+
+        Dim ResultList As New List(Of String)
+        ResultList.Add("Audiogram type:")
+        ResultList.Add("Side" & vbTab & "Type" & vbTab & "Fit" & vbTab & "RMSE")
+
+        Dim Sides() As Utils.Sides = {Utils.Sides.Right, Utils.Sides.Left}
+
+        For Each Side In Sides
+
+            Dim SingleSideAudiogram As New SortedList(Of Integer, Integer)
+
+            For Each SubTest In SubTests
+
+                If SubTest.Side <> Side Then Continue For
+
+                If SingleSideAudiogram.ContainsKey(SubTest.Frequency) = False Then
+                    'Storing the frequency and threshold
+                    SingleSideAudiogram.Add(SubTest.Frequency, SubTest.Threshold)
+                Else
+                    'Here we have already stored a threhold, this is therefore the retest
+                    'This will overwrite a first threshold value with the repeated threshold value, and also store the test retest-value
+                    Dim TestThreshold = SingleSideAudiogram(SubTest.Frequency)
+                    Dim RetestThreshold = SubTest.Threshold
+
+                    'Stroing the test-retest difference (note that this only happens once in each complete measurment
+                    TestRetestDifference = RetestThreshold - TestThreshold
+
+                    'Updating the SingleSideAudiogram with the retest threshold instead of the test threhold
+                    SingleSideAudiogram(SubTest.Frequency) = RetestThreshold
+                End If
+            Next
+
+            'Approximating to a Bissgaard audiogram
+            Dim ApproxResult = ApproximateBisgaardType(SingleSideAudiogram)
+
+            ResultList.Add(Side.ToString & vbTab & ApproxResult.Item1 & vbTab & ApproxResult.Item2.ToString & vbTab & Math.Round(ApproxResult.Item3, 1))
+
+        Next
+
+        Return String.Join(vbCrLf, ResultList)
+
+    End Function
+
+    ''' <summary>
+    ''' 
+    ''' </summary>
+    ''' <param name="Audiogram">A SortedList where keys represent 'Frequency' and values represent 'Thresholds' </param>
+    ''' <returns></returns>
+    Public Function ApproximateBisgaardType(ByVal Audiogram As SortedList(Of Integer, Integer)) As Tuple(Of BisgaardAudiogramsLimited, BisgaardAudiogramsLimitedFit, Double)
+
+        Dim fs() As Integer = {125, 250, 375, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000}
+
+        'Checking that no invalid frequencies are supplied
+        For Each Frequency In Audiogram.Keys
+            If fs.Contains(Frequency) = False Then
+                Throw New ArgumentException("Non-supported frequency value supplied to function ApproximateBisgaardType!")
+            End If
+        Next
+
+        Dim TempAudiograms As New SortedList(Of BisgaardAudiogramsLimited, Integer())
+
+        'These audiograms are base on the Bisgaard set, but limited to 80 dB HL, Bisbard N6 and N7 are combined into N67. 
+        ' The 8 kHz threshold is set to the same as the 6 kHz threshold
+        TempAudiograms.Add(BisgaardAudiogramsLimited.NH, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+        TempAudiograms.Add(BisgaardAudiogramsLimited.N1, {10, 10, 10, 10, 10, 10, 10, 15, 20, 30, 40, 40})
+        TempAudiograms.Add(BisgaardAudiogramsLimited.N2, {20, 20, 20, 20, 22.5, 25, 30, 35, 40, 45, 50, 50})
+        TempAudiograms.Add(BisgaardAudiogramsLimited.N3, {35, 35, 35, 35, 35, 40, 45, 50, 55, 60, 65, 65})
+        TempAudiograms.Add(BisgaardAudiogramsLimited.N4, {55, 55, 55, 55, 55, 55, 60, 65, 70, 75, 80, 80})
+        TempAudiograms.Add(BisgaardAudiogramsLimited.N5, {65, 65, 67.5, 70, 72.5, 75, 80, 80, 80, 80, 80, 80})
+        TempAudiograms.Add(BisgaardAudiogramsLimited.N67, {75, 75, 77.5, 80, 80, 80, 80, 80, 80, 80, 80, 80})
+        TempAudiograms.Add(BisgaardAudiogramsLimited.S1, {10, 10, 10, 10, 10, 10, 10, 15, 30, 55, 70, 70})
+        TempAudiograms.Add(BisgaardAudiogramsLimited.S2, {20, 20, 20, 20, 22.5, 25, 35, 55, 75, 80, 80, 80})
+        TempAudiograms.Add(BisgaardAudiogramsLimited.S3, {30, 30, 30, 35, 47.5, 60, 70, 75, 80, 80, 80, 80})
+
+        'Selecting the frequenies (and thresholds) to be used
+        Dim SelectedFrequencyAudiograms As New SortedList(Of BisgaardAudiogramsLimited, SortedList(Of Integer, Integer))
+
+        'Adding keys (audiogram name)
+        For Each TempAudiogram In TempAudiograms
+            SelectedFrequencyAudiograms.Add(TempAudiogram.Key, New SortedList(Of Integer, Integer))
+        Next
+
+        'Adding values (audiogram thresholds)
+        For i = 0 To fs.Length - 1
+
+            'Adding only frequencies present in the Frequencies input argument
+            If Audiogram.Keys.Contains(fs(i)) Then
+
+                'Adding all threshold values
+                For Each TempAudiogram In TempAudiograms
+                    SelectedFrequencyAudiograms(TempAudiogram.Key).Add(fs(i), TempAudiogram.Value(i))
+                Next
+            End If
+        Next
+
+        'Calculating the RMS-error to each audiogram type
+        Dim TypeRmseList As New SortedList(Of BisgaardAudiogramsLimited, Double)
+
+        'Getting the input audiogram thresholds
+        Dim InputAudiogramThresholds = Audiogram.Values
+
+        For Each SelectedFrequencyAudiogram In SelectedFrequencyAudiograms
+
+            'Getting the Bisgaard prototype audiogram thresholds
+            Dim PrototypeAudiogramThresholds = SelectedFrequencyAudiogram.Value.Values
+
+            'Calculating squared error
+            Dim SquareList As New List(Of Double)
+            For i = 0 To InputAudiogramThresholds.Count - 1
+                SquareList.Add((InputAudiogramThresholds(i) - PrototypeAudiogramThresholds(i)) ^ 2)
+            Next
+
+            'Calculating RMSE
+            Dim RMSE = Math.Sqrt(SquareList.Average)
+
+            'Adding the RMSE
+            TypeRmseList.Add(SelectedFrequencyAudiogram.Key, RMSE)
+
+        Next
+
+        'Selecting the audiogram type with the lowest RMSE
+        Dim LowestRmseKvp = TypeRmseList.OrderBy(Function(kvp) kvp.Value).First()
+        Dim SelectedAudiogramType As BisgaardAudiogramsLimited = LowestRmseKvp.Key
+        Dim LowestRmseValue As Double = LowestRmseKvp.Value
+
+        'Determining categorical fit tho the selected audiogram type
+        Dim FitCategory As BisgaardAudiogramsLimitedFit
+        If LowestRmseValue < GoodFitLimit Then
+            FitCategory = BisgaardAudiogramsLimitedFit.Good
+        ElseIf LowestRmseValue < MediumFitLimit Then
+            FitCategory = BisgaardAudiogramsLimitedFit.Medium
+        Else
+            FitCategory = BisgaardAudiogramsLimitedFit.Poor
+        End If
+
+        Return New Tuple(Of BisgaardAudiogramsLimited, BisgaardAudiogramsLimitedFit, Double)(SelectedAudiogramType, FitCategory, LowestRmseValue)
+
+    End Function
+
     Public Sub ExportAudiogramData()
 
         'Skipping saving data if it's the demo ptc ID
@@ -608,10 +779,18 @@ Public Class UoPta
             AudiogramList.Add(SubTest.Side.ToString & vbTab & SubTest.Frequency & vbTab & SubTest.Threshold & vbTab & SubTest.ThresholdStatus.ToString)
         Next
 
+        AudiogramList.Add("")
+        AudiogramList.Add(ApproximateBisgaardType())
+
+        AudiogramList.Add("Test-retest difference (1 kHz)" & TestRetestDifference & " dB HL")
+
         Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, UoPta.FilePathRepresentation)
         Dim OutputFilename = UoPta.FilePathRepresentation & "_AudiogramData_" & SharedSpeechTestObjects.CurrentParticipantID
 
         Utils.SendInfoToLog(String.Join(vbCrLf, AudiogramList), OutputFilename, OutputPath, False, True, False, True, True)
+
+        'Also storing the results in ResultSummary 
+        ResultSummary = String.Join(vbCrLf, AudiogramList)
 
     End Sub
 

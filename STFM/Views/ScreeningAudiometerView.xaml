@@ -241,12 +241,8 @@
                 VerticalOptions="Fill"
             Margin="5"/>
 
-
-
         </Grid>
-
     </Grid>
-
 
 
 </ContentView>

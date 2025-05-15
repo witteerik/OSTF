@@ -75,6 +75,15 @@
         BorderColor="LightGray"
         BorderWidth="1"/>
 
+        <Label x:Name="ResultView" 
+                    Grid.Row="1" Grid.RowSpan="1"
+                    Grid.Column="1" Grid.ColumnSpan="1"
+                    TextColor="Black"
+                    HorizontalTextAlignment="Start"
+                    VerticalTextAlignment="Center" 
+                    FontSize="Body"
+                   Margin="3,3,3,3"/>
+
     </Grid>
 
 </ContentView>

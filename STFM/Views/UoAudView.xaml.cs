@@ -39,6 +39,9 @@ public partial class UoAudView : ContentView
                 LeftResponseButton.Text = "Left\n ear";
                 MidResponseButton.Text = "Middle";
                 RightResponseButton.Text = "Right\n ear";
+
+                ResultView.Text = "";
+
                 break;
 
             case STFN.Utils.Constants.Languages.Swedish:
@@ -52,6 +55,8 @@ public partial class UoAudView : ContentView
                 //MidResponseButton.Text = "Mitten";
                 RightResponseButton.Text = "Höger\n  öra";
 
+                ResultView.Text = "";
+
                 break;
             default:
                 // Using English as default
@@ -62,6 +67,9 @@ public partial class UoAudView : ContentView
                 LeftResponseButton.Text = "Left\n ear";
                 MidResponseButton.Text = "Middle";
                 RightResponseButton.Text = "Right\n ear";
+
+                ResultView.Text = "";
+
                 break;
         }
 
@@ -121,13 +129,13 @@ public partial class UoAudView : ContentView
             PureToneCalibrationList = CurrentMixer.GetParentTransducerSpecification.PtaCalibrationGain;
         }
 
-
     }
 
     private enum VisibilityTypes
     {
         MessageMode,
-        TestMode
+        TestMode,
+        ResultMode
     }
 
     private void SetVisibility(VisibilityTypes visibilityType)
@@ -140,6 +148,7 @@ public partial class UoAudView : ContentView
                 MidResponseButton.IsVisible = false;
                 RightResponseButton.IsVisible = false;
                 MessageButton.IsVisible = true;
+                ResultView.IsVisible = false;
                 break;
             case VisibilityTypes.TestMode:
                 MessageLabel.IsVisible = true;
@@ -153,7 +162,19 @@ public partial class UoAudView : ContentView
                 RightResponseButton.IsVisible = false;
 
                 MessageButton.IsVisible = false;
+
+                ResultView.IsVisible = false;
                 break;
+
+            case VisibilityTypes.ResultMode:
+                MessageLabel.IsVisible = false;
+                LeftResponseButton.IsVisible = false;
+                MidResponseButton.IsVisible = false;
+                RightResponseButton.IsVisible = false;
+                MessageButton.IsVisible = true;
+                ResultView.IsVisible = true;
+                break;
+
             default:
                 throw new NotImplementedException("Unknown VisibilityType");
         }
@@ -167,13 +188,26 @@ public partial class UoAudView : ContentView
         {
             // Goes into test mode and starts the next trial
             SetVisibility(VisibilityTypes.TestMode);
+
+            // And into fullscreen mode
+            SetFullScreenMode(true);
+
+            // Starting the testing loop
             StartNextTrial();
             StartTimer();
         }
         else
         {
-            // Here we need to close the test...
+            // Stopping the testing loop
             TrialEndTimer.Stop();
+
+            // Leaves the fullscreen mode
+            SetFullScreenMode(false);
+
+            // Shows test results
+            SetVisibility(VisibilityTypes.ResultMode);
+            ResultView.Text = CurrentTest.ResultSummary;
+
         }
     }
 
@@ -416,5 +450,29 @@ public partial class UoAudView : ContentView
         }
 
     }
+
+    private void SetFullScreenMode(bool Fullscreen)
+    {
+
+        if (Fullscreen == true)
+        {
+            EventHandler<EventArgs> handler = EnterFullScreenMode;
+            EventArgs e = new EventArgs();
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+        else
+        {
+            EventHandler<EventArgs> handler = ExitFullScreenMode;
+            EventArgs e = new EventArgs();
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+    }
+
 
 }
