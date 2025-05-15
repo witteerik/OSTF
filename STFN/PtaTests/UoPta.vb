@@ -120,6 +120,15 @@ Public Class UoPta
                     Continue For
                 End If
 
+                'Including non-initial trials at the minimum presentation level, if they are preceded by another trial at the minimum presentation level (which will have been correct, since otherwise the level would not have been repeated)
+                If i > 0 Then
+                    If Trials(i).ToneLevel = MinPresentationLevel And Trials(i).Result = PtaResults.TruePositive And Trials(i - 1).ToneLevel = MinPresentationLevel Then
+                        ThresholdCandidateTrials.Add(Trials(i))
+                        'Continue the for loop so that trials do not get included twice
+                        Continue For
+                    End If
+                End If
+
                 'Including trials if they were correct and preceded by an non-heard trial
                 If i = 0 Then
                     'However, the special case of the first trial, which has no preceding trial, is always included if it was heard
