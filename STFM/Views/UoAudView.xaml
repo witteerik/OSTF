@@ -30,20 +30,23 @@
                HorizontalOptions="Fill"
                VerticalOptions="Fill"/>
 
-        <Button x:Name="LeftResponseButton" 
-                Text="Vänster"
-        Pressed="OnLeftResponseButtonPressed"
-        Released="OnLeftResponseButtonReleased"
-        HeightRequest="200"
-        WidthRequest="200"
-        CornerRadius="100"
-        FontAttributes="Bold"
-        FontSize="Large"
-        Margin="6"
-        Grid.Row="1"
-        Grid.Column="0"
-        BorderColor="LightGray"
-        BorderWidth="1"/>
+        <Label x:Name="LevelLabel" 
+                Grid.Column="0" Grid.ColumnSpan="1"
+                Grid.Row="1"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+               FontSize="Medium"
+               HorizontalOptions="Fill"
+               VerticalOptions="Fill"/>
+
+        <Label x:Name="RatingLabel" 
+                Grid.Column="2" Grid.ColumnSpan="1"
+                Grid.Row="1"
+               HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" 
+               FontSize="Medium"
+               HorizontalOptions="Fill"
+               VerticalOptions="Fill"/>
 
         <Button x:Name="MidResponseButton" 
                 Text="Mitten"
@@ -57,21 +60,6 @@
         Margin="6"
         Grid.Row="1"
         Grid.Column="1"
-        BorderColor="LightGray"
-        BorderWidth="1"/>
-
-        <Button x:Name="RightResponseButton" 
-                Text="Höger"
-        Pressed="OnRightResponseButtonPressed"
-        Released="OnRightResponseButtonReleased"
-        HeightRequest="200"
-        WidthRequest="200"
-        CornerRadius="100"
-        FontAttributes="Bold"
-        FontSize="Large"
-        Margin="6"
-        Grid.Row="1"
-        Grid.Column="2"
         BorderColor="LightGray"
         BorderWidth="1"/>
 

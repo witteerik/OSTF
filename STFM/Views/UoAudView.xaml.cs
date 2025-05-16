@@ -36,10 +36,8 @@ public partial class UoAudView : ContentView
                 MessageButton.Text = "Click here to start!";
                 MessageLabel.Text = "Press when you hear a tone.\nRelease when the tone disappears.";
 
-                LeftResponseButton.Text = "Left\n ear";
-                MidResponseButton.Text = "Middle";
-                RightResponseButton.Text = "Right\n ear";
-
+                LevelLabel.Text = "";
+                RatingLabel.Text = "";
                 ResultView.Text = "";
 
                 break;
@@ -51,10 +49,8 @@ public partial class UoAudView : ContentView
 
                 MidResponseButton.Text = "Tryck här!";
 
-                LeftResponseButton.Text = "Vänster\n   öra";
-                //MidResponseButton.Text = "Mitten";
-                RightResponseButton.Text = "Höger\n  öra";
-
+                LevelLabel.Text = "";
+                RatingLabel.Text = "";
                 ResultView.Text = "";
 
                 break;
@@ -64,23 +60,16 @@ public partial class UoAudView : ContentView
                 MessageButton.Text = "Click here to start!";
                 MessageLabel.Text = "Press when you hear a tone.\nRelease when the tone disappears.";
 
-                LeftResponseButton.Text = "Left\n ear";
-                MidResponseButton.Text = "Middle";
-                RightResponseButton.Text = "Right\n ear";
-
+                LevelLabel.Text = "";
+                RatingLabel.Text = "";
                 ResultView.Text = "";
 
                 break;
         }
 
         // Setting default colors
-        LeftResponseButton.Background = NonPressedBrush;
         MidResponseButton.Background = NonPressedBrush;
-        RightResponseButton.Background = NonPressedBrush;
-
-        LeftResponseButton.TextColor = Colors.DarkGrey;
         MidResponseButton.TextColor = Colors.DarkGrey;
-        RightResponseButton.TextColor = Colors.DarkGrey;
 
         // Setting default visibility
         SetVisibility(VisibilityTypes.MessageMode);
@@ -144,33 +133,20 @@ public partial class UoAudView : ContentView
         {
             case VisibilityTypes.MessageMode:
                 MessageLabel.IsVisible = false;
-                LeftResponseButton.IsVisible = false;
                 MidResponseButton.IsVisible = false;
-                RightResponseButton.IsVisible = false;
                 MessageButton.IsVisible = true;
                 ResultView.IsVisible = false;
                 break;
             case VisibilityTypes.TestMode:
                 MessageLabel.IsVisible = true;
-                
-                //LeftResponseButton.IsVisible = true;
-                LeftResponseButton.IsVisible = false;
-
                 MidResponseButton.IsVisible = true;
-                
-                //RightResponseButton.IsVisible = true;
-                RightResponseButton.IsVisible = false;
-
                 MessageButton.IsVisible = false;
-
                 ResultView.IsVisible = false;
                 break;
 
             case VisibilityTypes.ResultMode:
                 MessageLabel.IsVisible = false;
-                LeftResponseButton.IsVisible = false;
                 MidResponseButton.IsVisible = false;
-                RightResponseButton.IsVisible = false;
                 MessageButton.IsVisible = true;
                 ResultView.IsVisible = true;
                 break;
@@ -236,14 +212,20 @@ public partial class UoAudView : ContentView
                 switch (STFN.SharedSpeechTestObjects.GuiLanguage)
                 {
                     case STFN.Utils.Constants.Languages.English:
-                        MessageButton.Text = "This hearing test is now completed.\nClick here to continue!";
+                        MessageButton.Text = "This hearing test is now completed.\n\nClick here to continue!";
+                        LevelLabel.Text = "";
+                        RatingLabel.Text = "";
                         break;
                     case STFN.Utils.Constants.Languages.Swedish:
-                        MessageButton.Text = "Detta test är nu klart.\nTryck här för att gå vidare!";
+                        MessageButton.Text = "Detta test är nu klart.\n\nTryck här för att gå vidare!";
+                        LevelLabel.Text = "";
+                        RatingLabel.Text = "";
                         break;
                     default:
                         // Using English as default
-                        MessageButton.Text = "This hearing test is now completed.\nClick here to continue!";
+                        MessageButton.Text = "This hearing test is now completed.\n\nClick here to continue!";
+                        LevelLabel.Text = "";
+                        RatingLabel.Text = "";
                         break;
                 }
             }
@@ -254,6 +236,11 @@ public partial class UoAudView : ContentView
             // Returning from the method early
             return;
         }
+
+        // Showing the presented level
+        LevelLabel.Text = CurrentTrial.ToneLevel.ToString() + " dB HL";
+        RatingLabel.Text = "";
+
 
         // Mixing the sound
         double RetSplCorrectedLevel = CurrentTrial.ToneLevel + RetSplList[CurrentTrial.ParentSubTest.Frequency];
@@ -331,18 +318,6 @@ public partial class UoAudView : ContentView
     }
 
 
-
-    private void OnLeftResponseButtonPressed(object sender, EventArgs e)
-    {
-        LeftResponseButton.Background = PressedBrush;
-
-        if (CurrentTrial != null)
-        {
-            CurrentTrial.ResponseOnsetTime = DateTime.Now - CurrentTrial.TrialStartTime;
-        }
-
-    }
-
     private void OnMidResponseButtonPressed(object sender, EventArgs e)
     {
         MidResponseButton.Background = PressedBrush;
@@ -355,32 +330,6 @@ public partial class UoAudView : ContentView
     }
 
 
-    private void OnRightResponseButtonPressed(object sender, EventArgs e)
-    {
-        RightResponseButton.Background = PressedBrush;
-
-        if (CurrentTrial != null)
-        {
-            CurrentTrial.ResponseOnsetTime = DateTime.Now - CurrentTrial.TrialStartTime;
-        }
-
-    }
-
-
-
-
-
-    private void OnLeftResponseButtonReleased(object sender, EventArgs e)
-    {
-        LeftResponseButton.Background = NonPressedBrush;
-
-        if (CurrentTrial != null)
-        {
-            CurrentTrial.ResponseOffsetTime = DateTime.Now - CurrentTrial.TrialStartTime;
-        }
-
-    }
-
     private void OnMidResponseButtonReleased(object sender, EventArgs e)
     {
         MidResponseButton.Background = NonPressedBrush;
@@ -388,21 +337,12 @@ public partial class UoAudView : ContentView
         if (CurrentTrial != null)
         {
             CurrentTrial.ResponseOffsetTime = DateTime.Now - CurrentTrial.TrialStartTime;
+
+            RatingLabel.Text = CurrentTrial.Result.ToString();
+
         }
 
     }
-
-    private void OnRightResponseButtonReleased(object sender, EventArgs e)
-    {
-        RightResponseButton.Background = NonPressedBrush;
-
-        if (CurrentTrial != null)
-        {
-            CurrentTrial.ResponseOffsetTime = DateTime.Now - CurrentTrial.TrialStartTime;
-        }
-
-    }
-
 
 
     private void StartTimer()

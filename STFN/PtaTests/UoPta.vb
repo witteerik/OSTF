@@ -7,6 +7,17 @@ Public Class UoPta
     Public Shared LogTrialData As Boolean = True
     Public ResultSummary As String = ""
 
+#Region "Protocol settings"
+
+    Public Shared PtaTestProtocol As PtaTestProtocols = PtaTestProtocols.SAME96_Screening
+
+    Public Enum PtaTestProtocols
+        SAME96
+        SAME96_Screening
+    End Enum
+
+#End Region
+
 #Region "Evaluation settings"
 
     Private GoodFitLimit As Double = 10
@@ -102,129 +113,135 @@ Public Class UoPta
         ''' <returns></returns>
         Public Function CheckIfThresholdIsReached() As Boolean
 
-            'Implementing the Hughson-Westlake method according to the Swedish guidelines (2025)
-            If Trials.Count = 0 Then Return False
+            Select Case PtaTestProtocol
+                Case PtaTestProtocols.SAME96
 
-            Dim NeedsReinitiation As Boolean = False
+                    'Implementing the Hughson-Westlake method according to the Swedish guidelines (2025)
+                    If Trials.Count = 0 Then Return False
 
-            'Creating a list of threshold-candidate trials (starting from the level-descent break point trial)
-            ' Including the heard trials after the first non-heard
-            ' Including also non-heard trials at the maximum output level (as these are needed to determine non-reached thresholds)
-            Dim ThresholdCandidateTrials As New List(Of PtaTrial)
-            For i = 0 To Trials.Count - 1
+                    Dim NeedsReinitiation As Boolean = False
 
-                'Always including trials at the maximum presentation level, regardless of their result
-                If Trials(i).ToneLevel = MaxPresentationLevel Then
-                    ThresholdCandidateTrials.Add(Trials(i))
-                    'Continue the for loop so that trials do not get included twice
-                    Continue For
-                End If
+                    'Counting the number of level reversals (strictly defined as the number of level ascends and level unchanged steps), excluding 20 dB changes
+                    Dim AscendingSeriesCount As Integer = 0
+                    Dim ThresholdCandidateTrials As New List(Of PtaTrial)
+                    Dim UnreachedThresholCandidateTrials As New List(Of PtaTrial)
+                    For i = 1 To Trials.Count - 1
 
-                'Including non-initial trials at the minimum presentation level, if they are preceded by another trial at the minimum presentation level (which will have been correct, since otherwise the level would not have been repeated)
-                If i > 0 Then
-                    If Trials(i).ToneLevel = MinPresentationLevel And Trials(i).Result = PtaResults.TruePositive And Trials(i - 1).ToneLevel = MinPresentationLevel Then
-                        ThresholdCandidateTrials.Add(Trials(i))
-                        'Continue the for loop so that trials do not get included twice
-                        Continue For
-                    End If
-                End If
+                        'Ignoring 20 dB steps
+                        If Math.Abs(Trials(i - 1).ToneLevel - Trials(i).ToneLevel) = 20 Then Continue For
 
-                'Including trials if they were correct and preceded by an non-heard trial
-                If i = 0 Then
-                    'However, the special case of the first trial, which has no preceding trial, is always included if it was heard
-                    If Trials(i).Result = PtaResults.TruePositive Then
-                        ThresholdCandidateTrials.Add(Trials(i))
-                    End If
-                Else
-                    If Trials(i).Result = PtaResults.TruePositive And Trials(i - 1).Result <> PtaResults.TruePositive Then
-                        ThresholdCandidateTrials.Add(Trials(i))
-                    End If
-                End If
-            Next
+                        'Looking for completed ascending series (or retained level steps, indicating that we're on the min or max presentation level)
+                        If Trials(i - 1).ToneLevel <= Trials(i).ToneLevel And Trials(i).Result = PtaResults.TruePositive Then
+                            AscendingSeriesCount += 1
+                        End If
 
-            ' Returns false if there are less than three threshold-candidate trials
-            If ThresholdCandidateTrials.Count < 3 Then Return False
+                        'Collecting threshold candidates trials (i.e. true positives) 
+                        'N.B. The first trial is never a threshold candidate, since it is not preceded by an incorrect trial, and need not be included
+                        If Trials(i).Result = PtaResults.TruePositive Then
+                            ThresholdCandidateTrials.Add(Trials(i))
+                        End If
 
-            'Checking if three out of three, four or five threshold-candidate trials have the same level
-            If ThresholdCandidateTrials.Count < 6 Then
-                Dim TrialLevelList As New SortedList(Of Integer, Integer)
-                Dim TrialLevelScoreList As New SortedList(Of Integer, Integer)
-                For i = 0 To ThresholdCandidateTrials.Count - 1
+                        'Collecting candidate trials for unreached thresholds at the max presentation level
+                        If Trials(i).ToneLevel = MaxPresentationLevel And Trials(i).Result <> PtaResults.TruePositive Then
+                            UnreachedThresholCandidateTrials.Add(Trials(i))
+                        End If
 
-                    ' Counting the number of trials at each level
-                    If TrialLevelList.ContainsKey(ThresholdCandidateTrials(i).ToneLevel) = False Then TrialLevelList.Add(ThresholdCandidateTrials(i).ToneLevel, 0)
-                    TrialLevelList(ThresholdCandidateTrials(i).ToneLevel) += 1
+                    Next
 
-                    'Counting the number of heard trials at each level 
-                    If TrialLevelScoreList.ContainsKey(ThresholdCandidateTrials(i).ToneLevel) = False Then TrialLevelScoreList.Add(ThresholdCandidateTrials(i).ToneLevel, 0)
-                    If ThresholdCandidateTrials(i).Result = PtaResults.TruePositive Then
-                        TrialLevelScoreList(ThresholdCandidateTrials(i).ToneLevel) += 1
-                    End If
 
-                Next
+                    'Checking if three out of three, four or five threshold-candidate trials have the same level
+                    If AscendingSeriesCount < 6 Then
 
-                For Each kvp In TrialLevelList
-                    If kvp.Value > 2 Then
-                        'Threshold is reached, storing the threshold level and returns True
-                        Threshold = kvp.Key
+                        'Looking for reached thresholds
+                        Dim ThresholdCandidateTrialLevelList As New SortedList(Of Integer, Integer)
+                        For i = 0 To ThresholdCandidateTrials.Count - 1
 
-                        'Noting if the threshold was reached or not
-                        ThresholdStatus = ThresholdStatuses.Reached ' setting Reached as default, and changing it only if unreached
+                            ' Counting the number of threshold candidate trials at each level
+                            If ThresholdCandidateTrialLevelList.ContainsKey(ThresholdCandidateTrials(i).ToneLevel) = False Then ThresholdCandidateTrialLevelList.Add(ThresholdCandidateTrials(i).ToneLevel, 0)
+                            ThresholdCandidateTrialLevelList(ThresholdCandidateTrials(i).ToneLevel) += 1
 
-                        ' The rule applied here is that at least three trials must have been heard at the max presentation level for the threshold to be counted as Reached.
-                        ' If less than three thresholds at the max presentation level was heard, the threshold is counted as unreached
+                        Next
+                        For Each kvp In ThresholdCandidateTrialLevelList
+                            If kvp.Value > 2 Then
+                                'Threshold is reached, storing the threshold level, status and returns True
+                                Threshold = kvp.Key
 
-                        If Threshold = MaxPresentationLevel Then
-                            If TrialLevelScoreList(Threshold) < 3 Then
-                                ThresholdStatus = ThresholdStatuses.Unreached
+                                'Noting that the threshold was reached
+                                ThresholdStatus = ThresholdStatuses.Reached
+                                Return True
                             End If
+                        Next
+
+                        'Looking for unreached thresholds
+                        Dim UnreachedThresholdCandidateTrialLevelList As New SortedList(Of Integer, Integer)
+                        For i = 0 To UnreachedThresholCandidateTrials.Count - 1
+
+                            ' Counting the number of threshold candidate trials at each level
+                            If UnreachedThresholdCandidateTrialLevelList.ContainsKey(UnreachedThresholCandidateTrials(i).ToneLevel) = False Then UnreachedThresholdCandidateTrialLevelList.Add(UnreachedThresholCandidateTrials(i).ToneLevel, 0)
+                            UnreachedThresholdCandidateTrialLevelList(UnreachedThresholCandidateTrials(i).ToneLevel) += 1
+
+                        Next
+
+                        For Each kvp In UnreachedThresholdCandidateTrialLevelList
+                            If kvp.Value > 2 Then
+                                'Un Unreached Threshold has been detected, storing the threshold level, status and returns True
+                                Threshold = kvp.Key
+
+                                'Noting if the threshold was reached or not
+                                ThresholdStatus = ThresholdStatuses.Unreached ' 
+                                Return True
+                            End If
+                        Next
+
+                        'No threshold has been reach. Checking if five ascending series has passed
+                        If AscendingSeriesCount = 5 Then
+                            'Three of five ascending series have not resulted in an established threshold. Re-initializing the threshold procedure.
+                            NeedsReinitiation = True
                         End If
 
-                        Return True
+                    Else
+                        Throw New Exception("AscendingSeriesCount should never be higher than five")
                     End If
-                Next
-
-                If ThresholdCandidateTrials.Count = 5 Then
-                    'Three of five threshold crossings have not resulted in an established threshold. Re-initializing threshold procedure.
-                    NeedsReinitiation = True
-                End If
-
-            Else
-                Throw New Exception("ThresholdCandidateTrials should never contain more than five trials")
-            End If
 
 
-            If NeedsReinitiation = True Then
+                    If NeedsReinitiation = True Then
 
-                'The threshold procedure must be re-initiated
-                'Storing the last level where the tone was heard, or 40 dB HL if no tones have yet been heard
-                Dim TempLastTruePositivelevel As Integer? = Nothing
-                For Each Trial In Trials
-                    If Trial.Result = PtaResults.TruePositive Then
-                        If TempLastTruePositivelevel.HasValue = False Then
-                            TempLastTruePositivelevel = Trial.ToneLevel
+                        'The threshold procedure must be re-initiated
+                        'Storing the last level where the tone was heard, or 40 dB HL if no tones have yet been heard
+                        Dim TempLastTruePositivelevel As Integer? = Nothing
+                        For Each Trial In Trials
+                            If Trial.Result = PtaResults.TruePositive Then
+                                TempLastTruePositivelevel = Trial.ToneLevel
+                            End If
+                        Next
+                        If TempLastTruePositivelevel.HasValue Then
+                            'Setting the level to 10 dB above the last heard level
+                            LastTruePositiveLevel = TempLastTruePositivelevel.Value + 10
                         Else
-                            TempLastTruePositivelevel = Math.Min(Trial.ToneLevel, TempLastTruePositivelevel.Value)
+                            LastTruePositiveLevel = 40
                         End If
+
+                        'Emptying Trials if repeated threshold procedure must be made
+                        Trials.Clear()
+
+                        'Notes that re-initiating is started
+                        IsInitiatingRepeatedThresholdProcedure = True
+
+                        'Returns False at this point, as no threshold has been established
+                        Return False
+
                     End If
-                Next
-                If TempLastTruePositivelevel.HasValue Then
-                    'Setting the level to 10 dB above the last heard level
-                    LastTruePositiveLevel = TempLastTruePositivelevel.Value + 10
-                Else
-                    LastTruePositiveLevel = 40
-                End If
 
-                'Emptying Trials if repeated threshold procedure must be made
-                Trials.Clear()
+                Case PtaTestProtocols.SAME96_Screening
 
-                'Notes that re-initiating is started
-                IsInitiatingRepeatedThresholdProcedure = True
+                    'TODO: Implement SAME screening level procedure here
+                    'Returning False for now
+                    Return False
 
-            End If
+                Case Else
+                    Throw New NotImplementedException("Unknown pta protocol")
+            End Select
 
-            'Returns False at this point, as no threshold has been established
-            Return False
 
         End Function
 
@@ -244,63 +261,77 @@ Public Class UoPta
             'Counting trials
             PresentedTrials += 1
 
-            'Setting the level to be presented
-            'If it is the first trial, we create a new one with the level 40 dB HL
-            If Trials.Count = 0 Then
-                If IsInitiatingRepeatedThresholdProcedure = False Then
-                    NewTrial.ToneLevel = 40
-                Else
-                    'Setting the level to the last heard level
-                    NewTrial.ToneLevel = LastTruePositiveLevel
-                    'Ending re-initiation
-                    IsInitiatingRepeatedThresholdProcedure = False
+            Select Case PtaTestProtocol
+                Case PtaTestProtocols.SAME96
 
-                    'Noting in the trial that this is a re-initializing trial
-                    NewTrial.ReinitializingProcedure = True
-                End If
-            Else
 
-                'Checks if level should be raised or lowered, and by how much
+                    'Setting the level to be presented
+                    'If it is the first trial, we create a new one with the level 40 dB HL
+                    If Trials.Count = 0 Then
+                        If IsInitiatingRepeatedThresholdProcedure = False Then
+                            NewTrial.ToneLevel = 40
+                        Else
+                            'Setting the level to the last heard level
+                            NewTrial.ToneLevel = LastTruePositiveLevel
+                            'Ending re-initiation
+                            IsInitiatingRepeatedThresholdProcedure = False
 
-                Dim IncreaseStepSize As Integer = 10 ' Setting the increase step size to 10 dB
-                'Checking if any has been heard yet
-                Dim FirstHeardTrialIndex As Integer = 0
-                For i = 0 To Trials.Count - 1
-                    If Trials(i).Result = PtaResults.TruePositive Then
-                        'Tones have been heard, changing the increase step to 5 dB
-                        IncreaseStepSize = 5
+                            'Noting in the trial that this is a re-initializing trial
+                            NewTrial.ReinitializingProcedure = True
+                        End If
+                    Else
 
-                        'Noting the index of the first heard trial
-                        FirstHeardTrialIndex = i
+                        'Checks if level should be raised or lowered, and by how much
 
-                        Exit For
+                        Dim IncreaseStepSize As Integer = 10 ' Setting the increase step size to 10 dB
+                        'Checking if any has been heard yet
+                        Dim FirstHeardTrialIndex As Integer = 0
+                        For i = 0 To Trials.Count - 1
+                            If Trials(i).Result = PtaResults.TruePositive Then
+                                'Tones have been heard, changing the increase step to 5 dB
+                                IncreaseStepSize = 5
+
+                                'Noting the index of the first heard trial
+                                FirstHeardTrialIndex = i
+
+                                Exit For
+                            End If
+                        Next
+
+                        'Checking if any tone has been missed after the first heard trial
+                        Dim DecreaseStepSize As Integer = 20 ' Setting the decrease step size to 20 dB
+                        For i = FirstHeardTrialIndex To Trials.Count - 1
+                            If Trials(i).Result <> PtaResults.TruePositive Then
+                                'Tones have been missed, changing the decrease step to 10 dB
+                                DecreaseStepSize = 10
+                                Exit For
+                            End If
+                        Next
+
+                        'Checks if level should be raised or lowered
+                        If Trials.Last.Result = PtaResults.TruePositive Then
+                            NewTrial.ToneLevel = Trials.Last.ToneLevel - DecreaseStepSize
+                        Else
+                            NewTrial.ToneLevel = Trials.Last.ToneLevel + IncreaseStepSize
+                        End If
+
+                        'Limiting the presentation level in the lower end to MinPresentationLevel
+                        NewTrial.ToneLevel = Math.Max(NewTrial.ToneLevel, MinPresentationLevel)
+
+                        'Limiting the presentation level in the upper end to MaxPresentationLevel
+                        NewTrial.ToneLevel = Math.Min(NewTrial.ToneLevel, MaxPresentationLevel)
+
                     End If
-                Next
 
-                'Checking if any tone has been missed after the first heard trial
-                Dim DecreaseStepSize As Integer = 20 ' Setting the decrease step size to 20 dB
-                For i = FirstHeardTrialIndex To Trials.Count - 1
-                    If Trials(i).Result <> PtaResults.TruePositive Then
-                        'Tones have been missed after the first heard trial, changing the decrease step to 10 dB
-                        DecreaseStepSize = 10
-                        Exit For
-                    End If
-                Next
 
-                'Checks if level should be raised or lowered
-                If Trials.Last.Result = PtaResults.TruePositive Then
-                    NewTrial.ToneLevel = Trials.Last.ToneLevel - DecreaseStepSize
-                Else
-                    NewTrial.ToneLevel = Trials.Last.ToneLevel + IncreaseStepSize
-                End If
+                Case PtaTestProtocols.SAME96_Screening
 
-                'Limiting the presentation level in the lower end to MinPresentationLevel
-                NewTrial.ToneLevel = Math.Max(NewTrial.ToneLevel, MinPresentationLevel)
+                    'TODO: Implement SAME screening procedure here
 
-                'Limiting the presentation level in the upper end to MaxPresentationLevel
-                NewTrial.ToneLevel = Math.Min(NewTrial.ToneLevel, MaxPresentationLevel)
 
-            End If
+                Case Else
+                    Throw New NotImplementedException("Unknown pta protocol")
+            End Select
 
             'Randomizing and setting up times
             NewTrial.SetupTrial(Me.Randomizer)
