@@ -9,6 +9,11 @@ Public Class UoPta
 
 #Region "Protocol settings"
 
+    ''' <summary>
+    ''' This variable can be used to limit the number of re-initiations in each SubTest
+    ''' </summary>
+    Public Shared MaxReInitiations As Integer = 3
+
     Public Shared PtaTestProtocol As PtaTestProtocols = PtaTestProtocols.SAME96_Screening
 
     Public Enum PtaTestProtocols
@@ -30,6 +35,8 @@ Public Class UoPta
 
     Public Shared MinPresentationLevel As Integer = 0
     Public Shared MaxPresentationLevel As Integer = 80
+
+    Public Shared ScreeningLevel As Integer = 25
 
 #End Region
 
@@ -93,14 +100,19 @@ Public Class UoPta
         Public IsReliabilityCheck As Boolean
 
         Private IsInitiatingRepeatedThresholdProcedure As Boolean = False 'This variable is used (and temporarily set to True) when the threshold procedure must be re-initiated, according to point 6 in the guidelines
+        Private NumberOfReInitiations As Integer = 0 'This variable stores the number of reinitiations, and enables stopping after a limit
         Private LastTruePositiveLevel As Integer
 
         Public PresentedTrials As Integer = 0
+
+        Public TestProcedureStage As Integer = 0
+        Private LowestTruePositiveLevel As Integer
 
         Public Enum ThresholdStatuses
             NA
             Reached
             Unreached
+            Uncertain
         End Enum
 
         Public Sub New(ByRef Randomizer As Random)
@@ -221,6 +233,27 @@ Public Class UoPta
                             LastTruePositiveLevel = 40
                         End If
 
+                        'Limiting the number of re-initiations
+                        If NumberOfReInitiations > MaxReInitiations Then
+
+                            'The maximum number of re-initiations has been reached
+                            'Stopping the test and marking the threshold as uncertain
+
+                            'Selecting the last true positive trial level if a true positive response has been given, or the max presentation level if not 
+                            If TempLastTruePositivelevel.HasValue Then
+                                Threshold = TempLastTruePositivelevel.HasValue
+                            Else
+                                Threshold = MaxPresentationLevel
+                            End If
+                            'Notes the threshold as uncertain
+                            ThresholdStatus = ThresholdStatuses.Uncertain
+
+                            'Returns True to move to the next SubTest
+                            Return True
+
+                        End If
+
+
                         'Emptying Trials if repeated threshold procedure must be made
                         Trials.Clear()
 
@@ -234,9 +267,141 @@ Public Class UoPta
 
                 Case PtaTestProtocols.SAME96_Screening
 
-                    'TODO: Implement SAME screening level procedure here
-                    'Returning False for now
-                    Return False
+                    Select Case TestProcedureStage
+                        Case 0
+
+                            'This is the stage where the tone first has to be heard
+
+                            If Trials.Last.Result <> PtaResults.TruePositive Then
+                                'The tone was not heard
+                                If Trials.Last.ToneLevel = MaxPresentationLevel Then
+
+                                    'If the tone was presented on the maximum presentation level, setting an unreached threshold there.
+                                    Threshold = MaxPresentationLevel
+                                    ThresholdStatus = ThresholdStatuses.Unreached
+                                    Return True
+                                Else
+
+                                    'Simply returns False as no threshold was reached
+                                    Return False
+                                End If
+
+                            Else
+
+                                'The tone was heard, goes to stage 1
+                                TestProcedureStage = 1
+
+                                'Finds and stores the lowest heard level 
+                                For Each Trial In Trials
+                                    If Trial.Result = PtaResults.TruePositive Then
+                                        LowestTruePositiveLevel = Math.Min(Trial.ToneLevel, LowestTruePositiveLevel)
+                                    End If
+                                Next
+
+                                'Clears all trials
+                                Trials.Clear()
+
+                                'And returns False to continue the SubTest
+                                Return False
+
+                            End If
+
+                        Case 1
+
+                            'This is the screening stage
+                            Dim TruePositivesCount As Integer = 0
+                            For Each Trial In Trials
+                                If Trial.Result = PtaResults.TruePositive Then
+                                    TruePositivesCount += 1
+                                End If
+                            Next
+
+                            'Checking if the screening test was passed yet
+                            If TruePositivesCount > 1 Then
+                                'The screening test was passed, storing the (screening) threshold level to mark the test as passed
+                                Threshold = Trials.Last.ToneLevel
+                                ThresholdStatus = ThresholdStatuses.Reached
+
+                                'Returns True to move to the next SubTest
+                                Return True
+                            End If
+
+                            If Threshold.HasValue Then
+                                'The screening threshold test has been passed. Return True to move to the next SubTest
+                                Return True
+                            End If
+
+                            'Checking if the screening stage is finished or not
+                            If Trials.Count < 3 Then
+
+                                'Two trials have been presented at the screening level, and less than two were heard.
+                                'The screening test has not yet been passed, but a third trial will be presented. 
+                                'Returns False to continue the screening test
+                                Return False
+
+                            Else
+
+                                'Three trials have been presented at the screening level, and less than two were heard.
+                                'The screening test was not passed. Notes this as unreached threshold at the screening level, and returns True to move to the next SubTest
+                                Threshold = Trials.Last.ToneLevel
+                                ThresholdStatus = ThresholdStatuses.Unreached
+
+                                'Moving to the threshold stage
+                                TestProcedureStage = 2
+
+                                'Updates the lowest heard level 
+                                For Each Trial In Trials
+                                    If Trial.Result = PtaResults.TruePositive Then
+                                        LowestTruePositiveLevel = Math.Min(Trial.ToneLevel, LowestTruePositiveLevel)
+                                    End If
+                                Next
+
+                                'Clears all trials
+                                Trials.Clear()
+
+                                'And returns False to continue the SubTest
+                                Return False
+                            End If
+
+                        Case 2
+
+                            'This is the threshold stage, looking for two true positive responses at a common level
+                            Dim TruePositivLevelList As New SortedList(Of Integer, Integer)
+                            For Each Trial In Trials
+                                If Trial.Result = PtaResults.TruePositive Then
+
+                                    'Adds the level key
+                                    If TruePositivLevelList.ContainsKey(Trial.ToneLevel) = False Then TruePositivLevelList.Add(Trial.ToneLevel, 0)
+
+                                    'Counts the true positive responses at that level
+                                    TruePositivLevelList(Trial.ToneLevel) += 1
+
+                                    'Checks if there is two true positive responses at one and the same level
+                                    If TruePositivLevelList(Trial.ToneLevel) > 1 Then
+                                        'Two true positive responses has been given for a level, this is therefore the threshold level. 
+                                        Threshold = Trial.ToneLevel
+                                        ThresholdStatus = ThresholdStatuses.Reached
+                                    End If
+                                End If
+                            Next
+
+                            'Stopping if the level has reached the maximum output level without a threshold havin gbeen reached
+                            For Each Trial In Trials
+                                If Trial.ToneLevel = MaxPresentationLevel Then
+
+                                    'Setting an unreached threshold at the MaxPresentationLevel
+                                    Threshold = MaxPresentationLevel
+                                    ThresholdStatus = ThresholdStatuses.Unreached
+
+                                    'Returns True to move to the next SubTest
+                                    Return True
+                                End If
+                            Next
+
+                        Case Else
+                            Throw New Exception("TestProcedureStage cannot be higher than 2. This is a bug!")
+                    End Select
+
 
                 Case Else
                     Throw New NotImplementedException("Unknown pta protocol")
@@ -264,7 +429,6 @@ Public Class UoPta
             Select Case PtaTestProtocol
                 Case PtaTestProtocols.SAME96
 
-
                     'Setting the level to be presented
                     'If it is the first trial, we create a new one with the level 40 dB HL
                     If Trials.Count = 0 Then
@@ -275,6 +439,9 @@ Public Class UoPta
                             NewTrial.ToneLevel = LastTruePositiveLevel
                             'Ending re-initiation
                             IsInitiatingRepeatedThresholdProcedure = False
+
+                            'Counting the number of re-initiations
+                            NumberOfReInitiations += 1
 
                             'Noting in the trial that this is a re-initializing trial
                             NewTrial.ReinitializingProcedure = True
@@ -326,7 +493,58 @@ Public Class UoPta
 
                 Case PtaTestProtocols.SAME96_Screening
 
-                    'TODO: Implement SAME screening procedure here
+                    'Checking that the screening level is not below MinPresentationLevel 
+                    If MinPresentationLevel > ScreeningLevel Then
+                        Throw New ArgumentException("The minimum presentation level can not be higher than the screening level!")
+                    End If
+
+                    Select Case TestProcedureStage
+                        Case 0 'Tone identification stage
+
+                            'In stage 0, we start at 40 dB HL and increasing the level by 10 for each new trial
+                            If Trials.Count = 0 Then
+                                'If it is the first trial in the screening mode, we create a new trial with the level 40 dB HL
+                                NewTrial.ToneLevel = 40
+                            Else
+                                NewTrial.ToneLevel += 10
+                            End If
+
+                        Case 1 'The screening stage
+
+                            'In stage 1 we present all tones at the screening level
+                            NewTrial.ToneLevel = ScreeningLevel
+
+
+                        Case 2 'The theshold seeking stage
+
+                            If Trials.Count = 0 Then
+                                'If it is the first trial in the threshold seeking stage, we create a new trial with the level of 10 dB HL below the lowest heard level
+                                NewTrial.ToneLevel = LowestTruePositiveLevel - 10
+                            Else
+
+                                'Increase in 5 dB steps and decrease in 10 dB steps
+                                Dim IncreaseStepSize As Integer = 5 ' Setting the increase step size to 5 dB
+                                Dim DecreaseStepSize As Integer = 10 ' Setting the decrease step size to 10 dB
+
+                                'Checks if level should be raised or lowered
+                                If Trials.Last.Result = PtaResults.TruePositive Then
+                                    NewTrial.ToneLevel = Trials.Last.ToneLevel - DecreaseStepSize
+                                Else
+                                    NewTrial.ToneLevel = Trials.Last.ToneLevel + IncreaseStepSize
+                                End If
+
+                            End If
+
+                        Case Else
+                            Throw New Exception("TestProcedureStage cannot be higher than 2. This is a bug!")
+                    End Select
+
+                    'Independent of stage, we limit the tones to the range betqween the screening level and the maximum presentation level
+                    'Limiting the presentation level in the lower end to the ScreeningLevel (As the min presentation level is never higher than the screening level, there is no need of limiting to that)
+                    NewTrial.ToneLevel = Math.Max(NewTrial.ToneLevel, ScreeningLevel)
+
+                    'Limiting the presentation level in the upper end to MaxPresentationLevel
+                    NewTrial.ToneLevel = Math.Min(NewTrial.ToneLevel, MaxPresentationLevel)
 
 
                 Case Else
