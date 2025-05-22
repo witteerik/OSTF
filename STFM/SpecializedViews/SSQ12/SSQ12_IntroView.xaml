@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="STFM.SpecializedViews.SSQ12.SSQ12_IntroView">
+   
+    <Grid x:Name="MainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*" />
+            <RowDefinition Height="0.2*" />
+            <RowDefinition Height="4*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+
+        <Label x:Name="HeadingLabel"
+               Grid.Row="0"
+               Grid.Column="0"
+               Grid.ColumnSpan="2"
+               Text="Frågor om din förmåga att höra och lyssna i olika situationer (SSQ12)"
+               FontSize="Header">
+        </Label>
+
+        <Frame  Grid.Row="1"
+               Grid.Column="0"
+               Grid.ColumnSpan="2" HeightRequest="3" Margin="0"></Frame>
+
+        <Grid Grid.Row="2"
+               Grid.Column="0"
+               Grid.ColumnSpan="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name ="HaQLabel" Grid.Row="1" Text="Använder du hörapparat?" FontSize="Medium"></Label>
+            <RadioButton  x:Name="HaQuestionRadioButton1" Grid.Row="2" Content="Nej, jag använder inte hörappat" GroupName="Colors" Value="1" FontSize="Medium" CheckedChanged="HaQuestionRadioButton1_CheckedChanged" />
+            <RadioButton  x:Name="HaQuestionRadioButton2" Grid.Row="3" Content="Ja, på vänster öra" GroupName="Colors" Value="2" FontSize="Medium" CheckedChanged="HaQuestionRadioButton234_CheckedChanged" />
+            <RadioButton  x:Name="HaQuestionRadioButton3" Grid.Row="4" Content="Ja, på höger öra" GroupName="Colors" Value="3" FontSize="Medium" CheckedChanged="HaQuestionRadioButton234_CheckedChanged"/>
+            <RadioButton  x:Name="HaQuestionRadioButton4" Grid.Row="5" Content="Ja, på båda öronen" GroupName="Colors" Value="4" FontSize="Medium" CheckedChanged="HaQuestionRadioButton234_CheckedChanged"/>
+
+        </Grid>
+
+        <Grid x:Name="HaHistoryGrid" 
+              IsVisible="False"
+              Grid.Row="2"
+               Grid.Column="1"
+               Grid.ColumnSpan="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name ="HaQLabel2" Grid.Row="1" Text="Använder du hörapparat?" FontSize="Medium"></Label>
+            <RadioButton  x:Name="HaQuestionRadioButton5" Grid.Row="2" Content="Nej, jag använder inte hörappat" GroupName="Colors" Value="1" FontSize="Medium" />
+            <RadioButton  x:Name="HaQuestionRadioButton6" Grid.Row="3" Content="Ja, på vänster öra" GroupName="Colors" Value="2" FontSize="Medium"  />
+            <RadioButton  x:Name="HaQuestionRadioButton7" Grid.Row="4" Content="Ja, på höger öra" GroupName="Colors" Value="3" FontSize="Medium" />
+            <RadioButton  x:Name="HaQuestionRadioButton8" Grid.Row="5" Content="Ja, på båda öronen" GroupName="Colors" Value="4" FontSize="Medium" />
+
+        </Grid>
+
+
+    </Grid>
+</ContentView>

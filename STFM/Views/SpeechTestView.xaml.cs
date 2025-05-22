@@ -1,5 +1,6 @@
 using Microsoft.Maui.Controls.Internals;
 using STFM.Pages;
+using STFM.SpecializedViews.SSQ12;
 using STFN;
 using STFN.Audio.SoundPlayers;
 using System.Reflection;
@@ -645,6 +646,33 @@ public partial class SpeechTestView : ContentView, IDrawable
             switch (selectedItem)
             {
 
+                case "SSQ12":
+
+                    TestOptionsGrid.Children.Clear();
+                    CurrentSpeechTest = null;
+                    CurrentTestOptionsView = null;
+
+                    SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
+                    StartTestBtn.IsEnabled = false;
+
+                    var SSQ12View = new SSQ12_MainView();
+                    TestReponseGrid.Children.Add(SSQ12View);
+
+                    TestReponseGrid.IsEnabled = true;
+
+                    SSQ12View.EnterFullScreenMode -= OnEnterFullScreenMode;
+                    SSQ12View.ExitFullScreenMode -= OnExitFullScreenMode;
+                    SSQ12View.EnterFullScreenMode += OnEnterFullScreenMode;
+                    SSQ12View.ExitFullScreenMode += OnExitFullScreenMode;
+
+                    NewTestBtn.IsEnabled = true;
+                    SpeechTestPicker.IsEnabled = false;
+                    TestOptionsGrid.IsEnabled = false;
+
+                    // Returns right here to skip test-related adjustments
+                    return;
+
+
                 case "User-operated audiometry":
 
                     TestOptionsGrid.Children.Clear();
@@ -657,7 +685,10 @@ public partial class SpeechTestView : ContentView, IDrawable
                     SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
                     StartTestBtn.IsEnabled = false;
 
-                    var UoAudiometerView = new UoAudView();
+                    // Instantiating a UoPta
+                    STFN.UoPta CurrentPtaTest = new UoPta();
+
+                    var UoAudiometerView = new UoAudView(CurrentPtaTest);
                     TestReponseGrid.Children.Add(UoAudiometerView);
 
                     TestReponseGrid.IsEnabled = true;
@@ -666,6 +697,38 @@ public partial class SpeechTestView : ContentView, IDrawable
                     UoAudiometerView.ExitFullScreenMode -= OnExitFullScreenMode;
                     UoAudiometerView.EnterFullScreenMode += OnEnterFullScreenMode;
                     UoAudiometerView.ExitFullScreenMode += OnExitFullScreenMode;
+
+                    NewTestBtn.IsEnabled = true;
+                    SpeechTestPicker.IsEnabled = false;
+                    TestOptionsGrid.IsEnabled = false;
+
+                    // Returns right here to skip test-related adjustments
+                    return;
+
+                case "User-operated audiometry (screening)":
+
+                    TestOptionsGrid.Children.Clear();
+                    CurrentSpeechTest = null;
+                    CurrentTestOptionsView = null;
+
+                    // Updating settings needed for the loaded test
+                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
+
+                    SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
+                    StartTestBtn.IsEnabled = false;
+
+                    // Instantiating a UoPta with screening settings
+                    STFN.UoPta CurrentScreeningPtaTest = new UoPta(PtaTestProtocol: UoPta.PtaTestProtocols.SAME96_Screening);
+
+                    var ScreeningUoAudiometerView = new UoAudView(CurrentScreeningPtaTest);
+                    TestReponseGrid.Children.Add(ScreeningUoAudiometerView);
+
+                    TestReponseGrid.IsEnabled = true;
+
+                    ScreeningUoAudiometerView.EnterFullScreenMode -= OnEnterFullScreenMode;
+                    ScreeningUoAudiometerView.ExitFullScreenMode -= OnExitFullScreenMode;
+                    ScreeningUoAudiometerView.EnterFullScreenMode += OnEnterFullScreenMode;
+                    ScreeningUoAudiometerView.ExitFullScreenMode += OnExitFullScreenMode;
 
                     NewTestBtn.IsEnabled = true;
                     SpeechTestPicker.IsEnabled = false;

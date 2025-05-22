@@ -7,57 +7,45 @@ Public Class UoPta
     Public Shared LogTrialData As Boolean = True
     Public ResultSummary As String = ""
 
-#Region "Protocol settings"
+#Region "Test settings"
 
     ''' <summary>
     ''' This variable can be used to limit the number of re-initiations in each SubTest
     ''' </summary>
-    Public Shared MaxReInitiations As Integer = 3
+    Public MaxReInitiations As Integer = 3
 
-    Public Shared PtaTestProtocol As PtaTestProtocols = PtaTestProtocols.SAME96_Screening
+    Public PtaTestProtocol As PtaTestProtocols = PtaTestProtocols.SAME96_Screening
 
     Public Enum PtaTestProtocols
         SAME96
         SAME96_Screening
     End Enum
 
-#End Region
-
-#Region "Evaluation settings"
+    Public RunThresholdScreening As Boolean = True
 
     Private GoodFitLimit As Double = 10
     Private MediumFitLimit As Double = 20
 
-#End Region
-
-
-#Region "Level settings"
-
-    Public Shared MinPresentationLevel As Integer = 0
-    Public Shared MaxPresentationLevel As Integer = 80
-
-    Public Shared ScreeningLevel As Integer = 25
-
-#End Region
-
-#Region "Time settings"
+    Public MinPresentationLevel As Integer = 0
+    Public MaxPresentationLevel As Integer = 80
+    Public ScreeningLevel As Integer = 25
 
     'These settings allows for approximately 2-5 seconds between tones
     ' and tone duration uniformly distributed within the range of 1-2 seconds
 
-    Public Shared MinToneOnsetTime As Double = 0.5
-    Public Shared MaxToneOnsetTime As Double = 3.5
-    Public Shared MinToneDurationTime As Double = 1
-    Public Shared MaxToneDurationTime As Double = 2
+    Public MinToneOnsetTime As Double = 0.5
+    Public MaxToneOnsetTime As Double = 3.5
+    Public MinToneDurationTime As Double = 1
+    Public MaxToneDurationTime As Double = 2
 
-    Public Shared PostToneDuration As Double = 1.5 ' Note! This duration cannot be allowed to be shorter than the UpperOffsetResponseTimeLimit
-    Public Shared PostTruePositiveResponseDuration As Double = 1 ' Assuming that mean response time is approximately 0.5 s
+    Public PostToneDuration As Double = 1.5 ' Note! This duration cannot be allowed to be shorter than the UpperOffsetResponseTimeLimit
+    Public PostTruePositiveResponseDuration As Double = 1 ' Assuming that mean response time is approximately 0.5 s
 
     ' These settings sets the criteria for valid responses
-    Public Shared LowerOnsetResponseTimeLimit As Double = 0.1
-    Public Shared UpperOnsetResponseTimeLimit As Double = 1
-    Public Shared LowerOffsetResponseTimeLimit As Double = 0.1
-    Public Shared UpperOffsetResponseTimeLimit As Double = 1 ' Note! This limit must be higher than PostToneDuration
+    Public LowerOnsetResponseTimeLimit As Double = 0.1
+    Public UpperOnsetResponseTimeLimit As Double = 1
+    Public LowerOffsetResponseTimeLimit As Double = 0.1
+    Public UpperOffsetResponseTimeLimit As Double = 1 ' Note! This limit must be higher than PostToneDuration
 
 #End Region
 
@@ -70,7 +58,6 @@ Public Class UoPta
     Public Function IsCompleted() As Boolean
         Return TestIsCompleted
     End Function
-
 
     Private TestFrequencies As New List(Of Integer) From {1000, 2000, 4000, 6000, 500}
 
@@ -91,6 +78,9 @@ Public Class UoPta
     ''' Runs and stores the threshold procedure for a single side and frequency
     ''' </summary>
     Public Class PtaSubTest
+
+        Public ParentTest As UoPta
+
         Public Frequency As Integer
         Public Side As Utils.Sides
         Public Trials As New List(Of PtaTrial)
@@ -115,8 +105,12 @@ Public Class UoPta
             Uncertain
         End Enum
 
-        Public Sub New(ByRef Randomizer As Random)
+        Public Sub New(ByRef Randomizer As Random, ByRef ParentTest As UoPta)
             Me.Randomizer = Randomizer
+            Me.ParentTest = ParentTest
+
+            LowestTruePositiveLevel = ParentTest.MaxPresentationLevel
+
         End Sub
 
         ''' <summary>
@@ -125,7 +119,7 @@ Public Class UoPta
         ''' <returns></returns>
         Public Function CheckIfThresholdIsReached() As Boolean
 
-            Select Case PtaTestProtocol
+            Select Case ParentTest.PtaTestProtocol
                 Case PtaTestProtocols.SAME96
 
                     'Implementing the Hughson-Westlake method according to the Swedish guidelines (2025)
@@ -154,7 +148,7 @@ Public Class UoPta
                         End If
 
                         'Collecting candidate trials for unreached thresholds at the max presentation level
-                        If Trials(i).ToneLevel = MaxPresentationLevel And Trials(i).Result <> PtaResults.TruePositive Then
+                        If Trials(i).ToneLevel = ParentTest.MaxPresentationLevel And Trials(i).Result <> PtaResults.TruePositive Then
                             UnreachedThresholCandidateTrials.Add(Trials(i))
                         End If
 
@@ -234,7 +228,7 @@ Public Class UoPta
                         End If
 
                         'Limiting the number of re-initiations
-                        If NumberOfReInitiations > MaxReInitiations Then
+                        If NumberOfReInitiations > ParentTest.MaxReInitiations Then
 
                             'The maximum number of re-initiations has been reached
                             'Stopping the test and marking the threshold as uncertain
@@ -243,7 +237,7 @@ Public Class UoPta
                             If TempLastTruePositivelevel.HasValue Then
                                 Threshold = TempLastTruePositivelevel.HasValue
                             Else
-                                Threshold = MaxPresentationLevel
+                                Threshold = ParentTest.MaxPresentationLevel
                             End If
                             'Notes the threshold as uncertain
                             ThresholdStatus = ThresholdStatuses.Uncertain
@@ -260,12 +254,15 @@ Public Class UoPta
                         'Notes that re-initiating is started
                         IsInitiatingRepeatedThresholdProcedure = True
 
-                        'Returns False at this point, as no threshold has been established
-                        Return False
-
                     End If
 
+                    'Returns False at this point, as no threshold has been established
+                    Return False
+
                 Case PtaTestProtocols.SAME96_Screening
+
+                    'Returns False directly if no trial is yet presented
+                    If Trials.Count = 0 Then Return False
 
                     Select Case TestProcedureStage
                         Case 0
@@ -274,10 +271,10 @@ Public Class UoPta
 
                             If Trials.Last.Result <> PtaResults.TruePositive Then
                                 'The tone was not heard
-                                If Trials.Last.ToneLevel = MaxPresentationLevel Then
+                                If Trials.Last.ToneLevel = ParentTest.MaxPresentationLevel Then
 
                                     'If the tone was presented on the maximum presentation level, setting an unreached threshold there.
-                                    Threshold = MaxPresentationLevel
+                                    Threshold = ParentTest.MaxPresentationLevel
                                     ThresholdStatus = ThresholdStatuses.Unreached
                                     Return True
                                 Else
@@ -326,10 +323,6 @@ Public Class UoPta
                                 Return True
                             End If
 
-                            If Threshold.HasValue Then
-                                'The screening threshold test has been passed. Return True to move to the next SubTest
-                                Return True
-                            End If
 
                             'Checking if the screening stage is finished or not
                             If Trials.Count < 3 Then
@@ -342,25 +335,37 @@ Public Class UoPta
                             Else
 
                                 'Three trials have been presented at the screening level, and less than two were heard.
-                                'The screening test was not passed. Notes this as unreached threshold at the screening level, and returns True to move to the next SubTest
-                                Threshold = Trials.Last.ToneLevel
-                                ThresholdStatus = ThresholdStatuses.Unreached
+                                'The screening test was not passed.
 
-                                'Moving to the threshold stage
-                                TestProcedureStage = 2
+                                If ParentTest.RunThresholdScreening = False Then
 
-                                'Updates the lowest heard level 
-                                For Each Trial In Trials
-                                    If Trial.Result = PtaResults.TruePositive Then
-                                        LowestTruePositiveLevel = Math.Min(Trial.ToneLevel, LowestTruePositiveLevel)
-                                    End If
-                                Next
+                                    'Notes this as unreached threshold at the screening level, and returns True to move to the next SubTest
+                                    Threshold = Trials.Last.ToneLevel
+                                    ThresholdStatus = ThresholdStatuses.Unreached
+                                    Return True
 
-                                'Clears all trials
-                                Trials.Clear()
+                                Else
 
-                                'And returns False to continue the SubTest
-                                Return False
+                                    'Continues by doing SAME-method threshold screening
+
+                                    'Moving to the threshold stage
+                                    TestProcedureStage = 2
+
+                                    'Updates the lowest heard level 
+                                    For Each Trial In Trials
+                                        If Trial.Result = PtaResults.TruePositive Then
+                                            LowestTruePositiveLevel = Math.Min(Trial.ToneLevel, LowestTruePositiveLevel)
+                                        End If
+                                    Next
+
+                                    'Clears all trials
+                                    Trials.Clear()
+
+                                    'And returns False to continue the SubTest
+                                    Return False
+
+                                End If
+
                             End If
 
                         Case 2
@@ -381,16 +386,20 @@ Public Class UoPta
                                         'Two true positive responses has been given for a level, this is therefore the threshold level. 
                                         Threshold = Trial.ToneLevel
                                         ThresholdStatus = ThresholdStatuses.Reached
+
+                                        'Returns True to move to the next SubTest
+                                        Return True
+
                                     End If
                                 End If
                             Next
 
                             'Stopping if the level has reached the maximum output level without a threshold havin gbeen reached
                             For Each Trial In Trials
-                                If Trial.ToneLevel = MaxPresentationLevel Then
+                                If Trial.ToneLevel = ParentTest.MaxPresentationLevel Then
 
                                     'Setting an unreached threshold at the MaxPresentationLevel
-                                    Threshold = MaxPresentationLevel
+                                    Threshold = ParentTest.MaxPresentationLevel
                                     ThresholdStatus = ThresholdStatuses.Unreached
 
                                     'Returns True to move to the next SubTest
@@ -398,10 +407,13 @@ Public Class UoPta
                                 End If
                             Next
 
+
+                            'Returns False to continue the SubTest
+                            Return False
+
                         Case Else
                             Throw New Exception("TestProcedureStage cannot be higher than 2. This is a bug!")
                     End Select
-
 
                 Case Else
                     Throw New NotImplementedException("Unknown pta protocol")
@@ -426,7 +438,7 @@ Public Class UoPta
             'Counting trials
             PresentedTrials += 1
 
-            Select Case PtaTestProtocol
+            Select Case ParentTest.PtaTestProtocol
                 Case PtaTestProtocols.SAME96
 
                     'Setting the level to be presented
@@ -483,10 +495,10 @@ Public Class UoPta
                         End If
 
                         'Limiting the presentation level in the lower end to MinPresentationLevel
-                        NewTrial.ToneLevel = Math.Max(NewTrial.ToneLevel, MinPresentationLevel)
+                        NewTrial.ToneLevel = Math.Max(NewTrial.ToneLevel, ParentTest.MinPresentationLevel)
 
                         'Limiting the presentation level in the upper end to MaxPresentationLevel
-                        NewTrial.ToneLevel = Math.Min(NewTrial.ToneLevel, MaxPresentationLevel)
+                        NewTrial.ToneLevel = Math.Min(NewTrial.ToneLevel, ParentTest.MaxPresentationLevel)
 
                     End If
 
@@ -494,7 +506,7 @@ Public Class UoPta
                 Case PtaTestProtocols.SAME96_Screening
 
                     'Checking that the screening level is not below MinPresentationLevel 
-                    If MinPresentationLevel > ScreeningLevel Then
+                    If ParentTest.MinPresentationLevel > ParentTest.ScreeningLevel Then
                         Throw New ArgumentException("The minimum presentation level can not be higher than the screening level!")
                     End If
 
@@ -506,16 +518,17 @@ Public Class UoPta
                                 'If it is the first trial in the screening mode, we create a new trial with the level 40 dB HL
                                 NewTrial.ToneLevel = 40
                             Else
-                                NewTrial.ToneLevel += 10
+                                'If there is more than one presented trial, the previous trial must have been missed. Increasing the level by 10 dB
+                                NewTrial.ToneLevel = Trials.Last.ToneLevel + 10
                             End If
 
                         Case 1 'The screening stage
 
                             'In stage 1 we present all tones at the screening level
-                            NewTrial.ToneLevel = ScreeningLevel
+                            NewTrial.ToneLevel = ParentTest.ScreeningLevel
 
 
-                        Case 2 'The theshold seeking stage
+                        Case 2 'The threshold seeking stage
 
                             If Trials.Count = 0 Then
                                 'If it is the first trial in the threshold seeking stage, we create a new trial with the level of 10 dB HL below the lowest heard level
@@ -541,10 +554,10 @@ Public Class UoPta
 
                     'Independent of stage, we limit the tones to the range betqween the screening level and the maximum presentation level
                     'Limiting the presentation level in the lower end to the ScreeningLevel (As the min presentation level is never higher than the screening level, there is no need of limiting to that)
-                    NewTrial.ToneLevel = Math.Max(NewTrial.ToneLevel, ScreeningLevel)
+                    NewTrial.ToneLevel = Math.Max(NewTrial.ToneLevel, ParentTest.ScreeningLevel)
 
                     'Limiting the presentation level in the upper end to MaxPresentationLevel
-                    NewTrial.ToneLevel = Math.Min(NewTrial.ToneLevel, MaxPresentationLevel)
+                    NewTrial.ToneLevel = Math.Min(NewTrial.ToneLevel, ParentTest.MaxPresentationLevel)
 
 
                 Case Else
@@ -661,17 +674,17 @@ Public Class UoPta
         Public Sub SetupTrial(ByRef rnd As Random)
 
             'Randomizing tone onset time and duration
-            Dim SignalOnsetTimeMs As Double = rnd.Next(1000 * MinToneOnsetTime, 1000 * MaxToneOnsetTime)
-            Dim SignalDurationMs As Double = rnd.Next(1000 * MinToneDurationTime, 1000 * MaxToneDurationTime)
+            Dim SignalOnsetTimeMs As Double = rnd.Next(1000 * ParentSubTest.ParentTest.MinToneOnsetTime, 1000 * ParentSubTest.ParentTest.MaxToneOnsetTime)
+            Dim SignalDurationMs As Double = rnd.Next(1000 * ParentSubTest.ParentTest.MinToneDurationTime, 1000 * ParentSubTest.ParentTest.MaxToneDurationTime)
 
             ToneOnsetTime = TimeSpan.FromMilliseconds(SignalOnsetTimeMs)
             ToneDuration = TimeSpan.FromMilliseconds(SignalDurationMs)
 
             'Calculating the valid response time ranges
-            LowestValidOnsetResponseTime = ToneOnsetTime + TimeSpan.FromSeconds(LowerOnsetResponseTimeLimit)
-            HighestValidOnsetResponseTime = ToneOnsetTime + TimeSpan.FromSeconds(UpperOnsetResponseTimeLimit)
-            LowestValidOffsetResponseTime = ToneOffsetTime + TimeSpan.FromSeconds(LowerOffsetResponseTimeLimit)
-            HighestValidOffsetResponseTime = ToneOffsetTime + TimeSpan.FromSeconds(UpperOffsetResponseTimeLimit)
+            LowestValidOnsetResponseTime = ToneOnsetTime + TimeSpan.FromSeconds(ParentSubTest.ParentTest.LowerOnsetResponseTimeLimit)
+            HighestValidOnsetResponseTime = ToneOnsetTime + TimeSpan.FromSeconds(ParentSubTest.ParentTest.UpperOnsetResponseTimeLimit)
+            LowestValidOffsetResponseTime = ToneOffsetTime + TimeSpan.FromSeconds(ParentSubTest.ParentTest.LowerOffsetResponseTimeLimit)
+            HighestValidOffsetResponseTime = ToneOffsetTime + TimeSpan.FromSeconds(ParentSubTest.ParentTest.UpperOffsetResponseTimeLimit)
 
         End Sub
 
@@ -731,15 +744,89 @@ Public Class UoPta
         NoResponse
     End Enum
 
-    Public Sub New()
+    ''' <summary>
+    ''' Creates a new instance of the UoPTA test
+    ''' </summary>
+    ''' <param name="PtaTestProtocol">The test protocol to be run</param>
+    ''' <param name="MaxReInitiations">The maximum number of re-initiations in each SubTest (only in some test protocols)</param>
+    ''' <param name="RunThresholdScreening">Set to False to skip threshold seeking procedure in screening tests.</param>
+    ''' <param name="MinPresentationLevel">The minimum level to be presented at any frequency (dB HL)</param>
+    ''' <param name="MaxPresentationLevel">The maximum level to be presented at any frequency (dB HL)</param>
+    ''' <param name="ScreeningLevel">The screening level to be used in screening protocols.</param>
+    ''' <param name="GoodFitLimit">The (lower) limit of the root-mean-squared error used to clasify a GOOD fit to the Bisgaard audiogram types.</param>
+    ''' <param name="MediumFitLimit">The (lower) limit of the root-mean-squared error used to clasify a MEDIUM fit to the Bisgaard audiogram types (anything less is POOR).</param>
+    ''' <param name="MinToneOnsetTime">The lower value for the range within which the onset of each tone is randomized (seconds)</param>
+    ''' <param name="MaxToneOnsetTime">The upper value for the range within which the onset of each tone is randomized (seconds)</param>
+    ''' <param name="MinToneDurationTime">The lower value for the range within which the duration of each tone is randomized (seconds)</param>
+    ''' <param name="MaxToneDurationTime">The upper value for the range within which the duration of each tone is randomized (seconds)</param>
+    ''' <param name="PostToneDuration"> The inteval from tone offset to the start of a new trial (seconds). Note! This duration cannot be allowed to be shorter than the UpperOffsetResponseTimeLimit</param>
+    ''' <param name="PostTruePositiveResponseDuration"> The interval from a true positive response to the start of a new trial (seconds). Note. The default value should approximately equal the mean (offset) response time 0.5 s</param>
+    ''' <param name="LowerOnsetResponseTimeLimit">Lower criterium for valid onset responses (seconds)</param>
+    ''' <param name="UpperOnsetResponseTimeLimit">Upper criterium for valid onset responses (seconds)</param>
+    ''' <param name="LowerOffsetResponseTimeLimit">Lower criterium for valid offset responses (seconds)</param>
+    ''' <param name="UpperOffsetResponseTimeLimit">Upper criterium for valid offset responses (seconds) Note! This limit must be higher than PostToneDuration</param>
+    Public Sub New(Optional TestFrequencies As List(Of Integer) = Nothing,
+                  Optional PtaTestProtocol As PtaTestProtocols = PtaTestProtocols.SAME96,
+                              Optional MaxReInitiations As Integer = 3,
+                              Optional RunThresholdScreening As Boolean = True,
+                              Optional MinPresentationLevel As Integer = 0,
+                              Optional MaxPresentationLevel As Integer = 80,
+                              Optional ScreeningLevel As Integer = 25,
+                              Optional GoodFitLimit As Double = 10,
+                              Optional MediumFitLimit As Double = 20,
+                              Optional MinToneOnsetTime As Double = 0.5,
+                              Optional MaxToneOnsetTime As Double = 3.5,
+                              Optional MinToneDurationTime As Double = 1,
+                              Optional MaxToneDurationTime As Double = 2,
+                              Optional PostToneDuration As Double = 1.5,
+                              Optional PostTruePositiveResponseDuration As Double = 1,
+                              Optional LowerOnsetResponseTimeLimit As Double = 0.1,
+                              Optional UpperOnsetResponseTimeLimit As Double = 1,
+                              Optional LowerOffsetResponseTimeLimit As Double = 0.1,
+                              Optional UpperOffsetResponseTimeLimit As Double = 1)
 
         Me.Randomizer = New Random ' N.B. this randomized could be supplied by the calling code to enable exact replication
 
-        'Resets SecondSideStarted (will probably never be necessary)
-        SecondSideIsStarted = False
+        'Storing the test frequencies
+        If TestFrequencies Is Nothing Then
+            Select Case PtaTestProtocol
+                Case PtaTestProtocols.SAME96
+                    Me.TestFrequencies = New List(Of Integer) From {1000, 2000, 4000, 6000, 500}
+                    'Me.TestFrequencies = New List(Of Integer) From {1000, 2000, 3000, 4000, 6000, 8000, 500, 250, 125}
+
+                Case PtaTestProtocols.SAME96_Screening
+                    Me.TestFrequencies = New List(Of Integer) From {1000, 2000, 4000, 6000, 500}
+                Case Else
+                    Throw New NotImplementedException("Unknown PtaTestProtocol")
+            End Select
+        Else
+            Me.TestFrequencies = TestFrequencies
+        End If
+
+        Me.PtaTestProtocol = PtaTestProtocol
+        Me.MaxReInitiations = MaxReInitiations
+        Me.RunThresholdScreening = RunThresholdScreening
+        Me.MinPresentationLevel = MinPresentationLevel
+        Me.MaxPresentationLevel = MaxPresentationLevel
+        Me.ScreeningLevel = ScreeningLevel
+        Me.GoodFitLimit = GoodFitLimit
+        Me.MediumFitLimit = MediumFitLimit
+        Me.MinToneOnsetTime = MinToneOnsetTime
+        Me.MaxToneOnsetTime = MaxToneOnsetTime
+        Me.MinToneDurationTime = MinToneDurationTime
+        Me.MaxToneDurationTime = MaxToneDurationTime
+        Me.PostToneDuration = PostToneDuration
+        Me.PostTruePositiveResponseDuration = PostTruePositiveResponseDuration
+        Me.LowerOnsetResponseTimeLimit = LowerOnsetResponseTimeLimit
+        Me.UpperOnsetResponseTimeLimit = UpperOnsetResponseTimeLimit
+        Me.LowerOffsetResponseTimeLimit = LowerOffsetResponseTimeLimit
+        Me.UpperOffsetResponseTimeLimit = UpperOffsetResponseTimeLimit
 
         'Resets PtaTrial.AddTrialExportHeadings so that the first line in each PTA measurment gets the headings
         PtaTrial.AddTrialExportHeadings = True
+
+        'Resets SecondSideStarted (will probably never be necessary)
+        SecondSideIsStarted = False
 
         AddFirstSideSubTests()
 
@@ -754,21 +841,21 @@ Public Class UoPta
 
             'Adding subtests
             For Each Frequency In TestFrequencies
-                SubTests.Add(New PtaSubTest(Randomizer) With {.Side = Utils.Constants.Sides.Right, .Frequency = Frequency, .IsReliabilityCheck = False})
+                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Right, .Frequency = Frequency, .IsReliabilityCheck = False})
             Next
 
             'Adding the reliability check
-            SubTests.Add(New PtaSubTest(Randomizer) With {.Side = Utils.Constants.Sides.Right, .Frequency = 1000, .IsReliabilityCheck = True})
+            SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Right, .Frequency = 1000, .IsReliabilityCheck = True})
 
         Else
 
             'Adding subtests
             For Each Frequency In TestFrequencies
-                SubTests.Add(New PtaSubTest(Randomizer) With {.Side = Utils.Constants.Sides.Left, .Frequency = Frequency, .IsReliabilityCheck = False})
+                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Left, .Frequency = Frequency, .IsReliabilityCheck = False})
             Next
 
             'Adding the reliability check
-            SubTests.Add(New PtaSubTest(Randomizer) With {.Side = Utils.Constants.Sides.Left, .Frequency = 1000, .IsReliabilityCheck = True})
+            SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Left, .Frequency = 1000, .IsReliabilityCheck = True})
 
         End If
 
@@ -784,14 +871,14 @@ Public Class UoPta
 
             'Adding subtests
             For Each Frequency In TestFrequencies
-                SubTests.Add(New PtaSubTest(Randomizer) With {.Side = Utils.Constants.Sides.Left, .Frequency = Frequency, .IsReliabilityCheck = False})
+                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Left, .Frequency = Frequency, .IsReliabilityCheck = False})
             Next
 
         Else
 
             'Adding subtests
             For Each Frequency In TestFrequencies
-                SubTests.Add(New PtaSubTest(Randomizer) With {.Side = Utils.Constants.Sides.Right, .Frequency = Frequency, .IsReliabilityCheck = False})
+                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Right, .Frequency = Frequency, .IsReliabilityCheck = False})
             Next
 
         End If

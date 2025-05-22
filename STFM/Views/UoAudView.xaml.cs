@@ -24,7 +24,7 @@ public partial class UoAudView : ContentView
 
     IDispatcherTimer TrialEndTimer;
 
-    public UoAudView()
+    public UoAudView(STFN.UoPta CurrentTest)
     {
         InitializeComponent();
 
@@ -75,7 +75,7 @@ public partial class UoAudView : ContentView
         SetVisibility(VisibilityTypes.MessageMode);
 
         // Initializing the CurrentTest
-        CurrentTest = new STFN.UoPta();
+        this.CurrentTest = CurrentTest;
 
         // Creating a default wave format and silent sound
         WaveFormat = new STFN.Audio.Formats.WaveFormat(48000, 32, 2, "", STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
@@ -365,7 +365,7 @@ public partial class UoAudView : ContentView
             if (CurrentTrial.Result == UoPta.PtaResults.TruePositive)
             {
                 // We should wait PostTruePositiveResponseDuration seconds after a true positive response before next trial is started
-                if (DateTime.Now > CurrentTrial.TrialStartTime + CurrentTrial.ResponseOffsetTime + TimeSpan.FromSeconds(STFN.UoPta.PostTruePositiveResponseDuration))
+                if (DateTime.Now > CurrentTrial.TrialStartTime + CurrentTrial.ResponseOffsetTime + TimeSpan.FromSeconds(CurrentTest.PostTruePositiveResponseDuration))
                 {
                     //Saving trial data to file
                     if (STFN.UoPta.LogTrialData == true) { CurrentTrial.ExportPtaTrialData(); }
@@ -378,7 +378,7 @@ public partial class UoAudView : ContentView
             else
             {
                 // If we don't have a true positive response, we should wait PostToneDuration seconds after the end of the signal before next trial is started
-                if (DateTime.Now > CurrentTrial.TrialStartTime + CurrentTrial.ToneOffsetTime + TimeSpan.FromSeconds(STFN.UoPta.PostToneDuration))
+                if (DateTime.Now > CurrentTrial.TrialStartTime + CurrentTrial.ToneOffsetTime + TimeSpan.FromSeconds(CurrentTest.PostToneDuration))
                 {
                     //Saving trial data to file
                     if (STFN.UoPta.LogTrialData == true) { CurrentTrial.ExportPtaTrialData(); }

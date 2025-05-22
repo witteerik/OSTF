@@ -71,6 +71,15 @@
   </ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="SpecializedViews\SSQ12\SSQ12_IntroView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="SpecializedViews\SSQ12\SSQ12_MainView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="SpecializedViews\SSQ12\SSQ12_QuestionView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\AudiogramView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
