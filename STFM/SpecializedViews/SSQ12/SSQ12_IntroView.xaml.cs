@@ -18,5 +18,18 @@ public partial class SSQ12_IntroView : ContentView
         HaHistoryGrid.IsVisible = true;
     }
 
+    public bool HasResponse()
+    {
+
+        if (HaQuestionRadioButton1.IsChecked | HaQuestionRadioButton2.IsChecked | HaQuestionRadioButton3.IsChecked | HaQuestionRadioButton4.IsChecked)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
 
 }

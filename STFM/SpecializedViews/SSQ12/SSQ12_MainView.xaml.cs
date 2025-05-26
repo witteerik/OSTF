@@ -71,19 +71,37 @@ public partial class SSQ12_MainView : ContentView
 
         if (sSQ12_QuestionView == null)
         {
-            sSQ12_QuestionView = new SSQ12_QuestionView();
-            CurrentQuestion = 0;
-            ContentFrame.Content = sSQ12_QuestionView;
+
+            if (sSQ12_IntroView.HasResponse() == true)
+            {
+                sSQ12_QuestionView = new SSQ12_QuestionView();
+                CurrentQuestion = 0;
+                ContentFrame.Content = sSQ12_QuestionView;
+            }else{
+                STFN.Messager.MsgBox("Vänligen besvara frågan innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Frågan är inte besvarad!");
+                return;
+            }
+
         }
         else
         {
 
-            if (CurrentQuestion == sSQ12_QuestionView.SsqQuestions.Count-1)
+            if (sSQ12_QuestionView.HasResponse() == true)
             {
-                // The test should be finished
+                if (CurrentQuestion == sSQ12_QuestionView.SsqQuestions.Count - 1)
+                {
+                    // The test should be finished here. Sum up
 
-            } else {
-                CurrentQuestion += 1;
+                }
+                else
+                {
+                    CurrentQuestion += 1;
+                }
+            }
+            else
+            {
+                STFN.Messager.MsgBox("Vänligen besvara frågan innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Frågan är inte besvarad!");
+                return;
             }
 
         }

@@ -116,10 +116,25 @@ public partial class SSQ12_QuestionView : ContentView
         }
 
     }
-}
+
+    public bool HasResponse()
+    {
+
+        if (ResponsePicker.SelectedIndex > -1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
+    }
 
 
-public class SsqQuestion
+    public class SsqQuestion
 {
 
     public string Question = "";
