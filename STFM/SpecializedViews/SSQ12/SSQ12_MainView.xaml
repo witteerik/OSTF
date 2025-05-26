@@ -9,25 +9,40 @@
             <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="4*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="1*" />
         </Grid.ColumnDefinitions>
 
         <Frame x:Name="ContentFrame"
                Grid.Row="0"
                Grid.Column="0"
-               Grid.ColumnSpan="2">
+               Grid.ColumnSpan="3">
         </Frame>
 
-        <Button x:Name="NextButton"
+
+        <Button x:Name="PreviousButton"
                 Grid.Row="1"
-                Grid.Column="1"
+                Grid.Column="0"
                 BackgroundColor="SlateBlue"
                 TextColor="Snow"
                 CornerRadius="30"
                 Margin="20"
                 FontSize="Medium"
                 FontAttributes="Bold"
+                IsEnabled="False"
+                Clicked="PreviousButton_Clicked"></Button>
+
+        <Button x:Name="NextButton"
+                Grid.Row="1"
+                Grid.Column="2"
+                BackgroundColor="SlateBlue"
+                TextColor="Snow"
+                CornerRadius="30"
+                Margin="20"
+                FontSize="Medium"
+                FontAttributes="Bold"
+                IsEnabled="False"
                 Clicked="NextButton_Clicked"></Button>
         
         
