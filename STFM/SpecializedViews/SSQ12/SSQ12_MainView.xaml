@@ -17,7 +17,8 @@
         <Frame x:Name="ContentFrame"
                Grid.Row="0"
                Grid.Column="0"
-               Grid.ColumnSpan="3">
+               Grid.ColumnSpan="3"
+               Margin="3">
         </Frame>
 
 

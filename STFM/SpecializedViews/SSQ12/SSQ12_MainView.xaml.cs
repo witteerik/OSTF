@@ -16,8 +16,8 @@ public partial class SSQ12_MainView : ContentView
     public int CurrentQuestion = -1;
 
     public SSQ12_MainView()
-	{
-		InitializeComponent();
+    {
+        InitializeComponent();
 
         switch (STFN.SharedSpeechTestObjects.GuiLanguage)
         {
@@ -34,10 +34,15 @@ public partial class SSQ12_MainView : ContentView
                 break;
         }
 
-        // Adding the intro view
+        // Instantiating the views
         sSQ12_IntroView = new SSQ12_IntroView();
+        sSQ12_QuestionView = new SSQ12_QuestionView();
+
+        // Adding the intro view
         ContentFrame.Content = sSQ12_IntroView;
         NextButton.IsEnabled = true;
+
+
 
     }
 
@@ -69,22 +74,22 @@ public partial class SSQ12_MainView : ContentView
     private void NextButton_Clicked(object sender, EventArgs e)
     {
 
-        if (sSQ12_QuestionView == null)
+        if (ContentFrame.Content == sSQ12_IntroView)
         {
 
             if (sSQ12_IntroView.HasResponse() == true)
             {
-                sSQ12_QuestionView = new SSQ12_QuestionView();
                 CurrentQuestion = 0;
+                // Adding the question view
                 ContentFrame.Content = sSQ12_QuestionView;
-            }else{
-                STFN.Messager.MsgBox("Vänligen besvara frågan innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Frågan är inte besvarad!");
+            }
+            else
+            {
                 return;
             }
 
         }
-        else
-        {
+        else{
 
             if (sSQ12_QuestionView.HasResponse() == true)
             {
@@ -104,6 +109,7 @@ public partial class SSQ12_MainView : ContentView
                 return;
             }
 
+
         }
 
         SetButtonAppearance();
@@ -115,20 +121,33 @@ public partial class SSQ12_MainView : ContentView
     private void PreviousButton_Clicked(object sender, EventArgs e)
     {
 
-        if (CurrentQuestion > 0)
+        if (CurrentQuestion > -1)
         {
 
             CurrentQuestion -= 1;
 
             SetButtonAppearance();
 
-            sSQ12_QuestionView.ShowQuestion(CurrentQuestion);
+            if (CurrentQuestion < 0)
+            {
+                // Adding the intro view
+                ContentFrame.Content = sSQ12_IntroView;
+                NextButton.IsEnabled = true;
+
+            }
+            else
+            {
+
+                sSQ12_QuestionView.ShowQuestion(CurrentQuestion);
+
+            }
 
         }
 
     }
 
-    private void SetButtonAppearance() {
+    private void SetButtonAppearance()
+    {
 
 
         switch (STFN.SharedSpeechTestObjects.GuiLanguage)
@@ -145,12 +164,12 @@ public partial class SSQ12_MainView : ContentView
         // Enabling and disabling buttons
         PreviousButton.IsEnabled = false;
         NextButton.IsEnabled = false;
-        if (CurrentQuestion < 1)
+        if (CurrentQuestion < 0)
         {
             NextButton.IsEnabled = true;
 
         }
-        else if (CurrentQuestion < sSQ12_QuestionView.SsqQuestions.Count -1)
+        else if (CurrentQuestion < sSQ12_QuestionView.SsqQuestions.Count - 1)
         {
             PreviousButton.IsEnabled = true;
             NextButton.IsEnabled = true;
