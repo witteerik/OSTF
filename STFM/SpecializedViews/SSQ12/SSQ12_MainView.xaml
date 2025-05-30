@@ -14,7 +14,9 @@
 
                         <Label x:Name="InstructionsHeadings" FontSize="Header" FontAttributes="Bold" Margin="0,20,0,0"></Label>
                         <Label x:Name="InstructionsSubHeadings" FontSize="Large" FontAttributes="Bold" Margin="0,10,0,0"></Label>
-                        <Label x:Name="InstructionsBodyText" FontSize="Medium" Margin="0,10,0,0"></Label>
+                        <Label x:Name="InstructionsBodyTextP1" FontSize="Medium" Margin="0,10,0,0"></Label>
+                        <Label x:Name="InstructionsBodyTextP2" FontSize="Medium" Margin="0,10,0,0"></Label>
+                        <Label x:Name="InstructionsBodyTextP3" FontSize="Medium" Margin="0,10,0,0"></Label>
                         <Frame HeightRequest="4" Margin="0,10,0,10" BackgroundColor="#808080"></Frame>
 
                     </StackLayout>

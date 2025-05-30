@@ -31,7 +31,20 @@ public partial class SSQ12_MainView : ContentView
         }
 
         SubmitButton = new Button();
+        SubmitButton.HeightRequest = 200;
+        SubmitButton.HorizontalOptions = LayoutOptions.Fill;
         SubmitButton.Clicked += SubmitButton_Clicked;
+        MainStackLayout.Add(SubmitButton);
+
+        // Creating and adding a reference box
+        Frame ReferenceFrame = new Frame { BackgroundColor = Colors.LightGray };
+        ReferenceFrame.Margin = new Thickness(50, 50, 50, 50);
+        ReferenceFrame.HorizontalOptions = LayoutOptions.Fill;
+        MainStackLayout.Add(ReferenceFrame);
+        Label ReferenceLabel = new Label ();
+        ReferenceLabel.HorizontalOptions = LayoutOptions.Fill;
+        ReferenceLabel.VerticalOptions= LayoutOptions.Fill;
+        ReferenceFrame.Content = ReferenceLabel;
 
         switch (STFN.SharedSpeechTestObjects.GuiLanguage)
         {
@@ -39,10 +52,16 @@ public partial class SSQ12_MainView : ContentView
             case STFN.Utils.Constants.Languages.Swedish:
                 InstructionsHeadings.Text = "Instruktion";
                 InstructionsSubHeadings.Text = "SSQ12-INSTRUKTIONER";
-                InstructionsBodyText.Text = "De f�ljande fr�gorna g�ller din f�rm�ga...";
-                MandatoryInfoLabel.Text = "Obligatoriskt att fylla i";
+                InstructionsBodyTextP1.Text = "De följande frågorna gäller din förmåga och dina upplevelser i samband med att höra och lyssna i olika situationer. Om du använder hörapparat(er), besvara frågan så som du hör med hörapparat(er).";
+                InstructionsBodyTextP2.Text = "Läs igenom frågeformuläret så du känner dig orienterad om vad det handlar om. Välj det svar som du tycker motsvarar dina upplevelser. 10 betyder att du klarar eller upplever det som frågan gäller helt perfekt. 0 betyder att du inte alls klarar eller upplever att du klarar det som frågan gäller.";
+                InstructionsBodyTextP3.Text = "Vi tror att du kan känna igen alla situationerna från din vardag, men om en fråga beskriver en situation som du inte alls kan relatera till ombeds du markera ”Vet inte”-rutan och skriva en kort anmärkning om varför du inte kan svara på frågan.";
+                InstructionsToggleLabel.Text = "Dölj instruktionen för formuläret";
 
-                SubmitButton.Text = "SLUTF�R";
+                MandatoryInfoLabel.Text = "🞲  = Obligatoriskt att fylla i";
+
+                SubmitButton.Text = "SLUTFÖR";
+
+                ReferenceLabel.Text = "ⓘ\r\n\r\nNoble, W., Jensen, N. S., Naylor, G., Bhullar, N., & Akeroyd, M. A. (2013). A short form of the Speech, Spatial and Qualities of Hearing scale suitable for clinical use: the SSQ12. International Journal of Audiology, 52(6), 409-412. doi:10.3109/14992027.2013.781278\r\nÖversatt till svenska av Docent Öberg, Linköpings universitetssjukhus och hennes kollegor.";
 
                 break;
             default:
@@ -50,7 +69,9 @@ public partial class SSQ12_MainView : ContentView
 
                 InstructionsHeadings.Text = "";
                 InstructionsSubHeadings.Text = "";
-                InstructionsBodyText.Text = "";
+                InstructionsBodyTextP1.Text = "";
+                InstructionsBodyTextP2.Text = "";
+                InstructionsBodyTextP3.Text = "";
                 MandatoryInfoLabel.Text = "";
 
                 SubmitButton.Text = "SUBMIT";
@@ -93,7 +114,7 @@ public partial class SSQ12_MainView : ContentView
         InstructionsCollapsableStackLayout.IsVisible = !isVisible;
 
         InstructionsToggleSymbol.Text = isVisible ? "+" : "-";
-        InstructionsToggleLabel.Text = isVisible ? "Visa instruktionen f�r formul�ret" : "D�lj instruktionen f�r formul�ret";
+        InstructionsToggleLabel.Text = isVisible ? "Visa instruktionen för formuläret" : "Dölj instruktionen för formuläret";
 
     }
 
@@ -102,7 +123,7 @@ public partial class SSQ12_MainView : ContentView
 
             if (sSQ12_IntroView.HasResponse() == true)
             {
-            STFN.Messager.MsgBox("V�nligen besvara fr�gan innan du g�r vidare!", STFN.Messager.MsgBoxStyle.Information, "Fr�gan �r inte besvarad!");
+            STFN.Messager.MsgBox("Vänligen besvara frågan innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Frågan är inte besvarad!");
             return;
             }
 
@@ -115,7 +136,7 @@ public partial class SSQ12_MainView : ContentView
                 SSQ12_QuestionView castChild = (SSQ12_QuestionView)child;
                 if (castChild.HasResponse() == false)
                 {
-                    STFN.Messager.MsgBox("V�nligen besvara fr�gan innan du g�r vidare!", STFN.Messager.MsgBoxStyle.Information, "Fr�gan �r inte besvarad!");
+                    STFN.Messager.MsgBox("Vänligen besvara frågan innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Frågan är inte besvarad!");
                     return;
                 }
 

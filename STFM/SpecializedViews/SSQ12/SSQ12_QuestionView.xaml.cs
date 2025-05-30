@@ -29,18 +29,18 @@ public partial class SSQ12_QuestionView : ContentView
         {
             case STFN.Utils.Constants.Languages.Swedish:
 
-                SsqQuestions.Add(new SsqQuestion { Question = "1. Du talar med en person och en TV är på i samma rum. Kan du följa med i vad den andra personen säger, utan att sänka TV:n?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "2. Du lyssnar på en person som talar med dig, samtidigt som du försöker att följa nyheterna på TV. Kan du följa med i vad båda personerna säger?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "3. Du samtalar med en person i ett rum där det finns flera andra personer som talar. Kan du följa med i vad den personen som du samtalar med säger?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "4. Du är i en grupp med cirka fem personer på en välbesökt restaurang. Du kan se alla de andra i gruppen. Kan du uppfatta samtalet?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "5. Du är i en grupp där samtalet skiftar från en person till en annan. Kan du lätt följa med i samtalet utan att missa början av vad varje ny talare säger?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "6. Du är utomhus. En hund skäller högt. Kan du omedelbart avgöra var den befinner sig utan att se den?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "7. Kan du med hjälp av ljudet avgöra hur långt bort en buss eller en lastbil befinner sig?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "8. Kan du med hjälp av ljudet avgöra om en buss eller lastbil kommer mot dig eller färdas ifrån dig?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "9. När du hör mer än ett ljud i taget har du då intrycket av att det verkar som en enda sammanblandning av ljud?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "10. När du lyssnar på musik, kan du urskilja vilka instrument som spelas?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "11. Ljud som finns i din vardag som du lätt kan höra, låter dessa klart (inte otydligt)?" });
-                SsqQuestions.Add(new SsqQuestion { Question = "12. Måste du koncentrera dig väldigt mycket när du lyssnar på någon eller någonting?" });
+                SsqQuestions.Add(new SsqQuestion { Question = "1. Du talar med en person och en TV Ã¤r pÃ¥ i samma rum. Kan du fÃ¶lja med i vad den andra personen sÃ¤ger, utan att sÃ¤nka TV:n? (0=Inte alls, 10=Helt och hÃ¥llet)  ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "2. Du lyssnar pÃ¥ en person som talar med dig, samtidigt som du fÃ¶rsÃ¶ker att fÃ¶lja nyheterna pÃ¥ TV. Kan du fÃ¶lja med i vad bÃ¥da personerna sÃ¤ger? (0=Inte alls, 10=Helt och hÃ¥llet)   ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "3. Du samtalar med en person i ett rum dÃ¤r det finns flera andra personer som talar. Kan du fÃ¶lja med i vad den personen som du samtalar med sÃ¤ger? (0=Stor koncentration, 10=Inget behov av koncentration)  ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "4. Du Ã¤r i en grupp med cirka fem personer pÃ¥ en vÃ¤lbesÃ¶kt restaurang. Du kan se alla de andra i gruppen. Kan du uppfatta samtalet? (0=XXX, 10=XXX)  ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "5. Du Ã¤r i en grupp dÃ¤r samtalet skiftar frÃ¥n en person till en annan. Kan du lÃ¤tt fÃ¶lja med i samtalet utan att missa bÃ¶rjan av vad varje ny talare sÃ¤ger? (0=XXX, 10=XXX)  ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "6. Du Ã¤r utomhus. En hund skÃ¤ller hÃ¶gt. Kan du omedelbart avgÃ¶ra var den befinner sig utan att se den? (0=XXX, 10=XXX)  ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "7. Kan du med hjÃ¤lp av ljudet avgÃ¶ra hur lÃ¥ngt bort en buss eller en lastbil befinner sig? (0=XXX, 10=XXX)  ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "8. Kan du med hjÃ¤lp av ljudet avgÃ¶ra om en buss eller lastbil kommer mot dig eller fÃ¤rdas ifrÃ¥n dig? (0=XXX, 10=XXX)  ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "9. NÃ¤r du hÃ¶r mer Ã¤n ett ljud i taget har du dÃ¥ intrycket av att det verkar som en enda sammanblandning av ljud? (0=XXX, 10=XXX)  ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "10. NÃ¤r du lyssnar pÃ¥ musik, kan du urskilja vilka instrument som spelas? (0=XXX, 10=XXX)  ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "11. Ljud som finns i din vardag som du lÃ¤tt kan hÃ¶ra, lÃ¥ter dessa klart (inte otydligt)? (0=XXX, 10=XXX)  ðŸž²" });
+                SsqQuestions.Add(new SsqQuestion { Question = "12. MÃ¥ste du koncentrera dig vÃ¤ldigt mycket nÃ¤r du lyssnar pÃ¥ nÃ¥gon eller nÃ¥gonting? (0=XXX, 10=XXX)  ðŸž²" });
 
                 break;
             default:
@@ -82,7 +82,7 @@ public partial class SSQ12_QuestionView : ContentView
         foreach (string ResponseString in SsqQuestions[CurrentQuestionIndex].SsqQuestionValue.Values)
         {
             ResponsePicker.Items.Add(ResponseString);
-            CollapsibleShowResponse_StackLayout.Add(new Label { Text = " • " + ResponseString, FontSize = 18 });
+            CollapsibleShowResponse_StackLayout.Add(new Label { Text = " â€¢ " + ResponseString, FontSize = 18 });
         }
 
         ResponsePicker.SelectedIndex = SsqQuestions[CurrentQuestionIndex].ResponseIndex;
@@ -108,7 +108,7 @@ public partial class SSQ12_QuestionView : ContentView
         CollapsibleShowResponse_StackLayout.IsVisible = !isVisible;
 
         ShowResponseAlternativeToggleSymbol.Text = isVisible ? "+" : "-";
-        ShowResponseAlternativeToggleLabel.Text = isVisible ? "Visa svarsalternativ" : "Dölj svarsalternativ";
+        ShowResponseAlternativeToggleLabel.Text = isVisible ? "Visa svarsalternativ" : "DÃ¶lj svarsalternativ";
 
     }
 
@@ -177,8 +177,8 @@ public partial class SSQ12_QuestionView : ContentView
         {
             case STFN.Utils.Constants.Languages.Swedish:
                 SsqQuestionValue.Add(11, "Vet inte");
-                ResponseTitle = "- Välj -";
-                CommentLabel = "Vänligen ange varför du inte vet svaret";
+                ResponseTitle = "- VÃ¤lj -";
+                CommentLabel = "VÃ¤nligen ange varfÃ¶r du inte vet svaret";
                 break;
             default:
                 // Using English as default
