@@ -3,49 +3,63 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="STFM.SpecializedViews.SSQ12.SSQ12_MainView">
 
-    <Grid x:Name="MainSSQ12Grid" BackgroundColor="WhiteSmoke">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="6*" />
-            <RowDefinition Height="1*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="2*" />
-            <ColumnDefinition Width="1*" />
-        </Grid.ColumnDefinitions>
+    <ScrollView Background="White">
+        <StackLayout x:Name="MainStackLayout" Padding="10" Spacing="10">
 
-        <Frame x:Name="ContentFrame"
-               Grid.Row="0"
-               Grid.Column="0"
-               Grid.ColumnSpan="3"
-               Margin="3">
-        </Frame>
+            <Frame Background="LightGray">
 
+                <StackLayout>
 
-        <Button x:Name="PreviousButton"
-                Grid.Row="1"
-                Grid.Column="0"
-                BackgroundColor="SlateBlue"
-                TextColor="Snow"
-                CornerRadius="30"
-                Margin="20"
-                FontSize="Medium"
-                FontAttributes="Bold"
-                IsEnabled="False"
-                Clicked="PreviousButton_Clicked"></Button>
+                    <StackLayout x:Name="InstructionsCollapsableStackLayout">
 
-        <Button x:Name="NextButton"
-                Grid.Row="1"
-                Grid.Column="2"
-                BackgroundColor="SlateBlue"
-                TextColor="Snow"
-                CornerRadius="30"
-                Margin="20"
-                FontSize="Medium"
-                FontAttributes="Bold"
-                IsEnabled="False"
-                Clicked="NextButton_Clicked"></Button>
+                        <Label x:Name="InstructionsHeadings" FontSize="Header" FontAttributes="Bold" Margin="0,20,0,0"></Label>
+                        <Label x:Name="InstructionsSubHeadings" FontSize="Large" FontAttributes="Bold" Margin="0,10,0,0"></Label>
+                        <Label x:Name="InstructionsBodyText" FontSize="Medium" Margin="0,10,0,0"></Label>
+                        <Frame HeightRequest="4" Margin="0,10,0,10" BackgroundColor="#808080"></Frame>
+
+                    </StackLayout>
+
+                    <Grid  x:Name="InstructionsToggleHeader" 
+                           ColumnDefinitions="40, *"
+                           VerticalOptions="Center">
+
+                        <Frame x:Name="InstructionsToggleIcon"
+                               HeightRequest="30"
+                               WidthRequest="30"
+                               CornerRadius="15"
+                               BackgroundColor="Blue"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center"
+                               Padding="0">
+
+                            <Label x:Name="InstructionsToggleSymbol"
+                                   Text="+"
+                                   TextColor="White"
+                                   FontSize="20"                       
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center"/>
+                        </Frame>
+
+                        <Label x:Name="InstructionsToggleLabel"
+                               Grid.Column="1"
+                               Text="Visa instruktionen för formuläret"
+                               TextDecorations="Underline"
+                               FontSize="18"
+                               TextColor="Blue"
+                               VerticalOptions="Center"
+                               Padding="10,0"/>
+                        
+                    </Grid>
+
+                </StackLayout>
+                                
+            </Frame>
+
+            <Label x:Name="MandatoryInfoLabel"></Label>
+            
+        </StackLayout>
+    </ScrollView>
         
-        
-    </Grid>
 </ContentView>

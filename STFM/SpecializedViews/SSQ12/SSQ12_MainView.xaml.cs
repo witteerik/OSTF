@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Media;
+using Microsoft.Maui;
 
 
 namespace STFM.SpecializedViews.SSQ12;
@@ -10,39 +11,56 @@ public partial class SSQ12_MainView : ContentView
     public event EventHandler<EventArgs> ExitFullScreenMode;
 
     public SSQ12_IntroView sSQ12_IntroView;
-    public SSQ12_QuestionView sSQ12_QuestionView;
-
-
-    public int CurrentQuestion = -1;
+    public Button SubmitButton;
 
     public SSQ12_MainView()
     {
         InitializeComponent();
 
+        // Instantiating the views
+        sSQ12_IntroView = new SSQ12_IntroView();
+
+        MainStackLayout.Add(sSQ12_IntroView);
+
+        for (int i = 0; i < 12; i++)
+        {
+            SSQ12_QuestionView sSQ12_QuestionView = new SSQ12_QuestionView();
+            sSQ12_QuestionView.ShowQuestion(i);
+            MainStackLayout.Add(sSQ12_QuestionView);
+
+        }
+
+        SubmitButton = new Button();
+        SubmitButton.Clicked += SubmitButton_Clicked;
+
         switch (STFN.SharedSpeechTestObjects.GuiLanguage)
         {
 
             case STFN.Utils.Constants.Languages.Swedish:
-                PreviousButton.Text = "FÖREGÅENDE";
-                NextButton.Text = "NÄSTA";
+                InstructionsHeadings.Text = "Instruktion";
+                InstructionsSubHeadings.Text = "SSQ12-INSTRUKTIONER";
+                InstructionsBodyText.Text = "De följande frågorna gäller din förmåga...";
+                MandatoryInfoLabel.Text = "Obligatoriskt att fylla i";
+
+                SubmitButton.Text = "SLUTFÖR";
 
                 break;
             default:
                 // Using English as default
-                PreviousButton.Text = "PREVIOUS";
-                NextButton.Text = "NEXT";
+
+                InstructionsHeadings.Text = "";
+                InstructionsSubHeadings.Text = "";
+                InstructionsBodyText.Text = "";
+                MandatoryInfoLabel.Text = "";
+
+                SubmitButton.Text = "SUBMIT";
                 break;
         }
 
-        // Instantiating the views
-        sSQ12_IntroView = new SSQ12_IntroView();
-        sSQ12_QuestionView = new SSQ12_QuestionView();
+        var tapGesture = new TapGestureRecognizer();
+        tapGesture.Tapped += OnToggleTapped;
 
-        // Adding the intro view
-        ContentFrame.Content = sSQ12_IntroView;
-        NextButton.IsEnabled = true;
-
-
+        InstructionsToggleHeader.GestureRecognizers.Add(tapGesture);
 
     }
 
@@ -69,76 +87,37 @@ public partial class SSQ12_MainView : ContentView
         }
     }
 
-
-
-    private void NextButton_Clicked(object sender, EventArgs e)
+    private void OnToggleTapped(object sender, EventArgs e)
     {
+        bool isVisible = InstructionsCollapsableStackLayout.IsVisible;
+        InstructionsCollapsableStackLayout.IsVisible = !isVisible;
 
-        if (ContentFrame.Content == sSQ12_IntroView)
-        {
+        InstructionsToggleSymbol.Text = isVisible ? "+" : "-";
+        InstructionsToggleLabel.Text = isVisible ? "Visa instruktionen för formuläret" : "Dölj instruktionen för formuläret";
+
+    }
+
+    private void SubmitButton_Clicked(object sender, EventArgs e)
+    {
 
             if (sSQ12_IntroView.HasResponse() == true)
             {
-                CurrentQuestion = 0;
-                // Adding the question view
-                ContentFrame.Content = sSQ12_QuestionView;
-            }
-            else
-            {
-                return;
+            STFN.Messager.MsgBox("Vänligen besvara frågan innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Frågan är inte besvarad!");
+            return;
             }
 
-        }
-        else{
+        foreach (var child in MainStackLayout.Children)
+        {
 
-            if (sSQ12_QuestionView.HasResponse() == true)
+            if (child is SSQ12_QuestionView)
             {
-                if (CurrentQuestion == sSQ12_QuestionView.SsqQuestions.Count - 1)
+
+                SSQ12_QuestionView castChild = (SSQ12_QuestionView)child;
+                if (castChild.HasResponse() == false)
                 {
-                    // The test should be finished here. Sum up
-
+                    STFN.Messager.MsgBox("Vänligen besvara frågan innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Frågan är inte besvarad!");
+                    return;
                 }
-                else
-                {
-                    CurrentQuestion += 1;
-                }
-            }
-            else
-            {
-                STFN.Messager.MsgBox("Vänligen besvara frågan innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Frågan är inte besvarad!");
-                return;
-            }
-
-
-        }
-
-        SetButtonAppearance();
-
-        sSQ12_QuestionView.ShowQuestion(CurrentQuestion);
-
-    }
-
-    private void PreviousButton_Clicked(object sender, EventArgs e)
-    {
-
-        if (CurrentQuestion > -1)
-        {
-
-            CurrentQuestion -= 1;
-
-            SetButtonAppearance();
-
-            if (CurrentQuestion < 0)
-            {
-                // Adding the intro view
-                ContentFrame.Content = sSQ12_IntroView;
-                NextButton.IsEnabled = true;
-
-            }
-            else
-            {
-
-                sSQ12_QuestionView.ShowQuestion(CurrentQuestion);
 
             }
 
@@ -146,52 +125,7 @@ public partial class SSQ12_MainView : ContentView
 
     }
 
-    private void SetButtonAppearance()
-    {
+   
 
-
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
-        {
-            case STFN.Utils.Constants.Languages.Swedish:
-                NextButton.Text = "NÄSTA";
-                break;
-            default:
-                // Using English as default
-                NextButton.Text = "NEXT";
-                break;
-        }
-
-        // Enabling and disabling buttons
-        PreviousButton.IsEnabled = false;
-        NextButton.IsEnabled = false;
-        if (CurrentQuestion < 0)
-        {
-            NextButton.IsEnabled = true;
-
-        }
-        else if (CurrentQuestion < sSQ12_QuestionView.SsqQuestions.Count - 1)
-        {
-            PreviousButton.IsEnabled = true;
-            NextButton.IsEnabled = true;
-        }
-        else
-        {
-            PreviousButton.IsEnabled = true;
-            NextButton.IsEnabled = true;
-            // The test should finish on the next press on NextButton
-
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
-            {
-                case STFN.Utils.Constants.Languages.Swedish:
-                    NextButton.Text = "SLUTFÖR";
-                    break;
-                default:
-                    // Using English as default
-                    NextButton.Text = "SUBMIT";
-                    break;
-            }
-        }
-    }
-
-
+   
 }

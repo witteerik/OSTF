@@ -3,32 +3,61 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="STFM.SpecializedViews.SSQ12.SSQ12_QuestionView">
 
-    <Grid x:Name="MainGrid">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="3*" />
-            <RowDefinition Height="1*" />
-            <RowDefinition Height="1*" />
-            <RowDefinition Height="2*" />
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
-        </Grid.ColumnDefinitions>
+    <StackLayout x:Name="MainGrid">
 
         <Label x:Name="QuestionLabel"
-           Grid.Row="0"
            Text=""
-           FontSize="Header">
+           FontSize="Large"
+               Margin="0,40,0,0">
         </Label>
 
-        <Picker x:Name="ResponsePicker"  
-                Grid.Row="1" 
-                FontSize="Medium"
+        <Picker x:Name="ResponsePicker" 
+                FontSize="Large" 
+                Margin="0,20,0,20"
                 SelectedIndexChanged="ResponsePicker_SelectedIndexChanged"/>
+
+        <Grid  x:Name="ShowResponseAlternativeToggleHeader" 
+               ColumnDefinitions="40, *"
+                VerticalOptions="Center">
+
+            <Frame x:Name="ShowResponseAlternativeToggleIcon"
+                    HeightRequest="30"
+                    WidthRequest="30"
+                    CornerRadius="15"
+                    BackgroundColor="Blue"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    Padding="0">
+                <Label x:Name="ShowResponseAlternativeToggleSymbol"
+                        Text="+"
+                        TextColor="White"
+                        FontSize="20"                       
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        VerticalTextAlignment="Center"/>
+            </Frame>
+
+            <Label x:Name="ShowResponseAlternativeToggleLabel"
+                    Grid.Column="1"
+                    Text="Visa svarsalternativ"
+                   TextDecorations="Underline"
+                    FontSize="18"
+                   TextColor="Blue"
+                    VerticalOptions="Center"
+                    Padding="10,0"/>
+        </Grid>
+
+        <StackLayout x:Name="CollapsibleShowResponse_StackLayout"
+                        IsVisible="False"
+                        Padding="10,5">
+        </StackLayout>
 
         <Label x:Name="CommentLabel"
            Grid.Row="2"
            Text=""
-           FontSize="Medium">
+           FontSize="Large"
+               Margin="0,40,0,0">
         </Label>
 
         <Editor x:Name="CommentEditor" 
@@ -36,8 +65,9 @@
                 IsVisible="False"
                 Text="" 
                 FontSize="Medium" 
+                HeightRequest="140"
                 TextChanged="CommentEditor_TextChanged"/>
 
-    </Grid>
+    </StackLayout>
 
 </ContentView>

@@ -82,8 +82,8 @@ public partial class SSQ12_QuestionView : ContentView
         foreach (string ResponseString in SsqQuestions[CurrentQuestionIndex].SsqQuestionValue.Values)
         {
             ResponsePicker.Items.Add(ResponseString);
+            CollapsibleShowResponse_StackLayout.Add(new Label { Text = " • " + ResponseString, FontSize = 18 });
         }
-        ResponsePicker.Title = SsqQuestions[CurrentQuestionIndex].ResponseTitle;
 
         ResponsePicker.SelectedIndex = SsqQuestions[CurrentQuestionIndex].ResponseIndex;
 
@@ -93,7 +93,25 @@ public partial class SSQ12_QuestionView : ContentView
 
         IsSwappingQuestin = false;
 
+
+        var tapGesture = new TapGestureRecognizer();
+        tapGesture.Tapped += OnToggleTapped;
+
+        ShowResponseAlternativeToggleHeader.GestureRecognizers.Add(tapGesture);
+
     }
+
+
+    private void OnToggleTapped(object sender, EventArgs e)
+    {
+        bool isVisible = CollapsibleShowResponse_StackLayout.IsVisible;
+        CollapsibleShowResponse_StackLayout.IsVisible = !isVisible;
+
+        ShowResponseAlternativeToggleSymbol.Text = isVisible ? "+" : "-";
+        ShowResponseAlternativeToggleLabel.Text = isVisible ? "Visa svarsalternativ" : "Dölj svarsalternativ";
+
+    }
+
 
     private void ResponsePicker_SelectedIndexChanged(object sender, EventArgs e)
     {
