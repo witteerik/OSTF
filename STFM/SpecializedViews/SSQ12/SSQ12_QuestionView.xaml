@@ -13,6 +13,7 @@
 
         <Picker x:Name="ResponsePicker" 
                 FontSize="Large" 
+                TextColor="#363636"
                 Margin="0,20,0,20"
                 SelectedIndexChanged="ResponsePicker_SelectedIndexChanged"/>
 
@@ -24,7 +25,7 @@
                     HeightRequest="30"
                     WidthRequest="30"
                     CornerRadius="15"
-                    BackgroundColor="Blue"
+                    BackgroundColor="#3A6191"
                     VerticalOptions="Center"
                     HorizontalOptions="Center"
                     Padding="0">
@@ -43,7 +44,7 @@
                     Text="Visa svarsalternativ"
                    TextDecorations="Underline"
                     FontSize="18"
-                   TextColor="Blue"
+                   TextColor="#3A6191"
                     VerticalOptions="Center"
                     Padding="10,0"/>
         </Grid>

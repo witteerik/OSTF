@@ -6,18 +6,20 @@
     <ScrollView Background="White">
         <StackLayout x:Name="MainStackLayout" Padding="10" Spacing="10">
 
-            <Frame Background="LightGray">
+            <Label x:Name="MainHeading" Text="SSQ12" FontSize="Header" FontAttributes="Bold" Margin="0,20,0,30" TextColor="#363636"></Label>
 
+            <Frame Background="#F1F3F2">
+                
                 <StackLayout>
 
                     <StackLayout x:Name="InstructionsCollapsableStackLayout">
 
-                        <Label x:Name="InstructionsHeadings" FontSize="Header" FontAttributes="Bold" Margin="0,20,0,0"></Label>
-                        <Label x:Name="InstructionsSubHeadings" FontSize="Large" FontAttributes="Bold" Margin="0,10,0,0"></Label>
-                        <Label x:Name="InstructionsBodyTextP1" FontSize="Medium" Margin="0,10,0,0"></Label>
-                        <Label x:Name="InstructionsBodyTextP2" FontSize="Medium" Margin="0,10,0,0"></Label>
-                        <Label x:Name="InstructionsBodyTextP3" FontSize="Medium" Margin="0,10,0,0"></Label>
-                        <Frame HeightRequest="4" Margin="0,10,0,10" BackgroundColor="#808080"></Frame>
+                        <Label x:Name="InstructionsHeadings" FontSize="Header" FontAttributes="Bold" Margin="0,20,0,0" TextColor="#363636"></Label>
+                        <Label x:Name="InstructionsSubHeadings" FontSize="Large" FontAttributes="Bold" Margin="0,10,0,0" TextColor="#363636"></Label>
+                        <Label x:Name="InstructionsBodyTextP1" FontSize="Medium" Margin="0,10,0,0" TextColor="#363636"></Label>
+                        <Label x:Name="InstructionsBodyTextP2" FontSize="Medium" Margin="0,10,0,0" TextColor="#363636"></Label>
+                        <Label x:Name="InstructionsBodyTextP3" FontSize="Medium" Margin="0,10,0,0" TextColor="#363636"></Label>
+                        <Frame HeightRequest="3" Margin="0,10,0,10" BackgroundColor="#909090"></Frame>
 
                     </StackLayout>
 
@@ -29,7 +31,7 @@
                                HeightRequest="30"
                                WidthRequest="30"
                                CornerRadius="15"
-                               BackgroundColor="Blue"
+                               BackgroundColor="#3A6191"
                                VerticalOptions="Center"
                                HorizontalOptions="Center"
                                Padding="0">
@@ -49,7 +51,7 @@
                                Text="Visa instruktionen för formuläret"
                                TextDecorations="Underline"
                                FontSize="18"
-                               TextColor="Blue"
+                               TextColor="#3A6191"
                                VerticalOptions="Center"
                                Padding="10,0"/>
                         
@@ -59,7 +61,7 @@
                                 
             </Frame>
 
-            <Label x:Name="MandatoryInfoLabel"></Label>
+            <Label x:Name="MandatoryInfoLabel" TextColor="#363636"></Label>
             
         </StackLayout>
     </ScrollView>

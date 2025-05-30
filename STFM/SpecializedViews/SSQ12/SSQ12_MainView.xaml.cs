@@ -30,21 +30,28 @@ public partial class SSQ12_MainView : ContentView
 
         }
 
-        SubmitButton = new Button();
+        SubmitButton = new Button() { BackgroundColor = Color.FromArgb("#3A6191") };
         SubmitButton.HeightRequest = 200;
         SubmitButton.HorizontalOptions = LayoutOptions.Fill;
         SubmitButton.Clicked += SubmitButton_Clicked;
         MainStackLayout.Add(SubmitButton);
 
         // Creating and adding a reference box
-        Frame ReferenceFrame = new Frame { BackgroundColor = Colors.LightGray };
+        Frame ReferenceFrame = new Frame { BackgroundColor = Color.FromArgb("#F1F3F2") };
         ReferenceFrame.Margin = new Thickness(50, 50, 50, 50);
         ReferenceFrame.HorizontalOptions = LayoutOptions.Fill;
         MainStackLayout.Add(ReferenceFrame);
-        Label ReferenceLabel = new Label ();
-        ReferenceLabel.HorizontalOptions = LayoutOptions.Fill;
-        ReferenceLabel.VerticalOptions= LayoutOptions.Fill;
-        ReferenceFrame.Content = ReferenceLabel;
+        Label ReferenceLabel1 = new Label() { FontSize = 30};
+        ReferenceLabel1.HorizontalOptions = LayoutOptions.Fill;
+        ReferenceLabel1.VerticalOptions = LayoutOptions.Fill;
+        Label ReferenceLabel2 = new Label ();
+        ReferenceLabel2.HorizontalOptions = LayoutOptions.Fill;
+        ReferenceLabel2.VerticalOptions= LayoutOptions.Fill;
+        StackLayout ReferenceStackLayout = new StackLayout();
+        ReferenceFrame.Content = ReferenceStackLayout;
+        ReferenceStackLayout.Add(ReferenceLabel1);
+        ReferenceStackLayout.Add(ReferenceLabel2);
+
 
         switch (STFN.SharedSpeechTestObjects.GuiLanguage)
         {
@@ -61,7 +68,8 @@ public partial class SSQ12_MainView : ContentView
 
                 SubmitButton.Text = "SLUTFÖR";
 
-                ReferenceLabel.Text = "ⓘ\r\n\r\nNoble, W., Jensen, N. S., Naylor, G., Bhullar, N., & Akeroyd, M. A. (2013). A short form of the Speech, Spatial and Qualities of Hearing scale suitable for clinical use: the SSQ12. International Journal of Audiology, 52(6), 409-412. doi:10.3109/14992027.2013.781278\r\nÖversatt till svenska av Docent Öberg, Linköpings universitetssjukhus och hennes kollegor.";
+                ReferenceLabel1.Text = "ⓘ";
+                ReferenceLabel2.Text = "Noble, W., Jensen, N. S., Naylor, G., Bhullar, N., & Akeroyd, M. A. (2013). A short form of the Speech, Spatial and Qualities of Hearing scale suitable for clinical use: the SSQ12. International Journal of Audiology, 52(6), 409-412. doi:10.3109/14992027.2013.781278\r\nÖversatt till svenska av Docent Öberg, Linköpings universitetssjukhus och hennes kollegor.";
 
                 break;
             default:
@@ -75,6 +83,10 @@ public partial class SSQ12_MainView : ContentView
                 MandatoryInfoLabel.Text = "";
 
                 SubmitButton.Text = "SUBMIT";
+
+                ReferenceLabel1.Text = "ⓘ";
+                ReferenceLabel2.Text = "Noble, W., Jensen, N. S., Naylor, G., Bhullar, N., & Akeroyd, M. A. (2013). A short form of the Speech, Spatial and Qualities of Hearing scale suitable for clinical use: the SSQ12. International Journal of Audiology, 52(6), 409-412. doi:10.3109/14992027.2013.781278";
+
                 break;
         }
 

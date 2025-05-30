@@ -82,7 +82,7 @@ public partial class SSQ12_QuestionView : ContentView
         foreach (string ResponseString in SsqQuestions[CurrentQuestionIndex].SsqQuestionValue.Values)
         {
             ResponsePicker.Items.Add(ResponseString);
-            CollapsibleShowResponse_StackLayout.Add(new Label { Text = " • " + ResponseString, FontSize = 18 });
+            CollapsibleShowResponse_StackLayout.Add(new Label { Text = " • " + ResponseString, FontSize = 20, TextColor = Color.FromArgb("#363636") });
         }
 
         ResponsePicker.SelectedIndex = SsqQuestions[CurrentQuestionIndex].ResponseIndex;
