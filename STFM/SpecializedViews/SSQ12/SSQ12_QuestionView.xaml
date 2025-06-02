@@ -1,73 +1,54 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="STFM.SpecializedViews.SSQ12.SSQ12_QuestionView">
+             x:Class="STFM.SpecializedViews.SSQ12.SSQ12_QuestionView"
+             xmlns:views="clr-namespace:STFM.SpecializedViews.SSQ12">
 
     <StackLayout x:Name="MainGrid">
 
         <Label x:Name="QuestionLabel"
-           Text=""
-           FontSize="Large"
-               Margin="0,40,0,0">
+           Margin="0,50,0,0" FontSize="{x:Static views:Ssq12Styling.MediumFontSize}">
         </Label>
 
-        <Picker x:Name="ResponsePicker" 
-                FontSize="Large" 
-                TextColor="#363636"
-                Margin="0,20,0,20"
-                SelectedIndexChanged="ResponsePicker_SelectedIndexChanged"/>
+        <Border  StrokeThickness="2"
+                HorizontalOptions="Fill"
+                StrokeShape="RoundRectangle 8"
+                 Margin="0,20,0,20" >
+        
+            <Picker x:Name="ResponsePicker" SelectedIndexChanged="ResponsePicker_SelectedIndexChanged" 
+                     TextColor="#363636" FontAttributes="Bold" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}"/>
+        </Border>
 
-        <Grid  x:Name="ShowResponseAlternativeToggleHeader" 
-               ColumnDefinitions="40, *"
-                VerticalOptions="Center">
+        <Grid  x:Name="ShowResponseAlternativeToggleHeader" ColumnDefinitions="40, *" VerticalOptions="Center">
 
-            <Frame x:Name="ShowResponseAlternativeToggleIcon"
-                    HeightRequest="30"
-                    WidthRequest="30"
-                    CornerRadius="15"
-                    BackgroundColor="#3A6191"
-                    VerticalOptions="Center"
-                    HorizontalOptions="Center"
-                    Padding="0">
-                <Label x:Name="ShowResponseAlternativeToggleSymbol"
-                        Text="+"
-                        TextColor="White"
-                        FontSize="20"                       
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"
-                        HorizontalTextAlignment="Center"
-                        VerticalTextAlignment="Center"/>
+            <Frame x:Name="ShowResponseAlternativeToggleIcon" VerticalOptions="Center" HorizontalOptions="Center"
+                   HeightRequest="30" WidthRequest="30" CornerRadius="15" 
+                   BackgroundColor="#3A6191" Padding="0">
+                
+                <Label x:Name="ShowResponseAlternativeToggleSymbol" Text="+" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                       FontSize="{x:Static views:Ssq12Styling.MediumFontSize}"/>
+                
             </Frame>
 
-            <Label x:Name="ShowResponseAlternativeToggleLabel"
-                    Grid.Column="1"
-                    Text="Visa svarsalternativ"
-                   TextDecorations="Underline"
-                    FontSize="18"
-                   TextColor="#3A6191"
-                    VerticalOptions="Center"
-                    Padding="10,0"/>
+            <Label x:Name="ShowResponseAlternativeToggleLabel" Grid.Column="1" Text="" TextDecorations="Underline" TextColor="#3A6191" VerticalOptions="Center" 
+                   Padding="10,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" />
         </Grid>
 
-        <StackLayout x:Name="CollapsibleShowResponse_StackLayout"
-                        IsVisible="False"
-                        Padding="10,5">
-        </StackLayout>
+        <StackLayout x:Name="CollapsibleShowResponse_StackLayout" IsVisible="False" Padding="10,5" />
 
-        <Label x:Name="CommentLabel"
-           Grid.Row="2"
-           Text=""
-           FontSize="Large"
-               Margin="0,40,0,0">
+        <Label x:Name="CommentLabel" Grid.Row="2"
+           Margin="0,40,0,0" FontSize="{x:Static views:Ssq12Styling.MediumFontSize}">
         </Label>
 
-        <Editor x:Name="CommentEditor" 
-                Grid.Row="3" 
-                IsVisible="False"
-                Text="" 
-                FontSize="Medium" 
-                HeightRequest="140"
-                TextChanged="CommentEditor_TextChanged"/>
+        <Border x:Name="CommentEditorBorder" StrokeThickness="2" Grid.Row="3" 
+                HorizontalOptions="Fill" HeightRequest="140"
+                StrokeShape="RoundRectangle 8"
+                 Margin="0,20,0,20" IsVisible="False" >
+
+            <Editor x:Name="CommentEditor" TextChanged="CommentEditor_TextChanged"
+                 FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" />
+            
+        </Border>
 
     </StackLayout>
 

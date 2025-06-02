@@ -1,36 +1,101 @@
 using CommunityToolkit.Maui.Media;
 using Microsoft.Maui;
-
+using Microsoft.Maui.Devices;
 
 namespace STFM.SpecializedViews.SSQ12;
+
+public static class Ssq12Styling
+{
+
+    private static double ScalingFactor = 2;
+
+    public static double SuperLargeFontSize
+    {
+        get
+        {
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+                return 28;
+            else
+                return Math.Round(36 * ScalingFactor);
+        }
+    }
+
+    public static double LargeFontSize
+    {
+        get
+        {
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+                return 20;
+            else
+                return 18 * ScalingFactor;
+        }
+    }
+
+    public static double MediumFontSize
+    {
+        get
+        {
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+                return 12;
+            else
+                return 12* ScalingFactor;
+        }
+    }
+
+    public static double SmallFontSize
+    {
+        get
+        {
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+                return 12;
+            else
+                return 11* ScalingFactor;
+        }
+    }
+
+    public static double TinyFontSize
+    {
+        get
+        {
+            if (DeviceInfo.Platform == DevicePlatform.Android)
+                return 12;
+            else
+                return 6* ScalingFactor;
+        }
+    }
+
+}
 
 public partial class SSQ12_MainView : ContentView
 {
 
+    private string FilePathRepresentation = "SSQ12";
+
     public event EventHandler<EventArgs> EnterFullScreenMode;
     public event EventHandler<EventArgs> ExitFullScreenMode;
 
-    public SSQ12_IntroView sSQ12_IntroView;
+    private List<SsqQuestion> CurrentSsqQuestions = new List<SsqQuestion>();
+
     public Button SubmitButton;
 
     public SSQ12_MainView()
     {
         InitializeComponent();
 
-        // Instantiating the views
-        sSQ12_IntroView = new SSQ12_IntroView();
+        // Instantiating the questions views
 
-        MainStackLayout.Add(sSQ12_IntroView);
-
-        for (int i = 0; i < 12; i++)
+        for (int i = 1; i < 13; i++)
         {
-            SSQ12_QuestionView sSQ12_QuestionView = new SSQ12_QuestionView();
-            sSQ12_QuestionView.ShowQuestion(i);
+            SSQ12_QuestionView sSQ12_QuestionView = new SSQ12_QuestionView(i);
+            sSQ12_QuestionView.ShowQuestion();
             MainStackLayout.Add(sSQ12_QuestionView);
+
+            // Also referencing the SsqQuestion in CurrentSsqQuestions 
+            CurrentSsqQuestions.Add(sSQ12_QuestionView.SsqQuestion);
 
         }
 
-        SubmitButton = new Button() { BackgroundColor = Color.FromArgb("#3A6191") };
+        SubmitButton = new Button() { BackgroundColor = Color.FromArgb("#3A6191"), FontSize = Ssq12Styling.LargeFontSize, FontAttributes = FontAttributes.Bold };
         SubmitButton.HeightRequest = 200;
         SubmitButton.HorizontalOptions = LayoutOptions.Fill;
         SubmitButton.Clicked += SubmitButton_Clicked;
@@ -41,10 +106,11 @@ public partial class SSQ12_MainView : ContentView
         ReferenceFrame.Margin = new Thickness(50, 50, 50, 50);
         ReferenceFrame.HorizontalOptions = LayoutOptions.Fill;
         MainStackLayout.Add(ReferenceFrame);
-        Label ReferenceLabel1 = new Label() { FontSize = 30};
+        Label ReferenceLabel1 = new Label() { FontSize = Ssq12Styling.MediumFontSize };
+
         ReferenceLabel1.HorizontalOptions = LayoutOptions.Fill;
         ReferenceLabel1.VerticalOptions = LayoutOptions.Fill;
-        Label ReferenceLabel2 = new Label ();
+        Label ReferenceLabel2 = new Label() { FontSize = Ssq12Styling.TinyFontSize };
         ReferenceLabel2.HorizontalOptions = LayoutOptions.Fill;
         ReferenceLabel2.VerticalOptions= LayoutOptions.Fill;
         StackLayout ReferenceStackLayout = new StackLayout();
@@ -126,18 +192,29 @@ public partial class SSQ12_MainView : ContentView
         InstructionsCollapsableStackLayout.IsVisible = !isVisible;
 
         InstructionsToggleSymbol.Text = isVisible ? "+" : "-";
-        InstructionsToggleLabel.Text = isVisible ? "Visa instruktionen för formuläret" : "Dölj instruktionen för formuläret";
+        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        {
+            case STFN.Utils.Constants.Languages.Swedish:
+                InstructionsToggleLabel.Text = isVisible ? "Visa instruktionen för formuläret" : "Dölj instruktionen för formuläret";
+                break;
+
+            default:
+                InstructionsToggleLabel.Text = isVisible ? "Visa instruktionen för formuläret" : "Dölj instruktionen för formuläret";
+                break;
+        }
 
     }
 
-    private void SubmitButton_Clicked(object sender, EventArgs e)
+    private async void SubmitButton_Clicked(object sender, EventArgs e)
     {
 
-            if (sSQ12_IntroView.HasResponse() == true)
-            {
-            STFN.Messager.MsgBox("Vänligen besvara frågan innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Frågan är inte besvarad!");
+        bool HasHaResponse = await sSQ12_HaView.HasResponse();
+
+        if (HasHaResponse == false)
+        {
+            await MainScrollView.ScrollToAsync(sSQ12_HaView, ScrollToPosition.Start, true);
             return;
-            }
+        }
 
         foreach (var child in MainStackLayout.Children)
         {
@@ -148,7 +225,18 @@ public partial class SSQ12_MainView : ContentView
                 SSQ12_QuestionView castChild = (SSQ12_QuestionView)child;
                 if (castChild.HasResponse() == false)
                 {
-                    STFN.Messager.MsgBox("Vänligen besvara frågan innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Frågan är inte besvarad!");
+                    await MainScrollView.ScrollToAsync(castChild, ScrollToPosition.Start, true);
+                    switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                    {
+                        case STFN.Utils.Constants.Languages.Swedish:
+                            await STFN.Messager.MsgBoxAsync("Vänligen besvara denna fråga innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Obesvarad fråga!");
+                            break;
+
+                        default:
+                            await STFN.Messager.MsgBoxAsync("Please answer this question before you move on!", STFN.Messager.MsgBoxStyle.Information, "Unanswered question!");
+                            break;
+                    }
+
                     return;
                 }
 
@@ -156,9 +244,101 @@ public partial class SSQ12_MainView : ContentView
 
         }
 
+        // if code gets here, all mandatory questions have been answered.
+
+        SaveResults();
+
+
     }
 
-   
+   private void SaveResults()
+    {
 
-   
+        List<string> ResultsList = new List<string>();
+
+        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        {
+            case STFN.Utils.Constants.Languages.Swedish:
+                ResultsList.Add("\nSSQ12 RESULTAT\n");
+                break;
+
+            default:
+                ResultsList.Add("\nSSQ12 RESULTS\n");
+                break;
+        }
+
+        ResultsList.Add(sSQ12_HaView.GetResultString());
+
+        List<double> RatingList = new List<double>();
+        foreach (SsqQuestion item in CurrentSsqQuestions)
+        {
+            if (item.ResponseIndex >-1 & item.ResponseIndex < 11)
+            {
+                RatingList.Add(item.ResponseIndex);
+            }
+        }
+
+        ResultsList.Add("\n");
+
+        if (RatingList.Count > 0)
+        {
+            // Filling up missing (unanswered) with the average rating
+            double MeanRating = RatingList.Average();
+            int ValidAnswers = RatingList.Count;
+            do
+            {
+                RatingList.Add(MeanRating);
+            } while (RatingList.Count < 12);
+
+            // calculating mean rating
+            double FinalMeanRating = RatingList.Average();
+            ResultsList.Add("SSQ = " + Math.Round(FinalMeanRating, 1).ToString());
+            
+            if (ValidAnswers != 12)
+            {
+                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                {
+                    case STFN.Utils.Constants.Languages.Swedish:
+                        ResultsList.Add("(Baserat på " + ValidAnswers.ToString() + ") svar.");
+                        break;
+
+                    default:
+                        ResultsList.Add("(Based on " + ValidAnswers.ToString() + ") questions.");
+                        break;
+                }
+            }
+
+        }
+        else
+        {
+
+            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            {
+                case STFN.Utils.Constants.Languages.Swedish:
+                    ResultsList.Add("För få (" + RatingList.Count.ToString() + ") besvarade frågor.");
+                    break;
+
+                default:
+                    ResultsList.Add("Too few questions (" + RatingList.Count.ToString() + ") answered.");
+                    break;
+            }
+
+        }
+
+        bool ExportDetails = true;
+        if (ExportDetails)
+        {
+            ResultsList.Add("\n");
+            foreach (SsqQuestion item in CurrentSsqQuestions)
+            {
+                ResultsList.Add(item.GetResponseString() + "\n");
+            }
+        }
+
+        string OutputPath = System.IO.Path.Combine(STFN.SharedSpeechTestObjects.TestResultsRootFolder, FilePathRepresentation);
+
+        STFN.Utils.Logging.SendInfoToLog(string.Join("\n", ResultsList), "SSQ", OutputPath,false,false,false,false, true);
+
+    }
+
 }
