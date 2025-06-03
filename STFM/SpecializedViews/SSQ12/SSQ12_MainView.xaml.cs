@@ -9,6 +9,14 @@ public static class Ssq12Styling
 
     private static double ScalingFactor = 2;
 
+    public static Color TextFrameBackcolor
+    {
+        get
+        {
+            return Color.FromArgb("#F1F3F2");
+        }
+    }
+
     public static double SuperLargeFontSize
     {
         get
@@ -102,8 +110,8 @@ public partial class SSQ12_MainView : ContentView
         MainStackLayout.Add(SubmitButton);
 
         // Creating and adding a reference box
-        Frame ReferenceFrame = new Frame { BackgroundColor = Color.FromArgb("#F1F3F2") };
-        ReferenceFrame.Margin = new Thickness(50, 50, 50, 50);
+        Frame ReferenceFrame = new Frame { BackgroundColor = Ssq12Styling.TextFrameBackcolor };
+        ReferenceFrame.Margin = new Thickness(100, 50, 100, 50);
         ReferenceFrame.HorizontalOptions = LayoutOptions.Fill;
         MainStackLayout.Add(ReferenceFrame);
         Label ReferenceLabel1 = new Label() { FontSize = Ssq12Styling.MediumFontSize };
@@ -127,7 +135,7 @@ public partial class SSQ12_MainView : ContentView
                 InstructionsSubHeadings.Text = "SSQ12-INSTRUKTIONER";
                 InstructionsBodyTextP1.Text = "De följande frågorna gäller din förmåga och dina upplevelser i samband med att höra och lyssna i olika situationer. Om du använder hörapparat(er), besvara frågan så som du hör med hörapparat(er).";
                 InstructionsBodyTextP2.Text = "Läs igenom frågeformuläret så du känner dig orienterad om vad det handlar om. Välj det svar som du tycker motsvarar dina upplevelser. 10 betyder att du klarar eller upplever det som frågan gäller helt perfekt. 0 betyder att du inte alls klarar eller upplever att du klarar det som frågan gäller.";
-                InstructionsBodyTextP3.Text = "Vi tror att du kan känna igen alla situationerna från din vardag, men om en fråga beskriver en situation som du inte alls kan relatera till ombeds du markera ”Vet inte”-rutan och skriva en kort anmärkning om varför du inte kan svara på frågan.";
+                InstructionsBodyTextP3.Text = "Vi tror att du kan känna igen alla situationerna från din vardag, men om en fråga beskriver en situation som du inte alls kan relatera till ombeds du markera 'Vet inte'-rutan och skriva en kort anmärkning om varför du inte kan svara på frågan.";
                 InstructionsToggleLabel.Text = "Dölj instruktionen för formuläret";
 
                 MandatoryInfoLabel.Text = "🞲  = Obligatoriskt att fylla i";

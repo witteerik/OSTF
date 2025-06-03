@@ -4,19 +4,23 @@
              x:Class="STFM.SpecializedViews.SSQ12.SSQ12_QuestionView"
              xmlns:views="clr-namespace:STFM.SpecializedViews.SSQ12">
 
-    <StackLayout x:Name="MainGrid">
+    <StackLayout x:Name="MainGrid" Margin="0,30,0,30">
 
         <Label x:Name="QuestionLabel"
-           Margin="0,50,0,0" FontSize="{x:Static views:Ssq12Styling.MediumFontSize}">
+           Margin="0,0,0,0" FontSize="{x:Static views:Ssq12Styling.MediumFontSize}">
         </Label>
 
+        <Label x:Name="ResponseAlternativeComment"
+           Margin="0,20,0,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}">
+        </Label>
+        
         <Border  StrokeThickness="2"
                 HorizontalOptions="Fill"
                 StrokeShape="RoundRectangle 8"
                  Margin="0,20,0,20" >
         
             <Picker x:Name="ResponsePicker" SelectedIndexChanged="ResponsePicker_SelectedIndexChanged" 
-                     TextColor="#363636" FontAttributes="Bold" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}"/>
+                     TextColor="#363636" FontAttributes="Bold" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" BackgroundColor="{x:Static views:Ssq12Styling.TextFrameBackcolor}"/>
         </Border>
 
         <Grid  x:Name="ShowResponseAlternativeToggleHeader" ColumnDefinitions="40, *" VerticalOptions="Center">
@@ -36,8 +40,12 @@
 
         <StackLayout x:Name="CollapsibleShowResponse_StackLayout" IsVisible="False" Padding="10,5" />
 
-        <Label x:Name="CommentLabel" Grid.Row="2"
+        <Label x:Name="CommentHeadingLabel" Grid.Row="2"
            Margin="0,40,0,0" FontSize="{x:Static views:Ssq12Styling.MediumFontSize}">
+        </Label>
+
+        <Label x:Name="CommentInstructionLabel" Grid.Row="2"
+           Margin="0,40,0,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}">
         </Label>
 
         <Border x:Name="CommentEditorBorder" StrokeThickness="2" Grid.Row="3" 
@@ -46,7 +54,7 @@
                  Margin="0,20,0,20" IsVisible="False" >
 
             <Editor x:Name="CommentEditor" TextChanged="CommentEditor_TextChanged"
-                 FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" />
+                 FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" BackgroundColor="{x:Static views:Ssq12Styling.TextFrameBackcolor}" />
             
         </Border>
 

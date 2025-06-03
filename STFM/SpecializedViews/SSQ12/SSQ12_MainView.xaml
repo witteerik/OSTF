@@ -4,46 +4,51 @@
              x:Class="STFM.SpecializedViews.SSQ12.SSQ12_MainView"
              xmlns:views="clr-namespace:STFM.SpecializedViews.SSQ12">
 
-    <ScrollView x:Name="MainScrollView" Background="White" Padding="60,20,60,20" >
+    <ScrollView x:Name="MainScrollView" Background="White" Padding="120,60,120,20" >
         <StackLayout x:Name="MainStackLayout" Padding="10" Spacing="10">
 
             <Label x:Name="MainHeading" Text="Frågor om din förmåga att höra och lyssna i olika situationer (SSQ12)" FontAttributes="Bold" 
                    TextColor="#363636" Margin="0,20,0,30" FontSize="{x:Static views:Ssq12Styling.SuperLargeFontSize}" ></Label>
 
-            <Frame x:Name="InstructionsFrame" Background="#F1F3F2">
+            <Border  StrokeThickness="2"
+                HorizontalOptions="Fill"
+                StrokeShape="RoundRectangle 8"
+                 Margin="0,20,0,20" >
+
+                <Frame x:Name="InstructionsFrame" Background ="{x:Static views:Ssq12Styling.TextFrameBackcolor}" >
                 
-                <StackLayout>
+                    <StackLayout>
 
-                    <StackLayout x:Name="InstructionsCollapsableStackLayout">
+                        <StackLayout x:Name="InstructionsCollapsableStackLayout">
 
-                        <Label x:Name="InstructionsHeadings" FontAttributes="Bold" TextColor="#363636" Margin="0,20,0,0" FontSize="{x:Static views:Ssq12Styling.LargeFontSize}" ></Label>
-                        <Label x:Name="InstructionsSubHeadings" FontAttributes="Bold" TextColor="#363636" Margin="0,10,0,0" FontSize="{x:Static views:Ssq12Styling.MediumFontSize}"  ></Label>
-                        <Label x:Name="InstructionsBodyTextP1" TextColor="#363636" Margin="0,10,0,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" ></Label>
-                        <Label x:Name="InstructionsBodyTextP2" TextColor="#363636" Margin="0,10,0,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" ></Label>
-                        <Label x:Name="InstructionsBodyTextP3" TextColor="#363636" Margin="0,10,0,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" ></Label>
-                        <Frame HeightRequest="3" BackgroundColor="#909090" Margin="0,10,0,10" ></Frame>
+                            <Label x:Name="InstructionsHeadings" FontAttributes="Bold" TextColor="#363636" Margin="0,20,0,0" FontSize="{x:Static views:Ssq12Styling.LargeFontSize}" ></Label>
+                            <Label x:Name="InstructionsSubHeadings" FontAttributes="Bold" TextColor="#363636" Margin="0,10,0,0" FontSize="{x:Static views:Ssq12Styling.MediumFontSize}"  ></Label>
+                            <Label x:Name="InstructionsBodyTextP1" TextColor="#363636" Margin="0,10,0,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" ></Label>
+                            <Label x:Name="InstructionsBodyTextP2" TextColor="#363636" Margin="0,10,0,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" ></Label>
+                            <Label x:Name="InstructionsBodyTextP3" TextColor="#363636" Margin="0,10,0,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" ></Label>
+                            <Frame HeightRequest="3" BackgroundColor="#909090" Margin="0,10,0,10" ></Frame>
+
+                        </StackLayout>
+
+                        <Grid  x:Name="InstructionsToggleHeader" VerticalOptions="Center" ColumnDefinitions="40, *" >
+
+                            <Frame x:Name="InstructionsToggleIcon" VerticalOptions="Center" HorizontalOptions="Center"
+                                   CornerRadius="15" HeightRequest="30" WidthRequest="30"
+                                   BackgroundColor="#3A6191"
+                                   Padding="0">
+
+                                <Label x:Name="InstructionsToggleSymbol" Text="+" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
+                                       TextColor="White" FontSize="20" />
+                            </Frame>
+
+                            <Label x:Name="InstructionsToggleLabel" Grid.Column="1" TextDecorations="Underline" VerticalOptions="Center"
+                                   TextColor="#3A6191" Padding="10,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}"/>
+                        
+                        </Grid>
 
                     </StackLayout>
-
-                    <Grid  x:Name="InstructionsToggleHeader" VerticalOptions="Center" ColumnDefinitions="40, *" >
-
-                        <Frame x:Name="InstructionsToggleIcon" VerticalOptions="Center" HorizontalOptions="Center"
-                               CornerRadius="15" HeightRequest="30" WidthRequest="30"
-                               BackgroundColor="#3A6191"
-                               Padding="0">
-
-                            <Label x:Name="InstructionsToggleSymbol" Text="+" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
-                                   TextColor="White" FontSize="20" />
-                        </Frame>
-
-                        <Label x:Name="InstructionsToggleLabel" Grid.Column="1" TextDecorations="Underline" VerticalOptions="Center"
-                               TextColor="#3A6191" Padding="10,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}"/>
-                        
-                    </Grid>
-
-                </StackLayout>
-                                
-            </Frame>
+                </Frame>
+            </Border>
 
             <Label x:Name="MandatoryInfoLabel" TextColor="#363636" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}"></Label>
 

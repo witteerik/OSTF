@@ -31,7 +31,9 @@ public partial class SSQ12_QuestionView : ContentView
 	{
 
         QuestionLabel.Text = SsqQuestion.Question;
-        CommentLabel.Text = SsqQuestion.CommentLabel;
+        ResponseAlternativeComment.Text = SsqQuestion.ResponseAlternativeComment;
+        CommentHeadingLabel.Text = SsqQuestion.CommentHeadingLabel;
+        CommentInstructionLabel.Text = SsqQuestion.CommentInstructionLabel;
 
         ResponsePicker.Items.Clear();
         foreach (string ResponseString in SsqQuestion.AvailableResponses.Values)
@@ -41,7 +43,8 @@ public partial class SSQ12_QuestionView : ContentView
         }
 
         // Showing the CommentLabel and the CommentEditorBorder (and implicitly the CommentEditor) if the user selected index 11
-        CommentLabel.IsVisible = this.SsqQuestion.ResponseIndex == 11;
+        CommentHeadingLabel.IsVisible = this.SsqQuestion.ResponseIndex == 11;
+        CommentInstructionLabel.IsVisible = this.SsqQuestion.ResponseIndex == 11;
         CommentEditorBorder.IsVisible = this.SsqQuestion.ResponseIndex == 11;
 
         var tapGesture = new TapGestureRecognizer();
@@ -73,13 +76,20 @@ public partial class SSQ12_QuestionView : ContentView
     }
 
 
-    private void ResponsePicker_SelectedIndexChanged(object sender, EventArgs e)
+    private async void ResponsePicker_SelectedIndexChanged(object sender, EventArgs e)
     {
-            SsqQuestion.ResponseIndex = ResponsePicker.SelectedIndex;
+        SsqQuestion.ResponseIndex = ResponsePicker.SelectedIndex;
 
-            // Showing the CommentEditor if the user selected index 11
-            CommentEditorBorder.IsVisible = SsqQuestion.ResponseIndex == 11;
-            CommentLabel.IsVisible = SsqQuestion.ResponseIndex == 11;
+        // Showing the CommentEditor if the user selected index 11
+        CommentEditorBorder.IsVisible = SsqQuestion.ResponseIndex == 11;
+        CommentHeadingLabel.IsVisible = SsqQuestion.ResponseIndex == 11;
+        CommentInstructionLabel.IsVisible = SsqQuestion.ResponseIndex == 11;
+
+        //ResponsePicker.Unfocus();
+
+        await Task.Delay(100); // Optional delay (tweak if needed)
+        Dispatcher.Dispatch(() => ResponsePicker.Unfocus());
+
     }
 
     private void CommentEditor_TextChanged(object sender, TextChangedEventArgs e)
@@ -109,7 +119,9 @@ public class SsqQuestion
 
     public int QuestionNumber;
     public string Question = "";
-    public string CommentLabel = "";
+    public string ResponseAlternativeComment = "";
+    public string CommentHeadingLabel = "";
+    public string CommentInstructionLabel = "";
 
     public int ResponseIndex = -1;
     public string Comment = "";
@@ -120,7 +132,9 @@ public class SsqQuestion
 
         this.QuestionNumber = QuestionNumber;
         this.Question = SsqQuestions.GetQuestion(QuestionNumber, STFN.SharedSpeechTestObjects.GuiLanguage);
-        this.CommentLabel = SsqQuestions.GetCommentLabelText(QuestionNumber, STFN.SharedSpeechTestObjects.GuiLanguage);
+        this.ResponseAlternativeComment = SsqQuestions.GetResponseAlternativeComment(QuestionNumber, STFN.SharedSpeechTestObjects.GuiLanguage);
+        this.CommentHeadingLabel = SsqQuestions.GetCommentHeadingLabelText(STFN.SharedSpeechTestObjects.GuiLanguage);
+        this.CommentInstructionLabel = SsqQuestions.GetCommentInstructionLabelText(QuestionNumber, STFN.SharedSpeechTestObjects.GuiLanguage);
         this.AvailableResponses = SsqQuestions.GetAvailableResponses(QuestionNumber, STFN.SharedSpeechTestObjects.GuiLanguage);
 
     }
@@ -206,18 +220,18 @@ static class SsqQuestions
         {
             case STFN.Utils.Constants.Languages.Swedish:
 
-                questions.Add("1. Du talar med en person och en TV är på i samma rum. Kan du följa med i vad den andra personen säger, utan att sänka TV:n? (0=Inte alls, 10=Helt och hållet)  🞲" );
-                questions.Add("2. Du lyssnar på en person som talar med dig, samtidigt som du försöker att följa nyheterna på TV. Kan du följa med i vad båda personerna säger? (0=Inte alls, 10=Helt och hållet)   🞲" );
-                questions.Add("3. Du samtalar med en person i ett rum där det finns flera andra personer som talar. Kan du följa med i vad den personen som du samtalar med säger? (0=Stor koncentration, 10=Inget behov av koncentration)  🞲" );
-                questions.Add("4. Du är i en grupp med cirka fem personer på en välbesökt restaurang. Du kan se alla de andra i gruppen. Kan du uppfatta samtalet? (0=XXX, 10=XXX)  🞲" );
-                questions.Add("5. Du är i en grupp där samtalet skiftar från en person till en annan. Kan du lätt följa med i samtalet utan att missa början av vad varje ny talare säger? (0=XXX, 10=XXX)  🞲" );
-                questions.Add("6. Du är utomhus. En hund skäller högt. Kan du omedelbart avgöra var den befinner sig utan att se den? (0=XXX, 10=XXX)  🞲" );
-                questions.Add("7. Kan du med hjälp av ljudet avgöra hur långt bort en buss eller en lastbil befinner sig? (0=XXX, 10=XXX)  🞲" );
-                questions.Add("8. Kan du med hjälp av ljudet avgöra om en buss eller lastbil kommer mot dig eller färdas ifrån dig? (0=XXX, 10=XXX)  🞲" );
-                questions.Add("9. När du hör mer än ett ljud i taget har du då intrycket av att det verkar som en enda sammanblandning av ljud? (0=XXX, 10=XXX)  🞲" );
-                questions.Add("10. När du lyssnar på musik, kan du urskilja vilka instrument som spelas? (0=XXX, 10=XXX)  🞲" );
-                questions.Add("11. Ljud som finns i din vardag som du lätt kan höra, låter dessa klart (inte otydligt)? (0=XXX, 10=XXX)  🞲" );
-                questions.Add("12. Måste du koncentrera dig väldigt mycket när du lyssnar på någon eller någonting? (0=Stor koncentration, 10=Inget behov av koncentration)  🞲");
+                questions.Add("1. Du talar med en person och en TV är på i samma rum. Kan du följa med i vad den andra personen säger, utan att sänka TV:n? 🞲" );
+                questions.Add("2. Du lyssnar på en person som talar med dig, samtidigt som du försöker att följa nyheterna på TV. Kan du följa med i vad båda personerna säger? 🞲" );
+                questions.Add("3. Du samtalar med en person i ett rum där det finns flera andra personer som talar. Kan du följa med i vad den personen som du samtalar med säger? 🞲" );
+                questions.Add("4. Du är i en grupp med cirka fem personer på en välbesökt restaurang. Du kan se alla de andra i gruppen. Kan du uppfatta samtalet? 🞲" );
+                questions.Add("5. Du är i en grupp där samtalet skiftar från en person till en annan. Kan du lätt följa med i samtalet utan att missa början av vad varje ny talare säger? 🞲" );
+                questions.Add("6. Du är utomhus. En hund skäller högt. Kan du omedelbart avgöra var den befinner sig utan att se den? 🞲" );
+                questions.Add("7. Kan du med hjälp av ljudet avgöra hur långt bort en buss eller en lastbil befinner sig? 🞲" );
+                questions.Add("8. Kan du med hjälp av ljudet avgöra om en buss eller lastbil kommer mot dig eller färdas ifrån dig? 🞲" );
+                questions.Add("9. När du hör mer än ett ljud i taget har du då intrycket av att det verkar som en enda sammanblandning av ljud? 🞲");
+                questions.Add("10. När du lyssnar på musik, kan du urskilja vilka instrument som spelas? 🞲" );
+                questions.Add("11. Ljud som finns i din vardag som du lätt kan höra, låter dessa klart (inte otydligt)? 🞲" );
+                questions.Add("12. Måste du koncentrera dig väldigt mycket när du lyssnar på någon eller någonting? 🞲");
 
                 break;
             default:
@@ -255,13 +269,13 @@ static class SsqQuestions
 
                 QuestionResponses.Add(1,new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte"});
                 QuestionResponses.Add(2, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
-                QuestionResponses.Add(3, new List<string> { "0 = Stor koncentration", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Inget behov av koncentration", "Vet inte" });
+                QuestionResponses.Add(3, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
                 QuestionResponses.Add(4, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
                 QuestionResponses.Add(5, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
                 QuestionResponses.Add(6, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
                 QuestionResponses.Add(7, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
                 QuestionResponses.Add(8, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
-                QuestionResponses.Add(9, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
+                QuestionResponses.Add(9, new List<string> { "0 = Sammanblandning", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Ej Sammanblandning", "Vet inte" });
                 QuestionResponses.Add(10, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
                 QuestionResponses.Add(11, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
                 QuestionResponses.Add(12, new List<string> { "0 = Stor koncentration", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Inget behov av koncentration", "Vet inte" });
@@ -302,19 +316,68 @@ static class SsqQuestions
 
     }
 
+    public static string GetResponseAlternativeComment(int QuestionNumber, STFN.Utils.Constants.Languages Language)
+    {
 
-    public static string GetCommentLabelText (int QuestionNumber, STFN.Utils.Constants.Languages Language)
+        // Adding possible responses with language dependent strings
+        switch (Language)
+        {
+            case STFN.Utils.Constants.Languages.Swedish:
+
+                if (QuestionNumber == 9)
+                {
+                    return "0 är 'Sammanblandning', 10 är 'Ej sammanblandning.";
+                } else if (QuestionNumber == 12)
+                {
+                    return "0 är 'Stor koncentration', 10 är 'Inget behov av koncentration'.";
+                }
+                else
+                {
+                    return "0 är 'Inte alls', 10 är 'Helt och hållet'.";
+                }
+
+            default:
+
+                // Using English as default
+                if (QuestionNumber == 9)
+                {
+                    return "0 is ..., 10 is ....";
+                }
+                else if (QuestionNumber == 12)
+                {
+                    return "0 is ..., 10 is ....";
+                }
+                else
+                {
+                    return "0 is ..., 10 is ....";
+                }
+        }
+    }
+
+    public static string GetCommentInstructionLabelText (int QuestionNumber, STFN.Utils.Constants.Languages Language)
     {
         switch (Language)
         {
             case STFN.Utils.Constants.Languages.Swedish:
-            return "Om du på fråga " + (QuestionNumber).ToString() + " valde Vet ej, vänligen ange varför du inte vet svaret.";
+            return "Om du på fråga " + (QuestionNumber).ToString() + " valde 'vet inte', vänligen ange varför du inte vet svaret.";
         default:
                 // Using English as default
             return  "If you answered 'I don't know' on question " + (QuestionNumber).ToString() + ", please explain why you don't know the answer";
         }
+    }
 
-}
+    public static string GetCommentHeadingLabelText(STFN.Utils.Constants.Languages Language)
+    {
+        switch (Language)
+        {
+            case STFN.Utils.Constants.Languages.Swedish:
+                return "Kommentar.";
+            default:
+                // Using English as default
+                return "Comment";
+        }
+    }
+    
 
 
 }
