@@ -2,10 +2,17 @@ namespace STFM.SpecializedViews.SSQ12;
 
 public partial class SSQ12_HaView : ContentView
 {
-	public SSQ12_HaView()
+
+    public SSQ12_HaView()
 	{
 		InitializeComponent();
 
+        if (SSQ12_MainView.MinimalVersion == false)
+        {
+            // Hiding the HA-time GUI objects
+            HA_UseTimeQuestion_Label.IsVisible = false;
+            HA_UseTime_EditorBorder.IsVisible = false;
+        }
 
         switch (STFN.SharedSpeechTestObjects.GuiLanguage)
         {
@@ -50,6 +57,13 @@ public partial class SSQ12_HaView : ContentView
         if (e.Value)
         {
             HA_Details_StackLayout.IsVisible = true;
+
+            if (SSQ12_MainView.MinimalVersion)
+            {
+                HA_UseTimeQuestion_Label.IsVisible = false;
+                HA_UseTime_EditorBorder.IsVisible = false;
+            }
+
         }
     }
 
@@ -109,12 +123,14 @@ public partial class SSQ12_HaView : ContentView
 
         List<string> ReturnValueList = new List<string>();
 
-
         switch (STFN.SharedSpeechTestObjects.GuiLanguage)
         {
             case STFN.Utils.Constants.Languages.Swedish:
 
-                ReturnValueList.Add("HÖRAPPARATANVÄNDNING");
+                if (SSQ12_MainView.MinimalVersion == false)
+                {
+                    ReturnValueList.Add("HÖRAPPARATANVÄNDNING");
+                }
 
                 // Adding hearing aid use
                 if (HA_DoUse_RadioButton.IsChecked)
@@ -151,7 +167,10 @@ public partial class SSQ12_HaView : ContentView
                 break;
             default:
 
-                ReturnValueList.Add("HEARING AID USE");
+                if (SSQ12_MainView.MinimalVersion == false)
+                {
+                    ReturnValueList.Add("HEARING AID USE");
+                }
 
                 // Adding hearing aid use
                 if (HA_DoUse_RadioButton.IsChecked)
@@ -184,7 +203,6 @@ public partial class SSQ12_HaView : ContentView
                 {
                     ReturnValueList.Add("Hörapparatanvändning ej angiven.");
                 }
-
                 break;
         }
 

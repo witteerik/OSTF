@@ -263,10 +263,17 @@
 
                 <!--Adding controls -->
 
-                <Frame Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="15,0,15,0" BackgroundColor="AntiqueWhite" 
-                       BorderColor="#B9AD9C" HeightRequest="3" Padding="0" ></Frame>
-                <Frame Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="15,0,15,0" BackgroundColor="AntiqueWhite" 
-                       BorderColor="#B9AD9C" HeightRequest="3"  Padding="0" ></Frame>
+                <!--The below does not work good on android-->
+                <!--<Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" BackgroundColor="AntiqueWhite" Margin="15,0,15,0" StrokeThickness="0.1" HeightRequest="3" HorizontalOptions="Fill" VerticalOptions="Fill" StrokeShape="RoundRectangle 1.5">
+                </Border>
+                <Border Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" BackgroundColor="AntiqueWhite" Margin="15,0,15,0" StrokeThickness="0.1" HeightRequest="3" HorizontalOptions="Fill" VerticalOptions="Fill" StrokeShape="RoundRectangle 1.5">
+                </Border>-->
+
+                <!--The below does not look good on android-->
+                <!--<Frame Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="15,0,15,0" BackgroundColor="AntiqueWhite" 
+                       BorderColor="#B9AD9C" HeightRequest="3" Padding="0" ></Frame>-->
+                <!--<Frame Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" Margin="15,0,15,0" BackgroundColor="AntiqueWhite" 
+                       BorderColor="#B9AD9C" HeightRequest="3" Padding="0" ></Frame>-->
 
                 <Label x:Name="GroupNameLabel1" 
                    Grid.Row="0" Grid.Column="0" 

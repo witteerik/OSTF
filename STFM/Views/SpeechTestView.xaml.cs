@@ -280,7 +280,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     async void Initialize()
     {
 
-        // Ititializing STFM if not already done
+        // Initializing STFM if not already done
         if (STFM.StfmBase.IsInitialized == false)
         {
             // Initializing STFM

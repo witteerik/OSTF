@@ -11,7 +11,8 @@ public partial class WelcomePageR : ContentView
 
     public static List<STFN.Utils.Constants.Languages> AvailableGuiLanguages = new List<STFN.Utils.Constants.Languages> { STFN.Utils.Constants.Languages.English, STFN.Utils.Constants.Languages.Swedish };
 
-    
+    public bool RunScreeningTest = false;
+
     public WelcomePageR()
 	{
 		InitializeComponent();
@@ -57,6 +58,7 @@ public partial class WelcomePageR : ContentView
                 ParticipantCode_Label.Text = "Enter participant code";
                 DemoCode_Label.Text = "(use " + SharedSpeechTestObjects.NoTestId + " for demo mode)";
                 //SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
+                ScreeningTest_Checkbox_Label.Text = "Run screening test";
                 Submit_Button.Text = "Continue";
                 Calibrator_Button.Text = "Calibration";
                 UseCalibrationCheck_Label.Text = "Show calibration check in test settings";
@@ -70,6 +72,7 @@ public partial class WelcomePageR : ContentView
                 ParticipantCode_Label.Text = "Fyll i deltagarkod";
                 DemoCode_Label.Text = "(använd " + SharedSpeechTestObjects.NoTestId + " för demoläge)";
                 //SoundFieldSimulation_Label.Text = "Tillåt ljudfältssimulering i hörlurar (kan göra appen långsam)";
+                ScreeningTest_Checkbox_Label.Text = "Kör screeningtest";
                 Submit_Button.Text = "Fortsätt";
                 Calibrator_Button.Text = "Kalibrering";
                 UseCalibrationCheck_Label.Text = "Visa kalibreringskontroll i testinställningar";
@@ -106,6 +109,9 @@ public partial class WelcomePageR : ContentView
 
     private async void TryStartSpeechTestView()
     {
+
+        // Notes if the screening test shuld be run
+        RunScreeningTest = ScreeningTest_Checkbox.IsChecked;
 
         bool codeOk = true;
         string ptcCode = "";

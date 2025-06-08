@@ -20,21 +20,21 @@
                  Margin="0,20,0,20" >
         
             <Picker x:Name="ResponsePicker" SelectedIndexChanged="ResponsePicker_SelectedIndexChanged" 
-                     TextColor="#363636" FontAttributes="Bold" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" BackgroundColor="{x:Static views:Ssq12Styling.TextFrameBackcolor}"/>
+                     TextColor="{x:Static views:Ssq12Styling.TextColor}" FontAttributes="Bold" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" BackgroundColor="{x:Static views:Ssq12Styling.TextFrameBackcolor}"/>
         </Border>
 
         <Grid  x:Name="ShowResponseAlternativeToggleHeader" ColumnDefinitions="40, *" VerticalOptions="Center">
 
             <Frame x:Name="ShowResponseAlternativeToggleIcon" VerticalOptions="Center" HorizontalOptions="Center"
                    HeightRequest="30" WidthRequest="30" CornerRadius="15" 
-                   BackgroundColor="#3A6191" Padding="0">
+                   BackgroundColor="{x:Static views:Ssq12Styling.ButtonColor}" Padding="0">
                 
                 <Label x:Name="ShowResponseAlternativeToggleSymbol" Text="+" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"
                        FontSize="{x:Static views:Ssq12Styling.MediumFontSize}"/>
                 
             </Frame>
 
-            <Label x:Name="ShowResponseAlternativeToggleLabel" Grid.Column="1" Text="" TextDecorations="Underline" TextColor="#3A6191" VerticalOptions="Center" 
+            <Label x:Name="ShowResponseAlternativeToggleLabel" Grid.Column="1" Text="" TextDecorations="Underline" TextColor="{x:Static views:Ssq12Styling.ButtonColor}" VerticalOptions="Center" 
                    Padding="10,0" FontSize="{x:Static views:Ssq12Styling.SmallFontSize}" />
         </Grid>
 

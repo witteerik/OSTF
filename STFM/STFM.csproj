@@ -35,9 +35,19 @@
     <None Include="**\non-andrd\**\*.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="SpecializedViews\ScreeningSuite\InstructionsView.xaml.cs" />
+    <Compile Remove="SpecializedViews\ScreeningSuite\PtaScreeningInstructionsView.xaml.cs" />
+    <Compile Remove="SpecializedViews\ScreeningSuite\QSiPInstructionsView.xaml.cs" />
+    <Compile Remove="SpecializedViews\ScreeningSuite\StartView.xaml.cs" />
+    <Compile Remove="SpecializedViews\ScreeningSuite\TestResultsView.xaml.cs" />
     <Compile Remove="Views\UoAud.xaml.cs" />
   </ItemGroup>
   <ItemGroup>
+    <MauiXaml Remove="SpecializedViews\ScreeningSuite\InstructionsView.xaml" />
+    <MauiXaml Remove="SpecializedViews\ScreeningSuite\PtaScreeningInstructionsView.xaml" />
+    <MauiXaml Remove="SpecializedViews\ScreeningSuite\QSiPInstructionsView.xaml" />
+    <MauiXaml Remove="SpecializedViews\ScreeningSuite\StartView.xaml" />
+    <MauiXaml Remove="SpecializedViews\ScreeningSuite\TestResultsView.xaml" />
     <MauiXaml Remove="Views\UoAud.xaml" />
   </ItemGroup>
   
@@ -71,6 +81,9 @@
   </ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="SpecializedViews\ScreeningSuite\ScreeningSuiteView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="SpecializedViews\SSQ12\SSQ12_HaView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -131,7 +144,7 @@
 
 	<ItemGroup>
 	  <Reference Include="STFN">
-	    <HintPath>..\STFN\bin\Debug\net8.0\STFN.dll</HintPath>
+	    <HintPath>..\STFN\bin\Release\net8.0\STFN.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 

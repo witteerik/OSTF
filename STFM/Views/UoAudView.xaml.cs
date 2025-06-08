@@ -8,6 +8,16 @@ public partial class UoAudView : ContentView
     public event EventHandler<EventArgs> EnterFullScreenMode;
     public event EventHandler<EventArgs> ExitFullScreenMode;
 
+    /// <summary>
+    /// The event fires upon test completion.
+    /// </summary>
+    public event EventHandler<EventArgs> Finished;
+
+    /// <summary>
+    /// This variable can be set to true to show the results directly on in the view.
+    /// </summary>
+    public bool ShowResultsInView = false;
+
     private Brush NonPressedBrush = Colors.LightGray;
     private Brush PressedBrush = Colors.Yellow;
 
@@ -23,6 +33,8 @@ public partial class UoAudView : ContentView
     private STFN.Audio.Sound silentSound = null;
 
     IDispatcherTimer TrialEndTimer;
+
+    private bool TestIsStarted = false;
 
     public UoAudView(STFN.UoPta CurrentTest)
     {
@@ -157,20 +169,34 @@ public partial class UoAudView : ContentView
 
     }
 
+    public void StartTest()
+    {
+
+        // Returns emmediately if test is already started
+        if (TestIsStarted)
+        {
+            return;
+        }
+
+        TestIsStarted = true;
+
+        // Goes into test mode and starts the next trial
+        SetVisibility(VisibilityTypes.TestMode);
+
+        // And into fullscreen mode
+        SetFullScreenMode(true);
+
+        // Starting the testing loop
+        StartNextTrial();
+        StartTimer();
+    }
+
     private void MessageButton_Clicked(object sender, EventArgs e)
     {
 
         if (CurrentTest.IsCompleted() == false)
         {
-            // Goes into test mode and starts the next trial
-            SetVisibility(VisibilityTypes.TestMode);
-
-            // And into fullscreen mode
-            SetFullScreenMode(true);
-
-            // Starting the testing loop
-            StartNextTrial();
-            StartTimer();
+            StartTest();
         }
         else
         {
@@ -185,6 +211,11 @@ public partial class UoAudView : ContentView
             ResultView.Text = CurrentTest.ResultSummary;
 
         }
+    }
+
+    public string GetResults()
+    {
+        return CurrentTest.GetResults(false);
     }
 
     private void StartNextTrial()
@@ -207,6 +238,17 @@ public partial class UoAudView : ContentView
                 if (STFN.UoPta.SaveAudiogramDataToFile == true)
                 {
                     CurrentTest.ExportAudiogramData();
+                }
+
+                if (ShowResultsInView == false)
+                {
+                    EventHandler<EventArgs> handler = Finished;
+                    EventArgs e2 = new EventArgs();
+                    if (handler != null)
+                    {
+                        handler(this, e2);
+                    }
+                    return;
                 }
 
                 switch (STFN.SharedSpeechTestObjects.GuiLanguage)
@@ -238,9 +280,8 @@ public partial class UoAudView : ContentView
         }
 
         // Showing the presented level
-        LevelLabel.Text = CurrentTrial.ToneLevel.ToString() + " dB HL";
-        RatingLabel.Text = "";
-
+        //LevelLabel.Text = CurrentTrial.ToneLevel.ToString() + " dB HL";
+        //RatingLabel.Text = "";
 
         // Mixing the sound
         double RetSplCorrectedLevel = CurrentTrial.ToneLevel + RetSplList[CurrentTrial.ParentSubTest.Frequency];
@@ -338,7 +379,7 @@ public partial class UoAudView : ContentView
         {
             CurrentTrial.ResponseOffsetTime = DateTime.Now - CurrentTrial.TrialStartTime;
 
-            RatingLabel.Text = CurrentTrial.Result.ToString();
+            //RatingLabel.Text = CurrentTrial.Result.ToString();
 
         }
 

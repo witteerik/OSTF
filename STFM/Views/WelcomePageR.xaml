@@ -16,7 +16,7 @@
             HorizontalOptions="Center" VerticalOptions="Start"  WidthRequest="700" HeightRequest="250" >
 
             <Grid
-                            RowDefinitions= "0.5*, 1*, 1*, 1*"
+                            RowDefinitions= "0.5*, 1*, 1*, 1*, 1*"
                             ColumnDefinitions="1*, 1*, 1*">
 
                 <Label Grid.Row="0" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2"
@@ -38,8 +38,13 @@
                 <!--<Label x:Name="SoundFieldSimulation_Label" HorizontalOptions="Fill" WidthRequest="300" Margin="0,30,0,0"/>
                                     <Switch x:Name="UseSoundFieldSimulation_Switch" IsToggled="True" Toggled="UseSoundFieldSimulation_Switch_Toggled" HorizontalOptions="Center" WidthRequest="300" Margin="0,5,0,5" />-->
 
+                <HorizontalStackLayout Grid.Row="4" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2">
+                    <CheckBox x:Name="ScreeningTest_Checkbox" ></CheckBox>
+                    <Label x:Name="ScreeningTest_Checkbox_Label" VerticalOptions="Center" ></Label>
+                </HorizontalStackLayout>
+                
                 <Button 
-                                Grid.Row="0" Grid.RowSpan="4"
+                                Grid.Row="0" Grid.RowSpan="5"
                                 Grid.Column="2" Grid.ColumnSpan="1"
                             x:Name="Submit_Button" Clicked="Submit_Button_Clicked" HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="215" HeightRequest="215" Margin="0,0,0,0"  CornerRadius="10" FontSize="Medium" ></Button>
 

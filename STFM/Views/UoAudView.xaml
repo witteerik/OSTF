@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="STFM.Views.UoAudView">
 
-    <Grid x:Name="MainAudiometerGrid" BackgroundColor="WhiteSmoke">
+    <Grid x:Name="MainAudiometerGrid" BackgroundColor="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="1*" />
             <RowDefinition Height="1*" />

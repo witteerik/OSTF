@@ -9,6 +9,8 @@ public static class Ssq12Styling
 
     private static double ScalingFactor = 2;
 
+    private static double AndroidScalingFactor = 2;
+
     public static Color TextFrameBackcolor
     {
         get
@@ -17,12 +19,29 @@ public static class Ssq12Styling
         }
     }
 
+    public static Color TextColor
+    {
+        get
+        {
+            return Color.FromArgb("#363636");
+        }
+    }
+
+    public static Color ButtonColor
+    {
+        get
+        {
+            return Color.FromArgb("#3A6191");
+        }
+    }
+    
+
     public static double SuperLargeFontSize
     {
         get
         {
             if (DeviceInfo.Platform == DevicePlatform.Android)
-                return 28;
+                return Math.Round(36 * AndroidScalingFactor);
             else
                 return Math.Round(36 * ScalingFactor);
         }
@@ -33,7 +52,7 @@ public static class Ssq12Styling
         get
         {
             if (DeviceInfo.Platform == DevicePlatform.Android)
-                return 20;
+                return Math.Round(18 * AndroidScalingFactor);
             else
                 return 18 * ScalingFactor;
         }
@@ -44,7 +63,7 @@ public static class Ssq12Styling
         get
         {
             if (DeviceInfo.Platform == DevicePlatform.Android)
-                return 12;
+                return Math.Round(12 * AndroidScalingFactor);
             else
                 return 12* ScalingFactor;
         }
@@ -55,7 +74,7 @@ public static class Ssq12Styling
         get
         {
             if (DeviceInfo.Platform == DevicePlatform.Android)
-                return 12;
+                return Math.Round(11 * AndroidScalingFactor);
             else
                 return 11* ScalingFactor;
         }
@@ -66,7 +85,7 @@ public static class Ssq12Styling
         get
         {
             if (DeviceInfo.Platform == DevicePlatform.Android)
-                return 12;
+                return Math.Round(6 * AndroidScalingFactor);
             else
                 return 6* ScalingFactor;
         }
@@ -82,9 +101,19 @@ public partial class SSQ12_MainView : ContentView
     public event EventHandler<EventArgs> EnterFullScreenMode;
     public event EventHandler<EventArgs> ExitFullScreenMode;
 
+    /// <summary>
+    /// The event fires upon the completion of all mandatory questions.
+    /// </summary>
+    public event EventHandler<EventArgs> Finished;
+
     private List<SsqQuestion> CurrentSsqQuestions = new List<SsqQuestion>();
 
     public Button SubmitButton;
+
+    /// <summary>
+    /// Static variable determining if SSQ12 uses the minimal version or not. In the minimal version, the user is not asked to respond to free-text questions, and also, the collapsable response-alternative list is hidden.
+    /// </summary>
+    public static bool MinimalVersion;
 
     public SSQ12_MainView()
     {
@@ -103,7 +132,7 @@ public partial class SSQ12_MainView : ContentView
 
         }
 
-        SubmitButton = new Button() { BackgroundColor = Color.FromArgb("#3A6191"), FontSize = Ssq12Styling.LargeFontSize, FontAttributes = FontAttributes.Bold };
+        SubmitButton = new Button() { BackgroundColor = Ssq12Styling.ButtonColor, FontSize = Ssq12Styling.LargeFontSize, FontAttributes = FontAttributes.Bold };
         SubmitButton.HeightRequest = 200;
         SubmitButton.HorizontalOptions = LayoutOptions.Fill;
         SubmitButton.Clicked += SubmitButton_Clicked;
@@ -254,25 +283,34 @@ public partial class SSQ12_MainView : ContentView
 
         // if code gets here, all mandatory questions have been answered.
 
-        SaveResults();
+        // Fires the test competed event.
+        EventHandler<EventArgs> handler = Finished;
+        EventArgs e2 = new EventArgs();
+        if (handler != null)
+        {
+            handler(this, e2);
+        }
 
 
     }
 
-   private void SaveResults()
+    public string GetResults(bool IncludeDetails = false)
     {
 
         List<string> ResultsList = new List<string>();
 
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        if (IncludeDetails)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
-                ResultsList.Add("\nSSQ12 RESULTAT\n");
-                break;
+            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            {
+                case STFN.Utils.Constants.Languages.Swedish:
+                    ResultsList.Add("SSQ12 RESULTAT");
+                    break;
 
-            default:
-                ResultsList.Add("\nSSQ12 RESULTS\n");
-                break;
+                default:
+                    ResultsList.Add("SSQ12 RESULTS");
+                    break;
+            }
         }
 
         ResultsList.Add(sSQ12_HaView.GetResultString());
@@ -280,13 +318,13 @@ public partial class SSQ12_MainView : ContentView
         List<double> RatingList = new List<double>();
         foreach (SsqQuestion item in CurrentSsqQuestions)
         {
-            if (item.ResponseIndex >-1 & item.ResponseIndex < 11)
+            if (item.ResponseIndex > -1 & item.ResponseIndex < 11)
             {
                 RatingList.Add(item.ResponseIndex);
             }
         }
 
-        ResultsList.Add("\n");
+        //ResultsList.Add("\n");
 
         if (RatingList.Count > 0)
         {
@@ -300,18 +338,28 @@ public partial class SSQ12_MainView : ContentView
 
             // calculating mean rating
             double FinalMeanRating = RatingList.Average();
-            ResultsList.Add("SSQ = " + Math.Round(FinalMeanRating, 1).ToString());
-            
+
+            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            {
+                case STFN.Utils.Constants.Languages.Swedish:
+                    ResultsList.Add("Resultat = " + Math.Round(FinalMeanRating, 1).ToString());
+                    break;
+
+                default:
+                    ResultsList.Add("Score = " + Math.Round(FinalMeanRating, 1).ToString());
+                    break;
+            }
+
             if (ValidAnswers != 12)
             {
                 switch (STFN.SharedSpeechTestObjects.GuiLanguage)
                 {
                     case STFN.Utils.Constants.Languages.Swedish:
-                        ResultsList.Add("(Baserat på " + ValidAnswers.ToString() + ") svar.");
+                        ResultsList.Add("    (Baserat på " + ValidAnswers.ToString() + ") svar.");
                         break;
 
                     default:
-                        ResultsList.Add("(Based on " + ValidAnswers.ToString() + ") questions.");
+                        ResultsList.Add("    (Based on " + ValidAnswers.ToString() + ") questions.");
                         break;
                 }
             }
@@ -323,18 +371,18 @@ public partial class SSQ12_MainView : ContentView
             switch (STFN.SharedSpeechTestObjects.GuiLanguage)
             {
                 case STFN.Utils.Constants.Languages.Swedish:
-                    ResultsList.Add("För få (" + RatingList.Count.ToString() + ") besvarade frågor.");
+                    ResultsList.Add("SSQ: För få (" + RatingList.Count.ToString() + ") besvarade frågor.");
                     break;
 
                 default:
-                    ResultsList.Add("Too few questions (" + RatingList.Count.ToString() + ") answered.");
+                    ResultsList.Add("SSQ: Too few questions (" + RatingList.Count.ToString() + ") answered.");
                     break;
             }
 
         }
 
-        bool ExportDetails = true;
-        if (ExportDetails)
+        
+        if (IncludeDetails)
         {
             ResultsList.Add("\n");
             foreach (SsqQuestion item in CurrentSsqQuestions)
@@ -343,10 +391,18 @@ public partial class SSQ12_MainView : ContentView
             }
         }
 
-        string OutputPath = System.IO.Path.Combine(STFN.SharedSpeechTestObjects.TestResultsRootFolder, FilePathRepresentation);
+        string Output = string.Join("\n", ResultsList);
 
-        STFN.Utils.Logging.SendInfoToLog(string.Join("\n", ResultsList), "SSQ", OutputPath,false,false,false,false, true);
+        return Output;
 
     }
+
+    public void SaveResults()
+    {
+        string resultsString = GetResults(true);
+        string OutputPath = System.IO.Path.Combine(STFN.SharedSpeechTestObjects.TestResultsRootFolder, FilePathRepresentation);
+        STFN.Utils.Logging.SendInfoToLog(resultsString, "SSQ", OutputPath, false, false, false, false, true);
+    }
+
 
 }

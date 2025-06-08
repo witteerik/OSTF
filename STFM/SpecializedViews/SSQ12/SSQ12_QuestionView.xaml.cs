@@ -8,6 +8,7 @@ public partial class SSQ12_QuestionView : ContentView
 
     public SsqQuestion SsqQuestion;
 
+
     public SSQ12_QuestionView(int QuestionNumber)
 	{
 		InitializeComponent();
@@ -24,6 +25,10 @@ public partial class SSQ12_QuestionView : ContentView
                 ShowResponseAlternativeToggleLabel.Text = "Show response alternatives";
                 break;
         }
+
+        // Hides the ShowResponseAlternativeToggleHeader in the minimal version
+        ShowResponseAlternativeToggleHeader.IsVisible = !SSQ12_MainView.MinimalVersion;
+        CollapsibleShowResponse_StackLayout.IsVisible = !SSQ12_MainView.MinimalVersion;
 
     }
 
@@ -57,6 +62,7 @@ public partial class SSQ12_QuestionView : ContentView
 
     private void OnToggleTapped(object sender, EventArgs e)
     {
+
         bool isVisible = CollapsibleShowResponse_StackLayout.IsVisible;
         CollapsibleShowResponse_StackLayout.IsVisible = !isVisible;
 
@@ -80,10 +86,13 @@ public partial class SSQ12_QuestionView : ContentView
     {
         SsqQuestion.ResponseIndex = ResponsePicker.SelectedIndex;
 
-        // Showing the CommentEditor if the user selected index 11
-        CommentEditorBorder.IsVisible = SsqQuestion.ResponseIndex == 11;
-        CommentHeadingLabel.IsVisible = SsqQuestion.ResponseIndex == 11;
-        CommentInstructionLabel.IsVisible = SsqQuestion.ResponseIndex == 11;
+        // Showing the CommentEditor if the user selected index 11 (only if not mimimal version)
+        if (SSQ12_MainView.MinimalVersion == false)
+        {
+            CommentEditorBorder.IsVisible = SsqQuestion.ResponseIndex == 11;
+            CommentHeadingLabel.IsVisible = SsqQuestion.ResponseIndex == 11;
+            CommentInstructionLabel.IsVisible = SsqQuestion.ResponseIndex == 11;
+        }
 
         //ResponsePicker.Unfocus();
 

@@ -2469,8 +2469,6 @@ Public MustInherit Class SpeechTest
     Public MustOverride Function GetResultStringForGui() As String
 
 
-
-
     Public Function SaveTestTrialResults() As Boolean
 
         'Skipping saving data if it's the demo ptc ID

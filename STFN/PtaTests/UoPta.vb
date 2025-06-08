@@ -963,17 +963,27 @@ Public Class UoPta
     Public Function ApproximateBisgaardType() As String
 
         Dim ResultList As New List(Of String)
-        ResultList.Add("Audiogram type:")
 
         Dim ColumnWidth1 As Integer = 8
         Dim ColumnWidth2 As Integer = 8
         Dim ColumnWidth3 As Integer = 8
         Dim ColumnWidth4 As Integer = 8
 
-        ResultList.Add("Side".PadRight(ColumnWidth1) &
+        Select Case GuiLanguage
+            Case Utils.Constants.Languages.Swedish
+                ResultList.Add("Audiogramtyp:")
+                ResultList.Add("Sida".PadRight(ColumnWidth1) &
+                       "Typ".PadRight(ColumnWidth2) &
+                       "Matchning".PadRight(ColumnWidth3) &
+                       "RMSE".PadRight(ColumnWidth4))
+            Case Else
+                ResultList.Add("Audiogram type:")
+                ResultList.Add("Side".PadRight(ColumnWidth1) &
                        "Type".PadRight(ColumnWidth2) &
                        "Fit".PadRight(ColumnWidth3) &
                        "RMSE".PadRight(ColumnWidth4))
+        End Select
+
 
         Dim Sides() As Utils.Sides = {Utils.Sides.Right, Utils.Sides.Left}
 
@@ -1005,7 +1015,23 @@ Public Class UoPta
             'Approximating to a Bissgaard audiogram
             Dim ApproxResult = ApproximateBisgaardType(SingleSideAudiogram)
 
-            ResultList.Add(Side.ToString.PadRight(ColumnWidth1) &
+            Dim SideWord As String = ""
+            Select Case GuiLanguage
+                Case Utils.Constants.Languages.Swedish
+                    If Side = Utils.Constants.Sides.Left Then
+                        SideWord = "Vänster".PadRight(ColumnWidth1)
+                    Else
+                        SideWord = "Höger".PadRight(ColumnWidth1)
+                    End If
+                Case Else
+                    If Side = Utils.Constants.Sides.Left Then
+                        SideWord = "Left".PadRight(ColumnWidth1)
+                    Else
+                        SideWord = "Right".PadRight(ColumnWidth1)
+                    End If
+            End Select
+
+            ResultList.Add(SideWord &
                            ApproxResult.Item1.ToString.PadRight(ColumnWidth2) &
                            ApproxResult.Item2.ToString.PadRight(ColumnWidth3) &
                            Math.Round(ApproxResult.Item3, 1).ToString.PadRight(ColumnWidth4))
@@ -1114,6 +1140,7 @@ Public Class UoPta
 
     Public Sub ExportAudiogramData()
 
+
         'Skipping saving data if it's the demo ptc ID
         If SharedSpeechTestObjects.CurrentParticipantID.Trim = SharedSpeechTestObjects.NoTestId Then Exit Sub
 
@@ -1131,38 +1158,57 @@ Public Class UoPta
             Exit Sub
         End If
 
-        Dim AudiogramList As New List(Of String)
-        Dim ColumnWidth1 As Integer = 8
-        Dim ColumnWidth2 As Integer = 12
-        Dim ColumnWidth3 As Integer = 12
-        Dim ColumnWidth4 As Integer = 18
-
-        AudiogramList.Add("Side".PadRight(ColumnWidth1) &
-                          "Frequency".PadRight(ColumnWidth2) &
-                          "Threshold".PadRight(ColumnWidth3) &
-                          "ThresholdStatus".PadRight(ColumnWidth4))
-
-        For Each SubTest In SubTests
-            AudiogramList.Add(SubTest.Side.ToString.PadRight(ColumnWidth1) &
-                              SubTest.Frequency.ToString.PadRight(ColumnWidth2) &
-                              SubTest.Threshold.ToString.PadRight(ColumnWidth3) &
-                              SubTest.ThresholdStatus.ToString.PadRight(ColumnWidth4))
-
-        Next
-
-        AudiogramList.Add("")
-        AudiogramList.Add(ApproximateBisgaardType())
-
-        AudiogramList.Add("Test-retest difference (1 kHz): " & TestRetestDifference & " dB HL")
+        ResultSummary = GetResults(True)
 
         Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, UoPta.FilePathRepresentation)
         Dim OutputFilename = UoPta.FilePathRepresentation & "_AudiogramData_" & SharedSpeechTestObjects.CurrentParticipantID
 
-        Utils.SendInfoToLog(String.Join(vbCrLf, AudiogramList), OutputFilename, OutputPath, False, True, False, True, True)
+        Utils.SendInfoToLog(ResultSummary, OutputFilename, OutputPath, False, True, False, True, True)
+
+    End Sub
+
+    Public Function GetResults(ByVal IncludeDetails As Boolean) As String
+
+        Dim AudiogramList As New List(Of String)
+
+        If IncludeDetails Then
+            Dim ColumnWidth1 As Integer = 8
+            Dim ColumnWidth2 As Integer = 12
+            Dim ColumnWidth3 As Integer = 12
+            Dim ColumnWidth4 As Integer = 18
+
+
+            AudiogramList.Add("Side".PadRight(ColumnWidth1) &
+                          "Frequency".PadRight(ColumnWidth2) &
+                          "Threshold".PadRight(ColumnWidth3) &
+                          "ThresholdStatus".PadRight(ColumnWidth4))
+
+            For Each SubTest In SubTests
+                AudiogramList.Add(SubTest.Side.ToString.PadRight(ColumnWidth1) &
+                              SubTest.Frequency.ToString.PadRight(ColumnWidth2) &
+                              SubTest.Threshold.ToString.PadRight(ColumnWidth3) &
+                              SubTest.ThresholdStatus.ToString.PadRight(ColumnWidth4))
+
+            Next
+
+            AudiogramList.Add("")
+        End If
+
+        AudiogramList.Add(ApproximateBisgaardType())
+
+        Select Case GuiLanguage
+            Case Utils.Constants.Languages.Swedish
+                AudiogramList.Add("Test-retest-skillnad (1 kHz): " & TestRetestDifference & " dB HL")
+            Case Else
+                AudiogramList.Add("Test-retest difference (1 kHz): " & TestRetestDifference & " dB HL")
+        End Select
 
         'Also storing the results in ResultSummary 
         ResultSummary = String.Join(vbCrLf, AudiogramList)
 
-    End Sub
+        Return ResultSummary
+
+    End Function
+
 
 End Class

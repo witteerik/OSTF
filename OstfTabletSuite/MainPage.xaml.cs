@@ -71,13 +71,24 @@ namespace OstfTabletSuite
 
             this.Content = null;
 
-            var mySpeechTest = new STFM.Views.SpeechTestView
+            if (MyWelcomeView.RunScreeningTest)
             {
-                VerticalOptions = LayoutOptions.Fill,
-                HorizontalOptions = LayoutOptions.Fill
-            };
-
-            Content = mySpeechTest;
+                var mySpeechTest = new STFM.SpecializedViews.ScreeningSuite.ScreeningSuiteView
+                {
+                    VerticalOptions = LayoutOptions.Fill,
+                    HorizontalOptions = LayoutOptions.Fill
+                };
+                Content = mySpeechTest;
+            }
+            else
+            {
+                var mySpeechTest = new STFM.Views.SpeechTestView
+                {
+                    VerticalOptions = LayoutOptions.Fill,
+                    HorizontalOptions = LayoutOptions.Fill
+                };
+                Content = mySpeechTest;
+            }
 
         }
 
