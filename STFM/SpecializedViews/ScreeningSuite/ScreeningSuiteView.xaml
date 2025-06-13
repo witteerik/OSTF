@@ -27,16 +27,17 @@
                         <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="2*" />
                         <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
 
-                    <Label x:Name="InstructionsHeadingLabel" Grid.Row="0" Grid.ColumnSpan="2" 
+                    <Label x:Name="InstructionsHeadingLabel" Grid.Row="0" Grid.ColumnSpan="3" 
                            HorizontalTextAlignment="Center" HorizontalOptions="Center"
                            VerticalOptions="Center" VerticalTextAlignment="Center"
                            FontAttributes="Bold" TextColor="{x:Static SSQ12views:Ssq12Styling.TextColor}" FontSize="{x:Static SSQ12views:Ssq12Styling.SuperLargeFontSize}" ></Label>
 
-                    <ScrollView Grid.Row="1" Grid.ColumnSpan="2" >
+                    <ScrollView Grid.Row="1" Grid.ColumnSpan="3" >
                         <StackLayout>
                                 <Editor x:Name="InstructionsEditor" IsReadOnly="True" Margin="200, 0, 200, 0" HorizontalTextAlignment="Start" IsSpellCheckEnabled="False"
                                         AutoSize="TextChanges"
@@ -47,10 +48,13 @@
                         </StackLayout>
                     </ScrollView>
                     
-                    <Button x:Name="InstructionsContinueButton" FontSize="{x:Static SSQ12views:Ssq12Styling.LargeFontSize}" Grid.Row="2" Grid.Column="1" Margin="15" 
+                    <Button x:Name="InstructionsContinueButton" FontSize="{x:Static SSQ12views:Ssq12Styling.LargeFontSize}" Grid.Row="2" Grid.Column="2" Margin="15" 
                             BackgroundColor="{x:Static SSQ12views:Ssq12Styling.ButtonColor}"
                             Clicked="InstructionsContinueButton_Clicked"></Button>
 
+                <Image x:Name="LogoImage" Grid.Row="2" Grid.Column="0" BackgroundColor="Transparent" 
+                       HorizontalOptions="Fill" VerticalOptions="Fill" IsVisible="False" Aspect="AspectFit" ></Image>
+                
                 </Grid>
 
                 <Grid x:Name="TestReponseGrid" Grid.Row="0" Grid.Column="0" IsVisible="False" BackgroundColor="DarkSlateGray">

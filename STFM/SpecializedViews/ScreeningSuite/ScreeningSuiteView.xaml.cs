@@ -8,6 +8,7 @@ using STFN.Audio.SoundPlayers;
 using System.Reflection.Metadata;
 using System.Security.AccessControl;
 using STFM.Views;
+using Microsoft.Maui.Primitives;
 
 
 namespace STFM.SpecializedViews.ScreeningSuite;
@@ -83,6 +84,14 @@ public partial class ScreeningSuiteView : ContentView
 
         SetInstructionViewTexts();
 
+        // Adding logotyp if a logotyp file exist
+        string LogoTypePath = STFN.OstfBase.GetLogotypePath();
+        if (LogoTypePath != "")
+        {
+            LogoImage.Source = LogoTypePath;
+            LogoImage.IsVisible = true;
+        }
+
     }
 
     private void SetInstructionViewTexts()
@@ -101,7 +110,7 @@ public partial class ScreeningSuiteView : ContentView
                         InstructionsHeadingLabel.Text = "Testa din hörsel!";
                         
                         InstructionsEditor.Text =
-                            "\nHär kan du testa din hörsel på tre olilka sätt:\n\n" +
+                            "\nHär kan du testa din hörsel på tre olika sätt:\n\n" +
                             " • Frågeformulär\n" +
                             " • Taluppfattningstest\n" +
                             " • Tontest (screening)\n" +
@@ -137,7 +146,8 @@ public partial class ScreeningSuiteView : ContentView
                         // PTA screening instructions
                         InstructionsHeadingLabel.Text = "Tontest (screening)";
                         InstructionsEditor.Text =
-                            "\nI detta test kommer du höra toner med varierande styrka och tonhöjd.\n\n" +
+                            "\nI detta test kommer du höra toner med varierande styrka och tonhöjd.\n" +
+                            "Även tonernas längd varierar mellan en och två sekunder.\n\n" +
                             "Varje gång du hör en ton ska du trycka på en knapp på skärmen och hålla knappen intryckt så länge tonen hörs. Knappen lyser när du trycker på den.\n\n" +
                             "OBS! Släpp inte knappen förrän tonen har tystnat!\n\n" +
                             "Starta testet genom att klicka på knappen 'FORTSÄTT'\n";
@@ -223,7 +233,8 @@ public partial class ScreeningSuiteView : ContentView
                 // Start QSiP
 
                 // Speech test
-                CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
+                //CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
+                CurrentSpeechTest = new QuickSiP_StaticSpeechTest("The Swedish SiP-test (Quick-SiP)");
 
                 // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
                 CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
@@ -232,6 +243,9 @@ public partial class ScreeningSuiteView : ContentView
                 var newOptionsQSipView = new OptionsViewAll(CurrentSpeechTest);
                 TestOptionsGrid.Children.Add(newOptionsQSipView);
                 CurrentTestOptionsView = newOptionsQSipView;
+
+                // Selecting a random start list
+                CurrentSpeechTest.StartList = CurrentSpeechTest.AvailableTestListsNames[SpeechTest.Randomizer.Next(0, CurrentSpeechTest.AvailableTestListsNames.Count())];
 
                 // Response view
                 if (CurrentSpeechTest.Transducer.IsHeadphones())

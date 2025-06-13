@@ -324,6 +324,9 @@ Public Class TestTrial
 
     Public SpeechTestStage As List(Of Tuple(Of String, String))
 
+    Public Sub New()
+
+    End Sub
 
     Public Overridable Function TestResultColumnHeadings() As String
 

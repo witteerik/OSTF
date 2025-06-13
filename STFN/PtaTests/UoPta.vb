@@ -960,7 +960,7 @@ Public Class UoPta
     End Enum
 
 
-    Public Function ApproximateBisgaardType() As String
+    Public Function ApproximateBisgaardType(ByVal IncludeDetails As Boolean) As String
 
         Dim ResultList As New List(Of String)
 
@@ -972,16 +972,29 @@ Public Class UoPta
         Select Case GuiLanguage
             Case Utils.Constants.Languages.Swedish
                 ResultList.Add("Audiogramtyp:")
-                ResultList.Add("Sida".PadRight(ColumnWidth1) &
+                If IncludeDetails = True Then
+                    ResultList.Add("Sida".PadRight(ColumnWidth1) &
                        "Typ".PadRight(ColumnWidth2) &
                        "Matchning".PadRight(ColumnWidth3) &
                        "RMSE".PadRight(ColumnWidth4))
+                Else
+                    ResultList.Add("Sida".PadRight(ColumnWidth1) &
+                       "Typ".PadRight(ColumnWidth2) &
+                       "Matchning".PadRight(ColumnWidth3))
+                End If
             Case Else
                 ResultList.Add("Audiogram type:")
-                ResultList.Add("Side".PadRight(ColumnWidth1) &
+                If IncludeDetails = True Then
+                    ResultList.Add("Side".PadRight(ColumnWidth1) &
                        "Type".PadRight(ColumnWidth2) &
                        "Fit".PadRight(ColumnWidth3) &
                        "RMSE".PadRight(ColumnWidth4))
+                Else
+                    ResultList.Add("Side".PadRight(ColumnWidth1) &
+                       "Type".PadRight(ColumnWidth2) &
+                       "Fit".PadRight(ColumnWidth3))
+                End If
+
         End Select
 
 
@@ -1019,22 +1032,55 @@ Public Class UoPta
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
                     If Side = Utils.Constants.Sides.Left Then
-                        SideWord = "Vänster".PadRight(ColumnWidth1)
+                        SideWord = "Vänster"
                     Else
-                        SideWord = "Höger".PadRight(ColumnWidth1)
+                        SideWord = "Höger"
                     End If
                 Case Else
                     If Side = Utils.Constants.Sides.Left Then
-                        SideWord = "Left".PadRight(ColumnWidth1)
+                        SideWord = "Left"
                     Else
-                        SideWord = "Right".PadRight(ColumnWidth1)
+                        SideWord = "Right"
                     End If
             End Select
 
-            ResultList.Add(SideWord &
+            Dim FitWord As String = ""
+            Select Case ApproxResult.Item2
+                Case BisgaardAudiogramsLimitedFit.Good
+                    Select Case GuiLanguage
+                        Case Utils.Constants.Languages.Swedish
+                            FitWord = "Bra"
+                        Case Else
+                            FitWord = "Good"
+                    End Select
+                Case BisgaardAudiogramsLimitedFit.Medium
+                    Select Case GuiLanguage
+                        Case Utils.Constants.Languages.Swedish
+                            FitWord = "Måttlig"
+                        Case Else
+                            FitWord = "Fair"
+                    End Select
+                Case BisgaardAudiogramsLimitedFit.Poor
+                    Select Case GuiLanguage
+                        Case Utils.Constants.Languages.Swedish
+                            FitWord = "Dålig"
+                        Case Else
+                            FitWord = "Poor"
+                    End Select
+                Case Else
+                    Throw New NotImplementedException("Unknown value for audiogram fit quality: " & ApproxResult.Item2.ToString)
+            End Select
+
+            If IncludeDetails = True Then
+                ResultList.Add(SideWord.PadRight(ColumnWidth1) &
                            ApproxResult.Item1.ToString.PadRight(ColumnWidth2) &
-                           ApproxResult.Item2.ToString.PadRight(ColumnWidth3) &
+                           FitWord.PadRight(ColumnWidth3) &
                            Math.Round(ApproxResult.Item3, 1).ToString.PadRight(ColumnWidth4))
+            Else
+                ResultList.Add(SideWord.PadRight(ColumnWidth1) &
+                           ApproxResult.Item1.ToString.PadRight(ColumnWidth2) &
+                           FitWord.PadRight(ColumnWidth3))
+            End If
 
         Next
 
@@ -1062,8 +1108,15 @@ Public Class UoPta
 
         'These audiograms are base on the Bisgaard set, but limited to 80 dB HL, Bisbard N6 and N7 are combined into N67. 
         ' The 8 kHz threshold is set to the same as the 6 kHz threshold
-        TempAudiograms.Add(BisgaardAudiogramsLimited.NH, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
-        TempAudiograms.Add(BisgaardAudiogramsLimited.N1, {10, 10, 10, 10, 10, 10, 10, 15, 20, 30, 40, 40})
+        If PtaTestProtocol = PtaTestProtocols.SAME96_Screening Then
+            'If in screening mode, we cannot use zero as NH, instead we use the screening level as NH
+            TempAudiograms.Add(BisgaardAudiogramsLimited.NH, {ScreeningLevel, ScreeningLevel, ScreeningLevel, ScreeningLevel, ScreeningLevel,
+                               ScreeningLevel, ScreeningLevel, ScreeningLevel, ScreeningLevel, ScreeningLevel, ScreeningLevel, ScreeningLevel})
+        Else
+            TempAudiograms.Add(BisgaardAudiogramsLimited.NH, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+            TempAudiograms.Add(BisgaardAudiogramsLimited.N1, {10, 10, 10, 10, 10, 10, 10, 15, 20, 30, 40, 40})
+        End If
+
         TempAudiograms.Add(BisgaardAudiogramsLimited.N2, {20, 20, 20, 20, 22.5, 25, 30, 35, 40, 45, 50, 50})
         TempAudiograms.Add(BisgaardAudiogramsLimited.N3, {35, 35, 35, 35, 35, 40, 45, 50, 55, 60, 65, 65})
         TempAudiograms.Add(BisgaardAudiogramsLimited.N4, {55, 55, 55, 55, 55, 55, 60, 65, 70, 75, 80, 80})
@@ -1194,7 +1247,7 @@ Public Class UoPta
             AudiogramList.Add("")
         End If
 
-        AudiogramList.Add(ApproximateBisgaardType())
+        AudiogramList.Add(ApproximateBisgaardType(IncludeDetails))
 
         Select Case GuiLanguage
             Case Utils.Constants.Languages.Swedish

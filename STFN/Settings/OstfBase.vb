@@ -333,6 +333,22 @@ Public Module OstfBase
 
     End Sub
 
+    ''' <summary>
+    ''' Returns the logotype path if a logotype file exists, otherwise returns an empty string.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Function GetLogotypePath() As String
+
+        Dim LogotypePath As String = IO.Path.Combine(MediaRootDirectory, "Logo", "Logotype.jpg")
+
+        If IO.File.Exists(LogotypePath) Then
+            Return LogotypePath
+        Else
+            Return ""
+        End If
+
+    End Function
+
     Public Sub LoadAvailableSpeechMaterialSpecifications()
 
         Dim TestSpecificationFolder As String = IO.Path.Combine(MediaRootDirectory, AvailableSpeechMaterialsSubFolder)

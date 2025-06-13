@@ -368,3 +368,6 @@ AMTEST_(SE*/
 
 # Files to ignore
 SrtMargolis2021_TestProtocol.vb
+
+# Ignoring any logos
+OSTFMedia/Logo*

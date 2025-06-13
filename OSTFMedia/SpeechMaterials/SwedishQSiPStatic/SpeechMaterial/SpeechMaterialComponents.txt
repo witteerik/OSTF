@@ -1,0 +1,145 @@
+// Setup				
+SequentiallyOrderedLists = False				
+SequentiallyOrderedSentences = False				
+SequentiallyOrderedWords = True				
+SequentiallyOrderedPhonemes = True				
+				
+// Presets // Preset selection is based on the value of PrimaryStringRepresentation, and are added on the specified PresetLevel. Each PresetLevel component is only added once.				
+PresetLevel = List				
+Preset = QuickSiP: mark_märk_mörk, fyr_skyr_syr, sitt_sytt_sött, kil_fil_sil, tuff_tuss_tusch				
+				
+				
+				
+// Components				
+// LinguisticLevel	Id	ParentId	PrimaryStringRepresentation	IsPractiseComponent
+				
+ListCollection	QSipTest		The Swedish SiP-test (Quick-SiP)	False
+				
+				
+List	L00	QSipTest	List1	False
+Sentence	L00S00	L00	mark	False
+Sentence	L00S01	L00	mörk	False
+Sentence	L00S02	L00	skyr	False
+Sentence	L00S03	L00	syr	False
+Sentence	L00S04	L00	märk	False
+Sentence	L00S05	L00	fyr	False
+Sentence	L00S06	L00	tusch	False
+Sentence	L00S07	L00	fil	False
+Sentence	L00S08	L00	tuff	False
+Sentence	L00S09	L00	sil	False
+Sentence	L00S10	L00	kil	False
+Sentence	L00S11	L00	tuss	False
+Sentence	L00S12	L00	sytt	False
+Sentence	L00S13	L00	syr	False
+Sentence	L00S14	L00	fyr	False
+Sentence	L00S15	L00	sitt	False
+Sentence	L00S16	L00	sött	False
+Sentence	L00S17	L00	skyr	False
+Sentence	L00S18	L00	märk	False
+Sentence	L00S19	L00	sil	False
+Sentence	L00S20	L00	kil	False
+Sentence	L00S21	L00	fil	False
+Sentence	L00S22	L00	mörk	False
+Sentence	L00S23	L00	mark	False
+Sentence	L00S24	L00	sitt	False
+Sentence	L00S25	L00	tuss	False
+Sentence	L00S26	L00	sött	False
+Sentence	L00S27	L00	sytt	False
+Sentence	L00S28	L00	tuff	False
+Sentence	L00S29	L00	tusch	False
+				
+List	L01	QSipTest	List2	False
+Sentence	L01S00	L01	fyr	False
+Sentence	L01S01	L01	syr	False
+Sentence	L01S02	L01	märk	False
+Sentence	L01S03	L01	mörk	False
+Sentence	L01S04	L01	mark	False
+Sentence	L01S05	L01	skyr	False
+Sentence	L01S06	L01	sil	False
+Sentence	L01S07	L01	kil	False
+Sentence	L01S08	L01	tuss	False
+Sentence	L01S09	L01	fil	False
+Sentence	L01S10	L01	tusch	False
+Sentence	L01S11	L01	tuff	False
+Sentence	L01S12	L01	sitt	False
+Sentence	L01S13	L01	skyr	False
+Sentence	L01S14	L01	sött	False
+Sentence	L01S15	L01	sytt	False
+Sentence	L01S16	L01	fyr	False
+Sentence	L01S17	L01	syr	False
+Sentence	L01S18	L01	fil	False
+Sentence	L01S19	L01	mark	False
+Sentence	L01S20	L01	mörk	False
+Sentence	L01S21	L01	sil	False
+Sentence	L01S22	L01	märk	False
+Sentence	L01S23	L01	kil	False
+Sentence	L01S24	L01	sytt	False
+Sentence	L01S25	L01	tuff	False
+Sentence	L01S26	L01	tusch	False
+Sentence	L01S27	L01	tuss	False
+Sentence	L01S28	L01	sött	False
+Sentence	L01S29	L01	sitt	False
+				
+List	L02	QSipTest	List3	False
+Sentence	L02S00	L02	märk	False
+Sentence	L02S01	L02	fyr	False
+Sentence	L02S02	L02	syr	False
+Sentence	L02S03	L02	mark	False
+Sentence	L02S04	L02	mörk	False
+Sentence	L02S05	L02	skyr	False
+Sentence	L02S06	L02	sil	False
+Sentence	L02S07	L02	tuss	False
+Sentence	L02S08	L02	kil	False
+Sentence	L02S09	L02	fil	False
+Sentence	L02S10	L02	tuff	False
+Sentence	L02S11	L02	tusch	False
+Sentence	L02S12	L02	sött	False
+Sentence	L02S13	L02	skyr	False
+Sentence	L02S14	L02	sitt	False
+Sentence	L02S15	L02	syr	False
+Sentence	L02S16	L02	sytt	False
+Sentence	L02S17	L02	fyr	False
+Sentence	L02S18	L02	mörk	False
+Sentence	L02S19	L02	fil	False
+Sentence	L02S20	L02	mark	False
+Sentence	L02S21	L02	kil	False
+Sentence	L02S22	L02	märk	False
+Sentence	L02S23	L02	sil	False
+Sentence	L02S24	L02	tuff	False
+Sentence	L02S25	L02	tusch	False
+Sentence	L02S26	L02	sytt	False
+Sentence	L02S27	L02	sött	False
+Sentence	L02S28	L02	tuss	False
+Sentence	L02S29	L02	sitt	False
+				
+List	L03	QSipTest	List4	False
+Sentence	L03S00	L03	syr	False
+Sentence	L03S01	L03	märk	False
+Sentence	L03S02	L03	fyr	False
+Sentence	L03S03	L03	mark	False
+Sentence	L03S04	L03	skyr	False
+Sentence	L03S05	L03	mörk	False
+Sentence	L03S06	L03	kil	False
+Sentence	L03S07	L03	sil	False
+Sentence	L03S08	L03	tuss	False
+Sentence	L03S09	L03	tusch	False
+Sentence	L03S10	L03	tuff	False
+Sentence	L03S11	L03	fil	False
+Sentence	L03S12	L03	skyr	False
+Sentence	L03S13	L03	sött	False
+Sentence	L03S14	L03	sitt	False
+Sentence	L03S15	L03	sytt	False
+Sentence	L03S16	L03	syr	False
+Sentence	L03S17	L03	fyr	False
+Sentence	L03S18	L03	mörk	False
+Sentence	L03S19	L03	mark	False
+Sentence	L03S20	L03	fil	False
+Sentence	L03S21	L03	kil	False
+Sentence	L03S22	L03	märk	False
+Sentence	L03S23	L03	sil	False
+Sentence	L03S24	L03	tuff	False
+Sentence	L03S25	L03	sytt	False
+Sentence	L03S26	L03	tusch	False
+Sentence	L03S27	L03	sött	False
+Sentence	L03S28	L03	sitt	False
+Sentence	L03S29	L03	tuss	False
