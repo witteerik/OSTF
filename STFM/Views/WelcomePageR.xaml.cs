@@ -9,7 +9,9 @@ public partial class WelcomePageR : ContentView
 
     public event EventHandler<EventArgs> StartCalibrator;
 
-    public static List<STFN.Utils.Constants.Languages> AvailableGuiLanguages = new List<STFN.Utils.Constants.Languages> { STFN.Utils.Constants.Languages.English, STFN.Utils.Constants.Languages.Swedish };
+    // Using only Swedish for now, as English is not implemented everywhere
+    public static List<STFN.Utils.Constants.Languages> AvailableGuiLanguages = new List<STFN.Utils.Constants.Languages> { STFN.Utils.Constants.Languages.Swedish };
+    //public static List<STFN.Utils.Constants.Languages> AvailableGuiLanguages = new List<STFN.Utils.Constants.Languages> { STFN.Utils.Constants.Languages.English, STFN.Utils.Constants.Languages.Swedish };
 
     public bool RunScreeningTest = false;
 

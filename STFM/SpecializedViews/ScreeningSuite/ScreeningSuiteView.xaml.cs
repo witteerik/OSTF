@@ -103,6 +103,11 @@ public partial class ScreeningSuiteView : ContentView
         {
             case STFN.Utils.Constants.Languages.Swedish:
 
+                TestInclusionOptionLabel.Text = "Välj test";
+                RunSSQ12_Checkbox_Label.Text = "SSQ12";
+                RunQSiP_Checkbox_Label.Text = "Quick SiP";
+                RunUoPta_Checkbox_Label.Text = "Tontest";
+
                 switch (TestStage)
                 {
                     case 0:
@@ -121,6 +126,7 @@ public partial class ScreeningSuiteView : ContentView
 
                         InstructionsImage.IsVisible = false;
                         InstructionsContinueButton.Text = "STARTA";
+
                         break;
 
                     case 1:
@@ -147,7 +153,7 @@ public partial class ScreeningSuiteView : ContentView
                         InstructionsHeadingLabel.Text = "Tontest (screening)";
                         InstructionsEditor.Text =
                             "\nI detta test kommer du höra toner med varierande styrka och tonhöjd.\n" +
-                            "Även tonernas längd varierar mellan en och två sekunder.\n\n" +
+                            "Även tonernas längd varierar - mellan en och två sekunder.\n\n" +
                             "Varje gång du hör en ton ska du trycka på en knapp på skärmen och hålla knappen intryckt så länge tonen hörs. Knappen lyser när du trycker på den.\n\n" +
                             "OBS! Släpp inte knappen förrän tonen har tystnat!\n\n" +
                             "Starta testet genom att klicka på knappen 'FORTSÄTT'\n";
@@ -158,7 +164,24 @@ public partial class ScreeningSuiteView : ContentView
                     case 3:
                         // Test results presentation
                         InstructionsHeadingLabel.Text = "Dina resultat";
-                        InstructionsEditor.Text = string.Join("\n", TestResultSummary);
+
+                        if (TestResultSummary.Count > 0)
+                        {
+                            InstructionsEditor.Text = string.Join("\n", TestResultSummary);
+                        }
+                        else
+                        {
+                            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                            {
+                                case STFN.Utils.Constants.Languages.Swedish:
+                                    InstructionsEditor.Text = "Inga resultat att visa";
+                                    break;
+                                default:
+                                    InstructionsEditor.Text = "No results to show";
+                                    break;
+                            }
+                        }
+
                         InstructionsImage.IsVisible = false;
                         InstructionsContinueButton.Text = "ÅTERSTÄLL";
                         break;
@@ -170,6 +193,12 @@ public partial class ScreeningSuiteView : ContentView
 
                 break;
             default:
+
+                TestInclusionOptionLabel.Text = "Choose test";
+                RunSSQ12_Checkbox_Label.Text = "SSQ12";
+                RunQSiP_Checkbox_Label.Text = "Quick SiP";
+                RunUoPta_Checkbox_Label.Text = "Pute tone";
+
                 throw new NotImplementedException("Language texts not yet implemented for the selected GUI langauge.");
         }
 
@@ -211,10 +240,22 @@ public partial class ScreeningSuiteView : ContentView
         // Hiding the InstructionsGrid
         InstructionsGrid.IsVisible = false;
 
+        //Hides the test selector, until the test is reset
+        TestSelectorLayout.IsVisible = false;
+
+        // Skips the SSQ12 if its test selection box is not checked
+        if (TestStage == 0 & RunSSQ12_Checkbox.IsChecked == false)
+        {
+            // Calling CurrentTestFinished right away to skip the SSQ12
+            CurrentTestFinished(null, null);
+            return;
+        }
+
         switch (TestStage)
         {
 
             case 0:
+
                 // Start SSQ12
 
                 // Setting MinimalVersion to true, in order to skip free text questions
@@ -230,6 +271,7 @@ public partial class ScreeningSuiteView : ContentView
                 break;
 
             case 1:
+
                 // Start QSiP
 
                 // Speech test
@@ -269,7 +311,8 @@ public partial class ScreeningSuiteView : ContentView
                 break;
 
             case 2:
-                // Start PTA Screening
+
+                 // Start PTA Screening
 
                 // Updating settings needed for the loaded test
                 OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
@@ -291,6 +334,10 @@ public partial class ScreeningSuiteView : ContentView
                 break;
 
             case 3:
+
+                //Shows the test selector again
+                TestSelectorLayout.IsVisible = true;
+
                 // Erase all data and reset test
 
                 SSQ12View = null;
@@ -320,33 +367,47 @@ public partial class ScreeningSuiteView : ContentView
     private void CurrentTestFinished(Object sender, EventArgs e)
     {
 
-        // String the result
+        // Storing the results
         switch (TestStage)
         {
             case 0:
-                TestResultSummary.Add("Frågeformulär (SSQ12)\n" + SSQ12View.GetResults() + "\n");
+
+                if (SSQ12View != null)
+                {
+                    TestResultSummary.Add("Frågeformulär (SSQ12)\n" + SSQ12View.GetResults() + "\n");
+                }
+
                 break;
 
             case 1:
 
-                var AverageQSiPScore = CurrentSpeechTest.GetAverageScore();
+                if (CurrentSpeechTest != null)
+                {
+                    var AverageQSiPScore = CurrentSpeechTest.GetAverageScore();
 
-                if (AverageQSiPScore.HasValue)
-                {
-                    string QuickSiP_ResultString = Math.Round(100 * AverageQSiPScore.Value, 0).ToString() + "% rätt";
-                    TestResultSummary.Add("Taluppfattning (Quick-SiP)");
-                    TestResultSummary.Add("Resultat = " + QuickSiP_ResultString + "\n");
+                    if (AverageQSiPScore.HasValue)
+                    {
+                        string QuickSiP_ResultString = Math.Round(100 * AverageQSiPScore.Value, 0).ToString() + "% rätt";
+                        TestResultSummary.Add("Taluppfattning (Quick-SiP)");
+                        TestResultSummary.Add("Resultat = " + QuickSiP_ResultString + "\n");
+                    }
+                    else
+                    {
+                        TestResultSummary.Add("Taluppfattning (Quick-SiP)");
+                        TestResultSummary.Add("Resultat saknas\n");
+                    }
                 }
-                else
-                {
-                    TestResultSummary.Add("Taluppfattning (Quick-SiP)");
-                    TestResultSummary.Add("Resultat saknas\n");
-                }
+
                 break;
 
             case 2:
-                TestResultSummary.Add("Tontest (screening)");
-                TestResultSummary.Add(ScreeningUoAudiometerView.GetResults());
+
+                if (ScreeningUoAudiometerView != null)
+                {
+                    TestResultSummary.Add("Tontest (screening)");
+                    TestResultSummary.Add(ScreeningUoAudiometerView.GetResults());
+                }
+
                 break;
 
             default:
@@ -355,6 +416,19 @@ public partial class ScreeningSuiteView : ContentView
 
         // Increasing TestStage and shows the instructions for the next test (or results if all tests are done)
         TestStage += 1;
+
+        // Skips the QuickSiP if its test selection box is not checked
+        if (TestStage == 1 & RunQSiP_Checkbox.IsChecked == false)
+        {
+            TestStage += 1;
+        }
+
+        // Skips the user operated pure-tone screening if its test selection box is not checked
+        if (TestStage == 2 & RunUoPta_Checkbox.IsChecked == false)
+        {
+            TestStage += 1;
+        }
+
         SetInstructionViewTexts();
 
     }

@@ -960,39 +960,44 @@ Public Class UoPta
     End Enum
 
 
-    Public Function ApproximateBisgaardType(ByVal IncludeDetails As Boolean) As String
+    Public Function GetAudiogramClasification(ByVal IncludeDetails As Boolean) As String
 
         Dim ResultList As New List(Of String)
 
-        Dim ColumnWidth1 As Integer = 8
-        Dim ColumnWidth2 As Integer = 8
+        Dim ColumnWidth1 As Integer = 12
+        Dim ColumnWidth2 As Integer = 12
         Dim ColumnWidth3 As Integer = 8
-        Dim ColumnWidth4 As Integer = 8
+        Dim ColumnWidth4 As Integer = 12
+        Dim ColumnWidth5 As Integer = 8
 
         Select Case GuiLanguage
             Case Utils.Constants.Languages.Swedish
                 ResultList.Add("Audiogramtyp:")
                 If IncludeDetails = True Then
                     ResultList.Add("Sida".PadRight(ColumnWidth1) &
-                       "Typ".PadRight(ColumnWidth2) &
-                       "Matchning".PadRight(ColumnWidth3) &
-                       "RMSE".PadRight(ColumnWidth4))
+                       "TMV4".PadRight(ColumnWidth2) &
+                       "Typ".PadRight(ColumnWidth3) &
+                       "Matchning".PadRight(ColumnWidth4) &
+                       "RMSE".PadRight(ColumnWidth5))
                 Else
                     ResultList.Add("Sida".PadRight(ColumnWidth1) &
-                       "Typ".PadRight(ColumnWidth2) &
-                       "Matchning".PadRight(ColumnWidth3))
+                       "TMV4".PadRight(ColumnWidth2) &
+                       "Typ".PadRight(ColumnWidth3) &
+                       "Matchning".PadRight(ColumnWidth4))
                 End If
             Case Else
                 ResultList.Add("Audiogram type:")
                 If IncludeDetails = True Then
                     ResultList.Add("Side".PadRight(ColumnWidth1) &
-                       "Type".PadRight(ColumnWidth2) &
-                       "Fit".PadRight(ColumnWidth3) &
-                       "RMSE".PadRight(ColumnWidth4))
+                        "PTA4".PadRight(ColumnWidth2) &
+                        "Type".PadRight(ColumnWidth3) &
+                       "Fit".PadRight(ColumnWidth4) &
+                       "RMSE".PadRight(ColumnWidth5))
                 Else
                     ResultList.Add("Side".PadRight(ColumnWidth1) &
-                       "Type".PadRight(ColumnWidth2) &
-                       "Fit".PadRight(ColumnWidth3))
+                        "PTA4".PadRight(ColumnWidth2) &
+                       "Type".PadRight(ColumnWidth3) &
+                       "Fit".PadRight(ColumnWidth4))
                 End If
 
         End Select
@@ -1025,10 +1030,13 @@ Public Class UoPta
                 End If
             Next
 
+            'Getting PTA4
+            Dim PTA4String = GetPTA(Side, {500, 1000, 2000, 4000}.ToList)
+
             'Approximating to a Bissgaard audiogram
             Dim ApproxResult = ApproximateBisgaardType(SingleSideAudiogram)
 
-            Dim SideWord As String = ""
+            Dim SideWord As String
             Select Case GuiLanguage
                 Case Utils.Constants.Languages.Swedish
                     If Side = Utils.Constants.Sides.Left Then
@@ -1044,7 +1052,7 @@ Public Class UoPta
                     End If
             End Select
 
-            Dim FitWord As String = ""
+            Dim FitWord As String
             Select Case ApproxResult.Item2
                 Case BisgaardAudiogramsLimitedFit.Good
                     Select Case GuiLanguage
@@ -1073,13 +1081,15 @@ Public Class UoPta
 
             If IncludeDetails = True Then
                 ResultList.Add(SideWord.PadRight(ColumnWidth1) &
-                           ApproxResult.Item1.ToString.PadRight(ColumnWidth2) &
-                           FitWord.PadRight(ColumnWidth3) &
-                           Math.Round(ApproxResult.Item3, 1).ToString.PadRight(ColumnWidth4))
+                            PTA4String.PadRight(ColumnWidth2) &
+                           ApproxResult.Item1.ToString.PadRight(ColumnWidth3) &
+                           FitWord.PadRight(ColumnWidth4) &
+                           Math.Round(ApproxResult.Item3, 1).ToString.PadRight(ColumnWidth5))
             Else
                 ResultList.Add(SideWord.PadRight(ColumnWidth1) &
-                           ApproxResult.Item1.ToString.PadRight(ColumnWidth2) &
-                           FitWord.PadRight(ColumnWidth3))
+                            PTA4String.PadRight(ColumnWidth2) &
+                           ApproxResult.Item1.ToString.PadRight(ColumnWidth3) &
+                           FitWord.PadRight(ColumnWidth4))
             End If
 
         Next
@@ -1247,7 +1257,7 @@ Public Class UoPta
             AudiogramList.Add("")
         End If
 
-        AudiogramList.Add(ApproximateBisgaardType(IncludeDetails))
+        AudiogramList.Add(GetAudiogramClasification(IncludeDetails))
 
         Select Case GuiLanguage
             Case Utils.Constants.Languages.Swedish
@@ -1263,5 +1273,117 @@ Public Class UoPta
 
     End Function
 
+    ''' <summary>
+    ''' Calculating the PTA for the indicated side and frequencies and returning a string that corresponds to the determine value, including strings that mark "higher-than", uncertain value, and if the PTA could not be determined.
+    ''' </summary>
+    ''' <param name="Side"></param>
+    ''' <returns></returns>
+    Public Function GetPTA(ByVal Side As STFN.Utils.Sides, ByVal PtaFrequencies As List(Of Integer), Optional ByVal CouldNotBeDetermedString As String = "--", Optional ByVal UncertainMark As String = "*") As String
+
+        'Checking that PtaFrequencies is not zero length
+        If PtaFrequencies.Count = 0 Then Return CouldNotBeDetermedString
+
+        'Create a list to store the subtests that should be included in the PTA
+        Dim PtaFrequencySubTests As New List(Of PtaSubTest)
+
+        'Creating a list to store which subtest frequencies has been stored
+        Dim IncludedFrequencies As New List(Of Integer)
+
+        'Adds the relevant subtest into PtaFrequencySubTest, in reverse order, skipping the first value of any retested frequencies
+        For i = SubTests.Count - 1 To 0 Step -1
+
+            'Referencing the subtest
+            Dim SubTest = SubTests(i)
+
+            'Skipping to next if it is the wrong side
+            If SubTest.Side <> Side Then Continue For
+
+            'Evaluating only subtests if their frequency value is in the PtaFrequencies
+            If PtaFrequencies.Contains(SubTest.Frequency) Then
+
+                'Including only the first subtest at each frequency
+                If IncludedFrequencies.Contains(SubTest.Frequency) = False Then
+
+                    'Adding the sub test for this (side and) frequency for later extraction of its hearing threshold value 
+                    PtaFrequencySubTests.Add(SubTest)
+
+                    'Noting that a subtest for this frequency has been added
+                    IncludedFrequencies.Add(SubTest.Frequency)
+
+                Else
+                    'Here we have already stored a subtest, this is therefore the first test of a retested threshold
+                    'We skip this subtest in PTA calculation, and use only the last tested threshold
+                End If
+
+            End If
+
+        Next
+
+        'Checking that we have the right number of subtest values
+        If PtaFrequencySubTests.Count <> PtaFrequencies.Count Then
+            Return CouldNotBeDetermedString
+        End If
+
+        'Calculating the average threshold value
+        Dim AverageList As New List(Of Integer)
+        'And determining if any of the thresholds are not reached or not completed
+        Dim HasNotReachedValue As Boolean = False
+        Dim HasUncertainValue As Boolean = False
+        Dim HasBetterThanValue As Boolean = False
+
+        For Each SubTest In PtaFrequencySubTests
+            If SubTest.Threshold.HasValue Then
+
+                'Adding the threshold value to the AverageList
+                AverageList.Add(SubTest.Threshold)
+
+                'Noting if the threshold is not reached
+                If SubTest.ThresholdStatus = PtaSubTest.ThresholdStatuses.Unreached Then
+                    HasNotReachedValue = True
+                End If
+
+                'Noting if the threshold is uncertain
+                If SubTest.ThresholdStatus = PtaSubTest.ThresholdStatuses.Uncertain Then
+                    HasUncertainValue = True
+                End If
+
+                'Noting if a better than indication should be used (only in screening tests)
+                If PtaTestProtocol = PtaTestProtocols.SAME96_Screening Then
+                    'We use the "better-than"-mark when there is a reached level at the screening level
+                    If SubTest.Threshold = Me.ScreeningLevel And SubTest.ThresholdStatus <> PtaSubTest.ThresholdStatuses.Unreached Then
+                        HasBetterThanValue = True
+                    End If
+                End If
+
+            Else
+
+                'A not-completed threshold exist. Returning CouldNotBeDetermedString
+                Return CouldNotBeDetermedString
+            End If
+        Next
+
+        'Creating an output string
+        Dim OutputString As String = ""
+
+        'As we can logically not have both a "Larger-than" and a "Lower-than" status, we set the value to uncertain if we have both (which, in reality, should be extremely uncommon, logically impossible)
+        If HasNotReachedValue = True And HasBetterThanValue = True Then
+            HasUncertainValue = True
+        Else
+            'Adding "Larger-than" sign if an unreached threshold exists
+            If HasNotReachedValue Then OutputString &= ">"
+
+            'Adding "Lower-than" sign if an unreached threshold exists
+            If HasBetterThanValue Then OutputString &= "<"
+        End If
+
+        'Adding the average threshold value
+        OutputString &= Math.Round(AverageList.Average) & " dB HL"
+
+        'Adding the uncertainty mark if any of the thresholds were uncertain
+        If HasUncertainValue = True Then OutputString &= UncertainMark
+
+        Return OutputString
+
+    End Function
 
 End Class
