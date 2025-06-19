@@ -500,6 +500,12 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     private void NewTestBtn_Clicked(object sender, EventArgs e)
     {
+
+        CurrentResponseView = new ResponseView_TSFC();
+        TestReponseGrid.Children.Add(CurrentResponseView);
+        SetLayoutConfiguration(LayoutConfiguration.Response);
+        return;
+
         NewTest();
     }
 
@@ -1113,6 +1119,66 @@ public partial class SpeechTestView : ContentView, IDrawable
                     }
 
                     break;
+                    
+
+                 case "SiP-testet (TSFC)":
+
+                    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
+
+                    // Speech test
+                    CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
+
+                    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+
+                    TestOptionsGrid.Children.Clear();
+                    var newOptionsBSipTestView = new OptionsViewAll(CurrentSpeechTest);
+                    TestOptionsGrid.Children.Add(newOptionsBSipTestView);
+                    CurrentTestOptionsView = newOptionsBSipTestView;
+
+
+                    // Creating test result view. Using an external test-results window on PC and on-form on other platforms
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
+                    {
+
+                        HasExternalResultsView = true;
+                        CurrentTestResultsView = new TestResultView_AdaptiveSiP();
+
+                        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
+                        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
+                        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
+
+                        TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
+                        CurrentExternalTestResultWindow = new Window(NewTestResultPage);
+                        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Adaptive SiP-test";
+                        CurrentExternalTestResultWindow.Height = 240;
+                        CurrentExternalTestResultWindow.Width = 1200;
+                        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
+
+                        // Setting CurrentTestPlayState 
+                        CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
+                    }
+                    else
+                    {
+
+                        TestResultGrid.Children.Clear();
+                        CurrentTestResultsView = new TestResultView_Adaptive();
+
+                        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
+                        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
+                        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
+
+                        TestResultGrid.Children.Add(CurrentTestResultsView);
+
+                        // Setting CurrentTestPlayState 
+                        CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
+
+                    }
+
+
+                    break;
+
 
 
                 default:
@@ -1499,6 +1565,17 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                         CurrentResponseView = new ResponseView_AdaptiveSiP();
                         TestReponseGrid.Children.Add(CurrentResponseView);
+                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
+
+                        break;
+
+                                               
+
+                    case "SiP-testet (TSFC)":
+
+                        CurrentResponseView = new ResponseView_TSFC();
+                        TestReponseGrid.Children.Add(CurrentResponseView);
+
                         CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
 
                         break;
