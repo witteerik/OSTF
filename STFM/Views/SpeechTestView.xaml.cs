@@ -501,12 +501,19 @@ public partial class SpeechTestView : ContentView, IDrawable
     private void NewTestBtn_Clicked(object sender, EventArgs e)
     {
 
-        CurrentResponseView = new ResponseView_TSFC();
-        TestReponseGrid.Children.Add(CurrentResponseView);
-        SetLayoutConfiguration(LayoutConfiguration.Response);
-        return;
-
         NewTest();
+
+
+        ContentPage TempContentPage= new ContentPage();
+        TempContentPage.Content = new ResponseView_TSFC();
+        CurrentExternalTestResultWindow = new Window(TempContentPage);
+        CurrentExternalTestResultWindow.Title = "Temporary page";
+        CurrentExternalTestResultWindow.Height = 240;
+        CurrentExternalTestResultWindow.Width = 1200;
+        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
+        HasExternalResultsView = true;
+
+
     }
 
     private void StartTestBtn_Clicked(object sender, EventArgs e)
