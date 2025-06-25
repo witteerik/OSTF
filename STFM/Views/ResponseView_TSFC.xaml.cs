@@ -9,6 +9,7 @@ public partial class ResponseView_TSFC : ResponseView
 
     TSFC_Triangle CurrentTSFC_Triangle = null;
 
+    bool isPressed = false;
     public ResponseView_TSFC()
 	{
 		InitializeComponent();
@@ -28,9 +29,28 @@ public partial class ResponseView_TSFC : ResponseView
         TSFC_TriangleView.Loaded += CascadeResizeToTriangle;
         TSFC_TriangleView.SizeChanged += CascadeResizeToTriangle;
 
+        // Adds a handler to rezise the buttons
+        this.SizeChanged += ResizeButtons;
+
+        // Setting unpressed button colors
+        SetPressedState(false);
 
     }
 
+    private void ResizeButtons(object sender, EventArgs e)
+    {
+
+        double ButtonDiameter = this.Height * 0.3;
+
+        LeftButton.HeightRequest = ButtonDiameter;
+        LeftButton.WidthRequest = ButtonDiameter;
+        LeftButton.CornerRadius = (int)ButtonDiameter / 2;
+
+        RightButton.HeightRequest = ButtonDiameter;
+        RightButton.WidthRequest = ButtonDiameter;
+        RightButton.CornerRadius = (int)ButtonDiameter / 2;
+
+    }
 
     private void CascadeResizeToTriangle(object sender, EventArgs e)
     {
@@ -80,6 +100,36 @@ public partial class ResponseView_TSFC : ResponseView
         }
 
     }
+
+    private void OnButtonPressed(object sender, EventArgs e)
+    {
+        SetPressedState(true);
+    }
+
+    private void OnButtonReleased(object sender, EventArgs e)
+    {
+        SetPressedState(false);
+    }
+
+    void SetPressedState(bool isPressed)
+    {
+        var background = isPressed ? Colors.LightBlue : Colors.LightGray;
+        var textColor = isPressed ? Colors.White : Color.FromArgb("#2F2F2F");
+
+        LeftButton.BackgroundColor = background;
+        LeftButton.TextColor = textColor;
+
+        RightButton.BackgroundColor = background;
+        RightButton.TextColor = textColor;
+    }
+
+    private void OnButtonClicked(object sender, EventArgs e)
+    {
+
+        // Test response should be initiated from here
+
+    }
+
 
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)
     {
