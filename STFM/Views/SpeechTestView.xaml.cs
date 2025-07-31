@@ -504,6 +504,8 @@ public partial class SpeechTestView : ContentView, IDrawable
         NewTest();
 
 
+        return;
+        // Temporary code to test the TSFC response window
         ContentPage TempContentPage= new ContentPage();
         TempContentPage.Content = new ResponseView_TSFC();
         CurrentExternalTestResultWindow = new Window(TempContentPage);

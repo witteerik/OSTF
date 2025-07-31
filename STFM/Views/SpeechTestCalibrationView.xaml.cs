@@ -14,12 +14,15 @@ public partial class SpeechTestCalibrationView : ContentView
 
     private double SelectedLevel;
     private SortedList<string, string> CalibrationFileDescriptions = new SortedList<string, string>();
+    private List<Sound> CalibrationSounds = new List<Sound>();
     private OstfBase.AudioSystemSpecification SelectedTransducer = (OstfBase.AudioSystemSpecification)null;
     private STFN.Utils.Constants.UserTypes UserType;
 
     private string CalibrationFilesDirectory = "";
 
     private string NoSimulationString = "No simulation";
+
+    private string AudioSystemSpecificationBackup = "";
 
     public SpeechTestCalibrationView()
 	{
@@ -38,6 +41,7 @@ public partial class SpeechTestCalibrationView : ContentView
     {
 
         await InitializeSTFM();
+
 
         // Edding events
         Transducer_ComboBox.SelectedIndexChanged += Transducer_ComboBox_SelectedIndexChanged;
@@ -58,24 +62,6 @@ public partial class SpeechTestCalibrationView : ContentView
         // Add any initialization after the InitializeComponent() call.
         this.IsStandAlone = true;
 
-        // Adds frequency weightings
-        this.FrequencyWeighting_ComboBox.ItemsSource = new List<STFN.Audio.BasicAudioEnums.FrequencyWeightings>() { 
-            BasicAudioEnums.FrequencyWeightings.Z, BasicAudioEnums.FrequencyWeightings.C };
-        this.FrequencyWeighting_ComboBox.SelectedIndex = 0;
-
-        // Adding transducers
-        var TempWaveFormat = new STFN.Audio.Formats.WaveFormat(48000, 32, 1, Encoding: STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
-        STFN.OstfBase.SoundPlayer.ChangePlayerSettings(null, (int?)TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding, null, null, STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, false, false);
-
-        var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
-        if (LocalAvailableTransducers.Count == 0)
-        {
-            Messager.MsgBox("Unable to start the application since no sound transducers could be found!", Messager.MsgBoxStyle.Critical, "Calibration");
-        }
-
-        // Adding transducers to the combobox, and selects the first one
-        Transducer_ComboBox.ItemsSource = LocalAvailableTransducers;
-        this.Transducer_ComboBox.SelectedIndex = 0;
 
         // Adding signals
         CalibrationFilesDirectory = System.IO.Path.Combine(STFN.OstfBase.MediaRootDirectory, STFN.OstfBase.CalibrationSignalSubDirectory);
@@ -102,8 +88,6 @@ public partial class SpeechTestCalibrationView : ContentView
         }
 
         // Adding sound files
-        List<Sound> CalibrationSounds = new List<Sound>();
-
         foreach (var File in CalibrationFiles)
         {
             if (System.IO.Path.GetExtension(File) == ".wav")
@@ -122,6 +106,10 @@ public partial class SpeechTestCalibrationView : ContentView
             CalibrationFileDescriptions.Add(SoundDescription.Key, SoundDescription.Value);
         }
 
+        // Adds frequency weightings
+        this.FrequencyWeighting_ComboBox.ItemsSource = new List<STFN.Audio.BasicAudioEnums.FrequencyWeightings>() {
+            BasicAudioEnums.FrequencyWeightings.Z, BasicAudioEnums.FrequencyWeightings.C };
+        this.FrequencyWeighting_ComboBox.SelectedIndex = 0;
 
         // Adding into CalibrationSignal_ComboBox
         this.CalibrationSignal_ComboBox.ItemsSource = CalibrationSounds;
@@ -131,12 +119,49 @@ public partial class SpeechTestCalibrationView : ContentView
         }
 
         // Adding levels
-        List<double> LevelList = new List<double>();   
+        List<double> LevelList = new List<double>();
         for (int Level = 0; Level <= 130; Level += 5)
             LevelList.Add(Level);
 
         this.CalibrationLevel_ComboBox.ItemsSource = LevelList;
-        this.CalibrationLevel_ComboBox.SelectedIndex = (int)Math.Floor((double)(CalibrationLevel_ComboBox.ItemsSource.Count/2));
+        this.CalibrationLevel_ComboBox.SelectedIndex = (int)Math.Floor((double)(CalibrationLevel_ComboBox.ItemsSource.Count / 2));
+
+        AddCurrentTransducers();
+
+    }
+
+    private void AddCurrentTransducers() {
+
+        // Adding transducers
+        var TempWaveFormat = new STFN.Audio.Formats.WaveFormat(48000, 32, 1, Encoding: STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
+        STFN.OstfBase.SoundPlayer.ChangePlayerSettings(null, (int?)TempWaveFormat.SampleRate, TempWaveFormat.BitDepth, TempWaveFormat.Encoding, null, null, STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, false, false);
+
+        var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
+        if (LocalAvailableTransducers.Count == 0)
+        {
+            Messager.MsgBox("Unable to initiate calibration since no sound transducers could be found!", Messager.MsgBoxStyle.Critical, "Calibration");
+        }
+
+        // Adding transducers to the combobox, and selects the first one
+        SelectedTransducer = null; // Resetting the SelectedTransducer, if set before
+        if (Transducer_ComboBox.ItemsSource != null)
+        {
+            Transducer_ComboBox.ItemsSource.Clear();
+        }
+        Transducer_ComboBox.ItemsSource = LocalAvailableTransducers;
+        this.Transducer_ComboBox.SelectedIndex = -1;
+        this.Transducer_ComboBox.SelectedIndex = 0;
+
+        // Also adding the text from AudioSystemSpecifications.txt into
+        string AudioSystemSpecificationFilePath = STFN.Utils.GeneralIO.NormalizeCrossPlatformPath(System.IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AudioSystemSettingsFile));
+        string AudioSystemSpecificationText = System.IO.File.ReadAllText(AudioSystemSpecificationFilePath, System.Text.Encoding.UTF8);
+        AudioSystemSpecificationsEditor.Text = AudioSystemSpecificationText;
+
+        // Also storing the original specifications for backup
+        AudioSystemSpecificationBackup = AudioSystemSpecificationText;
+
+        // And adding the field descriptions for the Audio System Specifications
+        AudioSystemSpecificationsDescriptions.Text = string.Join("\n", STFN.OstfBase.GetAudioSystemSpecificationFieldsDescriptions());
 
     }
 
@@ -202,6 +227,11 @@ public partial class SpeechTestCalibrationView : ContentView
 
         SelectedTransducer = (STFN.OstfBase.AudioSystemSpecification)this.Transducer_ComboBox.SelectedItem;
 
+        if (SelectedTransducer == null)
+        {
+            return;
+        }
+
         if (SelectedTransducer.CanPlay == true)
         {
             // (At this stage the sound player will be started, if not already done.)
@@ -254,7 +284,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
         this.CalibrationSignal_RichTextBox.Text = "";
 
-        if (this.CalibrationSignal_ComboBox.SelectedItem is not null)
+        if (CalibrationSignal_ComboBox.SelectedItem != null)
         {
             STFN.Audio.Sound SelectedCalibrationSound = (STFN.Audio.Sound)this.CalibrationSignal_ComboBox.SelectedItem;
             if (CalibrationFileDescriptions.ContainsKey(SelectedCalibrationSound.FileName))
@@ -306,7 +336,7 @@ public partial class SpeechTestCalibrationView : ContentView
         //this.SimulatedDistance_ComboBox.ResetText();
 
         var SelectedItem = this.DirectionalSimulationSet_ComboBox.SelectedItem;
-        if (SelectedItem is not null)
+        if (SelectedItem != null)
         {
 
             if ((string)SelectedItem == NoSimulationString)
@@ -341,7 +371,10 @@ public partial class SpeechTestCalibrationView : ContentView
 
     private void CalibrationLevel_ComboBox_SelectedIndexChanged(object sender, EventArgs e)
     {
-        SelectedLevel = (double)CalibrationLevel_ComboBox.SelectedItem;
+        if (CalibrationLevel_ComboBox.SelectedItem != null)
+        {
+            SelectedLevel = (double)CalibrationLevel_ComboBox.SelectedItem;
+        }
     }
 
     private void SelectedChannelComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -607,6 +640,59 @@ public partial class SpeechTestCalibrationView : ContentView
 
     private void Show_ShondDevices_Button_Clicked(object sender, EventArgs e)
     {
+
+    }
+
+    private async void Update_Button_Clicked(object sender, EventArgs e)
+    {
+
+        if (AudioSystemSpecificationsEditor.Text.Trim() == AudioSystemSpecificationBackup.Trim())
+        {
+            Messager.MsgBox("No changes were made!");
+            return;
+        }
+
+        // Updating the audio system specifications file based on the text in the AudioSystemSpecificationsEditor
+        string newAudioSystemSpecifications = AudioSystemSpecificationsEditor.Text;
+
+        // Stopping playback
+        SilenceCalibrationTone();
+
+        // Sleeping the thread to allow time to stop the playback
+        Thread.Sleep(1000);
+
+        // Clearing audio system specifications
+        STFN.OstfBase.ClearAudioSpecifications();
+
+
+        string[] audioSystemSpecificationLines = STFN.Utils.StringManipulation.SplitStringByLines(AudioSystemSpecificationsEditor.Text);
+
+        STFN.OstfBase.LoadAudioSystemSpecifications(audioSystemSpecificationLines, "Added_manually_in_calibrator_app");
+
+        bool AudioTrackBasedPlayerInitResult = await StfmBase.InitializeAudioTrackBasedPlayer();
+
+        // Checking if any transducers are available with the new settings, or else goes back to the previous settings
+        if (STFN.OstfBase.AvaliableTransducers.Count == 0 | AudioTrackBasedPlayerInitResult == false)
+        {
+            Messager.MsgBox("No transducers could be loaded with the modified settings. Falling back to the previous settings.");
+            AudioSystemSpecificationsEditor.Text = AudioSystemSpecificationBackup;
+
+            // Clearing audio system specifications
+            STFN.OstfBase.ClearAudioSpecifications();
+
+        }
+        else
+        {
+            // Modifications were applied successfully. Modifying the actual settings file
+            string AudioSystemSpecificationFilePath = STFN.Utils.GeneralIO.NormalizeCrossPlatformPath(System.IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AudioSystemSettingsFile));
+            System.IO.File.WriteAllText(AudioSystemSpecificationFilePath, newAudioSystemSpecifications, System.Text.Encoding.UTF8);
+
+            Messager.MsgBox("The audio system specifications file has been updated.", Messager.MsgBoxStyle.Information, "Success!");
+
+        }
+
+        // Using SetupGUI to reinitiate calibration
+        AddCurrentTransducers();
 
     }
 }
