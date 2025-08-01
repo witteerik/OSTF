@@ -648,6 +648,19 @@ namespace STFM
         }
 
 
+        /// <summary>
+        /// Determines if the OSTF directories needed for the app to run has all been stored in the apps memory.
+        /// </summary>
+        /// <returns>True if all directories are stored and false in at least one is missing.</returns>
+        public static bool AllDirectoriesStored()
+        {
+            if (ReadOstfLogRootDirectory() == ""){return false;}
+            if (ReadMediaRootDirectory() == "") { return false; }
+            if (ReadTestResultRootDirectory() == "") { return false; }
+            return true;
+        }
+
+
         async static Task CheckPermissions()
         {
 

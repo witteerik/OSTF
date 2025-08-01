@@ -487,9 +487,9 @@ Public Module OstfBase
 
                 Dim ApiName As String = ""
                 Dim OutputDeviceName As String = ""
-                Dim OutputDeviceNames As New List(Of String) ' Used for MME multiple device support
+                Dim OutputDeviceNames As List(Of String) = Nothing ' Used for MME multiple device support
                 Dim InputDeviceName As String = ""
-                Dim InputDeviceNames As New List(Of String) ' Used for MME multiple device support
+                Dim InputDeviceNames As List(Of String) = Nothing ' Used for MME multiple device support
                 Dim BufferSize As Integer = 2048
                 Dim AllowDefaultOutputDevice As Boolean? = Nothing
                 Dim AllowDefaultInputDevice As Boolean? = Nothing
@@ -503,10 +503,10 @@ Public Module OstfBase
                     If Line = "" Then Continue For
                     If Line.StartsWith("//") Then Continue For
 
-                    If Line.StartsWith("<AudioDevices>") Then
-                        'No need to do anything?
-                        Continue For
-                    End If
+                    'If Line.StartsWith("<AudioDevices>") Then
+                    '    'No need to do anything?
+                    '    Continue For
+                    'End If
                     If Line.StartsWith("<New transducer>") Then Exit For
 
                     If OstfBase.CurrentMediaPlayerType = MediaPlayerTypes.PaBased Then
@@ -759,30 +759,30 @@ Public Module OstfBase
 
         Dim Output As New List(Of String)
 
-        Output.Add("<New media player>, a tag to define a new media player")
-        Output.Add("MediaPlayerType, Use PaBased on Windows or AudioTrackBased on Android devices. (PaBased = PortAudio based OSTF sound player, AudioTrackBased = Android AudioTrack based sound player)")
-        Output.Add("ApiName, Only relevant on Windows and is ignored on Android. Values can be MME, Windows WASAPI, ASIO, Windows DirectSound, etc.")
-        Output.Add("OutputDevices, audio output devices to use if more than one. OutputDevices is only relevant with the MME API on Windows. For Android, use OutputDevice instead")
-        Output.Add("OutputDevice, the audio output device to use")
-        Output.Add("InputDevices, audio input devices to use if more than one. InputDevices is only relevant with the MME API on Windows. For Android, use InputDevice instead")
-        Output.Add("InputDevice, the audio input device to use")
-        Output.Add("BufferSize, the size of the audiobuffer in each package to the sound device. Must be powers of 2. Only relevant on Windows, ignored on android devices.")
-        Output.Add("AllowDefaultOutputDevice, If True, OSTF is allowed to select the default audio output device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system.")
-        Output.Add("AllowDefaultInputDevice, If True, OSTF is allowed to select the default audio input device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system.")
-        Output.Add("")
-        Output.Add("<New transducer>, a tag to define a new transducer (there can be several transducers under each media player)")
-        Output.Add("Name, the name of the transducer as shown in the software")
-        Output.Add("LoudspeakerAzimuths, a comma delimited vector indicating the actual physical azimuth angle between each loudspeaker and the frontal angle at the listener's position (in degrees)")
-        Output.Add("LoudspeakerElevations, a comma delimited vector indicating the actual physical elevation angle between each loudspeaker and the horizon at the listener's position (in degrees)")
-        Output.Add("LoudspeakerDistances, a comma delimited vector indicating the actual physical distance from the loudspeakers to the listener (in meters)")
-        Output.Add("HardwareOutputChannels, a comma delimited vector with hardware output channels to use (as enumerated by the sound device, often 1,2,3 etc)")
-        Output.Add("CalibrationGain, a comma delimited vector holding the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). Note that values should be comma separated, and dots (.) should be used as decimal mark.")
-        Output.Add("HostVolumeOutputLevel, The host volume level (for the selected API) in percentages (0-100). If possible, this value will be used to set and maintain the volume of the selected output sound unit during speech tests. Currently only supported on Android devices.")
-        Output.Add("PtaCalibrationGainFrequencies, a comma delimited vector of frequencies (in Hz) for which calibration gain values are given by PtaCalibrationGainValues")
-        Output.Add("PtaCalibrationGainValues, a comma delimited vector of pure tone calibration values for the specified transducer. These are the values to modify during calibration of pure tone audiometry stimuli. Please note that this calibration depends on the CalibrationGain values for each channel, so that if CalibrationGain is changed, PtaCalibrationGainValues also has to be changed (but not the other way round)")
-        Output.Add("RETSPL_Speech, the RETSPL value assumed when displaying speech audiometry levels in dB HL.")
-        Output.Add("LimiterThreshold, a limiter threshold (in dB SPL) that can be set to limit the output level in each channel of the transducer.")
-        Output.Add("")
+        Output.Add("<New media player>, a tag to define a new media player" + vbCrLf)
+        Output.Add("MediaPlayerType, Use PaBased on Windows or AudioTrackBased on Android devices. (PaBased = PortAudio based OSTF sound player, AudioTrackBased = Android AudioTrack based sound player)" + vbCrLf)
+        Output.Add("ApiName, Only relevant on Windows and is ignored on Android. Values can be MME, Windows WASAPI, ASIO, Windows DirectSound, etc." + vbCrLf)
+        Output.Add("OutputDevices, audio output devices to use if more than one. OutputDevices is only relevant with the MME API on Windows. For Android, use OutputDevice instead" + vbCrLf)
+        Output.Add("OutputDevice, the audio output device to use" + vbCrLf)
+        Output.Add("InputDevices, audio input devices to use if more than one. InputDevices is only relevant with the MME API on Windows. For Android, use InputDevice instead" + vbCrLf)
+        Output.Add("InputDevice, the audio input device to use" + vbCrLf)
+        Output.Add("BufferSize, the size of the audiobuffer in each package to the sound device. Must be powers of 2. Only relevant on Windows, ignored on android devices." + vbCrLf)
+        Output.Add("AllowDefaultOutputDevice, If True, OSTF is allowed to select the default audio output device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system." + vbCrLf)
+        Output.Add("AllowDefaultInputDevice, If True, OSTF is allowed to select the default audio input device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system." + vbCrLf + vbCrLf)
+
+        Output.Add("<New transducer>, a tag to define a new transducer (there can be several transducers under each media player)" + vbCrLf)
+        Output.Add("Name, the name of the transducer as shown in the software" + vbCrLf)
+        Output.Add("LoudspeakerAzimuths, a comma delimited vector indicating the actual physical azimuth angle between each loudspeaker and the frontal angle at the listener's position (in degrees)" + vbCrLf)
+        Output.Add("LoudspeakerElevations, a comma delimited vector indicating the actual physical elevation angle between each loudspeaker and the horizon at the listener's position (in degrees)" + vbCrLf)
+        Output.Add("LoudspeakerDistances, a comma delimited vector indicating the actual physical distance from the loudspeakers to the listener (in meters)" + vbCrLf)
+        Output.Add("HardwareOutputChannels, a comma delimited vector with hardware output channels to use (as enumerated by the sound device, often 1,2,3 etc)" + vbCrLf)
+        Output.Add("CalibrationGain, a comma delimited vector holding the calibration gain applied to the speaker connected to each of the indicated HardwareOutputChannels during playback (so that a signal of 0 dBFS = 100 dBPSL). Note that values should be comma separated, and dots (.) should be used as decimal mark." + vbCrLf)
+        Output.Add("HostVolumeOutputLevel, The host volume level (for the selected API) in percentages (0-100). If possible, this value will be used to set and maintain the volume of the selected output sound unit during speech tests. Currently only supported on Android devices." + vbCrLf)
+        Output.Add("PtaCalibrationGainFrequencies, a comma delimited vector of frequencies (in Hz) for which calibration gain values are given by PtaCalibrationGainValues" + vbCrLf)
+        Output.Add("PtaCalibrationGainValues, a comma delimited vector of pure tone calibration values for the specified transducer. These are the values to modify during calibration of pure tone audiometry stimuli. Please note that this calibration depends on the CalibrationGain values for each channel, so that if CalibrationGain is changed, PtaCalibrationGainValues also has to be changed (but not the other way round)" + vbCrLf)
+        Output.Add("RETSPL_Speech, the RETSPL value assumed when displaying speech audiometry levels in dB HL." + vbCrLf)
+        Output.Add("LimiterThreshold, a limiter threshold (in dB SPL) that can be set to limit the output level in each channel of the transducer." + vbCrLf + vbCrLf)
+
         Output.Add("Note that you can enter comments in the audio system specifications using double slashes //")
         Output.Add("For example:")
         Output.Add("LoudspeakerAzimuths = 0, 180 // This is my front-back loudspeaker setup")

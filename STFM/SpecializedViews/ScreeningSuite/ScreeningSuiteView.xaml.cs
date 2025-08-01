@@ -37,9 +37,12 @@ public partial class ScreeningSuiteView : ContentView
 
     private List<IDispatcherTimer> testTrialEventTimerList = null;
 
-    public ScreeningSuiteView()
+    private bool ShowTestOptions;
+
+    public ScreeningSuiteView(bool showTestOptions = true)
     {
         InitializeComponent();
+        ShowTestOptions = showTestOptions;
         Initialize();
     }
 
@@ -92,6 +95,31 @@ public partial class ScreeningSuiteView : ContentView
             LogoImage.IsVisible = true;
         }
 
+        // Showing or hiding the checkboxes for test selection
+        if (ShowTestOptions)
+        {
+            TestSelectorLayout.IsVisible = true;
+
+            RunSSQ12_Checkbox.IsChecked = true;
+            RunQSiP_Checkbox.IsChecked = true;
+            RunUoPta_Checkbox.IsChecked = true;
+
+            RunSSQ12_Checkbox.IsEnabled = true;
+            RunQSiP_Checkbox.IsEnabled = true;
+            RunUoPta_Checkbox.IsEnabled = true;
+        }
+        else
+        {
+            TestSelectorLayout.IsVisible = false;
+
+            RunSSQ12_Checkbox.IsChecked = true;
+            RunQSiP_Checkbox.IsChecked = true;
+            RunUoPta_Checkbox.IsChecked = true;
+
+            RunSSQ12_Checkbox.IsEnabled = true;
+            RunQSiP_Checkbox.IsEnabled = true;
+            RunUoPta_Checkbox.IsEnabled = true;
+        }
     }
 
     private void SetInstructionViewTexts()
@@ -335,8 +363,11 @@ public partial class ScreeningSuiteView : ContentView
 
             case 3:
 
-                //Shows the test selector again
-                TestSelectorLayout.IsVisible = true;
+                //Shows the test selector again, if the option is enabled
+                if (ShowTestOptions)
+                {
+                    TestSelectorLayout.IsVisible = true;
+                }
 
                 // Erase all data and reset test
 

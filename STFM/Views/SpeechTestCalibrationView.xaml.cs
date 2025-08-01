@@ -24,26 +24,36 @@ public partial class SpeechTestCalibrationView : ContentView
 
     private string AudioSystemSpecificationBackup = "";
 
+    bool isContentInitialized = false;
+
     public SpeechTestCalibrationView()
 	{
 		InitializeComponent();
 
-        // Create and setup init timer // TODO: There should be a better solution for this... The reason it's used it to first show the GUI then call functions that need the GUI handle
-        IDispatcherTimer trialEventTimer = Application.Current.Dispatcher.CreateTimer();
-        trialEventTimer.Interval = TimeSpan.FromMilliseconds(2000);
-        trialEventTimer.Tick += InitByTimer;
-        trialEventTimer.IsRepeating = false;
-        trialEventTimer.Start();
+        //// Create and setup init timer // TODO: There should be a better solution for this... The reason it's used it to first show the GUI then call functions that need the GUI handle
+        //IDispatcherTimer trialEventTimer = Application.Current.Dispatcher.CreateTimer();
+        //trialEventTimer.Interval = TimeSpan.FromMilliseconds(2000);
+        //trialEventTimer.Tick += InitByTimer;
+        //trialEventTimer.IsRepeating = false;
+        //trialEventTimer.Start();
+
+        this.Loaded += async (s, e) =>
+        {
+            if (isContentInitialized) return;
+            isContentInitialized = true;
+
+            await InitializeContent();
+        };
+
     }
 
 
-    private async void InitByTimer(object sender, EventArgs e)
+    private async Task InitializeContent()
     {
 
         await InitializeSTFM();
 
-
-        // Edding events
+        // Adding events
         Transducer_ComboBox.SelectedIndexChanged += Transducer_ComboBox_SelectedIndexChanged;
         CalibrationSignal_ComboBox.SelectedIndexChanged += CalibrationSignal_ComboBox_SelectedIndexChanged;
         DirectionalSimulationSet_ComboBox.SelectedIndexChanged += DirectionalSimulationSet_ComboBox_SelectedIndexChanged;
@@ -400,8 +410,11 @@ public partial class SpeechTestCalibrationView : ContentView
         try
         {
 
-            // Silencing any previously started calibration signal
-            //SilenceCalibrationTone();
+            if (SelectedTransducer == null)
+            {
+                Messager.MsgBox("Could not use the selected transducer!", Messager.MsgBoxStyle.Exclamation, "Calibration");
+                return;
+            }
 
             if (SelectedTransducer.CanPlay == true)
             {
@@ -562,6 +575,8 @@ public partial class SpeechTestCalibrationView : ContentView
 
         string CalibrationInfoString = @"Instructions on how to perform calibration
 
+TODO! These instructions have not been updated to the latest version!
+
 1. Select the sound system that you want to calibrate.
 2. Select the desired calibration signal. (If you want to use your own signal, just locate the folder '" + CalibrationFilesDirectory + @"' and put your signal there, and restart the app. The signal needs to be stored in 32-bit IEEE/float or 16-bit PCM format.)
 3. Select a calibration signal level to present.
@@ -667,9 +682,14 @@ public partial class SpeechTestCalibrationView : ContentView
 
         string[] audioSystemSpecificationLines = STFN.Utils.StringManipulation.SplitStringByLines(AudioSystemSpecificationsEditor.Text);
 
-        STFN.OstfBase.LoadAudioSystemSpecifications(audioSystemSpecificationLines, "Added_manually_in_calibrator_app");
+        STFN.OstfBase.LoadAudioSystemSpecifications(audioSystemSpecificationLines, "Audio System Specifications");
 
-        bool AudioTrackBasedPlayerInitResult = await StfmBase.InitializeAudioTrackBasedPlayer();
+        // If on android (using AudioTrackBased player), StfmBase.InitializeAudioTrackBasedPlayer() must also be called.
+        bool AudioTrackBasedPlayerInitResult = true;
+        if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.AudioTrackBased)
+        {
+            AudioTrackBasedPlayerInitResult = await StfmBase.InitializeAudioTrackBasedPlayer();
+        }
 
         // Checking if any transducers are available with the new settings, or else goes back to the previous settings
         if (STFN.OstfBase.AvaliableTransducers.Count == 0 | AudioTrackBasedPlayerInitResult == false)
