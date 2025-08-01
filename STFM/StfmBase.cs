@@ -402,6 +402,7 @@ namespace STFM
 
             // Unzipping the zip file and copying its contents to the TargetDataFolder
             await Messager.MsgBoxAsync("Unzipping the media files may take several minutes. You will be notified when unzipping is complete. Press OK to start!");
+            await Task.Delay(50); // allowing time to update the GUI
             try
             {
                 ZipFile.ExtractToDirectory(mediaPackageFile, TargetDataFolder, true);
