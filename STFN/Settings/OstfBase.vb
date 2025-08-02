@@ -766,6 +766,7 @@ Public Module OstfBase
         Output.Add("OutputDevice, the audio output device to use" + vbCrLf)
         Output.Add("InputDevices, audio input devices to use if more than one. InputDevices is only relevant with the MME API on Windows. For Android, use InputDevice instead" + vbCrLf)
         Output.Add("InputDevice, the audio input device to use" + vbCrLf)
+        Output.Add("Please note: On windows output and input devices should be defined using their name (use the 'View devices' button to get the right one). On andorid devices, ouput and input devices should be defined using the [ProductName]+[DeviceType] (e.g. 'USB-Audio - AudioQuest DragonFly Black v1.5+UsbHeadset')" + vbCrLf)
         Output.Add("BufferSize, the size of the audiobuffer in each package to the sound device. Must be powers of 2. Only relevant on Windows, ignored on android devices." + vbCrLf)
         Output.Add("AllowDefaultOutputDevice, If True, OSTF is allowed to select the default audio output device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system." + vbCrLf)
         Output.Add("AllowDefaultInputDevice, If True, OSTF is allowed to select the default audio input device/s. If set to False, OSTF will close the application if the the intended audio output device/s is not present on the system." + vbCrLf + vbCrLf)

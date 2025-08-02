@@ -161,7 +161,7 @@ public partial class ScreeningSuiteView : ContentView
                         // QSiP instructions
                         InstructionsHeadingLabel.Text = "Taluppfattningstest (Quick-SiP)";
                         InstructionsEditor.Text =
-                            "\nDetta test går till så här:\n" +
+                            "Detta test går till så här:\n" +
                             " • Du ska lyssna efter enstaviga ord som uttalas i en stadsmiljö.\n" +
                             " • Efter varje ord ska du ange vilket ord du uppfattade från ett antal svarsalternativ på skärmen.\n" +
                             " • Du har maximalt fyra sekunder på dig att svara.\n" +

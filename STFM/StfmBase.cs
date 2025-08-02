@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Storage;
+using Microsoft.Maui;
 using Microsoft.Maui.Controls.PlatformConfiguration;
 using STFN;
 using STFN.Audio;
@@ -19,7 +20,10 @@ using static STFN.Utils.AppCache;
 using Android.OS;
 using Android.App;
 using Android.Content;
+using Android.Provider;
+using Android.Net;
 #endif
+
 
 namespace STFM
 {
@@ -29,7 +33,7 @@ namespace STFM
 
         public static bool IsInitialized = false;
 
-        public static async Task InitializeSTFM(STFN.OstfBase.MediaPlayerTypes MediaPlayerType = OstfBase.MediaPlayerTypes.Default)
+        public static async Task InitializeSTFM(STFN.OstfBase.MediaPlayerTypes MediaPlayerType = OstfBase.MediaPlayerTypes.Default, bool RequestExternalStoragePermission = true)
         {
 
             // Returning if already called
@@ -51,13 +55,13 @@ namespace STFM
             STFN.Utils.AppCache.OnClearAppCache += ClearAppCache;
                         
 
-            await CheckAndSetOstfLogRootFolder();
+            await CheckAndSetOstfLogRootFolder(RequestExternalStoragePermission);
 
             await SetupMediaFromPackage();
 
-            await CheckAndSetMediaRootDirectory();
+            await CheckAndSetMediaRootDirectory(RequestExternalStoragePermission);
 
-            await CheckAndSetTestResultsRootFolder();
+            await CheckAndSetTestResultsRootFolder(RequestExternalStoragePermission);
                       
 
             // Initializing OSTF
@@ -201,7 +205,7 @@ namespace STFM
         }
 
 
-        async static Task CheckAndSetMediaRootDirectory()
+        async static Task CheckAndSetMediaRootDirectory(bool RequestExternalStoragePermission)
         {
             // Trying to read the MediaRootDirectory from pevious app sessions
             OstfBase.MediaRootDirectory = ReadMediaRootDirectory();
@@ -224,7 +228,7 @@ namespace STFM
                 }
 
                 // Checking for permissions
-                await CheckPermissions();
+                await CheckPermissions(RequestExternalStoragePermission);
             }
 
             // Checking if it seems to be the correct folder
@@ -270,7 +274,7 @@ namespace STFM
 
 
 
-        async static Task CheckAndSetTestResultsRootFolder()
+        async static Task CheckAndSetTestResultsRootFolder(bool RequestExternalStoragePermission)
         {
             // Trying to read the TestResultsRootFolder from pevious app sessions
             SharedSpeechTestObjects.TestResultsRootFolder = ReadTestResultRootDirectory();
@@ -286,7 +290,7 @@ namespace STFM
             else if (DeviceInfo.Current.Platform == DevicePlatform.Android)
             {
                 // Checking for permissions
-                await CheckPermissions();
+                await CheckPermissions(RequestExternalStoragePermission);
             }
 
             // Checking if the folder exists
@@ -322,7 +326,7 @@ namespace STFM
         async static Task SetupMediaFromPackage()
         {
             // This method should:
-            // - Check if MediaRootDirectory is set,
+            // - Check if MediaRootDirectory exists,
             //  - If already set, just exit
             //  - If not set, ask the user if he/she wants to setup a the media package using a prefabricated zip file
             //   - If not, just exit, and the user will have to supply the MediaRootDirectory later and manually place the needed files there
@@ -332,11 +336,16 @@ namespace STFM
             //          - On Windows: C:\OSTF\OSTFMedia
             //          - On Android: The private storage space of the app (for which no permissions are needed, but cannot be reached from outside the app)
 
-            // Returns if MediaRootDirectory is already set in a previous app sessions
+
+            // Returns if a MediaRootDirectory is set and exists (assuming that it has already been properly setup)
             if (ReadMediaRootDirectory() != "")
             {
-                return;
+                if (System.IO.Directory.Exists(ReadMediaRootDirectory()))
+                {
+                    return;
+                }
             }
+            
 
             // Asks the user if setup should be made with a zipped media file, and returns if not.
             bool demoModeQuestionResult = await Messager.MsgBoxAcceptQuestion("No MediaRootDirectory has yet been set. At this stage you may setup the contents of the MediaRootDirectory from a zipped media package file. \n\n Do you want to setup the content with a zip file?", "MediaRootDirectory content setup", "Yes, use zip file", "No, setup manually");
@@ -362,7 +371,7 @@ namespace STFM
             }
             else if (DeviceInfo.Current.Platform == DevicePlatform.Android)
             {
-
+                // As we us the apps own storage spave here, we do not need to request user permission.
                 TargetDataFolder = Path.Combine(FileSystem.AppDataDirectory, "Media");
 
                 // Checking for permissions
@@ -391,6 +400,7 @@ namespace STFM
 
 
             // Ensuring that they do not already exist (only on Windows, as on other devices this folder will likely be unavailable anyway)
+            // Actually, in most cases, this is redundant as the method returns above if a MediaRootDirectory exists above. If the TargetDataFolder should differ from the stored MediaRootDirectory, however, the check may be relevant. Leaving it therefore in place.
             if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
             {
                 if (System.IO.Directory.Exists(TargetDataFolder))
@@ -444,8 +454,9 @@ namespace STFM
         }
 
 
-        async static Task CheckAndSetOstfLogRootFolder()
+        async static Task CheckAndSetOstfLogRootFolder(bool RequestExternalStoragePermission)
         {
+
             // Trying to read the logFilePath from pevious app sessions
             STFN.Utils.Logging.logFilePath = ReadOstfLogRootDirectory();
 
@@ -460,7 +471,7 @@ namespace STFM
             else if (DeviceInfo.Current.Platform == DevicePlatform.Android)
             {
                 // Checking for permissions
-                await CheckPermissions();
+                await CheckPermissions(RequestExternalStoragePermission);
             }
 
             // Checking if the folder exists
@@ -524,14 +535,14 @@ namespace STFM
 
         async static Task PickMediaFolder()
         {
-            await Messager.MsgBoxAsync("The location of the OSTFMedia folder has yet been set. Please click OK and indicate where the OSTFMedia folder is located on your device using the dialog that appears.");
+            await Messager.MsgBoxAsync("The location of the media folder (MediaRootDirectory) has not yet been set. Please click OK and indicate where the OSTFMedia folder is located on your device using the dialog that appears.", Messager.MsgBoxStyle.Information, "Set media folder");
             var result = await FolderPicker.PickAsync(CancellationToken.None);
             //var result = await FolderPicker.Default.PickAsync(CancellationToken.None);
             if (result.IsSuccessful)
             {
                 //await Toast.Make($"The folder was picked: Name - {result.Folder.Name}, Path - {result.Folder.Path}", ToastDuration.Long).Show(CancellationToken.None);
                 OstfBase.MediaRootDirectory = result.Folder.Path;
-                await Messager.MsgBoxAsync("You have picked the following OSTFMedia folder location: " + OstfBase.MediaRootDirectory);
+                await Messager.MsgBoxAsync("You have picked the following MediaRootDirectory folder location: " + OstfBase.MediaRootDirectory);
             }
             else
             {
@@ -544,7 +555,7 @@ namespace STFM
 
         async static Task PickTestResultsRootFolder()
         {
-            await Messager.MsgBoxAsync("No test results folder has yet been set. Please click OK and select a test results folder in the dialog that appears.");
+            await Messager.MsgBoxAsync("No test results folder (TestResultsRootFolder) has yet been set. Please click OK and select a test results folder in the dialog that appears.", Messager.MsgBoxStyle.Information, "Set test results folder");
             var result = await FolderPicker.PickAsync(CancellationToken.None);
             if (result.IsSuccessful)
             {
@@ -563,13 +574,13 @@ namespace STFM
 
         async static Task PickOstfLogRootFolder()
         {
-            await Messager.MsgBoxAsync("No OSTF log folder has yet been set. Please click OK and select an OSTF log folder in the dialog that appears.");
+            await Messager.MsgBoxAsync("No application log folder has yet been set. Please click OK and select a log folder in the dialog that appears.", Messager.MsgBoxStyle.Information, "Set application log folder");
             var result = await FolderPicker.PickAsync(CancellationToken.None);
             if (result.IsSuccessful)
             {
                 //await Toast.Make($"The folder was picked: Name - {result.Folder.Name}, Path - {result.Folder.Path}", ToastDuration.Long).Show(CancellationToken.None);
                 STFN.Utils.Logging.logFilePath = result.Folder.Path;
-                await Messager.MsgBoxAsync("You have picked the following OSTF log folder: " + STFN.Utils.Logging.logFilePath);
+                await Messager.MsgBoxAsync("You have picked the following log folder: " + STFN.Utils.Logging.logFilePath);
 
             }
             else
@@ -592,7 +603,7 @@ namespace STFM
             }
         }
 
-        static void StoreMediaRootDirectory(string mediaRootDirectory)
+        public static void StoreMediaRootDirectory(string mediaRootDirectory)
         {
             Preferences.Default.Set("media_root_directory", mediaRootDirectory);
         }
@@ -614,7 +625,7 @@ namespace STFM
             }
         }
 
-        static void StoreTestResultRootDirectory(string TestResultRootDirectory)
+        public static void StoreTestResultRootDirectory(string TestResultRootDirectory)
         {
             Preferences.Default.Set("test_result_root_directory", TestResultRootDirectory);
         }
@@ -638,7 +649,7 @@ namespace STFM
             }
         }
 
-        static void StoreOstfLogRootDirectory(string OstfLogRootDirectory)
+        public static void StoreOstfLogRootDirectory(string OstfLogRootDirectory)
         {
             Preferences.Default.Set("ostf_log_root_directory", OstfLogRootDirectory);
         }
@@ -662,54 +673,122 @@ namespace STFM
         }
 
 
-        async static Task CheckPermissions()
+        async static Task CheckPermissions(bool RequestExternalStoragePermission)
         {
 
-            bool hasStorageReadPermission = await Permissions.CheckStatusAsync<Permissions.StorageRead>() == PermissionStatus.Granted;
-            bool hasStorageWritePermission = await Permissions.CheckStatusAsync<Permissions.StorageWrite>() == PermissionStatus.Granted;
-            bool hasMediaPermission = await Permissions.CheckStatusAsync<Permissions.Media>() == PermissionStatus.Granted;
-            bool hasPhotoPermission = await Permissions.CheckStatusAsync<Permissions.Photos>() == PermissionStatus.Granted;
-
             bool hasMicrophonePermission = await Permissions.CheckStatusAsync<Permissions.Microphone>() == PermissionStatus.Granted;
-
-            //bool hasAccessNotificationPolicyPermission = await Permissions.CheckStatusAsync<AccessNotificationPolicy>() == PermissionStatus.Granted;
-
-
-            if (hasStorageReadPermission == false)
-            {
-                var status = await Permissions.RequestAsync<Permissions.StorageRead>();
-            }
-
-            if (hasStorageWritePermission == false)
-            {
-                var status = await Permissions.RequestAsync<Permissions.StorageWrite>();
-            }
-
-            if (hasMediaPermission == false)
-            {
-                var status = await Permissions.RequestAsync<Permissions.Media>();
-            }
-
-            if (hasPhotoPermission == false)
-            {
-                var status = await Permissions.RequestAsync<Permissions.Photos>();
-            }
 
             if (hasMicrophonePermission == false)
             {
                 var status = await Permissions.RequestAsync<Permissions.Microphone>();
+                if (status != PermissionStatus.Granted)
+                {
+                    await Messager.MsgBoxAsync("You chose to not allow microphone use. The application does not work without it. The application will now shut down. Please restart it and try again.", Messager.MsgBoxStyle.Information, "A needed permission was denied");
+                    Messager.RequestCloseApp();
+                }
             }
-            
 
-            //if (hasAccessNotificationPolicyPermission == false)
-            //{
-            //    var status = await Permissions.RequestAsync<AccessNotificationPolicy>();
-            //}
+            if (RequestExternalStoragePermission)
+            {
+                bool hasStorageReadPermission = await Permissions.CheckStatusAsync<Permissions.StorageRead>() == PermissionStatus.Granted;
+                bool hasStorageWritePermission = await Permissions.CheckStatusAsync<Permissions.StorageWrite>() == PermissionStatus.Granted;
 
-            //ACCESS_NOTIFICATION_POLICY
+                if (hasStorageReadPermission == false)
+                {
+                    var status = await Permissions.RequestAsync<Permissions.StorageRead>();
+                    if (status != PermissionStatus.Granted)
+                    {
+                        await Messager.MsgBoxAsync("You chose to not allow reading from storage. The application does not work without it. The application will now shut down. Please restart it and try again.", Messager.MsgBoxStyle.Information, "A needed permission was denied");
+                        Messager.RequestCloseApp();
+                    }
+                }
+
+                if (hasStorageWritePermission == false)
+                {
+                    var status = await Permissions.RequestAsync<Permissions.StorageWrite>();
+                    if (status != PermissionStatus.Granted)
+                    {
+                        await Messager.MsgBoxAsync("You chose to not allow writing to storage. The application does not work without it. The application will now shut down. Please restart it and try again.", Messager.MsgBoxStyle.Information, "A needed permission was denied");
+                        Messager.RequestCloseApp();
+                    }
+                }
+
+#if ANDROID
+
+            // Temporarily leaves kiosk mode to allow the system dialog to appear
+            var context = Platform.CurrentActivity ?? Android.App.Application.Context;
+            var dpm = (Android.App.Admin.DevicePolicyManager)context.GetSystemService(Android.Content.Context.DevicePolicyService);
+            bool wasInKioskMode = false;
+            Activity activity = context as Activity;
+            if (dpm.IsDeviceOwnerApp(context.PackageName) && activity != null)
+            {
+                // Temporarily allow user to leave kiosk mode
+                activity.StopLockTask(); // unlocks temporarily
+                wasInKioskMode = true;
+            }
+
+            await RequestAllFilesAccessPermission();
+
+            // Checking if the user switched to allow all files (on android)
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.R)
+            {
+
+                bool hasAllFilesAccess = await WaitForAllFilesAccessAsync(30); // wait up to 30 seconds
+
+                if (!hasAllFilesAccess)
+                {
+                    await Messager.MsgBoxAsync("The app does not have permission to manage all files. You must allow access to manage all files in the system settings for the app to function correctly. The application will now shut down. Please restart it and try again.", Messager.MsgBoxStyle.Information, "A needed permission was denied");
+                    Messager.RequestCloseApp();
+                }
+
+            }
+
+            // Re-enter kiosk mode
+            if (wasInKioskMode && activity != null)
+            {
+                activity.StartLockTask();
+            }
+
+#endif
+
+            }
 
         }
 
+        public async static Task RequestAllFilesAccessPermission()
+        {
+
+#if ANDROID
+
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.R && !Android.OS.Environment.IsExternalStorageManager)
+            {
+                // Notifying the user of coming manual approval of "all files"
+                await Messager.MsgBoxAsync("This app need to have permission to manage all files to function correctly. Press OK to open a system settings where you can 'Allow access to manage all files'.", Messager.MsgBoxStyle.Information, "Manual approval of permission to access all files");
+
+                Intent intent = new Intent(Settings.ActionManageAppAllFilesAccessPermission);
+                intent.SetData(Android.Net.Uri.Parse($"package:{Android.App.Application.Context.PackageName}"));
+                intent.AddFlags(ActivityFlags.NewTask);
+                Android.App.Application.Context.StartActivity(intent);
+            }
+#endif
+        }
+
+        public static async Task<bool> WaitForAllFilesAccessAsync(int timeoutSeconds = 30)
+        {
+#if ANDROID
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.R)
+            {
+                int elapsed = 0;
+                while (!Android.OS.Environment.IsExternalStorageManager && elapsed < timeoutSeconds)
+                {
+                    await Task.Delay(1000);
+                    elapsed++;
+                }
+                return Android.OS.Environment.IsExternalStorageManager;
+            }
+#endif
+            return true; // If not Android R+, assume it's not needed
+        }
 
         static void AppCacheVariableExists(object sender, AppCacheEventArgs e) 
         {
