@@ -555,9 +555,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
     private void Close_Button_Click(object sender, EventArgs e)
     {
-
-        Application.Current.Quit(); 
-
+        Messager.RequestCloseApp();
     }
 
     private void Help_Button_Click(object sender, EventArgs e)

@@ -167,7 +167,7 @@ public partial class SSQ12_MainView : ContentView
                 InstructionsBodyTextP3.Text = "Vi tror att du kan känna igen alla situationerna från din vardag, men om en fråga beskriver en situation som du inte alls kan relatera till ombeds du markera 'Vet inte'-rutan och skriva en kort anmärkning om varför du inte kan svara på frågan.";
                 InstructionsToggleLabel.Text = "Dölj instruktionen för formuläret";
 
-                MandatoryInfoLabel.Text = "🞲  = Obligatoriskt att fylla i";
+                MandatoryInfoLabel.Text = "✱ = Obligatoriskt att fylla i";
 
                 SubmitButton.Text = "SLUTFÖR";
 

@@ -229,18 +229,18 @@ static class SsqQuestions
         {
             case STFN.Utils.Constants.Languages.Swedish:
 
-                questions.Add("1. Du talar med en person och en TV är på i samma rum. Kan du följa med i vad den andra personen säger, utan att sänka TV:n? 🞲" );
-                questions.Add("2. Du lyssnar på en person som talar med dig, samtidigt som du försöker att följa nyheterna på TV. Kan du följa med i vad båda personerna säger? 🞲" );
-                questions.Add("3. Du samtalar med en person i ett rum där det finns flera andra personer som talar. Kan du följa med i vad den personen som du samtalar med säger? 🞲" );
-                questions.Add("4. Du är i en grupp med cirka fem personer på en välbesökt restaurang. Du kan se alla de andra i gruppen. Kan du uppfatta samtalet? 🞲" );
-                questions.Add("5. Du är i en grupp där samtalet skiftar från en person till en annan. Kan du lätt följa med i samtalet utan att missa början av vad varje ny talare säger? 🞲" );
-                questions.Add("6. Du är utomhus. En hund skäller högt. Kan du omedelbart avgöra var den befinner sig utan att se den? 🞲" );
-                questions.Add("7. Kan du med hjälp av ljudet avgöra hur långt bort en buss eller en lastbil befinner sig? 🞲" );
-                questions.Add("8. Kan du med hjälp av ljudet avgöra om en buss eller lastbil kommer mot dig eller färdas ifrån dig? 🞲" );
-                questions.Add("9. När du hör mer än ett ljud i taget har du då intrycket av att det verkar som en enda sammanblandning av ljud? 🞲");
-                questions.Add("10. När du lyssnar på musik, kan du urskilja vilka instrument som spelas? 🞲" );
-                questions.Add("11. Ljud som finns i din vardag som du lätt kan höra, låter dessa klart (inte otydligt)? 🞲" );
-                questions.Add("12. Måste du koncentrera dig väldigt mycket när du lyssnar på någon eller någonting? 🞲");
+                questions.Add("1. Du talar med en person och en TV är på i samma rum. Kan du följa med i vad den andra personen säger, utan att sänka TV:n? ✱" );
+                questions.Add("2. Du lyssnar på en person som talar med dig, samtidigt som du försöker att följa nyheterna på TV. Kan du följa med i vad båda personerna säger? ✱" );
+                questions.Add("3. Du samtalar med en person i ett rum där det finns flera andra personer som talar. Kan du följa med i vad den personen som du samtalar med säger? ✱" );
+                questions.Add("4. Du är i en grupp med cirka fem personer på en välbesökt restaurang. Du kan se alla de andra i gruppen. Kan du uppfatta samtalet? ✱" );
+                questions.Add("5. Du är i en grupp där samtalet skiftar från en person till en annan. Kan du lätt följa med i samtalet utan att missa början av vad varje ny talare säger? ✱" );
+                questions.Add("6. Du är utomhus. En hund skäller högt. Kan du omedelbart avgöra var den befinner sig utan att se den? ✱" );
+                questions.Add("7. Kan du med hjälp av ljudet avgöra hur långt bort en buss eller en lastbil befinner sig? ✱" );
+                questions.Add("8. Kan du med hjälp av ljudet avgöra om en buss eller lastbil kommer mot dig eller färdas ifrån dig? ✱" );
+                questions.Add("9. När du hör mer än ett ljud i taget har du då intrycket av att det verkar som en enda sammanblandning av ljud? ✱");
+                questions.Add("10. När du lyssnar på musik, kan du urskilja vilka instrument som spelas? ✱" );
+                questions.Add("11. Ljud som finns i din vardag som du lätt kan höra, låter dessa klart (inte otydligt)? ✱" );
+                questions.Add("12. Måste du koncentrera dig väldigt mycket när du lyssnar på någon eller någonting? ✱");
 
                 break;
             default:
