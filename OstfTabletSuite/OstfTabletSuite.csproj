@@ -132,11 +132,5 @@
 		<ProjectReference Include="..\STFM\STFM.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<Reference Include="STFN">
-			<HintPath>..\STFN\bin\Debug\net8.0\STFN.dll</HintPath>
-		</Reference>
-	</ItemGroup>
-
 
 </Project>
