@@ -1,5 +1,3 @@
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics.Platform;
 using STFN;
 
 namespace STFM.Views;

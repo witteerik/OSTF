@@ -1,4 +1,3 @@
-using Microsoft.Maui.Platform;
 using STFN;
 
 namespace STFM.Views;

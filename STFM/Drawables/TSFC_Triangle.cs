@@ -1,7 +1,4 @@
 ﻿
-using Microsoft.Maui;
-using static System.Net.Mime.MediaTypeNames;
-
 public class TSFC_Triangle : IDrawable
 {
 

@@ -1,6 +1,4 @@
 
-using System.Runtime.CompilerServices;
-
 namespace STFM.SpecializedViews.SSQ12;
 
 public partial class SSQ12_QuestionView : ContentView

@@ -1,8 +1,3 @@
-using Microsoft.Maui;
-using Microsoft.Maui.Controls.Shapes;
-using Microsoft.Maui.Graphics;
-using System.Drawing;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace STFM.Views;
 

@@ -1,6 +1,4 @@
-﻿
-using STFN;
-using static System.Net.Mime.MediaTypeNames;
+﻿using STFN;
 
 public class CorrectionButton : Grid
 {

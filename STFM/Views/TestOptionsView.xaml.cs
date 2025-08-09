@@ -1,7 +1,4 @@
-
-using CommunityToolkit.Maui.Media;
 using STFN;
-using System.Collections.ObjectModel;
 
 namespace STFM.Views;
 

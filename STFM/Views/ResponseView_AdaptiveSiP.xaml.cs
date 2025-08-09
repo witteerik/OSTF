@@ -1,12 +1,8 @@
 
 using System.ComponentModel;
-using Microsoft.Maui.Controls;
 using STFN;
-using STFN.Utils;
 using STFN.SipTest;
-using System.Reflection;
-using Microsoft.Maui.Platform;
-using System.Diagnostics;
+
 
 namespace STFM.Views
 {

@@ -1,11 +1,7 @@
-using Microsoft.Maui.Controls.Internals;
 using STFM.Pages;
 using STFM.SpecializedViews.SSQ12;
 using STFN;
-using STFN.Audio.SoundPlayers;
 using System.Reflection;
-using System.Reflection.Metadata;
-using System.Security.AccessControl;
 using static STFN.ResponseViewEvents;
 
 namespace STFM.Views;

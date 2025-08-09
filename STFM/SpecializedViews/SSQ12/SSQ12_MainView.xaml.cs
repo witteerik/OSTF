@@ -1,6 +1,3 @@
-using CommunityToolkit.Maui.Media;
-using Microsoft.Maui;
-using Microsoft.Maui.Devices;
 
 namespace STFM.SpecializedViews.SSQ12;
 

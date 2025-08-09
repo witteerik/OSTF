@@ -1,10 +1,5 @@
-﻿using CommunityToolkit.Maui.Media;
-using Microsoft.Maui.Controls;
-using STFN;
-using STFN.Audio.SoundScene;
+﻿using STFN;
 using STFN.SipTest;
-using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace STFM.Views;
 

@@ -8,7 +8,7 @@
 		<OutputType>Exe</OutputType>
 		<RootNamespace>OstfTabletSuite</RootNamespace>
 		<UseMaui>true</UseMaui>
-    <MauiVersion>8.0.3</MauiVersion>
+		<MauiVersion>8.0.3</MauiVersion>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 
@@ -53,77 +53,57 @@
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-	  </ItemGroup>
-
-	<ItemGroup>
-	  <None Remove="Platforms\Android\native-libs\arm64-v8a\liblibostfdspandroid.so" />
-	  <None Remove="Platforms\Android\native-libs\armeabi-v7a\liblibostfdspandroid.so" />
-	  <None Remove="Platforms\Android\native-libs\x86\liblibostfdspandroid.so" />
-	  <None Remove="Platforms\Android\native-libs\x86_64\liblibostfdspandroid.so" />
-	  <None Remove="Platforms\Windows\libostfdsp_Win32.dll" />
-	  <None Remove="Platforms\Windows\libostfdsp_x64.dll" />
-	  <None Remove="Platforms\Windows\portaudio_x64.dll" />
-	  <None Remove="Platforms\Windows\portaudio_x86.dll" />
-	  <None Remove="Resources\AppIcon\appicon.jpg" />
-	  <None Remove="Resources\Splash\appicon.jpg" />
-	  <None Remove="Resources\Splash\splash.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <AndroidNativeLibrary Include="Platforms\Android\native-libs\arm64-v8a\liblibostfdspandroid.so">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </AndroidNativeLibrary>
-	  <AndroidNativeLibrary Include="Platforms\Android\native-libs\armeabi-v7a\liblibostfdspandroid.so">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </AndroidNativeLibrary>
-	  <AndroidNativeLibrary Include="Platforms\Android\native-libs\x86\liblibostfdspandroid.so">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </AndroidNativeLibrary>
-	  <AndroidNativeLibrary Include="Platforms\Android\native-libs\x86_64\liblibostfdspandroid.so">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </AndroidNativeLibrary>
+		<None Remove="Platforms\Android\native-libs\arm64-v8a\liblibostfdspandroid.so" />
+		<None Remove="Platforms\Android\native-libs\armeabi-v7a\liblibostfdspandroid.so" />
+		<None Remove="Platforms\Android\native-libs\x86\liblibostfdspandroid.so" />
+		<None Remove="Platforms\Android\native-libs\x86_64\liblibostfdspandroid.so" />
+		<None Remove="Platforms\Windows\native-libs\libostfdsp_Win32.dll" />
+		<None Remove="Platforms\Windows\native-libs\libostfdsp_x64.dll" />
+		<None Remove="Platforms\Windows\native-libs\portaudio_x64.dll" />
+		<None Remove="Platforms\Windows\native-libs\portaudio_x86.dll" />
+		<None Remove="Resources\AppIcon\appicon.jpg" />
+		<None Remove="Resources\Splash\appicon.jpg" />
+		<None Remove="Resources\Splash\splash.svg" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiSplashScreen Include="Resources\Splash\splash.svg" Resize="true">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </MauiSplashScreen>
+		<AndroidNativeLibrary Include="Platforms\Android\native-libs\arm64-v8a\liblibostfdspandroid.so">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</AndroidNativeLibrary>
+		<AndroidNativeLibrary Include="Platforms\Android\native-libs\armeabi-v7a\liblibostfdspandroid.so">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</AndroidNativeLibrary>
+		<AndroidNativeLibrary Include="Platforms\Android\native-libs\x86\liblibostfdspandroid.so">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</AndroidNativeLibrary>
+		<AndroidNativeLibrary Include="Platforms\Android\native-libs\x86_64\liblibostfdspandroid.so">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</AndroidNativeLibrary>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="libostfdsp_Win32.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="libostfdsp_x64.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="portaudio_x64.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="portaudio_x86.dll">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
+		<Content Include="Platforms\Windows\native-libs\libostfdsp_Win32.dll" Link="libostfdsp_Win32.dll" CopyToOutputDirectory="PreserveNewest">
+		</Content>
+		<Content Include="Platforms\Windows\native-libs\libostfdsp_x64.dll" Link="libostfdsp_x64.dll" CopyToOutputDirectory="PreserveNewest">
+		</Content>
+		<Content Include="Platforms\Windows\native-libs\portaudio_x64.dll" Link="portaudio_x64.dll" CopyToOutputDirectory="PreserveNewest">
+		</Content>
+		<Content Include="Platforms\Windows\native-libs\portaudio_x86.dll" Link="portaudio_x86.dll" CopyToOutputDirectory="PreserveNewest">
+		</Content>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiIcon Include="Resources\AppIcon\appicon.jpg" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Resize="true">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</MauiSplashScreen>
 	</ItemGroup>
 
-  <!-- Android -->
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != true">
-    <Compile Remove="**\**\*.android.cs" />
-    <None Include="**\**\*.android.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-    <Compile Remove="**\android\**\*.cs" />
-    <None Include="**\android\**\*.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-  </ItemGroup>
-
-  <!-- Non-Android -->
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != false">
-    <Compile Remove="**\**\*.non-andrd.cs" />
-    <None Include="**\**\*.non-andrd.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-    <Compile Remove="**\non-andrd\**\*.cs" />
-    <None Include="**\non-andrd\**\*.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-  </ItemGroup>
+	<ItemGroup>
+		<MauiIcon Include="Resources\AppIcon\appicon.jpg" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="7.0.1" />
@@ -132,29 +112,31 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
+		<MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.7" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.7" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
-	  <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.7" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.7" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
-	  <Folder Include="Properties\PublishProfiles\" />
+		<Folder Include="Platforms\Windows\native-libs\" />
+		<Folder Include="Properties\PublishProfiles\" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
-	  <ProjectReference Include="..\STFM\STFM.csproj" />
+		<ProjectReference Include="..\STFM\STFM.csproj" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
-	  <Reference Include="STFN">
-	    <HintPath>..\STFN\bin\Debug\net8.0\STFN.dll</HintPath>
-	  </Reference>
+		<Reference Include="STFN">
+			<HintPath>..\STFN\bin\Debug\net8.0\STFN.dll</HintPath>
+		</Reference>
 	</ItemGroup>
+
 
 </Project>

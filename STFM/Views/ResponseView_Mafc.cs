@@ -1,8 +1,4 @@
-﻿using Microsoft.Maui.Controls;
-using STFN;
-using STFN.Audio.SoundScene;
-using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
+﻿using STFN;
 
 namespace STFM.Views;
 

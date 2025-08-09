@@ -1,4 +1,3 @@
-using Microsoft.VisualBasic;
 using STFN;
 using STFN.Audio;
 
@@ -606,7 +605,9 @@ TODO! These instructions have not been updated to the latest version!
 
         if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.AudioTrackBased)
         {
+#if ANDROID
             SoundDeviceInfoString = "Currently available sound devices:\n\n" + AndroidAudioTrackPlayer.GetAvaliableDeviceInformation();
+#endif
         }else
         {
             SoundDeviceInfoString = "Currently available sound devices:\n\n" + STFN.Audio.PortAudioApiSettings.GetAllAvailableDevices();
@@ -686,7 +687,9 @@ TODO! These instructions have not been updated to the latest version!
         bool AudioTrackBasedPlayerInitResult = true;
         if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.AudioTrackBased)
         {
-            AudioTrackBasedPlayerInitResult = await StfmBase.InitializeAudioTrackBasedPlayer();
+#if ANDROID
+            AudioTrackBasedPlayerInitResult = await AndroidAudioTrackPlayer.InitializeAudioTrackBasedPlayer();
+#endif
         }
 
         // Checking if any transducers are available with the new settings, or else goes back to the previous settings

@@ -1,9 +1,4 @@
-﻿using Microsoft.Maui.Controls;
-//using Microsoft.UI.Xaml.Controls;
-using STFN;
-using STFN.Audio.SoundScene;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
+﻿using STFN;
 
 namespace STFM.Views;
 

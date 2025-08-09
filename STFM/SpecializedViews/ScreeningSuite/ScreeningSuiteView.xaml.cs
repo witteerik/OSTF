@@ -1,15 +1,8 @@
 using STFN;
 using static STFN.ResponseViewEvents;
 using System.Reflection;
-using Microsoft.Maui.Controls.Internals;
-using STFM.Pages;
 using STFM.SpecializedViews.SSQ12;
-using STFN.Audio.SoundPlayers;
-using System.Reflection.Metadata;
-using System.Security.AccessControl;
 using STFM.Views;
-using Microsoft.Maui.Primitives;
-
 
 namespace STFM.SpecializedViews.ScreeningSuite;
 

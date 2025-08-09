@@ -19,122 +19,10 @@
 		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
-  <!-- Android -->
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != true">
-    <Compile Remove="**\**\*.android.cs" />
-    <None Include="**\**\*.android.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-    <Compile Remove="**\android\**\*.cs" />
-    <None Include="**\android\**\*.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-  </ItemGroup>
-
-  <!-- Non-Android -->
-  <ItemGroup Condition="$(TargetFramework.StartsWith('net')) == true AND $(TargetFramework.Contains('-android')) != false">
-    <Compile Remove="**\**\*.non-andrd.cs" />
-    <None Include="**\**\*.non-andrd.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-    <Compile Remove="**\non-andrd\**\*.cs" />
-    <None Include="**\non-andrd\**\*.cs" Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder)" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="SpecializedViews\ScreeningSuite\InstructionsView.xaml.cs" />
-    <Compile Remove="SpecializedViews\ScreeningSuite\PtaScreeningInstructionsView.xaml.cs" />
-    <Compile Remove="SpecializedViews\ScreeningSuite\QSiPInstructionsView.xaml.cs" />
-    <Compile Remove="SpecializedViews\ScreeningSuite\StartView.xaml.cs" />
-    <Compile Remove="SpecializedViews\ScreeningSuite\TestResultsView.xaml.cs" />
-    <Compile Remove="Views\UoAud.xaml.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <MauiXaml Remove="SpecializedViews\ScreeningSuite\InstructionsView.xaml" />
-    <MauiXaml Remove="SpecializedViews\ScreeningSuite\PtaScreeningInstructionsView.xaml" />
-    <MauiXaml Remove="SpecializedViews\ScreeningSuite\QSiPInstructionsView.xaml" />
-    <MauiXaml Remove="SpecializedViews\ScreeningSuite\StartView.xaml" />
-    <MauiXaml Remove="SpecializedViews\ScreeningSuite\TestResultsView.xaml" />
-    <MauiXaml Remove="Views\UoAud.xaml" />
-  </ItemGroup>
   
   <ItemGroup>
 	  <PackageReference Include="CommunityToolkit.Maui" Version="7.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Compile Update="Views\ResponseView_AdaptiveSiP.xaml.cs">
-	    <DependentUpon>ResponseView_AdaptiveSiP.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\TestResultView_ConstantStimuli.xaml.cs">
-	    <DependentUpon>TestResultView_ConstantStimuli.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\TestResultView_Adaptive.xaml.cs">
-	    <DependentUpon>TestResultView_Adaptive.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\TestResultView_QuickSiP.xaml.cs">
-	    <DependentUpon>TestResultView_QuickSiP.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\WelcomePageR.xaml.cs">
-	    <DependentUpon>WelcomePageR.xaml</DependentUpon>
-	  </Compile>
-	  <Compile Update="Views\TestOptionsView.xaml.cs">
-	    <DependentUpon>TestOptionsView.xaml</DependentUpon>
-	  </Compile>
-    <Compile Update="Views\TestResultView_AdaptiveSiP.xaml.cs">
-      <DependentUpon>TestResultView_AdaptiveSiP.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-	<ItemGroup>
-	  <MauiXaml Update="SpecializedViews\ScreeningSuite\ScreeningSuiteView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="SpecializedViews\SSQ12\SSQ12_HaView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="SpecializedViews\SSQ12\SSQ12_MainView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="SpecializedViews\SSQ12\SSQ12_QuestionView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\AudiogramView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ResponseView_AdaptiveSiP.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ResponseView_TSFC.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ScreeningAudiometerView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-    <MauiXaml Update="Views\TestResultView_ConstantStimuli.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\TestResultView_Adaptive.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\TestResultView_QuickSiP.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\TestResultView_AdaptiveSiP.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\TwoChannelAudiometerView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\UoAudView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\WelcomePageR.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\TestOptionsView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\SpeechTestCalibrationView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\SpeechTestView.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -147,14 +35,9 @@
 
 	<ItemGroup>
 	  <Reference Include="STFN">
-	    <HintPath>..\STFN\bin\Release\net8.0\STFN.dll</HintPath>
+	    <HintPath>..\STFN\bin\Debug\net8.0\STFN.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
-
-	<!--<ItemGroup>
-    <AndroidNativeLibrary Include="Platforms\Android\native-libs\**\*.so" Link="%(RecursiveDir)%(Filename)%(Extension)" />
-  </ItemGroup>-->
-
 
 
 </Project>

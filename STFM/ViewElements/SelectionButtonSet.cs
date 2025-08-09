@@ -1,5 +1,4 @@
 ﻿using STFN;
-using System.Diagnostics;
 
 public class SelectionButtonSet : Grid
 {

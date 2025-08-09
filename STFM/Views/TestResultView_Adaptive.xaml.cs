@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using STFN;
-using STFN.SipTest;
 
 namespace STFM.Views
 {
