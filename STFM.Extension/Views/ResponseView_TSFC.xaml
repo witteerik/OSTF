@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <custom:ResponseView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="STFM.Views.ResponseView_TSFC"
-             xmlns:custom="clr-namespace:STFM.Views"
-             xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls">
+                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                     xmlns:custom="clr-namespace:STFM.Views;assembly=STFM"
+                     x:Class="STFM.Extension.Views.ResponseView_TSFC"
+                     xmlns:shapes="clr-namespace:Microsoft.Maui.Controls.Shapes;assembly=Microsoft.Maui.Controls">
 
     <Grid x:Name="MainGrid"
         BackgroundColor="#E8E8E8" RotationX="0" RotationY="0">

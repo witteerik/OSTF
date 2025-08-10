@@ -298,10 +298,6 @@ namespace STFM
 
                     return  new ResponseView_AdaptiveSiP();
 
-                case "SiP-testet (TSFC)":
-
-                    return new ResponseView_TSFC();
-
                 default:
                     return null;
             }

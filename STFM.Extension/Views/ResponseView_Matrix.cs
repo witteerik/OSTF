@@ -1,6 +1,7 @@
 ﻿using STFN;
+using STFM.Views;
 
-namespace STFM.Views;
+namespace STFM.Extension.Views;
 
 public class ResponseView_Matrix : ResponseView
 {

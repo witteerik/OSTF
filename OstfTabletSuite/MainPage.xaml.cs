@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Layouts;
 using STFN;
+using STFM.Extension;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;

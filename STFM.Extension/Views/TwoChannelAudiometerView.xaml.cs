@@ -1,4 +1,4 @@
-namespace STFM.Views;
+namespace STFM.Extension.Views;
 
 public partial class TwoChannelAudiometerView : ContentView
 {

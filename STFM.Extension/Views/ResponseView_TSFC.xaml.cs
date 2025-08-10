@@ -1,6 +1,8 @@
 using STFN;
+using STFM;
+using STFM.Views;
 
-namespace STFM.Views;
+namespace STFM.Extension.Views;
 
 public partial class ResponseView_TSFC : ResponseView
 {

@@ -507,14 +507,14 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         return;
         // Temporary code to test the TSFC response window
-        ContentPage TempContentPage = new ContentPage();
-        TempContentPage.Content = new ResponseView_TSFC();
-        CurrentExternalTestResultWindow = new Window(TempContentPage);
-        CurrentExternalTestResultWindow.Title = "Temporary page";
-        CurrentExternalTestResultWindow.Height = 240;
-        CurrentExternalTestResultWindow.Width = 1200;
-        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
-        HasExternalResultsView = true;
+        //ContentPage TempContentPage = new ContentPage();
+        //TempContentPage.Content = new ResponseView_TSFC();
+        //CurrentExternalTestResultWindow = new Window(TempContentPage);
+        //CurrentExternalTestResultWindow.Title = "Temporary page";
+        //CurrentExternalTestResultWindow.Height = 240;
+        //CurrentExternalTestResultWindow.Width = 1200;
+        //Application.Current.OpenWindow(CurrentExternalTestResultWindow);
+        //HasExternalResultsView = true;
 
 
     }

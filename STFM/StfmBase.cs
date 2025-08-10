@@ -40,7 +40,7 @@ namespace STFM
             STFN.Utils.AppCache.OnGetAppCacheIntegerVariableValue += GetAppCacheIntegerVariableValue;
             STFN.Utils.AppCache.OnRemoveAppCacheVariable += RemoveAppCacheVariable;
             STFN.Utils.AppCache.OnClearAppCache += ClearAppCache;
-                        
+
 
             await CheckAndSetOstfLogRootFolder(RequestExternalStoragePermission);
 
@@ -49,7 +49,7 @@ namespace STFM
             await CheckAndSetMediaRootDirectory(RequestExternalStoragePermission);
 
             await CheckAndSetTestResultsRootFolder(RequestExternalStoragePermission);
-                      
+
 
             // Initializing OSTF
             OstfBase.InitializeOSTF(GetCurrentPlatform(), MediaPlayerType, OstfBase.MediaRootDirectory);
@@ -70,116 +70,8 @@ namespace STFM
             }
         }
 
-            //public static async Task<bool> InitializeAudioTrackBasedPlayer()
-            //{
 
-            //    // We now need to check that the requested devices exist, which could not be done in STFN, since the Android AudioTrack do not exist there.
-
-            //    // Getting available devices
-            //    // Getting the AudioSettings from the first available transducer
-            //    List<OstfBase.AudioSystemSpecification> AllTranducers = OstfBase.AvaliableTransducers;
-            //    AndroidAudioTrackPlayerSettings currentAudioSettings = null;
-            //    if (AllTranducers.Count > 0)
-            //    {
-            //        currentAudioSettings = (AndroidAudioTrackPlayerSettings)AllTranducers[0].ParentAudioApiSettings;
-            //    }
-            //    else
-            //    {
-            //        await Messager.MsgBoxAsync("No transducer has been defined in the audio system specifications file.\n\n" +
-            //            "Please add a transducer specification and restart the app!\n\n" +
-            //            "Unable to start the application. Press OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
-            //        return false;
-            //    }
-
-            //    if (currentAudioSettings.AllowDefaultOutputDevice.HasValue == false)
-            //    {
-            //        await Messager.MsgBoxAsync("The AllowDefaultOutputDevice behaviour must be specified in the audio system specifications file.\n\n" +
-            //            "Please add either of the following to the settings of the intended media player:\n\n" +
-            //            "Use either:\nAllowDefaultOutputDevice = True\nor\nAllowDefaultOutputDevice = False\n\n" +
-            //            "Unable to start the application. Press OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
-            //        return false;
-            //    }
-
-            //    if (currentAudioSettings.AllowDefaultInputDevice.HasValue == false)
-            //    {
-            //        await Messager.MsgBoxAsync("The AllowDefaultInputDevice behaviour must be specified in the audio system specifications file.\n\n" +
-            //            "Please add either of the following to the settings of the intended media player:\n\n" +
-            //            "Use either:\nAllowDefaultInputDevice = True\nor\nAllowDefaultInputDevice = False\n\n" +
-            //            "Unable to start the application. Press OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
-            //        return false;
-            //    }
-
-            //    // Setting up the mixers
-            //    int OutputChannels;
-            //    int InputChannels;
-
-            //    // Selects the transducer indicated in the settings file
-            //    if (AndroidAudioTrackPlayer.CheckIfDeviceExists(currentAudioSettings.SelectedOutputDeviceName, true) == true)
-            //    {
-            //        // Getting the actual number of channels on the device
-            //        OutputChannels = AndroidAudioTrackPlayer.GetNumberChannelsOnDevice(currentAudioSettings.SelectedOutputDeviceName, true);
-            //    }
-            //    else
-            //    {
-            //        if (currentAudioSettings.AllowDefaultOutputDevice.Value == true)
-            //        {
-            //            await Messager.MsgBoxAsync("Unable to find the correct sound device!\nThe following audio device should be used:\n\n'" + currentAudioSettings.SelectedOutputDeviceName + "'\n\nClick OK to use the default audio output device instead!\n\n" +
-            //                "IMPORTANT: Sound tranducer calibration and/or routing may not be correct!", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
-            //        }
-            //        else
-            //        {
-            //            await Messager.MsgBoxAsync("Unable to find the correct sound device!\nThe following audio device should be used:\n\n'" + currentAudioSettings.SelectedOutputDeviceName + "'\n\nPlease connect the correct sound device and restart the app!\n\nPress OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
-            //            return false;
-            //        }
-
-            //        // Unable to use the intended device. Assuming 2 output channels. TODO: There is probably a better way to get the actual number of channels in the device automatically selected for the output and input sound streams!
-            //        OutputChannels = 2;
-            //    }
-
-            //    // Selects the input source indicated in the settings file
-            //    if (AndroidAudioTrackPlayer.CheckIfDeviceExists(currentAudioSettings.SelectedInputDeviceName, false) == true)
-            //    {
-            //        // Getting the actual number of channels on the device
-            //        InputChannels = AndroidAudioTrackPlayer.GetNumberChannelsOnDevice(currentAudioSettings.SelectedInputDeviceName, false);
-            //    }
-            //    else
-            //    {
-            //        if (currentAudioSettings.AllowDefaultInputDevice.Value == true)
-            //        {
-            //            await Messager.MsgBoxAsync("Unable to find the correct sound input device!\nThe following audio input device should be used:\n\n'" + currentAudioSettings.SelectedInputDeviceName + "'\n\nClick OK to use the default audio input device instead!\n\n" +
-            //                "IMPORTANT: Sound calibration and/or routing may not be correct!", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
-            //        }
-            //        else
-            //        {
-            //            await Messager.MsgBoxAsync("Unable to find the correct sound input device!\nThe following audio input device should be used:\n\n'" + currentAudioSettings.SelectedInputDeviceName + "'\n\nPlease connect the correct sound input device and restart the app!\n\nPress OK to close the app.", Messager.MsgBoxStyle.Exclamation, "Warning!", "OK");
-            //            return false;
-            //        }
-
-            //        // Unable to use the intended device. Assuming 2 input channel. TODO: There is probably a better way to get the actual number of channels in the device automatically selected for the output and input sound streams!
-            //        InputChannels = 2;
-            //    }
-
-            //    for (int i = 0; i < AllTranducers.Count; i++)
-            //    {
-            //        AllTranducers[i].ParentAudioApiSettings.NumberOfOutputChannels = Math.Max(OutputChannels, 0);
-            //        AllTranducers[i].ParentAudioApiSettings.NumberOfInputChannels = Math.Max(InputChannels, 0);
-            //        AllTranducers[i].SetupMixer();
-            //    }
-
-            //    if (OstfBase.SoundPlayer == null)
-            //    {
-            //        // Initiates the sound player with the mixer of the first available transducer
-            //        DuplexMixer SelectedMixer = AllTranducers[0].Mixer;
-
-            //        // Creating the player if not already created
-            //        OstfBase.SoundPlayer = new STFM.AndroidAudioTrackPlayer(ref currentAudioSettings, ref SelectedMixer);
-            //    }
-
-            //    return true;
-
-            //}
-
-            static OstfBase.Platforms GetCurrentPlatform()
+        static OstfBase.Platforms GetCurrentPlatform()
         {
 
             if (DeviceInfo.Current.Platform == DevicePlatform.iOS) { return OstfBase.Platforms.iOS; }
@@ -336,7 +228,7 @@ namespace STFM
                     return;
                 }
             }
-            
+
 
             // Asks the user if setup should be made with a zipped media file, and returns if not.
             bool demoModeQuestionResult = await Messager.MsgBoxAcceptQuestion("No MediaRootDirectory has yet been set. At this stage you may setup the contents of the MediaRootDirectory from a zipped media package file. \n\n Do you want to setup the content with a zip file?", "MediaRootDirectory content setup", "Yes, use zip file", "No, setup manually");
@@ -439,7 +331,7 @@ namespace STFM
             }
 
             // Finally storing the MediaRootDirectory in apps memory
-            OstfBase.MediaRootDirectory = TargetDataFolder; 
+            OstfBase.MediaRootDirectory = TargetDataFolder;
             StoreMediaRootDirectory(OstfBase.MediaRootDirectory);
 
         }
@@ -657,7 +549,7 @@ namespace STFM
         /// <returns>True if all directories are stored and false in at least one is missing.</returns>
         public static bool AllDirectoriesStored()
         {
-            if (ReadOstfLogRootDirectory() == ""){return false;}
+            if (ReadOstfLogRootDirectory() == "") { return false; }
             if (ReadMediaRootDirectory() == "") { return false; }
             if (ReadTestResultRootDirectory() == "") { return false; }
             return true;
@@ -781,17 +673,17 @@ namespace STFM
             return true; // If not Android R+, assume it's not needed
         }
 
-        static void AppCacheVariableExists(object sender, AppCacheEventArgs e) 
+        static void AppCacheVariableExists(object? sender, AppCacheEventArgs? e)
         {
             e.Result = Preferences.ContainsKey(e.VariableName);
         }
 
-        static void SetAppCacheStringVariableValue(object sender, AppCacheEventArgs e)
+        static void SetAppCacheStringVariableValue(object? sender, AppCacheEventArgs? e)
         {
             Preferences.Default.Set(e.VariableName, e.VariableStringValue);
         }
 
-        static void SetAppCacheIntegerVariableValue(object sender, AppCacheEventArgs e)
+        static void SetAppCacheIntegerVariableValue(object? sender, AppCacheEventArgs? e)
         {
             if (e.VariableIntegerValue != null)
             {
@@ -803,7 +695,7 @@ namespace STFM
             }
         }
 
-        static void SetAppCacheDoubleVariableValue(object sender, AppCacheEventArgs e)
+        static void SetAppCacheDoubleVariableValue(object? sender, AppCacheEventArgs? e)
         {
             if (e.VariableDoubleValue != null)
             {
@@ -815,12 +707,12 @@ namespace STFM
             }
         }
 
-        static void GetAppCacheStringVariableValue(object sender, AppCacheEventArgs e)
+        static void GetAppCacheStringVariableValue(object? sender, AppCacheEventArgs? e)
         {
-            e.VariableStringValue = Preferences.Default.Get (e.VariableName,  "");
+            e.VariableStringValue = Preferences.Default.Get(e.VariableName, "");
         }
 
-        static void GetAppCacheDoubleVariableValue(object sender, AppCacheEventArgs e)
+        static void GetAppCacheDoubleVariableValue(object? sender, AppCacheEventArgs? e)
         {
             if (Preferences.ContainsKey(e.VariableName))
             {
@@ -832,7 +724,7 @@ namespace STFM
             }
         }
 
-        static void GetAppCacheIntegerVariableValue(object sender, AppCacheEventArgs e)
+        static void GetAppCacheIntegerVariableValue(object? sender, AppCacheEventArgs? e)
         {
             if (Preferences.ContainsKey(e.VariableName))
             {
@@ -844,18 +736,18 @@ namespace STFM
             }
         }
 
-        
-        static void RemoveAppCacheVariable(object sender, AppCacheEventArgs e)
+
+        static void RemoveAppCacheVariable(object? sender, AppCacheEventArgs? e)
         {
             Preferences.Default.Remove(e.VariableName);
         }
 
-        static void ClearAppCache(object sender, EventArgs e)
+        static void ClearAppCache(object? sender, EventArgs? e)
         {
             Preferences.Default.Clear();
         }
 
-        
+
 
     }
 }

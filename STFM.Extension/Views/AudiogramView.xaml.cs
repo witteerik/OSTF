@@ -1,5 +1,6 @@
 
-namespace STFM.Views;
+using STFM.Views;
+namespace STFM.Extension.Views;
 
 public partial class AudiogramView : ContentView
 {

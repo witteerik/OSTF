@@ -1,6 +1,6 @@
 using STFN;
 
-namespace STFM.Views;
+namespace STFM.Extension.Views;
 
 public partial class WelcomePageR : ContentView
 {
