@@ -206,7 +206,7 @@ public class ResponseView_Matrix : ResponseView
 
     public override void UpdateTestFormProgressbar(int Value, int Maximum, int Minimum)
     {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
     public override void AddSourceAlternatives(VisualizedSoundSource[] soundSources)

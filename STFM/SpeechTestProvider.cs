@@ -11,8 +11,7 @@ namespace STFM
     public class SpeechTestProvider
     {
 
-
-        public SpeechTestInitiator GetSpeechTestInitiator(string SelectedTestName)
+        public virtual SpeechTestInitiator? GetSpeechTestInitiator(string SelectedTestName)
         {
 
             SpeechTestInitiator speechTestInitiator = new SpeechTestInitiator();
@@ -35,7 +34,7 @@ namespace STFM
                     speechTestInitiator.TestResultsView = new TestResultView_Adaptive();
 
                     // Determining the GuiLayoutState
-                    speechTestInitiator.GuiLayoutState =  SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
+                    speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
                     speechTestInitiator.UseExtraWindow = false;
 
                     return speechTestInitiator;
@@ -238,85 +237,97 @@ namespace STFM
                     }
 
                     return speechTestInitiator;
-
-
-                case "SiP-testet (TSFC)":
-
-                    // Selecting the speech material name
-                    speechTestInitiator.SelectedSpeechMaterialName = "Swedish SiP-test"; // Leave as an empty string if the user should select manually
-
-                    // Creating the speech test instance, and also stors it in SharedSpeechTestObjects
-                    speechTestInitiator.SpeechTest = new AdaptiveSiP(speechTestInitiator.SelectedSpeechMaterialName);
-                    STFN.SharedSpeechTestObjects.CurrentSpeechTest = speechTestInitiator.SpeechTest;
-
-                    // Creating a test options view
-                    speechTestInitiator.TestOptionsView = new OptionsViewAll(speechTestInitiator.SpeechTest);
-
-                    // Creating a test results view
-                    speechTestInitiator.TestResultsView = new TestResultView_AdaptiveSiP();
-
-                    // Determining the GuiLayoutState
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
-                    {
-                        speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
-                        speechTestInitiator.UseExtraWindow = true;
-                        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
-                        {
-                            case STFN.Utils.Constants.Languages.Swedish:
-                                speechTestInitiator.ExtraWindowTitle = "Testresultat";
-                                break;
-                            default:
-                                speechTestInitiator.ExtraWindowTitle = "Test Results Window";
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
-                        speechTestInitiator.UseExtraWindow = false;
-                    }
-
-                    return speechTestInitiator;
-
-
-                case "Talaudiometri":
-
-                    // Only setting the GuiLayoutState to allow the user to pick speech material
-                    speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.SpeechMaterialSelection;
-
-                    return speechTestInitiator;
-
-
-
+                    
                 default:
                     return null;
             }
         }
 
-
-        public class SpeechTestInitiator
+        public virtual ResponseView? GetSpeechTestResponseView(string SelectedTestName, SpeechTest CurrentSpeechTest, double InitialWidth, double InitialHeight)
         {
-            //public string Name { get; set; }
 
-            public string SelectedSpeechMaterialName { get; set; } = "";
+            switch (SelectedTestName)
+            {
 
-            public STFN.SpeechTest SpeechTest { get; set; }
+                case "Svenska HINT":
 
-            public OptionsViewAll TestOptionsView {  get; set; }
+                    // Response view
+                    return new ResponseView_FreeRecall();
 
-            public TestResultsView TestResultsView { get; set; }
+                case "Hagermans meningar (Matrix)":
 
-            public Views.SpeechTestView.GuiLayoutStates GuiLayoutState { get; set; }
+                    // Response view
+                    return new ResponseView_FreeRecall();
 
-            public bool UseExtraWindow { get; set; } = false;
+                case "Hörtröskel för tal (HTT)":
 
-            public string ExtraWindowTitle { get; set; } = "";
+                    // Response view
+                    if (CurrentSpeechTest.IsFreeRecall)
+                    {
+                        return new ResponseView_FreeRecall();
+                    }
+                    else
+                    {
+                        return new ResponseView_Mafc();
+                    }
 
-            public SpeechTestInitiator() { }
+                case "Manuell TP i brus":
 
+                    // Response view
+                    return new ResponseView_FreeRecallWithHistory(InitialWidth, InitialHeight, CurrentSpeechTest.HistoricTrialCount);
 
+                case "Quick SiP":
+
+                    // Response view
+                    if (CurrentSpeechTest.Transducer.IsHeadphones())
+                    {
+                        // Using normal mafc response view when presented in headphones
+                        return new ResponseView_Mafc();
+                    }
+                    else
+                    {
+                        // Using mafc response view with side-panel presentation (for head movements) when presented in sound field
+                        return new ResponseView_SiP_SF();
+                    }
+
+                case "SiP-testet (Adaptivt)":
+
+                    return new ResponseView_AdaptiveSiP();
+
+                case "SiP-testet (Adaptivt) - Övning":
+
+                    return  new ResponseView_AdaptiveSiP();
+
+                case "SiP-testet (TSFC)":
+
+                    return new ResponseView_TSFC();
+
+                default:
+                    return null;
+            }
         }
-
     }
 
+    public class SpeechTestInitiator
+    {
+        //public string Name { get; set; }
+
+        public string SelectedSpeechMaterialName { get; set; } = "";
+
+        public STFN.SpeechTest SpeechTest { get; set; }
+
+        public OptionsViewAll TestOptionsView { get; set; }
+
+        public TestResultsView TestResultsView { get; set; }
+
+        public Views.SpeechTestView.GuiLayoutStates GuiLayoutState { get; set; }
+
+        public bool UseExtraWindow { get; set; } = false;
+
+        public string ExtraWindowTitle { get; set; } = "";
+
+        public SpeechTestInitiator() { }
+
+
+    }
 }

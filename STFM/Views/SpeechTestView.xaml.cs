@@ -8,6 +8,7 @@ namespace STFM.Views;
 
 public partial class SpeechTestView : ContentView, IDrawable
 {
+    SpeechTestProvider speechTestProvider = new SpeechTestProvider();
 
     bool TestIsInitiated;
     string selectedSpeechTestName = string.Empty;
@@ -256,9 +257,12 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     private List<IDispatcherTimer> testTrialEventTimerList = null;
 
-    public SpeechTestView()
+    public SpeechTestView(SpeechTestProvider speechTestProvider)
     {
         InitializeComponent();
+
+        // Referencing the speechTestProvider 
+        this.speechTestProvider = speechTestProvider;
 
         //MyAudiogramView.Audiogram.Areas.Add(new Area()
         //{
@@ -515,7 +519,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
-    private void StartTestBtn_Clicked(object sender, EventArgs e)
+    private void StartTestBtn_Clicked(object? sender, EventArgs? e)
     {
 
         //IHearProtocolB4SpeechTest_II TempObject = (IHearProtocolB4SpeechTest_II)CurrentSpeechTest;
@@ -524,12 +528,12 @@ public partial class SpeechTestView : ContentView, IDrawable
         StartTest();
     }
 
-    private void PauseTestBtn_Clicked(object sender, EventArgs e)
+    private void PauseTestBtn_Clicked(object? sender, EventArgs? e)
     {
         PauseTest();
     }
 
-    private void StopTestBtn_Clicked(object sender, EventArgs e)
+    private void StopTestBtn_Clicked(object? sender, EventArgs? e)
     {
         FinalizeTest(true);
     }
@@ -810,487 +814,99 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                     // Returns right here to skip test-related adjustments
                     return;
-
-                //case "Talaudiometri":
-
-                //    CurrentGuiLayoutState = GuiLayoutStates.SpeechMaterialSelection;
-
-                //    return;
-
-
-                //case "Svenska HINT":
-
-                //SpeechTestProvider speechTestProvider = new SpeechTestProvider();
-
-                //var SpeechTestInitiator = speechTestProvider.GetSpeechTestInitiator("Svenska HINT");
-
-                ////Replacing: SpeechMaterialPicker.SelectedItem = "Swedish HINT";
-                //if (SpeechTestInitiator.SelectedSpeechMaterialName != "")
-                //{
-                //    SpeechMaterialPicker.SelectedItem = SpeechTestInitiator.SelectedSpeechMaterialName;
-                //}
-
-                //// Speech test
-                ////Replacing: CurrentSpeechTest = new HintSpeechTest("Swedish HINT");
-                //// Note that "CurrentSpeechTest = SpeechTestInitiator.SpeechTest;" is replaced by a call from within SpeechTestInitiator.GetSpeechTestInitiator that sets the value of STFN.SharedSpeechTestObjects.CurrentSpeechTest (which refers to the same object as CurrentSpeechTest)
-                //if (CurrentSpeechTest != null)
-                //{
-                //    // Adding the event handler that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-                //    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-                //    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
-                //}
-
-                //// Testoptions
-                //TestOptionsGrid.Children.Clear();
-                ////Replacing: var newOptionsHintTestView = new OptionsViewAll(CurrentSpeechTest);
-                //if (SpeechTestInitiator.TestOptionsView != null)
-                //{
-                //    var newOptionsHintTestView = SpeechTestInitiator.TestOptionsView;
-                //    TestOptionsGrid.Children.Add(newOptionsHintTestView);
-                //    CurrentTestOptionsView = newOptionsHintTestView;
-                //}
-
-                //// Creating test result view, on form (HINT is always free recall)
-                //TestResultGrid.Children.Clear();
-                ////Replacing: CurrentTestResultsView = new TestResultView_Adaptive();
-
-                //if (SpeechTestInitiator.TestResultsView != null)
-                //{
-                //    CurrentTestResultsView = SpeechTestInitiator.TestResultsView;
-
-                //    CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //    CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //    CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //    TestResultGrid.Children.Add(CurrentTestResultsView);
-                //}
-
-                //// Setting CurrentTestPlayState 
-                //CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
-
-                //break;
-
-
-                //case "Hagermans meningar (Matrix)":
-
-                //    SpeechMaterialPicker.SelectedItem = "Swedish Matrix Test (Hagerman)";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new MatrixSpeechTest("Swedish Matrix Test (Hagerman)");
-
-                //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-                //    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-                //    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
-
-                //    // Testoptions
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsMatrixTestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsMatrixTestView);
-                //    CurrentTestOptionsView = newOptionsMatrixTestView;
-
-                //    // Creating test result view
-                //    // TODO: If the matrix test is to be run in MAFC-mode, such a test should be separate from this, available from the test selection list.
-                //    // Such a test should create an control window for the test administrator. Here we use only an on-form test results control
-                //    TestResultGrid.Children.Clear();
-                //    CurrentTestResultsView = new TestResultView_Adaptive();
-
-                //    CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //    CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //    CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //    TestResultGrid.Children.Add(CurrentTestResultsView);
-
-                //    // Setting CurrentTestPlayState 
-                //    CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
-
-                //    break;
-
-
-                //case "Hörtröskel för tal (HTT)":
-
-                //    SpeechMaterialPicker.SelectedItem = "Swedish Spondees 23";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new HTT23SpeechTest("Swedish Spondees 23");
-
-                //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-                //    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-                //    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
-
-                //    // Testoptions
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsSrtTestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsSrtTestView);
-                //    CurrentTestOptionsView = newOptionsSrtTestView;
-
-                //    // Creating test result view. This is always on form, as it is always a free-recall test
-                //    TestResultGrid.Children.Clear();
-                //    CurrentTestResultsView = new TestResultView_Adaptive();
-
-                //    CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //    CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //    CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //    TestResultGrid.Children.Add(CurrentTestResultsView);
-
-                //    // Setting CurrentTestPlayState 
-                //    CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
-
-                //    break;
-
-                //case "Manuell TP i brus":
-
-                //    SpeechMaterialPicker.SelectedItem = "SwedishTP50";
-
-                //    // Speech test
-                //    //CurrentSpeechTest = new IHearProtocolB2SpeechTest("SwedishMonosyllablesTP800"); // This line was used during I HeAR data collection. The speech material name was changed after Protocol B1, but as this line was hard coded in the tablets a temporary speech material named SwedishMonosyllablesTP800 but located in the "SwedishTP50" folder was used. 
-                //    CurrentSpeechTest = new TP50SpeechTest("SwedishTP50"); // This line is new from 2024-11-02 (but not used in the data collection for protocol B2.
-
-                //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-                //    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-                //    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
-
-                //    // Testoptions
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsPB2TestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsPB2TestView);
-                //    CurrentTestOptionsView = newOptionsPB2TestView;
-
-                //    // Creating test result view. This is always on form, as it is always a free-recall test
-                //    TestResultGrid.Children.Clear();
-                //    CurrentTestResultsView = new TestResultView_ConstantStimuli();
-
-                //    CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //    CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //    CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //    TestResultGrid.Children.Add(CurrentTestResultsView);
-
-                //    // Setting CurrentTestPlayState 
-                //    CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
-
-                //    break;
-
-
-                //case "Quick SiP":
-
-                //    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new QuickSiP("Swedish SiP-test");
-
-                //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-                //    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-                //    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
-
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsQSipView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsQSipView);
-                //    CurrentTestOptionsView = newOptionsQSipView;
-
-                //    // Creating test result view. Using an external test-results window on PC and on-form on other platforms
-                //    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
-                //    {
-
-                //        HasExternalResultsView = true;
-                //        CurrentTestResultsView = new TestResultView_QuickSiP();
-
-                //        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //        TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
-                //        CurrentExternalTestResultWindow = new Window(NewTestResultPage);
-                //        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Quick SiP";
-                //        CurrentExternalTestResultWindow.Height = 240;
-                //        CurrentExternalTestResultWindow.Width = 1200;
-                //        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
-
-                //        // Setting CurrentTestPlayState 
-                //        CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
-
-                //    }
-                //    else
-                //    {
-
-                //        TestResultGrid.Children.Clear();
-                //        CurrentTestResultsView = new TestResultView_QuickSiP();
-
-                //        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //        TestResultGrid.Children.Add(CurrentTestResultsView);
-
-                //        // Setting CurrentTestPlayState 
-                //        CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
-
-                //    }
-
-                //    break;
-
-                //case "SiP-testet (Adaptivt)":
-
-                //    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
-
-                //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-                //    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-                //    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
-
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsASipTestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsASipTestView);
-                //    CurrentTestOptionsView = newOptionsASipTestView;
-
-
-                //    // Creating test result view. Using an external test-results window on PC and on-form on other platforms
-                //    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
-                //    {
-
-                //        HasExternalResultsView = true;
-                //        CurrentTestResultsView = new TestResultView_AdaptiveSiP();
-
-                //        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //        TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
-                //        CurrentExternalTestResultWindow = new Window(NewTestResultPage);
-                //        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Adaptive SiP-test";
-                //        CurrentExternalTestResultWindow.Height = 240;
-                //        CurrentExternalTestResultWindow.Width = 1200;
-                //        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
-
-                //        // Setting CurrentTestPlayState 
-                //        CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
-                //    }
-                //    else
-                //    {
-
-                //        TestResultGrid.Children.Clear();
-                //        CurrentTestResultsView = new TestResultView_Adaptive();
-
-                //        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //        TestResultGrid.Children.Add(CurrentTestResultsView);
-
-                //        // Setting CurrentTestPlayState 
-                //        CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
-
-                //    }
-
-
-                //    break;
-
-                //case "SiP-testet (Adaptivt) - Övning":
-
-                //    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
-                //    CurrentSpeechTest.IsPractiseTest = true;
-
-                //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-                //    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-                //    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
-
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsPASipTestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsPASipTestView);
-                //    CurrentTestOptionsView = newOptionsPASipTestView;
-
-
-                //    // Creating test result view. Using an external test-results window on PC and on-form on other platforms
-                //    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
-                //    {
-
-                //        HasExternalResultsView = true;
-                //        CurrentTestResultsView = new TestResultView_AdaptiveSiP();
-
-                //        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //        TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
-                //        CurrentExternalTestResultWindow = new Window(NewTestResultPage);
-                //        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Adaptive SiP-test (practise)";
-                //        CurrentExternalTestResultWindow.Height = 240;
-                //        CurrentExternalTestResultWindow.Width = 1200;
-                //        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
-
-                //        // Setting CurrentTestPlayState 
-                //        CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
-
-                //    }
-                //    else
-                //    {
-
-                //        TestResultGrid.Children.Clear();
-                //        CurrentTestResultsView = new TestResultView_Adaptive();
-
-                //        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //        TestResultGrid.Children.Add(CurrentTestResultsView);
-
-                //        // Setting CurrentTestPlayState 
-                //        CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
-
-                //    }
-
-                //    break;
-
-
-                //case "SiP-testet (TSFC)":
-
-                //    SpeechMaterialPicker.SelectedItem = "Swedish SiP-test";
-
-                //    // Speech test
-                //    CurrentSpeechTest = new AdaptiveSiP("Swedish SiP-test");
-
-                //    // Adding the event handlar that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-                //    CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-                //    CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
-
-                //    TestOptionsGrid.Children.Clear();
-                //    var newOptionsBSipTestView = new OptionsViewAll(CurrentSpeechTest);
-                //    TestOptionsGrid.Children.Add(newOptionsBSipTestView);
-                //    CurrentTestOptionsView = newOptionsBSipTestView;
-
-
-                //    // Creating test result view. Using an external test-results window on PC and on-form on other platforms
-                //    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
-                //    {
-
-                //        HasExternalResultsView = true;
-                //        CurrentTestResultsView = new TestResultView_AdaptiveSiP();
-
-                //        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //        TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
-                //        CurrentExternalTestResultWindow = new Window(NewTestResultPage);
-                //        CurrentExternalTestResultWindow.Title = "OSTF Tablet Suite - Test results window - Adaptive SiP-test";
-                //        CurrentExternalTestResultWindow.Height = 240;
-                //        CurrentExternalTestResultWindow.Width = 1200;
-                //        Application.Current.OpenWindow(CurrentExternalTestResultWindow);
-
-                //        // Setting CurrentTestPlayState 
-                //        CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
-                //    }
-                //    else
-                //    {
-
-                //        TestResultGrid.Children.Clear();
-                //        CurrentTestResultsView = new TestResultView_Adaptive();
-
-                //        CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                //        CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                //        CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
-
-                //        TestResultGrid.Children.Add(CurrentTestResultsView);
-
-                //        // Setting CurrentTestPlayState 
-                //        CurrentGuiLayoutState = GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
-
-                //    }
-
-
-                //    break;
-
-
-
+                                
                 default:
 
-                    SpeechTestProvider speechTestProvider = new SpeechTestProvider();
-
-                    var SpeechTestInitiator = speechTestProvider.GetSpeechTestInitiator(selectedSpeechTestName);
-
-                    if (SpeechTestInitiator != null)
+                    if (speechTestProvider != null)
                     {
 
-                        //Auto-picking the selected value in SpeechMaterialPicker
-                        if (SpeechTestInitiator.SelectedSpeechMaterialName != "")
-                        {
-                            SpeechMaterialPicker.SelectedItem = SpeechTestInitiator.SelectedSpeechMaterialName;
-                        }
+                        var SpeechTestInitiator = speechTestProvider.GetSpeechTestInitiator(selectedSpeechTestName);
 
-                        // Speech test
-                        // Note that CurrentSpeechTest set indirectly by a call from within SpeechTestInitiator.GetSpeechTestInitiator by setting the value of STFN.SharedSpeechTestObjects.CurrentSpeechTest (which refers to the same object as CurrentSpeechTest)
-                        if (CurrentSpeechTest != null)
+                        if (SpeechTestInitiator != null)
                         {
-                            // Adding the event handler that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
-                            CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
-                            CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
-                        }
 
-                        // Test options
-                        TestOptionsGrid.Children.Clear();
-                        if (SpeechTestInitiator.TestOptionsView != null)
-                        {
-                            var newOptionsHintTestView = SpeechTestInitiator.TestOptionsView;
-                            TestOptionsGrid.Children.Add(newOptionsHintTestView);
-                            CurrentTestOptionsView = newOptionsHintTestView;
-                        }
-
-                        //Test result view
-                        TestResultGrid.Children.Clear();
-                        if (SpeechTestInitiator.TestResultsView != null)
-                        {
-                            // Getting the test result view
-                            CurrentTestResultsView = SpeechTestInitiator.TestResultsView;
-
-                            // Putting the test result view in either in the current window or in an extra/new window
-                            HasExternalResultsView = SpeechTestInitiator.UseExtraWindow;
-                            if (HasExternalResultsView)
+                            //Auto-picking the selected value in SpeechMaterialPicker
+                            if (SpeechTestInitiator.SelectedSpeechMaterialName != "")
                             {
-
-                                TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
-                                CurrentExternalTestResultWindow = new Window(NewTestResultPage);
-                                CurrentExternalTestResultWindow.Title = SpeechTestInitiator.ExtraWindowTitle;
-                                CurrentExternalTestResultWindow.Height = 240;
-                                CurrentExternalTestResultWindow.Width = 1200;
-                                Application.Current.OpenWindow(CurrentExternalTestResultWindow);
-
-                            }
-                            else
-                            {
-                                TestResultGrid.Children.Add(CurrentTestResultsView);
+                                SpeechMaterialPicker.SelectedItem = SpeechTestInitiator.SelectedSpeechMaterialName;
                             }
 
-                            CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
-                            CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
-                            CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
+                            // Speech test
+                            // Note that CurrentSpeechTest set indirectly by a call from within SpeechTestInitiator.GetSpeechTestInitiator by setting the value of STFN.SharedSpeechTestObjects.CurrentSpeechTest (which refers to the same object as CurrentSpeechTest)
+                            if (CurrentSpeechTest != null)
+                            {
+                                // Adding the event handler that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
+                                CurrentSpeechTest.TransducerChanged -= UpdateSoundPlayerSettings;
+                                CurrentSpeechTest.TransducerChanged += UpdateSoundPlayerSettings;
+                            }
+
+                            // Test options
+                            TestOptionsGrid.Children.Clear();
+                            if (SpeechTestInitiator.TestOptionsView != null)
+                            {
+                                var newOptionsHintTestView = SpeechTestInitiator.TestOptionsView;
+                                TestOptionsGrid.Children.Add(newOptionsHintTestView);
+                                CurrentTestOptionsView = newOptionsHintTestView;
+                            }
+
+                            //Test result view
+                            TestResultGrid.Children.Clear();
+                            if (SpeechTestInitiator.TestResultsView != null)
+                            {
+                                // Getting the test result view
+                                CurrentTestResultsView = SpeechTestInitiator.TestResultsView;
+
+                                // Putting the test result view in either in the current window or in an extra/new window
+                                HasExternalResultsView = SpeechTestInitiator.UseExtraWindow;
+                                if (HasExternalResultsView)
+                                {
+
+                                    TestResultPage NewTestResultPage = new TestResultPage(ref CurrentTestResultsView);
+                                    CurrentExternalTestResultWindow = new Window(NewTestResultPage);
+                                    CurrentExternalTestResultWindow.Title = SpeechTestInitiator.ExtraWindowTitle;
+                                    CurrentExternalTestResultWindow.Height = 240;
+                                    CurrentExternalTestResultWindow.Width = 1200;
+                                    Application.Current.OpenWindow(CurrentExternalTestResultWindow);
+
+                                }
+                                else
+                                {
+                                    TestResultGrid.Children.Add(CurrentTestResultsView);
+                                }
+
+                                CurrentTestResultsView.StartedFromTestResultView += StartTestBtn_Clicked;
+                                CurrentTestResultsView.StoppedFromTestResultView += StopTestBtn_Clicked;
+                                CurrentTestResultsView.PausedFromTestResultView += PauseTestBtn_Clicked;
+
+                            }
+
+                            // Setting CurrentTestPlayState
+                            CurrentGuiLayoutState = SpeechTestInitiator.GuiLayoutState;
+
 
                         }
+                        else
+                        {
+                            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                            {
+                                case STFN.Utils.Constants.Languages.Swedish:
+                                    Messager.MsgBox("Det valda testet kunde inte skapas!", Messager.MsgBoxStyle.Information, "Test saknas");
+                                    break;
+                                default:
+                                    Messager.MsgBox("The selected test could not be created!", Messager.MsgBoxStyle.Information, "Missing test");
+                                    break;
+                            }
+                            TestOptionsGrid.Children.Clear();
+                            CurrentGuiLayoutState = GuiLayoutStates.InitialState;
+                            success = false;
+                        }
 
-                        // Setting CurrentTestPlayState
-                        CurrentGuiLayoutState = SpeechTestInitiator.GuiLayoutState;
-
-                                                
                     }
                     else
                     {
-                        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
-                        {
-                            case STFN.Utils.Constants.Languages.Swedish:
-                                Messager.MsgBox("Det valda testet kunde inte skapas!", Messager.MsgBoxStyle.Information, "Test saknas");
-                                break;
-                            default:
-                                Messager.MsgBox("The selected test could not be created!", Messager.MsgBoxStyle.Information, "Missing test");
-                                break;
-                        }
-                        TestOptionsGrid.Children.Clear();
-                        CurrentGuiLayoutState = GuiLayoutStates.InitialState;
-                        success = false;
+                        Messager.MsgBox("The speech test provider is null. This is likely a bug!", Messager.MsgBoxStyle.Information, "An error has occurred!");
                     }
+
                     break;
             }
         }
@@ -1354,7 +970,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
-    private void UpdateSoundPlayerSettings(object sender, EventArgs e)
+    private void UpdateSoundPlayerSettings(object? sender, EventArgs? e)
     {
         UpdateSoundPlayerSettings();
     }
@@ -1442,257 +1058,47 @@ public partial class SpeechTestView : ContentView, IDrawable
             try
             {
 
-                switch (selectedSpeechTestName)
+                // Getting the new speech test response view
+                var newResponseView = speechTestProvider.GetSpeechTestResponseView(selectedSpeechTestName, CurrentSpeechTest, TestReponseGrid.Width, TestReponseGrid.Height);
+                if (newResponseView != null)
                 {
+                    // Referencing the response view
+                    CurrentResponseView = newResponseView;
 
-                    case "Talaudiometri":
-
-                        // Pick appropriate response view
-                        if (CurrentSpeechTest.IsFreeRecall)
-                        {
-                            CurrentResponseView = new ResponseView_FreeRecall();
-                        }
-                        else
-                        {
-                            CurrentResponseView = new ResponseView_Mafc();
-
-                            // We have to choose between:
-                            //CurrentResponseView = new ResponseView_Matrix();
-
-                            //CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
-                            //Which also requires:
-                            // CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
-
-                            //CurrentResponseView = new ResponseView_SiP_SF();
-
-                        }
-
-                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-                        //TestResponseView.StartedByTestee += StartedByTestee;
-
-                        // Add the response view to TestReponseGrid (or put it in a separate window, code not finished there)
-                        if (true)
-                        {
-                            TestReponseGrid.Children.Add(CurrentResponseView);
-                        }
-                        else
-                        {
-                            ResponsePage responsePage = new ResponsePage(ref CurrentResponseView);
-                            Window secondWindow = new Window(responsePage);
-                            secondWindow.Title = "";
-                            Application.Current.OpenWindow(secondWindow);
-                        }
-
-                        // Testing with a basic text only view
-                        TestResultGrid.Children.Clear();
-                        if (CurrentTestResultsView != null)
-                        {
-                            CurrentTestResultsView = new TestResultsView_Text();
-                            TestResultGrid.Children.Add(CurrentTestResultsView);
-                        }
-
-                        break;
-
-                    case "Svenska HINT":
-
-                        // Response view
-                        CurrentResponseView = new ResponseView_FreeRecall();
-
-                        // Select separate response window here, code not finished
-                        if (false)
-                        {
-                            ResponsePage responsePage = new ResponsePage(ref CurrentResponseView);
-                            Window secondWindow = new Window(responsePage);
-                            secondWindow.Title = "";
-                            Application.Current.OpenWindow(secondWindow);
-
-                        }
-                        else
-                        {
-                            TestReponseGrid.Children.Add(CurrentResponseView);
-                        }
-
-                        //TestResponseView.StartedByTestee += StartedByTestee;
-                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                        break;
-
-
-                    case "Hagermans meningar (Matrix)":
-
-                        // Response view
-                        if (CurrentSpeechTest.IsFreeRecall)
-                        {
-                            CurrentResponseView = new ResponseView_FreeRecall();
-                        }
-                        else
-                        {
-                            CurrentResponseView = new ResponseView_Matrix();
-                        }
-
-                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-                        //TestResponseView.StartedByTestee += StartedByTestee;
-                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
+                    // TODO: Select separate response window here, code not finished
+                    bool openInSeparateWindow = false;
+                    if (openInSeparateWindow)
+                    {
+                        // Adding to a separate window
+                        ResponsePage responsePage = new ResponsePage(ref CurrentResponseView);
+                        Window secondWindow = new Window(responsePage);
+                        secondWindow.Title = "";
+                        Application.Current.OpenWindow(secondWindow);
+                    }
+                    else
+                    {
+                        // Adding to the on-form test response grid
+                        TestReponseGrid.Children.Clear();
                         TestReponseGrid.Children.Add(CurrentResponseView);
+                    }
 
-                        break;
+                    // Activating response handlers (removing first to avoid duplicates)
+                    CurrentResponseView.ResponseGiven -= HandleResponseView_ResponseGiven;
+                    CurrentResponseView.ResponseHistoryUpdated -= ResponseHistoryUpdate;
+                    CurrentResponseView.CorrectionButtonClicked -= ResponseViewCorrectionButtonClicked;
 
+                    CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
+                    CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
+                    CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
 
-                    case "Hörtröskel för tal (HTT)":
+                    return true;
 
-                        // Response view
-                        if (CurrentSpeechTest.IsFreeRecall)
-                        {
-                            CurrentResponseView = new ResponseView_FreeRecall();
-                        }
-                        else
-                        {
-                            CurrentResponseView = new ResponseView_Mafc();
-                        }
-                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-                        //TestResponseView.StartedByTestee += StartedByTestee;
-                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-
-
-                        break;
-
-                    //case "SiP-testet":
-
-                    //    CurrentResponseView = new ResponseView_Mafc();
-                    //    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    //    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    //    break;
-
-
-                    case "Manuell TP i brus":
-
-                        // Response view
-                        CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
-
-                        bool openInSeparateWindow = false;
-                        if (openInSeparateWindow)
-                        {
-                            ResponsePage PB2responsePage = new ResponsePage(ref CurrentResponseView);
-                            Window PB2secondWindow = new Window(PB2responsePage);
-                            PB2secondWindow.Title = "";
-                            Application.Current.OpenWindow(PB2secondWindow);
-                        }
-                        else
-                        {
-                            TestReponseGrid.Children.Add(CurrentResponseView);
-                        }
-
-                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-                        CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
-                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                        //// Testing with a basic text only view
-                        //TestResultGrid.Children.Clear();
-                        //CurrentTestResultsView = new TestResultsView_Text();
-                        //TestResultGrid.Children.Add(CurrentTestResultsView);
-
-                        break;
-
-
-                    case "Quick SiP":
-
-
-                        // Response view
-                        if (CurrentSpeechTest.Transducer.IsHeadphones())
-                        {
-                            // Using normal mafc response view when presented in headphones
-                            CurrentResponseView = new ResponseView_Mafc();
-                        }
-                        else
-                        {
-                            // Using mafc response view with side-panel presentation (for head movements) when presented in sound field
-                            CurrentResponseView = new ResponseView_SiP_SF();
-                        }
-
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-
-                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-
-                        //// Testing with a basic text only view
-                        //TestResultGrid.Children.Clear();
-                        //CurrentTestResultsView = new TestResultsView_Text();
-                        //TestResultGrid.Children.Add(CurrentTestResultsView);
-
-                        break;
-
-                    //case "SiP-testet":
-
-                    //    CurrentResponseView = new ResponseView_Mafc();
-                    //    TestReponseGrid.Children.Add(CurrentResponseView);
-
-                    //    CurrentResponseView.ResponseGiven += NewSpeechTestInput;
-
-                    //    break;
-
-                    case "TP50 - Ljudfält":
-
-                        // Response view
-                        CurrentResponseView = new ResponseView_FreeRecallWithHistory(TestReponseGrid.Width, TestReponseGrid.Height, CurrentSpeechTest.HistoricTrialCount);
-
-                        bool openTP50InSeparateWindow = false;
-                        if (openTP50InSeparateWindow)
-                        {
-                            ResponsePage PB2responsePage = new ResponsePage(ref CurrentResponseView);
-                            Window PB2secondWindow = new Window(PB2responsePage);
-                            PB2secondWindow.Title = "";
-                            Application.Current.OpenWindow(PB2secondWindow);
-                        }
-                        else
-                        {
-                            TestReponseGrid.Children.Add(CurrentResponseView);
-                        }
-
-                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-                        CurrentResponseView.ResponseHistoryUpdated += ResponseHistoryUpdate;
-                        CurrentResponseView.CorrectionButtonClicked += ResponseViewCorrectionButtonClicked;
-
-                        break;
-
-                    case "SiP-testet (Adaptivt)":
-
-                        CurrentResponseView = new ResponseView_AdaptiveSiP();
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-
-                        break;
-
-                    case "SiP-testet (Adaptivt) - Övning":
-
-                        CurrentResponseView = new ResponseView_AdaptiveSiP();
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-
-                        break;
-
-
-
-                    case "SiP-testet (TSFC)":
-
-                        CurrentResponseView = new ResponseView_TSFC();
-                        TestReponseGrid.Children.Add(CurrentResponseView);
-
-                        CurrentResponseView.ResponseGiven += HandleResponseView_ResponseGiven;
-
-                        break;
-
-
-                    default:
-                        Messager.MsgBox("No participant response GUI available for the selected test! This is must likely a bug which should not occur!");
-                        return false;
                 }
-                return true;
+                else
+                {
+                    return false;
+                }
+                               
             }
             catch (Exception)
             {
@@ -1930,7 +1336,7 @@ public partial class SpeechTestView : ContentView, IDrawable
     }
 
 
-    void ResponseViewCorrectionButtonClicked(object sender, EventArgs e)
+    void ResponseViewCorrectionButtonClicked(object? sender, EventArgs? e)
     {
         // Registering timed trial event
         if (CurrentSpeechTest.CurrentTestTrial != null)
@@ -1953,7 +1359,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
-    void HandleResponseView_ResponseGiven(object sender, SpeechTestInputEventArgs e)
+    void HandleResponseView_ResponseGiven(object? sender, SpeechTestInputEventArgs? e)
     {
         // This method handles the event triggered by a response in the response view, and calls the GetSpeechTestReply method of the CurrentSpeechTest to determine what should happen next.
         // Calls to this method should always be done from a worker thread! See explanation below!
@@ -2117,7 +1523,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     }
 
-    void ResponseHistoryUpdate(object sender, SpeechTestInputEventArgs e)
+    void ResponseHistoryUpdate(object? sender, SpeechTestInputEventArgs? e)
     {
 
         // Acctually this should probably be dealt with on a worker thread, so leaves it on the incoming thread

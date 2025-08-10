@@ -30,6 +30,14 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.7" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Views\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\STFM\STFM.csproj" />
+	</ItemGroup>
 	
 	<!--<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />

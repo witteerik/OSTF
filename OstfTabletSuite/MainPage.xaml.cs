@@ -82,7 +82,10 @@ namespace OstfTabletSuite
             }
             else
             {
-                var mySpeechTest = new STFM.Views.SpeechTestView
+                //Setting up the STFM.Extension speechTestProvider 
+                STFM.SpeechTestProvider speechTestProvider = new STFM.Extension.SpeechTestProvider();
+
+                var mySpeechTest = new STFM.Views.SpeechTestView(speechTestProvider)
                 {
                     VerticalOptions = LayoutOptions.Fill,
                     HorizontalOptions = LayoutOptions.Fill
