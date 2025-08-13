@@ -18,3 +18,5 @@ SiP-testet (Adaptivt)
 SiP-testet (TSFC)
 
 Hagermans meningar (Matrix) - Användarstyrt
+
+SiP-testet (Adaptivt-BILD)

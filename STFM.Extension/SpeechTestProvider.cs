@@ -25,6 +25,44 @@ namespace STFM.Extension
             switch (SelectedTestName)
             {
 
+                case "SiP-testet (Adaptivt-BILD)":
+
+                    // Selecting the speech material name
+                    speechTestInitiator.SelectedSpeechMaterialName = "Swedish SiP-test"; // Leave as an empty string if the user should select manually
+
+                    // Creating the speech test instance, and also stors it in SharedSpeechTestObjects
+                    speechTestInitiator.SpeechTest = new AdaptiveSiP_BILD(speechTestInitiator.SelectedSpeechMaterialName);
+                    STFN.SharedSpeechTestObjects.CurrentSpeechTest = speechTestInitiator.SpeechTest;
+
+                    // Creating a test options view
+                    speechTestInitiator.TestOptionsView = new OptionsViewAll(speechTestInitiator.SpeechTest);
+
+                    // Creating a test results view
+                    speechTestInitiator.TestResultsView = new TestResultView_AdaptiveSiP();
+
+                    // Determining the GuiLayoutState
+                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
+                    {
+                        speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
+                        speechTestInitiator.UseExtraWindow = true;
+                        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                        {
+                            case STFN.Utils.Constants.Languages.Swedish:
+                                speechTestInitiator.ExtraWindowTitle = "Testresultat";
+                                break;
+                            default:
+                                speechTestInitiator.ExtraWindowTitle = "Test Results Window";
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOnForm;
+                        speechTestInitiator.UseExtraWindow = false;
+                    }
+
+                    return speechTestInitiator;
+
                 case "Hagermans meningar (Matrix) - Användarstyrt":
 
 
@@ -131,6 +169,10 @@ namespace STFM.Extension
             // If the base class call did not return a ResponseView, the current method tries to return one instead
             switch (SelectedTestName)
             {
+
+                case "SiP-testet (Adaptivt-BILD)":
+
+                    return new ResponseView_AdaptiveSiP();
 
                 case "Talaudiometri":
 
