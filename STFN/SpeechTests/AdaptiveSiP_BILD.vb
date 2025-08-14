@@ -51,6 +51,12 @@ Public Class AdaptiveSiP_BILD
 
         SupportsManualPausing = True
 
+        'Setting up directional simulation
+        DirectionalSimulationSet = "ARC - Harcellen - HATS - SiP - HR"
+        PopulateSoundSourceLocationCandidates()
+        SimulatedSoundField = True
+
+
         GuiResultType = GuiResultTypes.VisualResults
 
     End Sub
@@ -58,7 +64,7 @@ Public Class AdaptiveSiP_BILD
     <ExludeFromPropertyListing>
     Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = False
 
-    Private PresetName As String = "Adaptive SiP"
+    Private PresetName As String = "Adaptive SiP - BILDV"
     Private PresetName_PractiseTest As String = "Adaptive SiP - Practise"
 
     'Defines the number of times each test word group is tested
@@ -75,6 +81,8 @@ Public Class AdaptiveSiP_BILD
     Protected ObservedTrials As New TestTrialCollection
 
     Private SpeakerSetup As AdaptiveSiP_BILD_SpeakerSetups = AdaptiveSiP_BILD_SpeakerSetups.Frontal_0_0_0
+
+    Private UseBILDAttenuation As Boolean = True
 
     Public Enum AdaptiveSiP_BILD_SpeakerSetups
         Bilateral_30_0_30
@@ -99,7 +107,7 @@ Public Class AdaptiveSiP_BILD
 
         If SimulatedSoundField = True Then
 
-            Return New Tuple(Of Boolean, String)(False, "Sound field simulation is not yet available in Adaptive SiP!")
+            'Return New Tuple(Of Boolean, String)(False, "Sound field simulation is not yet available in Adaptive SiP!")
 
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
@@ -324,15 +332,18 @@ Public Class AdaptiveSiP_BILD
 
                             'End If
 
-                            If SpeakerSetup = AdaptiveSiP_BILD_SpeakerSetups.Frontal_0_0_0 Then
+                            If SpeakerSetup = AdaptiveSiP_BILD_SpeakerSetups.Frontal_0_0_0 And UseBILDAttenuation = True Then
 
                                 'Applying a filter that simulates bilaural benefit
-                                Dim CurrentSound = SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath)
+                                Dim TempSound = SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath)
+
+                                'CurrentSound.WriteWaveFile("C:/FilterSound/Orig.wav")
 
                                 'Creating the filter kernel
                                 If BILD_FilterKernel Is Nothing Then
                                     Dim KernelFrequencyResponse As New List(Of Tuple(Of Single, Single))
                                     KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(0, 0))
+                                    KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(50, -14.5))
                                     KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(150, -14.5))
                                     KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(250, -13.6))
                                     KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(350, -12.4))
@@ -350,20 +361,26 @@ Public Class AdaptiveSiP_BILD
                                     KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(2900, -0.2))
                                     KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(3400, -0.1))
                                     KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(4000, 0))
-                                    'KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(4800, 0))
-                                    'KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(5800, 0))
-                                    'KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(7000, 0))
-                                    'KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(8500, 0))
 
-                                    BILD_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(KernelFrequencyResponse, Nothing, CurrentSound.WaveFormat, New Audio.Formats.FftFormat, 8000,, True, True)
+
+                                    BILD_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(KernelFrequencyResponse, Nothing, TempSound.WaveFormat, New Audio.Formats.FftFormat, 8000,, True, False)
+
                                 End If
 
-                                CurrentSound = Audio.DSP.FIRFilter(CurrentSound, BILD_FilterKernel, BILD_FftFormat, ,,,, False, True, True)
-                                CurrentSound.SourcePath = LoadedSound.SourcePath
-                                CurrentSound.SMA = LoadedSound.SMA
+                                'BILD_FilterKernel.WriteWaveFile("C:/FilterSound/Kernel.wav")
+
+                                TempSound = Audio.DSP.FIRFilter(TempSound, BILD_FilterKernel, BILD_FftFormat, ,,,, False, True, True)
+                                TempSound.SourcePath = LoadedSound.SourcePath
+                                TempSound.SMA = LoadedSound.SMA
+                                TempSound.FileName = LoadedSound.FileName
+                                TempSound.FFT = Nothing
+
+                                'CurrentSound.WriteWaveFile("C:/FilterSound/Filter.wav")
 
                                 'Replacing the sound (needed?)
-                                SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath) = CurrentSound
+                                SpeechMaterialComponent.SoundLibrary(TempSound.SourcePath) = TempSound
+
+                                LoadedSound = TempSound
 
                             End If
 
@@ -402,15 +419,22 @@ Public Class AdaptiveSiP_BILD
 
                             'SubTrial.ReferenceContrastingPhonemesLevel_SPL = 
 
-                            If SpeakerSetup = AdaptiveSiP_BILD_SpeakerSetups.Frontal_0_0_0 Then
+                            If SpeakerSetup = AdaptiveSiP_BILD_SpeakerSetups.Frontal_0_0_0 And UseBILDAttenuation = True Then
 
                                 'Applying a filter that simulates bilaural benefit
-                                Dim CurrentSound = SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath)
+                                Dim TempSound = SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath)
 
-                                CurrentSound = Audio.DSP.FIRFilter(CurrentSound, BILD_FilterKernel, BILD_FftFormat, ,,,, False, True, True)
+                                TempSound = Audio.DSP.FIRFilter(TempSound, BILD_FilterKernel, BILD_FftFormat, ,,,, False, True, True)
+
+                                TempSound.SourcePath = LoadedSound.SourcePath
+                                TempSound.SMA = LoadedSound.SMA
+                                TempSound.FileName = LoadedSound.FileName
+                                TempSound.FFT = Nothing
 
                                 'Replacing the sound (needed?)
-                                SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath) = CurrentSound
+                                SpeechMaterialComponent.SoundLibrary(TempSound.SourcePath) = TempSound
+
+                                LoadedSound = TempSound
 
                             End If
 
