@@ -64,7 +64,8 @@ Public Class AdaptiveSiP_BILD
     <ExludeFromPropertyListing>
     Public Overrides ReadOnly Property ShowGuiChoice_TargetSNRLevel As Boolean = False
 
-    Private PresetName As String = "Adaptive SiP - BILDV"
+    'Private PresetName As String = "Adaptive SiP - BILDV"
+    Private PresetName As String = "Adaptive SiP"
     Private PresetName_PractiseTest As String = "Adaptive SiP - Practise"
 
     'Defines the number of times each test word group is tested
@@ -82,7 +83,7 @@ Public Class AdaptiveSiP_BILD
 
     Private SpeakerSetup As AdaptiveSiP_BILD_SpeakerSetups = AdaptiveSiP_BILD_SpeakerSetups.Frontal_0_0_0
 
-    Private UseBILDAttenuation As Boolean = True
+    Private UseBILDAttenuation As Boolean = False
 
     Public Enum AdaptiveSiP_BILD_SpeakerSetups
         Bilateral_30_0_30
