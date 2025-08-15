@@ -39,7 +39,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\STFN\STFN.vbproj" />
+	  <ProjectReference Include="..\STFN.Core\STFN.Core.vbproj" />
+	  <ProjectReference Include="..\STFN\STFN.vbproj" />
 	</ItemGroup>
 
 </Project>

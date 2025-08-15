@@ -10,4 +10,8 @@
     <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\STFN.Core\STFN.Core.vbproj" />
+  </ItemGroup>
+
 </Project>
