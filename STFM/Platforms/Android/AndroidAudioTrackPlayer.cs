@@ -1,17 +1,17 @@
 ﻿using Android.Media;
-using STFN.Audio;
-using STFN.Audio.Formats;
-using STFN.Audio.SoundPlayers;
-using STFN.Audio.SoundScene;
+using STFN.Core.Audio;
+using STFN.Core.Audio.Formats;
+using STFN.Core.Audio.SoundPlayers;
+using STFN.Core.Audio.SoundScene;
 using System.Runtime.Versioning;
-using STFN;
+using STFN.Core;
 using Android.Content;
 
 
 namespace STFM
 {
 
-    public class AndroidAudioTrackPlayer : STFN.Audio.SoundPlayers.iSoundPlayer
+    public class AndroidAudioTrackPlayer : STFN.Core.Audio.SoundPlayers.iSoundPlayer
     {
 
         public static async Task<bool> InitializeAudioTrackBasedPlayer()
@@ -189,7 +189,7 @@ namespace STFM
             return _OverlapFrameCount / SampleRate;
         }
 
-        STFN.Audio.Formats.WaveFormat CurrentFormat = null;
+        STFN.Core.Audio.Formats.WaveFormat CurrentFormat = null;
 
 
         Object audioTrack = null; // This is declared as an Object instead of AudioTrack since it will otherwise register an error in the Visual Studio editor.
@@ -197,10 +197,10 @@ namespace STFM
         private System.Threading.SpinLock callbackSpinLock = new System.Threading.SpinLock();
         private System.Threading.SpinLock audioCheckSpinLock = new System.Threading.SpinLock();
 
-        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] OutputSoundA;
-        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] OutputSoundB;
-        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] NewSound;
-        private STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] SilentSound;
+        private STFN.Core.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] OutputSoundA;
+        private STFN.Core.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] OutputSoundB;
+        private STFN.Core.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] NewSound;
+        private STFN.Core.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder[] SilentSound;
 
         private float[] OverlapFadeInArray;
         private float[] OverlapFadeOutArray;
@@ -313,7 +313,7 @@ namespace STFM
                 AudioTrack castAudioTrack = (AudioTrack)audioTrack;
 
                 //Setting both sounds to silent sound
-                SilentSound = [new STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder(NumberOfOutputChannels, AudioSettings.FramesPerBuffer)];
+                SilentSound = [new STFN.Core.Audio.PortAudioVB.PortAudioBasedSoundPlayer.BufferHolder(NumberOfOutputChannels, AudioSettings.FramesPerBuffer)];
                 OutputSoundA = SilentSound;
                 OutputSoundB = SilentSound;
 
@@ -549,14 +549,14 @@ namespace STFM
             }
 
             //'Setting NewSound to the NewOutputSound to indicate that the output sound should be swapped by the callback
-            NewSound = STFN.Audio.PortAudioVB.PortAudioBasedSoundPlayer.CreateBufferHoldersOnNewThread(ref NewOutputSound, ref Mixer, AudioSettings.FramesPerBuffer, ref NumberOfOutputChannels, BitdepthScaling);
+            NewSound = STFN.Core.Audio.PortAudioVB.PortAudioBasedSoundPlayer.CreateBufferHoldersOnNewThread(ref NewOutputSound, ref Mixer, AudioSettings.FramesPerBuffer, ref NumberOfOutputChannels, BitdepthScaling);
 
             //Exports the output sound
             if (NewOutputSound != null)
             {
-                if (STFN.OstfBase.LogAllPlayedSoundFiles == true)
+                if (OstfBase.LogAllPlayedSoundFiles == true)
                 {
-                    string logFilePath = STFN.Utils.Logging.GetSoundFileExportLogPath(Mixer.GetOutputRoutingToString());
+                    string logFilePath = STFN.Core.Utils.Logging.GetSoundFileExportLogPath(Mixer.GetOutputRoutingToString());
                     NewOutputSound.WriteWaveFile(ref logFilePath);
                 }
             }

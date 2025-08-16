@@ -1,4 +1,5 @@
-﻿Public Class SrtChaiklinVentry1964_TestProtocol
+﻿Imports STFN.Core
+Public Class SrtChaiklinVentry1964_TestProtocol
     Inherits TestProtocol
 
     Public Overrides ReadOnly Property Name As String

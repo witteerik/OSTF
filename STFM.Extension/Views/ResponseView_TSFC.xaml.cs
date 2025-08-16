@@ -1,4 +1,4 @@
-using STFN;
+using STFN; using STFN.Core;
 using STFM;
 using STFM.Views;
 

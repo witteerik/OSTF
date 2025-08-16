@@ -1,4 +1,5 @@
-﻿using STFN;
+﻿using STFN.Core;
+using STFN;
 using System.Diagnostics;
 
 namespace OstfTabletSuite

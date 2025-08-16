@@ -1,4 +1,4 @@
-using STFN;
+using STFN.Core;
 
 namespace STFM.Views;
 
@@ -214,7 +214,7 @@ public partial class OptionsViewAll : ContentView
             {
                 Messager.MsgBox("No HRIR for sound field simulation has been loaded! Sound field simulation will be disabled!", Messager.MsgBoxStyle.Information, "Cannot locate needed resources!");
                 UseSimulatedSoundField_Switch.IsToggled = false;
-                //CurrentSpeechTest.UseSoundFieldSimulation = STFN.Utils.Constants.TriState.False; 'Cannot be done, as this is readonly!
+                //CurrentSpeechTest.UseSoundFieldSimulation = STFN.Core.Utils.Constants.TriState.False; 'Cannot be done, as this is readonly!
                 // Hiding the controls instead
                 UseSimulatedSoundFieldControl.IsEnabled = false;
                 UseSimulatedSoundFieldControl.IsVisible = false;
@@ -253,10 +253,10 @@ public partial class OptionsViewAll : ContentView
         UpdateContralteralNoiseIsVisible();
 
         // Clearing first
-        SpeechSoundSourceView.SoundSources = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
-        MaskerSoundSourceView.SoundSources = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
-        BackgroundNonSpeechSoundSourceView.SoundSources = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
-        BackgroundSpeechSoundSourceView.SoundSources = new List<STFN.Audio.SoundScene.VisualSoundSourceLocation>();
+        SpeechSoundSourceView.SoundSources = new List<STFN.Core.Audio.SoundScene.VisualSoundSourceLocation>();
+        MaskerSoundSourceView.SoundSources = new List<STFN.Core.Audio.SoundScene.VisualSoundSourceLocation>();
+        BackgroundNonSpeechSoundSourceView.SoundSources = new List<STFN.Core.Audio.SoundScene.VisualSoundSourceLocation>();
+        BackgroundSpeechSoundSourceView.SoundSources = new List<STFN.Core.Audio.SoundScene.VisualSoundSourceLocation>();
 
         if (CurrentSpeechTest != null)
         {
@@ -395,7 +395,7 @@ public partial class OptionsViewAll : ContentView
     {
 
         var PreTestStimulus = CurrentSpeechTest.CreatePreTestStimulus();
-        STFN.Audio.Sound PreTestStimulusSound = PreTestStimulus.Item1;
+        STFN.Core.Audio.Sound PreTestStimulusSound = PreTestStimulus.Item1;
         string PreTestStimulusSpelling = PreTestStimulus.Item2;
         PreListenSpellingLabel.Text = PreTestStimulusSpelling;
         OstfBase.SoundPlayer.SwapOutputSounds(ref PreTestStimulusSound);
@@ -412,7 +412,7 @@ public partial class OptionsViewAll : ContentView
         var CalibrationStimulus = CurrentSpeechTest.CreateCalibrationCheckSignal();
         if (CalibrationStimulus != null)
         {
-            STFN.Audio.Sound CalibrationSignal = CalibrationStimulus.Item1;
+            STFN.Core.Audio.Sound CalibrationSignal = CalibrationStimulus.Item1;
             OstfBase.SoundPlayer.SwapOutputSounds(ref CalibrationSignal);
             CalibrationCheckInfoLabel.Text = CalibrationStimulus.Item2;
         }

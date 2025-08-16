@@ -1,4 +1,5 @@
-﻿using STFN;
+﻿using STFN; 
+using STFN.Core;
 using STFM.Views;
 
 namespace STFM.Extension.Views;

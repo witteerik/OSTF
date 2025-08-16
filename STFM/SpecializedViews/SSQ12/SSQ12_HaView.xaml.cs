@@ -1,3 +1,4 @@
+using STFN.Core;
 namespace STFM.SpecializedViews.SSQ12;
 
 public partial class SSQ12_HaView : ContentView
@@ -14,10 +15,10 @@ public partial class SSQ12_HaView : ContentView
             HA_UseTime_EditorBorder.IsVisible = false;
         }
 
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
 
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
 
                 HA_UseQuestion_Label.Text = "Använder du hörapparat?";
                 HA_DoUse_RadioButton.Content = "Jag använder hörapparat";
@@ -92,15 +93,15 @@ public partial class SSQ12_HaView : ContentView
             else
             {
                 // Asks the user to specify left / righ / or both sides
-                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Utils.Constants.Languages.Swedish:
-                        await STFN.Messager.MsgBoxAsync("Vänligen ange om du använder hörapparat på vänster, höger eller båda öronen!", STFN.Messager.MsgBoxStyle.Information, "Ange hörapparatsida!");
+                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                        await Messager.MsgBoxAsync("Vänligen ange om du använder hörapparat på vänster, höger eller båda öronen!", Messager.MsgBoxStyle.Information, "Ange hörapparatsida!");
 
                         break;
                     default:
                         // Using English as default
-                        await STFN.Messager.MsgBoxAsync("Please specify if you use a hearing aid on left, right or both ears.", STFN.Messager.MsgBoxStyle.Information, "Specify hearing aid side!");
+                        await Messager.MsgBoxAsync("Please specify if you use a hearing aid on left, right or both ears.", Messager.MsgBoxStyle.Information, "Specify hearing aid side!");
 
                         break;
                 }
@@ -123,9 +124,9 @@ public partial class SSQ12_HaView : ContentView
 
         List<string> ReturnValueList = new List<string>();
 
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
 
                 if (SSQ12_MainView.MinimalVersion == false)
                 {

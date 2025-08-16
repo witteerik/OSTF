@@ -25,17 +25,6 @@ Imports System.Text.RegularExpressions
 
 Namespace Utils
 
-    Public Module StringManipulation
-
-        Public Function SplitStringByLines(input As String) As String()
-
-            Return input.Split({vbCrLf, vbLf, vbCr}, StringSplitOptions.None)
-
-            'As an alternative using regex, this expression should match any combination of \r and \n
-            'Return Regex.Split(input, "\r\n|\n\r|\r|\n")
-        End Function
-
-    End Module
 
     Public Module StringComparison
 
@@ -97,7 +86,7 @@ Namespace Utils
             Dim originalArrayLength As Integer = inputArray.Length
 
             If LogActive = True Then
-                Utils.SendInfoToLog("Initializing removal of string array duplicates.")
+                STFN.Core.Utils.SendInfoToLog("Initializing removal of string array duplicates.")
             End If
 
             'Putting unique strings in a temporary SortedSet (and selectively applying trimming and/or to lower)
@@ -144,7 +133,7 @@ Namespace Utils
             inputArray = outputArray
 
             If LogActive = True Then
-                Utils.SendInfoToLog("     " & originalArrayLength - outputArray.Length & " duplicate strings were removed. " & outputArray.Length & " strings remain in the array." & " Processing time: " & (DateTime.Now - startTime).TotalSeconds & " seconds.")
+                STFN.Core.Utils.SendInfoToLog("     " & originalArrayLength - outputArray.Length & " duplicate strings were removed. " & outputArray.Length & " strings remain in the array." & " Processing time: " & (DateTime.Now - startTime).TotalSeconds & " seconds.")
             End If
 
         End Sub

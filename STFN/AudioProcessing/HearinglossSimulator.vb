@@ -1,4 +1,9 @@
-﻿Namespace Audio
+﻿Imports STFN.Core
+Imports STFN.Core.Audio
+Imports STFN.Core.Audio.DSP
+
+
+Namespace Audio
 
     Public Class HearinglossSimulator_CB
 
@@ -19,7 +24,7 @@
 
         Public FirKernelLength As Integer = 4096
 
-        Public BandBank As Audio.DSP.BandBank
+        Public BandBank As BandBank
 
         Public Property SourceSound As Sound
         Public Property SimulatedSound As Sound
@@ -38,7 +43,7 @@
             SimulatedAudiogram.FillUpUCLs
 
             'Creates the SII critical band bank
-            BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+            BandBank = BandBank.GetSiiCriticalRatioBandBank
 
             Me.SimulatedAudiogram = SimulatedAudiogram
             Me.ListenerAudiogram = ListenerAudiogram
@@ -75,14 +80,14 @@
 
         End Sub
 
-        Public Sub Simulate(ByRef SourceSound As Audio.Sound)
+        Public Sub Simulate(ByRef SourceSound As Sound)
 
             TimeWindows.Clear()
 
             'Enforces stereo input (TODO: This should be done without chancing the SourceSound
             If SourceSound.WaveFormat.Channels = 1 Then SourceSound = SourceSound.ConvertMonoToMultiChannel(2, True)
             If SourceSound.WaveFormat.Channels > 2 Then
-                Dim TempSourceSound = New Audio.Sound(New Formats.WaveFormat(SourceSound.WaveFormat.SampleRate, SourceSound.WaveFormat.BitDepth, 2,, SourceSound.WaveFormat.Encoding))
+                Dim TempSourceSound = New Sound(New Formats.WaveFormat(SourceSound.WaveFormat.SampleRate, SourceSound.WaveFormat.BitDepth, 2,, SourceSound.WaveFormat.Encoding))
                 TempSourceSound.WaveData.SampleData(1) = SourceSound.WaveData.SampleData(1)
                 TempSourceSound.WaveData.SampleData(2) = SourceSound.WaveData.SampleData(2)
                 SourceSound = TempSourceSound
@@ -109,8 +114,8 @@
 
 
             'Sets of some objects which are reused between the loops in the code below
-            Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
-            Dim dBSPL_FSdifference As Double? = Audio.Standard_dBFS_dBSPL_Difference
+            Dim FftFormat As New Formats.FftFormat(4 * 2048,, 1024, WindowingType.Hamming, False)
+            Dim dBSPL_FSdifference As Double? = Standard_dBFS_dBSPL_Difference
 
             For Each TimeWindow In TimeWindows
 
@@ -150,24 +155,24 @@
 
         End Sub
 
-        Public Function GetAverageResponse(ByVal Side As Utils.Sides) As SortedList(Of Double, Double)
+        Public Function GetAverageResponse(ByVal Side As STFN.Core.Utils.Sides) As SortedList(Of Double, Double)
 
             Dim BandGains As New SortedList(Of Double, List(Of Double))
-            For b = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
-                BandGains.Add(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), New List(Of Double))
+            For b = 0 To PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
+                BandGains.Add(PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), New List(Of Double))
             Next
 
             Select Case Side
-                Case Utils.Constants.Sides.Left
+                Case STFN.Core.Utils.Constants.Sides.Left
                     For Each TimeWindow In TimeWindows
-                        For b = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
-                            BandGains(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b)).Add(TimeWindow.Left_SimulationBandGains(b))
+                        For b = 0 To PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
+                            BandGains(PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b)).Add(TimeWindow.Left_SimulationBandGains(b))
                         Next
                     Next
-                Case Utils.Constants.Sides.Right
+                Case STFN.Core.Utils.Constants.Sides.Right
                     For Each TimeWindow In TimeWindows
-                        For b = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
-                            BandGains(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b)).Add(TimeWindow.Right_SimulationBandGains(b))
+                        For b = 0 To PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
+                            BandGains(PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b)).Add(TimeWindow.Right_SimulationBandGains(b))
                         Next
                     Next
                 Case Else
@@ -200,16 +205,16 @@
             Public Right_SignalCriticalBandLevels(20) As Double
             Public Right_SimulationBandGains(20) As Single
 
-            Private LeftEar_FilterKernel As Audio.Sound
-            Private RightEar_FilterKernel As Audio.Sound
+            Private LeftEar_FilterKernel As Sound
+            Private RightEar_FilterKernel As Sound
 
-            Public SoundData As Audio.Sound
+            Public SoundData As Sound
 
-            Public Sub CalculateSignalSpectrumLevels(ByRef BandBank As Audio.DSP.BandBank, ByRef FftFormat As Audio.Formats.FftFormat, ByVal dBSPL_FSdifference As Double)
+            Public Sub CalculateSignalSpectrumLevels(ByRef BandBank As BandBank, ByRef FftFormat As Formats.FftFormat, ByVal dBSPL_FSdifference As Double)
 
                 'And these are only used to be able to export the values used
-                Left_SignalCriticalBandLevels = Audio.DSP.CalculateBandLevels(SoundData, 1, BandBank, FftFormat).ToArray
-                Right_SignalCriticalBandLevels = Audio.DSP.CalculateBandLevels(SoundData, 2, BandBank, FftFormat).ToArray
+                Left_SignalCriticalBandLevels = CalculateBandLevels(SoundData, 1, BandBank, FftFormat).ToArray
+                Right_SignalCriticalBandLevels = CalculateBandLevels(SoundData, 2, BandBank, FftFormat).ToArray
 
                 'Converting from dBFS to dBSPL
                 For i = 0 To Left_SignalCriticalBandLevels.Length - 1
@@ -285,16 +290,16 @@
 
                 'Adding gain
                 For b = 0 To 20
-                    LeftEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), Left_SimulationBandGains(b)))
-                    RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), Right_SimulationBandGains(b)))
+                    LeftEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), Left_SimulationBandGains(b)))
+                    RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(PsychoAcoustics.SiiCriticalBands.CentreFrequencies(b), Right_SimulationBandGains(b)))
                 Next
 
                 'Extending gain values to the Nyquist frequency (with some margin)
                 LeftEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Int(SoundData.WaveFormat.SampleRate / 2) - 2, Left_SimulationBandGains(20)))
                 RightEarFilter_TargetResponse.Add(New Tuple(Of Single, Single)(Int(SoundData.WaveFormat.SampleRate / 2) - 2, Right_SimulationBandGains(20)))
 
-                LeftEar_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(LeftEarFilter_TargetResponse, Nothing, SoundData.WaveFormat, New Formats.FftFormat(), ParentHearinglossSimulator.FirKernelLength,, True)
-                RightEar_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(RightEarFilter_TargetResponse, Nothing, SoundData.WaveFormat, New Formats.FftFormat(), ParentHearinglossSimulator.FirKernelLength,, True)
+                LeftEar_FilterKernel = STFN.Core.Audio.GenerateSound.CreateCustumImpulseResponse(LeftEarFilter_TargetResponse, Nothing, SoundData.WaveFormat, New Formats.FftFormat(), ParentHearinglossSimulator.FirKernelLength,, True)
+                RightEar_FilterKernel = STFN.Core.Audio.GenerateSound.CreateCustumImpulseResponse(RightEarFilter_TargetResponse, Nothing, SoundData.WaveFormat, New Formats.FftFormat(), ParentHearinglossSimulator.FirKernelLength,, True)
 
             End Sub
 
@@ -303,8 +308,8 @@
                 'Adjusting the amplitude response of both sides
                 Dim LeftSound = SoundData.CopySection(1, 0, SoundData.WaveData.SampleData(1).Length)
                 Dim RightSound = SoundData.CopySection(2, 0, SoundData.WaveData.SampleData(2).Length)
-                LeftSound = Audio.DSP.FIRFilter(LeftSound, LeftEar_FilterKernel, New Formats.FftFormat(), ,,,, False, True, True)
-                RightSound = Audio.DSP.FIRFilter(RightSound, RightEar_FilterKernel, New Formats.FftFormat(), ,,,, False, True, True)
+                LeftSound = FIRFilter(LeftSound, LeftEar_FilterKernel, New Formats.FftFormat(), ,,,, False, True, True)
+                RightSound = FIRFilter(RightSound, RightEar_FilterKernel, New Formats.FftFormat(), ,,,, False, True, True)
 
                 SoundData.WaveData.SampleData(1) = LeftSound.WaveData.SampleData(1)
                 SoundData.WaveData.SampleData(2) = RightSound.WaveData.SampleData(1)
@@ -315,7 +320,7 @@
 
                 For c = 1 To SoundData.WaveFormat.Channels
                     Dim SoundArray = SoundData.WaveData.SampleData(c)
-                    Audio.WindowingFunction(SoundArray, WindowingType.Hanning)
+                    WindowingFunction(SoundArray, WindowingType.Hanning)
                 Next
 
             End Sub
@@ -379,7 +384,7 @@
             Me.SourceSound = SourceSound
 
             'Removing SourceSound DC-component
-            If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(SourceSound)
+            If RemoveDcComponent = True Then STFN.Core.Audio.DSP.RemoveDcComponent(SourceSound)
 
             'Filterring the input sound (left and right channels)
             Dim FilteredSoundChannel1 = FilterBank.Filter(SourceSound, 1, KeepInputSoundLength)

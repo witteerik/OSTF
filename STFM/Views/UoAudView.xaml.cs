@@ -1,4 +1,4 @@
-using STFN;
+using STFN.Core;
 
 namespace STFM.Views;
 
@@ -21,29 +21,29 @@ public partial class UoAudView : ContentView
     private Brush NonPressedBrush = Colors.LightGray;
     private Brush PressedBrush = Colors.Yellow;
 
-    private STFN.UoPta CurrentTest;
+    private UoPta CurrentTest;
 
-    STFN.UoPta.PtaTrial CurrentTrial;
+    UoPta.PtaTrial CurrentTrial;
 
-    private STFN.Audio.Formats.WaveFormat WaveFormat;
+    private STFN.Core.Audio.Formats.WaveFormat WaveFormat;
 
     private SortedList<int, double> RetSplList;
     private SortedList<int, double> PureToneCalibrationList = new SortedList<int, double>();
 
-    private STFN.Audio.Sound silentSound = null;
+    private STFN.Core.Audio.Sound silentSound = null;
 
     IDispatcherTimer TrialEndTimer;
 
     private bool TestIsStarted = false;
 
-    public UoAudView(STFN.UoPta CurrentTest)
+    public UoAudView(UoPta CurrentTest)
     {
         InitializeComponent();
 
         // Setting default texts
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.English:
+            case STFN.Core.Utils.Constants.Languages.English:
 
                 MessageButton.Text = "Click here to start!";
                 MessageLabel.Text = "Press when you hear a tone.\nRelease when the tone disappears.";
@@ -54,7 +54,7 @@ public partial class UoAudView : ContentView
 
                 break;
 
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
 
                 MessageButton.Text = "Tryck här för att starta!";
                 MessageLabel.Text = "Tryck på knappen nedanför när du hör en ton.\nSläpp knappen när tonen tystnar.";
@@ -90,9 +90,9 @@ public partial class UoAudView : ContentView
         this.CurrentTest = CurrentTest;
 
         // Creating a default wave format and silent sound
-        WaveFormat = new STFN.Audio.Formats.WaveFormat(48000, 32, 2, "", STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
+        WaveFormat = new STFN.Core.Audio.Formats.WaveFormat(48000, 32, 2, "", STFN.Core.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
 
-        silentSound = STFN.Audio.GenerateSound.Signals.CreateSilence(ref this.WaveFormat, null, 3);
+        silentSound = STFN.Core.Audio.GenerateSound.Signals.CreateSilence(ref this.WaveFormat, null, 3);
 
         // RETSPL values for DD65v2
         RetSplList = new SortedList<int, double>();
@@ -235,7 +235,7 @@ public partial class UoAudView : ContentView
                 TrialEndTimer.Stop();
 
                 // Saving test result
-                if (STFN.UoPta.SaveAudiogramDataToFile == true)
+                if (UoPta.SaveAudiogramDataToFile == true)
                 {
                     CurrentTest.ExportAudiogramData();
                 }
@@ -251,14 +251,14 @@ public partial class UoAudView : ContentView
                     return;
                 }
 
-                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Utils.Constants.Languages.English:
+                    case STFN.Core.Utils.Constants.Languages.English:
                         MessageButton.Text = "This hearing test is now completed.\n\nClick here to continue!";
                         LevelLabel.Text = "";
                         RatingLabel.Text = "";
                         break;
-                    case STFN.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.Constants.Languages.Swedish:
                         MessageButton.Text = "Detta test är nu klart.\n\nTryck här för att gå vidare!";
                         LevelLabel.Text = "";
                         RatingLabel.Text = "";
@@ -286,7 +286,7 @@ public partial class UoAudView : ContentView
         // Mixing the sound
         double RetSplCorrectedLevel = CurrentTrial.ToneLevel + RetSplList[CurrentTrial.ParentSubTest.Frequency];
         double CalibratedRetSplCorrectedLevel = RetSplCorrectedLevel + PureToneCalibrationList[CurrentTrial.ParentSubTest.Frequency];
-        double RetSplCorrectedLevel_FS = STFN.Audio.AudioManagement.Standard_dBSPL_To_dBFS(CalibratedRetSplCorrectedLevel);
+        double RetSplCorrectedLevel_FS = STFN.Core.Audio.AudioManagement.Standard_dBSPL_To_dBFS(CalibratedRetSplCorrectedLevel);
 
         // Here, to make sure the tone does not get in distorted integer sound formats, we should also add the output channel specific general calibration gain added by the sound player and which we can get from:
         // var CurrentMixer = OstfBase.SoundPlayer.GetMixer();
@@ -317,26 +317,26 @@ public partial class UoAudView : ContentView
         }
 
         // Creating the sine
-        STFN.Audio.Sound SineSound = STFN.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat, 1, CurrentTrial.ParentSubTest.Frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Audio.AudioManagement.SoundDataUnit.dB, 
-            CurrentTrial.ToneDuration.TotalSeconds, STFN.Audio.BasicAudioEnums.TimeUnits.seconds, 0, true);
-        STFN.Audio.DSP.Transformations.Fade(ref SineSound, null, 0, 1, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
-        STFN.Audio.DSP.Transformations.Fade(ref SineSound, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.1), null, STFN.Audio.DSP.Transformations.FadeSlopeType.Linear);
+        STFN.Core.Audio.Sound SineSound = STFN.Core.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat, 1, CurrentTrial.ParentSubTest.Frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Core.Audio.AudioManagement.SoundDataUnit.dB, 
+            CurrentTrial.ToneDuration.TotalSeconds, STFN.Core.Audio.BasicAudioEnums.TimeUnits.seconds, 0, true);
+        STFN.Core.Audio.DSP.Transformations.Fade(ref SineSound, null, 0, 1, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Core.Audio.DSP.Transformations.FadeSlopeType.Linear);
+        STFN.Core.Audio.DSP.Transformations.Fade(ref SineSound, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.1), null, STFN.Core.Audio.DSP.Transformations.FadeSlopeType.Linear);
 
         // Padding the sine with the initial silence 
         SineSound.ZeroPad(CurrentTrial.ToneOnsetTime.TotalSeconds, null, false);
 
         // Creating a stereo sound
-        STFN.Audio.Sound TrialSound = new STFN.Audio.Sound(WaveFormat);
+        STFN.Core.Audio.Sound TrialSound = new STFN.Core.Audio.Sound(WaveFormat);
 
         switch (CurrentTrial.ParentSubTest.Side)
         {
-            case STFN.Utils.Constants.Sides.Left:
+            case STFN.Core.Utils.Constants.Sides.Left:
 
                 TrialSound.WaveData.set_SampleData(1, SineSound.WaveData.get_SampleData(1)); 
                 // Leaving the other channel empty
 
                 break;
-            case STFN.Utils.Constants.Sides.Right:
+            case STFN.Core.Utils.Constants.Sides.Right:
 
                 TrialSound.WaveData.set_SampleData(2, SineSound.WaveData.get_SampleData(1));
                 // Leaving the other channel empty
@@ -409,7 +409,7 @@ public partial class UoAudView : ContentView
                 if (DateTime.Now > CurrentTrial.TrialStartTime + CurrentTrial.ResponseOffsetTime + TimeSpan.FromSeconds(CurrentTest.PostTruePositiveResponseDuration))
                 {
                     //Saving trial data to file
-                    if (STFN.UoPta.LogTrialData == true) { CurrentTrial.ExportPtaTrialData(); }
+                    if (UoPta.LogTrialData == true) { CurrentTrial.ExportPtaTrialData(); }
 
                     // Setting CurrentTrial to null and starting next trial
                     CurrentTrial = null;
@@ -422,7 +422,7 @@ public partial class UoAudView : ContentView
                 if (DateTime.Now > CurrentTrial.TrialStartTime + CurrentTrial.ToneOffsetTime + TimeSpan.FromSeconds(CurrentTest.PostToneDuration))
                 {
                     //Saving trial data to file
-                    if (STFN.UoPta.LogTrialData == true) { CurrentTrial.ExportPtaTrialData(); }
+                    if (UoPta.LogTrialData == true) { CurrentTrial.ExportPtaTrialData(); }
 
                     // Setting CurrentTrial to null and starting next trial
                     CurrentTrial = null;

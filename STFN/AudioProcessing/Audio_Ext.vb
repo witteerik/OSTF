@@ -1,5 +1,6 @@
 ﻿Imports System.IO
-
+Imports STFN.Core
+Imports STFN.Core.Audio
 
 
 Namespace Audio
@@ -203,17 +204,17 @@ Namespace Audio
                             If InputFile.WaveData.SampleData(1).Length > MaxLength Then
 
                                 'Splitting the file
-                                Dim SectionCount As Integer = 1 + Utils.Rounding((FileLength - MaxLength) / StepSize, Utils.roundingMethods.alwaysUp)
+                                Dim SectionCount As Integer = 1 + STFN.Core.Utils.Rounding((FileLength - MaxLength) / StepSize, STFN.Core.Utils.roundingMethods.alwaysUp)
 
                                 'Copying and saving the sections
                                 For n = 0 To SectionCount - 2
-                                    Dim NewSound = DSP.CopySection(InputFile, StepSize * n, MaxLength) 'Reads to the end of the file
+                                    Dim NewSound = STFN.Core.Audio.DSP.CopySection(InputFile, StepSize * n, MaxLength) 'Reads to the end of the file
                                     AudioIOs.SaveToWaveFile(NewSound, Path.Combine(OutputFolder, Path.GetFileNameWithoutExtension(File) & "_" & n & ".wav"))
 
                                 Next
 
                                 'Copying the last section
-                                Dim LastSound = DSP.CopySection(InputFile, StepSize * (SectionCount - 1),) 'Reads to the end of the file
+                                Dim LastSound = STFN.Core.Audio.DSP.CopySection(InputFile, StepSize * (SectionCount - 1),) 'Reads to the end of the file
                                 AudioIOs.SaveToWaveFile(LastSound, Path.Combine(OutputFolder, Path.GetFileNameWithoutExtension(File) & "_" & (SectionCount - 1) & ".wav"))
 
                             Else
@@ -313,7 +314,7 @@ Namespace Audio
 
                         'Setting the averagelevel to TargetLevel_dBFS
                         If TargetLevel_dBFS.HasValue Then
-                            DSP.MeasureAndAdjustSectionLevel(InputSound, TargetLevel_dBFS,,,, TargetLevel_FrequencyWeighting)
+                            STFN.Core.Audio.DSP.MeasureAndAdjustSectionLevel(InputSound, TargetLevel_dBFS,,,, TargetLevel_FrequencyWeighting)
                         End If
 
                         'SMA sentence

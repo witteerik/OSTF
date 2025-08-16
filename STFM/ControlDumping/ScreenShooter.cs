@@ -1,5 +1,4 @@
-﻿
-using STFN;
+﻿using STFN.Core;
 
 public static class ScreenShooter
 {
@@ -41,11 +40,11 @@ public static class ScreenShooter
             {
                 switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Utils.Constants.Languages.Swedish:
-                        await STFN.Messager.MsgBoxAsync("Skärmdumpar stöds inte på denna enhet!", Messager.MsgBoxStyle.Information, "Kunde inte ta skärmdump!");
+                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                        await Messager.MsgBoxAsync("Skärmdumpar stöds inte på denna enhet!", Messager.MsgBoxStyle.Information, "Kunde inte ta skärmdump!");
                         break;
                     default:
-                        await STFN.Messager.MsgBoxAsync("Screen shots are not supported on this device", Messager.MsgBoxStyle.Information, "Could not take a screen shot!");
+                        await Messager.MsgBoxAsync("Screen shots are not supported on this device", Messager.MsgBoxStyle.Information, "Could not take a screen shot!");
                         break;
                 }
             }
@@ -55,11 +54,11 @@ public static class ScreenShooter
 
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
-                    await STFN.Messager.MsgBoxAsync("Misslyckades med att ta skärmdump!\n\n" + e.ToString(),  Messager.MsgBoxStyle.Information, "Något gick fel!");
+                case STFN.Core.Utils.Constants.Languages.Swedish:
+                    await Messager.MsgBoxAsync("Misslyckades med att ta skärmdump!\n\n" + e.ToString(),  Messager.MsgBoxStyle.Information, "Något gick fel!");
                     break;
                 default:
-                    await STFN.Messager.MsgBoxAsync("Failed to take a screen shot!\n\n" + e.ToString(), Messager.MsgBoxStyle.Information, "Something went wrong!");
+                    await Messager.MsgBoxAsync("Failed to take a screen shot!\n\n" + e.ToString(), Messager.MsgBoxStyle.Information, "Something went wrong!");
                     break;
             }
 

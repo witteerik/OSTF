@@ -24,119 +24,14 @@
 Imports System.IO
 Imports System.Runtime.Serialization
 Imports System.Xml.Serialization
+Imports STFN.Core
+Imports STFN.Core.Utils
+
 
 Namespace Utils
 
     Public Module GeneralIO
 
-
-        ''' <summary>
-        ''' Asks the user to supply a file path by using a save file dialog box.
-        ''' </summary>
-        ''' <param name="directory">Optional initial directory.</param>
-        ''' <param name="fileName">Optional suggested file name</param>
-        ''' <param name="fileExtensions">Optional possible extensions</param>
-        ''' <param name="BoxTitle">The message/title on the file dialog box</param>
-        ''' <returns>Returns the file path, or nothing if a file path could not be created.</returns>
-        Public Function GetSaveFilePath(Optional ByRef directory As String = "",
-                                Optional ByRef fileName As String = "",
-                                    Optional fileExtensions() As String = Nothing,
-                                    Optional BoxTitle As String = "") As String
-
-            Return Messager.GetSaveFilePath(directory, fileName, fileExtensions, BoxTitle).Result
-
-            'The OstfGui.GetSaveFilePath should do the following:
-            '            Dim filePath As String = ""
-            '            'Asks the user for a file path using the SaveFileDialog box.
-            'SavingFile: Dim sfd As New SaveFileDialog
-
-            '            'Creating a filterstring
-            '            If fileExtensions IsNot Nothing Then
-            '                Dim filter As String = ""
-            '                For ext = 0 To fileExtensions.Length - 1
-
-            '                    filter &= fileExtensions(ext).Trim(".") & " files (*." & fileExtensions(ext).Trim(".") & ")|*." & fileExtensions(ext).Trim(".") & "|"
-            '                Next
-            '                filter = filter.TrimEnd("|")
-            '                sfd.Filter = filter
-            '            End If
-
-            '            If Not directory = "" Then sfd.InitialDirectory = directory
-            '            If Not fileName = "" Then sfd.FileName = fileName
-            '            If Not BoxTitle = "" Then sfd.Title = BoxTitle
-
-            '            Dim result As DialogResult = sfd.ShowDialog()
-            '            If result = DialogResult.OK Then
-            '                filePath = sfd.FileName
-
-            '                'Updats input variables to contain the selected
-            '                directory = Path.GetDirectoryName(filePath)
-            '                fileName = Path.GetFileName(filePath)
-
-            '                Return filePath
-            '            Else
-            '                Dim errorSaving As MsgBoxResult = MsgBox("An error occurred choosing file name.", MsgBoxStyle.RetryCancel, "Warning!")
-            '                If errorSaving = MsgBoxResult.Retry Then
-            '                    GoTo SavingFile
-            '                Else
-            '                    Return Nothing
-            '                End If
-            '            End If
-
-        End Function
-
-        ''' <summary>
-        ''' Asks the user to supply a file path by using an open file dialog box.
-        ''' </summary>
-        ''' <param name="directory">Optional initial directory.</param>
-        ''' <param name="fileName">Optional suggested file name</param>
-        ''' <param name="fileExtensions">Optional possible extensions</param>
-        ''' <param name="BoxTitle">The message/title on the file dialog box</param>
-        ''' <returns>Returns the file path, or nothing if a file path could not be created.</returns>
-        Public Function GetOpenFilePath(Optional directory As String = "",
-                                    Optional fileName As String = "",
-                                    Optional fileExtensions() As String = Nothing,
-                                    Optional BoxTitle As String = "",
-                                    Optional ReturnEmptyStringOnCancel As Boolean = False) As String
-
-            Return Messager.GetOpenFilePath(directory, fileName, fileExtensions, BoxTitle, ReturnEmptyStringOnCancel).Result
-
-            'The OstfGui.GetOpenFilePath should do the following:
-
-            '            Dim filePath As String = ""
-
-            'SavingFile: Dim ofd As New OpenFileDialog
-            '            'Creating a filterstring
-            '            If fileExtensions IsNot Nothing Then
-            '                Dim filter As String = ""
-            '                For ext = 0 To fileExtensions.Length - 1
-            '                    filter &= fileExtensions(ext).Trim(".") & " files (*." & fileExtensions(ext).Trim(".") & ")|*." & fileExtensions(ext).Trim(".") & "|"
-            '                Next
-            '                filter = filter.TrimEnd("|")
-            '                ofd.Filter = filter
-            '            End If
-
-            '            If Not directory = "" Then ofd.InitialDirectory = directory
-            '            If Not fileName = "" Then ofd.FileName = fileName
-            '            If Not BoxTitle = "" Then ofd.Title = BoxTitle
-
-            '            Dim result As DialogResult = ofd.ShowDialog()
-            '            If result = DialogResult.OK Then
-            '                filePath = ofd.FileName
-            '                Return filePath
-            '            Else
-            '                'Returns en empty string if cancel was pressed and ReturnEmptyStringOnCancel = True 
-            '                If ReturnEmptyStringOnCancel = True Then Return ""
-
-            '                Dim boxResult As MsgBoxResult = MsgBox("An error occurred choosing file name.", MsgBoxStyle.RetryCancel, "Warning!")
-            '                If boxResult = MsgBoxResult.Retry Then
-            '                    GoTo SavingFile
-            '                Else
-            '                    Return Nothing
-            '                End If
-            '            End If
-
-        End Function
 
 
 
@@ -262,62 +157,6 @@ Namespace Utils
 
         End Sub
 
-        ''' <summary>
-        ''' Checks if the input filename exists in the specified folder. If it doesn't exist, the input filename is returned, 
-        ''' but if it already exists, a new numeral suffix is added to the file name. The file name extension is never changed.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function CheckFileNameConflict(ByVal InputFilePath As String) As String
-
-            Dim WorkingFilePath As String = InputFilePath
-
-0:
-
-            If File.Exists(WorkingFilePath) Then
-
-                Dim Folder As String = Path.GetDirectoryName(WorkingFilePath)
-                Dim FileNameExtension As String = Path.GetExtension(WorkingFilePath)
-                Dim FileNameWithoutExtension As String = Path.GetFileNameWithoutExtension(WorkingFilePath)
-
-                'Getting any numeric end, separated by a _, in the input file name
-                Dim NumericEnd As String = ""
-                Dim FileNameSplit() As String = FileNameWithoutExtension.Split("_")
-                Dim NewFileNameWithoutNumericString As String = ""
-                If Not IsNumeric(FileNameSplit(FileNameSplit.Length - 1)) Then
-
-                    'Creates a new WorkingFilePath with a numeric suffix, and checks if it also exists
-                    WorkingFilePath = Path.Combine(Folder, FileNameWithoutExtension & "_000" & FileNameExtension)
-
-                    'Checking the new file name
-                    GoTo 0
-
-                Else
-
-                    'Creates a new WorkingFilePath with a iterated numeric suffix, and checks if it also exists by restarting at 0
-
-                    'Reads the current numeric value, stored after the last _
-                    Dim NumericValue As Integer = CInt(FileNameSplit(FileNameSplit.Length - 1))
-
-                    'Increases the value of the numeric suffix by 1
-                    Dim NewNumericString As String = (NumericValue + 1).ToString("000")
-
-                    'Creates a new WorkingFilePath with the increased numeric suffix, and checks if it also exists by restarting at 0
-                    If FileNameSplit.Length > 1 Then
-                        For n = 0 To FileNameSplit.Length - 2
-                            NewFileNameWithoutNumericString &= FileNameSplit(n)
-                        Next
-                    End If
-                    WorkingFilePath = Path.Combine(Folder, NewFileNameWithoutNumericString & "_" & NewNumericString & FileNameExtension)
-
-                    'Checking the new file name
-                    GoTo 0
-                End If
-
-            Else
-                Return WorkingFilePath
-            End If
-
-        End Function
 
         ''' <summary>
         ''' Compares two tab delimited files and detects any differences
@@ -325,8 +164,8 @@ Namespace Utils
         ''' <param name="IgnoreFile2ColumnIndex"></param>
         Public Sub CompareTwoTabDelimitedTxtFiles(Optional IgnoreFile2ColumnIndex As Integer? = Nothing)
 
-            Dim FilePath1 As String = GetOpenFilePath(,,, "Select file 1")
-            Dim FilePath2 As String = GetOpenFilePath(,,, "Select file 2")
+            Dim FilePath1 As String = STFN.Core.Utils.GetOpenFilePath(,,, "Select file 1")
+            Dim FilePath2 As String = STFN.Core.Utils.GetOpenFilePath(,,, "Select file 2")
 
             Dim inputArray1() As String = System.IO.File.ReadAllLines(FilePath1)
             Dim inputArray2() As String = System.IO.File.ReadAllLines(FilePath2)
@@ -402,7 +241,7 @@ Namespace Utils
 
         Public Sub SaveDoubleArrayToFile(ByRef DoubleMatrix() As Double, Optional ByVal FilePath As String = "")
 
-            If FilePath = "" Then FilePath = GetSaveFilePath()
+            If FilePath = "" Then FilePath = STFN.Core.Utils.GetSaveFilePath()
 
             Dim SaveFolder As String = Path.GetDirectoryName(FilePath)
             If Not Directory.Exists(SaveFolder) Then Directory.CreateDirectory(SaveFolder)
@@ -419,7 +258,7 @@ Namespace Utils
 
         Public Sub SaveMatrixToFile(ByRef DoubleMatrix(,) As Double, Optional ByVal FilePath As String = "")
 
-            If FilePath = "" Then FilePath = GetSaveFilePath()
+            If FilePath = "" Then FilePath = STFN.Core.Utils.GetSaveFilePath()
 
             Dim SaveFolder As String = Path.GetDirectoryName(FilePath)
             If Not Directory.Exists(SaveFolder) Then Directory.CreateDirectory(SaveFolder)
@@ -454,7 +293,7 @@ Namespace Utils
         ''' <param name="FilePath"></param>
         Public Sub SaveMatrixToFile(ByRef DoubleMatrix(,,) As Double, Optional ByVal FilePath As String = "", Optional ByVal ZdimensionToSave As Integer = 0)
 
-            If FilePath = "" Then FilePath = GetSaveFilePath()
+            If FilePath = "" Then FilePath = STFN.Core.Utils.GetSaveFilePath()
 
             Dim SaveFolder As String = Path.GetDirectoryName(FilePath)
             If Not Directory.Exists(SaveFolder) Then Directory.CreateDirectory(SaveFolder)
@@ -514,7 +353,7 @@ Namespace Utils
 
                 End Select
 
-                Utils.SendInfoToLog(inputArray.Length & "lines from the file: " & filePath & " loaded into Array.")
+                SendInfoToLog(inputArray.Length & "lines from the file: " & filePath & " loaded into Array.")
 
                 Return inputArray
 
@@ -578,13 +417,13 @@ Namespace Utils
 
             Try
 
-                Utils.SendInfoToLog("Attempts to save List of string to .txt file.")
+                SendInfoToLog("Attempts to save List of string to .txt file.")
 
                 'Choosing file location
                 Dim filepath As String = ""
                 'Ask the user for file path if not incomplete file path is given
                 If saveDirectory = "" Or saveFileName = "" Then
-                    filepath = GetSaveFilePath(saveDirectory, saveFileName, {"txt"}, BoxTitle)
+                    filepath = STFN.Core.Utils.GetSaveFilePath(saveDirectory, saveFileName, {"txt"}, BoxTitle)
                 Else
                     filepath = Path.Combine(saveDirectory, saveFileName & ".txt")
                     If Not Directory.Exists(Path.GetDirectoryName(filepath)) Then Directory.CreateDirectory(Path.GetDirectoryName(filepath))
@@ -599,7 +438,7 @@ Namespace Utils
 
                 writer.Close()
 
-                Utils.SendInfoToLog("   List of String data were successfully saved to .txt file: " & filepath)
+                SendInfoToLog("   List of String data were successfully saved to .txt file: " & filepath)
 
             Catch ex As Exception
                 MsgBox(ex.ToString)
@@ -662,8 +501,8 @@ Namespace Utils
                     'Checks if its the same file, then they must be identical
                     If FilePath1 = FilePath2 Then Return True
 
-                    Dim Sound1 = Audio.Sound.LoadWaveFile(FilePath1)
-                    Dim Sound2 = Audio.Sound.LoadWaveFile(FilePath2)
+                    Dim Sound1 = STFN.Core.Audio.Sound.LoadWaveFile(FilePath1)
+                    Dim Sound2 = STFN.Core.Audio.Sound.LoadWaveFile(FilePath2)
 
                     If Sound1.WaveFormat.Channels <> Sound2.WaveFormat.Channels Then Return False
 
@@ -744,25 +583,7 @@ Namespace Utils
 
         End Function
 
-        Public Function NormalizeCrossPlatformPath(ByVal InputPath As String) As String
 
-            Dim InputHasInitialDoubleBackslash As Boolean = False
-            If InputPath.StartsWith("\\") Then InputHasInitialDoubleBackslash = True
-
-            InputPath = InputPath.Replace("\", "/")
-            InputPath = InputPath.Replace("//", "/")
-            InputPath = InputPath.Replace("///", "/")
-
-            InputPath = IO.Path.Combine(InputPath.Split("/"))
-
-            If InputHasInitialDoubleBackslash = True Then
-                'Reinserting the initial double backslash
-                InputPath = "\\" & InputPath
-            End If
-
-            Return InputPath
-
-        End Function
 
         ''' <summary>
         ''' Merges (by row concatenation) the content of text files in the specified directory into a single text file.
@@ -869,45 +690,7 @@ Namespace Utils
     End Class
 
 
-    <Serializable>
-    Public Class ObjectChangeDetector
-        Private UnchangedState() As Byte = {}
 
-        Private Property TargetObject As Object
-
-        Public Sub New(ByRef TargetObject As Object)
-            Me.TargetObject = TargetObject
-        End Sub
-
-
-        ''' <summary>
-        ''' Determines if the object has changed since it was read from file by comparing serialized versions.
-        ''' </summary>
-        Public Function IsChanged() As Boolean
-
-            Dim serializedMe As New MemoryStream
-            Dim serializer As New XmlSerializer(GetType(ObjectChangeDetector))
-            serializer.Serialize(serializedMe, TargetObject)
-            Dim MeAsByteArray = serializedMe.ToArray()
-
-            If MeAsByteArray.SequenceEqual(UnchangedState) = True Then
-                Return False
-            Else
-                Return True
-            End If
-
-        End Function
-
-        Public Sub SetUnchangedState()
-
-            Dim serializedMe As New MemoryStream
-            Dim serializer As New XmlSerializer(GetType(ObjectChangeDetector))
-            serializer.Serialize(serializedMe, TargetObject)
-            UnchangedState = serializedMe.ToArray()
-
-        End Sub
-
-    End Class
 
 
 End Namespace

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using STFN;
+using STFN.Core;
 using STFM.Views;
 using STFM.Extension.Views;
 
@@ -31,8 +31,8 @@ namespace STFM.Extension
                     speechTestInitiator.SelectedSpeechMaterialName = "Swedish SiP-test"; // Leave as an empty string if the user should select manually
 
                     // Creating the speech test instance, and also stors it in SharedSpeechTestObjects
-                    speechTestInitiator.SpeechTest = new AdaptiveSiP_BILD(speechTestInitiator.SelectedSpeechMaterialName);
-                    STFN.SharedSpeechTestObjects.CurrentSpeechTest = speechTestInitiator.SpeechTest;
+                    speechTestInitiator.SpeechTest = new STFN.AdaptiveSiP_BILD(speechTestInitiator.SelectedSpeechMaterialName);
+                    SharedSpeechTestObjects.CurrentSpeechTest = speechTestInitiator.SpeechTest;
 
                     // Creating a test options view
                     speechTestInitiator.TestOptionsView = new OptionsViewAll(speechTestInitiator.SpeechTest);
@@ -45,9 +45,9 @@ namespace STFM.Extension
                     {
                         speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
                         speechTestInitiator.UseExtraWindow = true;
-                        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                        switch (SharedSpeechTestObjects.GuiLanguage)
                         {
-                            case STFN.Utils.Constants.Languages.Swedish:
+                            case STFN.Core.Utils.Constants.Languages.Swedish:
                                 speechTestInitiator.ExtraWindowTitle = "Testresultat";
                                 break;
                             default:
@@ -75,7 +75,7 @@ namespace STFM.Extension
                     // Setting to free recall
                     speechTestInitiator.SpeechTest.IsFreeRecall = false;
 
-                    STFN.SharedSpeechTestObjects.CurrentSpeechTest = speechTestInitiator.SpeechTest;
+                    SharedSpeechTestObjects.CurrentSpeechTest = speechTestInitiator.SpeechTest;
 
                     // Creating a test options view
                     speechTestInitiator.TestOptionsView = new OptionsViewAll(speechTestInitiator.SpeechTest);
@@ -88,9 +88,9 @@ namespace STFM.Extension
                     {
                         speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
                         speechTestInitiator.UseExtraWindow = true;
-                        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                        switch (SharedSpeechTestObjects.GuiLanguage)
                         {
-                            case STFN.Utils.Constants.Languages.Swedish:
+                            case STFN.Core.Utils.Constants.Languages.Swedish:
                                 speechTestInitiator.ExtraWindowTitle = "Testresultat";
                                 break;
                             default:
@@ -113,7 +113,7 @@ namespace STFM.Extension
 
                     // Creating the speech test instance, and also stors it in SharedSpeechTestObjects
                     speechTestInitiator.SpeechTest = new AdaptiveSiP(speechTestInitiator.SelectedSpeechMaterialName);
-                    STFN.SharedSpeechTestObjects.CurrentSpeechTest = speechTestInitiator.SpeechTest;
+                    SharedSpeechTestObjects.CurrentSpeechTest = speechTestInitiator.SpeechTest;
 
                     // Creating a test options view
                     speechTestInitiator.TestOptionsView = new OptionsViewAll(speechTestInitiator.SpeechTest);
@@ -126,9 +126,9 @@ namespace STFM.Extension
                     {
                         speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
                         speechTestInitiator.UseExtraWindow = true;
-                        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                        switch (SharedSpeechTestObjects.GuiLanguage)
                         {
-                            case STFN.Utils.Constants.Languages.Swedish:
+                            case STFN.Core.Utils.Constants.Languages.Swedish:
                                 speechTestInitiator.ExtraWindowTitle = "Testresultat";
                                 break;
                             default:

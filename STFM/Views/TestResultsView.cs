@@ -1,4 +1,4 @@
-using STFN;
+using STFN.Core;
 
 namespace STFM.Views;
 
@@ -67,7 +67,7 @@ public abstract class TestResultsView : ContentView
 
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     Messager.MsgBox("Resultaten sparades till:\n\n " + savePath, Messager.MsgBoxStyle.Information, "Resultaten sparades!");
 
                     break;

@@ -1,4 +1,5 @@
 
+using STFN.Core;
 namespace STFM.SpecializedViews.SSQ12;
 
 public static class Ssq12Styling
@@ -153,10 +154,10 @@ public partial class SSQ12_MainView : ContentView
         ReferenceStackLayout.Add(ReferenceLabel2);
 
 
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
 
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 InstructionsHeadings.Text = "Instruktion";
                 InstructionsSubHeadings.Text = "SSQ12-INSTRUKTIONER";
                 InstructionsBodyTextP1.Text = "De följande frågorna gäller din förmåga och dina upplevelser i samband med att höra och lyssna i olika situationer. Om du använder hörapparat(er), besvara frågan så som du hör med hörapparat(er).";
@@ -226,9 +227,9 @@ public partial class SSQ12_MainView : ContentView
         InstructionsCollapsableStackLayout.IsVisible = !isVisible;
 
         InstructionsToggleSymbol.Text = isVisible ? "+" : "-";
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 InstructionsToggleLabel.Text = isVisible ? "Visa instruktionen för formuläret" : "Dölj instruktionen för formuläret";
                 break;
 
@@ -260,14 +261,14 @@ public partial class SSQ12_MainView : ContentView
                 if (castChild.HasResponse() == false)
                 {
                     await MainScrollView.ScrollToAsync(castChild, ScrollToPosition.Start, true);
-                    switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                    switch (SharedSpeechTestObjects.GuiLanguage)
                     {
-                        case STFN.Utils.Constants.Languages.Swedish:
-                            await STFN.Messager.MsgBoxAsync("Vänligen besvara denna fråga innan du går vidare!", STFN.Messager.MsgBoxStyle.Information, "Obesvarad fråga!");
+                        case STFN.Core.Utils.Constants.Languages.Swedish:
+                            await Messager.MsgBoxAsync("Vänligen besvara denna fråga innan du går vidare!", Messager.MsgBoxStyle.Information, "Obesvarad fråga!");
                             break;
 
                         default:
-                            await STFN.Messager.MsgBoxAsync("Please answer this question before you move on!", STFN.Messager.MsgBoxStyle.Information, "Unanswered question!");
+                            await Messager.MsgBoxAsync("Please answer this question before you move on!", Messager.MsgBoxStyle.Information, "Unanswered question!");
                             break;
                     }
 
@@ -298,9 +299,9 @@ public partial class SSQ12_MainView : ContentView
 
         if (IncludeDetails)
         {
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     ResultsList.Add("SSQ12 RESULTAT");
                     break;
 
@@ -336,9 +337,9 @@ public partial class SSQ12_MainView : ContentView
             // calculating mean rating
             double FinalMeanRating = RatingList.Average();
 
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     ResultsList.Add("Resultat = " + Math.Round(FinalMeanRating, 1).ToString());
                     break;
 
@@ -349,9 +350,9 @@ public partial class SSQ12_MainView : ContentView
 
             if (ValidAnswers != 12)
             {
-                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.Constants.Languages.Swedish:
                         ResultsList.Add("    (Baserat på " + ValidAnswers.ToString() + ") svar.");
                         break;
 
@@ -365,9 +366,9 @@ public partial class SSQ12_MainView : ContentView
         else
         {
 
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     ResultsList.Add("SSQ: För få (" + RatingList.Count.ToString() + ") besvarade frågor.");
                     break;
 
@@ -397,8 +398,8 @@ public partial class SSQ12_MainView : ContentView
     public void SaveResults()
     {
         string resultsString = GetResults(true);
-        string OutputPath = System.IO.Path.Combine(STFN.SharedSpeechTestObjects.TestResultsRootFolder, FilePathRepresentation);
-        STFN.Utils.Logging.SendInfoToLog(resultsString, "SSQ", OutputPath, false, false, false, false, true);
+        string OutputPath = System.IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, FilePathRepresentation);
+        STFN.Core.Utils.Logging.SendInfoToLog(resultsString, "SSQ", OutputPath, false, false, false, false, true);
     }
 
 

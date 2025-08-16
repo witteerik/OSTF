@@ -1,8 +1,13 @@
 ﻿Imports STFN.AdaptiveSiP_BILD
-Imports STFN.Audio.SoundScene
+Imports STFN.Core.Audio.SoundScene
+Imports STFN.Core.SipTest
+Imports STFN.Core.TestProtocol
+Imports STFN.Core.Utils
+Imports STFN.Core
 Imports STFN.SipTest
 Imports STFN.TestProtocol
 Imports STFN.Utils
+Imports STFN
 
 Public Class AdaptiveSiP_BILD
 
@@ -90,8 +95,8 @@ Public Class AdaptiveSiP_BILD
         Frontal_0_0_0
     End Enum
 
-    Private BILD_FilterKernel As Audio.Sound = Nothing
-    Private BILD_FftFormat = New Audio.Formats.FftFormat()
+    Private BILD_FilterKernel As STFN.Core.Audio.Sound = Nothing
+    Private BILD_FftFormat = New STFN.Core.Audio.Formats.FftFormat()
 
     Public Overrides Function GetObservedTestTrials() As IEnumerable(Of TestTrial)
         Return ObservedTrials
@@ -228,7 +233,7 @@ Public Class AdaptiveSiP_BILD
 
                 Else
                     'Sampling without replacement to get en equal number of presentations of all test words
-                    RandomList.Add(twgi, Utils.SampleWithoutReplacement(3, 0, 3, CurrentSipTestMeasurement.Randomizer).ToList)
+                    RandomList.Add(twgi, STFN.Core.Utils.SampleWithoutReplacement(3, 0, 3, CurrentSipTestMeasurement.Randomizer).ToList)
                 End If
             Next
 
@@ -281,14 +286,14 @@ Public Class AdaptiveSiP_BILD
             SpeechMaterialComponent.ClearAllLoadedSounds()
 
             'Collecting sounds
-            Dim SoundsToUse As New SortedList(Of String, Audio.Sound) ' Path, just remember to not overwrite the files!!!
+            Dim SoundsToUse As New SortedList(Of String, STFN.Core.Audio.Sound) ' Path, just remember to not overwrite the files!!!
             For Each Trial In PlannedTestTrials
                 For Each SubTrial As SipTrial In Trial.SubTrials
 
                     'Loading test word sounds
                     For i = 0 To SubTrial.MediaSet.MediaAudioItems - 1
 
-                        Dim SmaComponents As New List(Of Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
+                        Dim SmaComponents As New List(Of STFN.Core.Audio.Sound.SpeechMaterialAnnotation.SmaComponent)
                         Dim LoadedSound = SubTrial.SpeechMaterialComponent.GetSound(SubTrial.MediaSet, i, 1,,,,,,,,, SmaComponents)
 
                         If SmaComponents.Count = 1 Then
@@ -300,7 +305,7 @@ Public Class AdaptiveSiP_BILD
                         If SoundsToUse.ContainsKey(LoadedSound.SourcePath) = False Then
 
                             'Storing the Nominal level into the sound file as loaded in the (68.34 dB SPL is the reference level used in SiP-test material)
-                            SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = 68.34 - Audio.Standard_dBFS_dBSPL_Difference
+                            SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = 68.34 - STFN.Core.Audio.Standard_dBFS_dBSPL_Difference
                             SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.InferNominalLevelToAllDescendants()
 
                             SoundsToUse.Add(LoadedSound.SourcePath, LoadedSound)
@@ -317,10 +322,10 @@ Public Class AdaptiveSiP_BILD
                             'Setting all maskers to their ReferenceContrastingPhonemesLevel_SPL (converted to dB FS)
 
                             Dim CentralRegionLevel = LoadedSound.SMA.ChannelData(1)(0)(1).UnWeightedLevel
-                            Dim TargetCentralRegionLevel = SubTrial.ReferenceContrastingPhonemesLevel_SPL - Audio.Standard_dBFS_dBSPL_Difference
+                            Dim TargetCentralRegionLevel = SubTrial.ReferenceContrastingPhonemesLevel_SPL - STFN.Core.Audio.Standard_dBFS_dBSPL_Difference
 
                             Dim GainToTargetLevel = TargetCentralRegionLevel - CentralRegionLevel
-                            Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
+                            STFN.Core.Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
 
                             ''Shortering the maskers if TaskStandardTime is less than three seconds (standard masker length)
                             'Dim MaskerDuration As Double = LoadedSound.WaveData.SampleData(1).Length / LoadedSound.WaveFormat.SampleRate
@@ -364,13 +369,13 @@ Public Class AdaptiveSiP_BILD
                                     KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(4000, 0))
 
 
-                                    BILD_FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(KernelFrequencyResponse, Nothing, TempSound.WaveFormat, New Audio.Formats.FftFormat, 8000,, True, False)
+                                    BILD_FilterKernel = STFN.Core.Audio.GenerateSound.CreateCustumImpulseResponse(KernelFrequencyResponse, Nothing, TempSound.WaveFormat, New STFN.Core.Audio.Formats.FftFormat, 8000,, True, False)
 
                                 End If
 
                                 'BILD_FilterKernel.WriteWaveFile("C:/FilterSound/Kernel.wav")
 
-                                TempSound = Audio.DSP.FIRFilter(TempSound, BILD_FilterKernel, BILD_FftFormat, ,,,, False, True, True)
+                                TempSound = STFN.Core.Audio.DSP.FIRFilter(TempSound, BILD_FilterKernel, BILD_FftFormat, ,,,, False, True, True)
                                 TempSound.SourcePath = LoadedSound.SourcePath
                                 TempSound.SMA = LoadedSound.SMA
                                 TempSound.FileName = LoadedSound.FileName
@@ -403,13 +408,13 @@ Public Class AdaptiveSiP_BILD
                         If SoundsToUse.ContainsKey(LoadedSound.SourcePath) = False Then
 
                             'Measure the LoadedSound
-                            Dim ActualLevel_dBFS = Audio.DSP.MeasureSectionLevel(LoadedSound, 1)
+                            Dim ActualLevel_dBFS = STFN.Core.Audio.DSP.MeasureSectionLevel(LoadedSound, 1)
 
                             'Setting it to the intended BackgroundNonspeechRealisticLevel (with 2 sound sources, i.e. appr - 3 dB), so that it does not have to be modified when used later
-                            Dim TargetLevel_dBFS = SubTrial.MediaSet.BackgroundNonspeechRealisticLevel - Audio.Standard_dBFS_dBSPL_Difference - 10 * System.Math.Log10(2)
+                            Dim TargetLevel_dBFS = SubTrial.MediaSet.BackgroundNonspeechRealisticLevel - STFN.Core.Audio.Standard_dBFS_dBSPL_Difference - 10 * System.Math.Log10(2)
 
                             Dim GainToTargetLevel = TargetLevel_dBFS - ActualLevel_dBFS
-                            Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
+                            STFN.Core.Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
 
                             'Storing the new TargetLevel_dBFS as the Nominal level
                             SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = TargetLevel_dBFS
@@ -425,7 +430,7 @@ Public Class AdaptiveSiP_BILD
                                 'Applying a filter that simulates bilaural benefit
                                 Dim TempSound = SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath)
 
-                                TempSound = Audio.DSP.FIRFilter(TempSound, BILD_FilterKernel, BILD_FftFormat, ,,,, False, True, True)
+                                TempSound = STFN.Core.Audio.DSP.FIRFilter(TempSound, BILD_FilterKernel, BILD_FftFormat, ,,,, False, True, True)
 
                                 TempSound.SourcePath = LoadedSound.SourcePath
                                 TempSound.SMA = LoadedSound.SMA
@@ -463,7 +468,7 @@ Public Class AdaptiveSiP_BILD
         'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds, using audio from the first selected MediaSet
         Dim SelectedMediaSets As List(Of MediaSet) = AvailableMediasets
 
-        Dim TestSound As Audio.Sound = CreateInitialSound(SelectedMediaSets(0))
+        Dim TestSound As STFN.Core.Audio.Sound = CreateInitialSound(SelectedMediaSets(0))
 
         'Plays sound
         SoundPlayer.SwapOutputSounds(TestSound)
@@ -493,7 +498,7 @@ Public Class AdaptiveSiP_BILD
     End Sub
 
 
-    Public Function CreateInitialSound(ByRef SelectedMediaSet As MediaSet, Optional ByVal Duration As Double? = Nothing) As Audio.Sound
+    Public Function CreateInitialSound(ByRef SelectedMediaSet As MediaSet, Optional ByVal Duration As Double? = Nothing) As STFN.Core.Audio.Sound
 
         Try
 
@@ -504,10 +509,10 @@ Public Class AdaptiveSiP_BILD
             'Sets a List of SoundSceneItem in which to put the sounds to mix
             Dim ItemList = New List(Of SoundSceneItem)
 
-            Dim SoundWaveFormat As Audio.Formats.WaveFormat = Nothing
+            Dim SoundWaveFormat As STFN.Core.Audio.Formats.WaveFormat = Nothing
 
             'Getting a background non-speech sound
-            Dim BackgroundNonSpeech_Sound As Audio.Sound = SpeechMaterial.GetBackgroundNonspeechSound(SelectedMediaSet, 0)
+            Dim BackgroundNonSpeech_Sound As STFN.Core.Audio.Sound = SpeechMaterial.GetBackgroundNonspeechSound(SelectedMediaSet, 0)
 
             'Stores the sample rate and the wave format
             Dim CurrentSampleRate As Integer = BackgroundNonSpeech_Sound.WaveFormat.SampleRate
@@ -526,9 +531,9 @@ Public Class AdaptiveSiP_BILD
             Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, CurrentSipTestMeasurement.Randomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
 
             'Sets up fading specifications for the background signals
-            Dim FadeSpecs_Background = New List(Of Audio.DSP.Transformations.FadeSpecifications)
-            FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
-            FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+            Dim FadeSpecs_Background = New List(Of STFN.Core.Audio.DSP.Transformations.FadeSpecifications)
+            FadeSpecs_Background.Add(New STFN.Core.Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
+            FadeSpecs_Background.Add(New STFN.Core.Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
 
             'Adds the background (non-speech) signals, with fade, duck and location specifications
             Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
@@ -545,7 +550,7 @@ Public Class AdaptiveSiP_BILD
             MixStopWatch.Restart()
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
-            Dim MixedInitialSound As Audio.Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType, Transducer.LimiterThreshold)
+            Dim MixedInitialSound As STFN.Core.Audio.Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType, Transducer.LimiterThreshold)
 
             If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
@@ -556,7 +561,7 @@ Public Class AdaptiveSiP_BILD
             Return MixedInitialSound
 
         Catch ex As Exception
-            Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            STFN.Core.Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             Return Nothing
         End Try
 
@@ -657,7 +662,7 @@ Public Class AdaptiveSiP_BILD
             'End If
 
             'Taking a dump of the SpeechTest before swapping to the new trial
-            CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+            CurrentTestTrial.SpeechTestPropertyDump = STFN.Core.Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
 
         Else
             'Nothing to correct (this should be the start of a new test)
@@ -741,7 +746,7 @@ Public Class AdaptiveSiP_BILD
             Next
 
             'Shuffling the order of response alternatives
-            ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, CurrentSipTestMeasurement.Randomizer).ToList
+            ResponseAlternatives = STFN.Core.Utils.Shuffle(ResponseAlternatives, CurrentSipTestMeasurement.Randomizer).ToList
 
             'Adding the response alternatives
             CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
@@ -756,7 +761,7 @@ Public Class AdaptiveSiP_BILD
         'DirectCast(CurrentTestTrial, SipTrial).AdaptiveProtocolValue = NextTaskInstruction.AdaptiveValue
 
         'Storing also in all subtrials, and mixes their sounds
-        Dim TrialSounds As New List(Of Audio.Sound)
+        Dim TrialSounds As New List(Of STFN.Core.Audio.Sound)
         Dim TaskStartTimes As New List(Of Double)
         Dim OverlapTime As Double = ((TaskStandardTime - 1) / 2)
 
@@ -783,7 +788,7 @@ Public Class AdaptiveSiP_BILD
             End If
 
             'Exports sound file
-            If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i))
+            If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(STFN.Core.Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i))
 
             'Storing the test word start times
             If i = 0 Then
@@ -798,10 +803,10 @@ Public Class AdaptiveSiP_BILD
         Next
 
         'Mix full trial sound
-        CurrentTestTrial.Sound = Audio.DSP.ConcatenateSounds2(TrialSounds, TrialSounds(0).WaveFormat.SampleRate * OverlapTime)
+        CurrentTestTrial.Sound = STFN.Core.Audio.DSP.ConcatenateSounds2(TrialSounds, TrialSounds(0).WaveFormat.SampleRate * OverlapTime)
 
         'Exports sound file
-        If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix"))
+        If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(STFN.Core.Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix"))
 
         'Waiting for the trial sound to be mixed, if not yet completed
         'WaitForTestTrialSound()
@@ -857,7 +862,7 @@ Public Class AdaptiveSiP_BILD
 
         Else
             If FinalResult.HasValue Then
-                TestResultSummaryLines.Add("Resultat: " & vbTab & Math.Rounding(FinalResult.Value, 1) & " dB PNR")
+                TestResultSummaryLines.Add("Resultat: " & vbTab & STFN.Core.Utils.Math.Rounding(FinalResult.Value, 1) & " dB PNR")
             Else
                 TestResultSummaryLines.Add("Resultat: Slutgiltigt tröskelvärde kunde ej bestämmas.")
             End If
@@ -952,8 +957,8 @@ Public Class AdaptiveSiP_BILD
 
     Public Overrides Function GetTestCompletedGuiMessage() As String
 
-        Select Case STFN.SharedSpeechTestObjects.GuiLanguage
-            Case Utils.Constants.Languages.Swedish
+        Select Case STFN.Core.SharedSpeechTestObjects.GuiLanguage
+            Case STFN.Core.Utils.Constants.Languages.Swedish
                 If IsPractiseTest = True Then
                     Return "Övningstestet är klart!"
                 Else
@@ -973,7 +978,7 @@ Public Class AdaptiveSiP_BILD
     ''' This method returns a calibration sound mixed to the currently set reference level, presented from the first indicated target sound source.
     ''' </summary>
     ''' <returns></returns>
-    Public Overrides Function CreateCalibrationCheckSignal() As Tuple(Of Audio.Sound, String)
+    Public Overrides Function CreateCalibrationCheckSignal() As Tuple(Of STFN.Core.Audio.Sound, String)
 
         'Referencing the/a mediaset in SpeechTest.MediaSet, which is normally not used in the SiP-test but needed for the calibration signal
         'TODO: This function needs to read the selected SpeechTest.MediaSet. As of now, it just takes the first available MediaSet. The SiP-test does not yet read media set and stuff off the options control, but each test sets up it's own trials (including MediaSet selection in code.

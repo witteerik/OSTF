@@ -1,4 +1,4 @@
-﻿using STFN;
+﻿using STFN.Core;
 
 public class SelectionTextButton : Frame
 {

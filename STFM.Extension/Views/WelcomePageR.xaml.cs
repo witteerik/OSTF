@@ -1,4 +1,5 @@
-using STFN;
+using STFN; 
+using STFN.Core;
 
 namespace STFM.Extension.Views;
 
@@ -10,7 +11,7 @@ public partial class WelcomePageR : ContentView
     public event EventHandler<EventArgs> StartCalibrator;
 
     // Using only Swedish for now, as English is not implemented everywhere
-    public static List<STFN.Utils.Constants.Languages> AvailableGuiLanguages = new List<STFN.Utils.Constants.Languages> { STFN.Utils.Constants.Languages.Swedish };
+    public static List<STFN.Core.Utils.Constants.Languages> AvailableGuiLanguages = new List<STFN.Core.Utils.Constants.Languages> { STFN.Core.Utils.Constants.Languages.Swedish };
     //public static List<STFN.Utils.Constants.Languages> AvailableGuiLanguages = new List<STFN.Utils.Constants.Languages> { STFN.Utils.Constants.Languages.English, STFN.Utils.Constants.Languages.Swedish };
 
     public bool RunScreeningTest = false;
@@ -42,7 +43,7 @@ public partial class WelcomePageR : ContentView
 
     private void SelectedLanguage_Picker_SelectedIndexChanged(object sender, EventArgs e)
     {
-        SharedSpeechTestObjects.GuiLanguage = (STFN.Utils.Constants.Languages)SelectedLanguage_Picker.SelectedItem;
+        SharedSpeechTestObjects.GuiLanguage = (STFN.Core.Utils.Constants.Languages)SelectedLanguage_Picker.SelectedItem;
         UpdateLanguageStrings();
     }
 
@@ -51,7 +52,7 @@ public partial class WelcomePageR : ContentView
 
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.English:
+            case STFN.Core.Utils.Constants.Languages.English:
 
                 Welcome_Label.Text = "OSTF SUITE";
                 SelectLangage_Label.Text = "Select language";
@@ -66,7 +67,7 @@ public partial class WelcomePageR : ContentView
                 UseCalibrationCheck_Label.Text = "Show calibration check in test settings";
                 ExportAllSounds_Label.Text = "Export all played sounds";
                 break;
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
 
                 Welcome_Label.Text = "OSTF SUITE";
                 SelectLangage_Label.Text = "Select language";
@@ -178,10 +179,10 @@ public partial class WelcomePageR : ContentView
         {
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.English:
+                case STFN.Core.Utils.Constants.Languages.English:
                     Messager.MsgBox("Invalid participant code! The code must consist of two letters followed by four digits.", Messager.MsgBoxStyle.Information, "Invalid participant code!");
                     break;
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     Messager.MsgBox("Ogiltig deltagarkod! Koden måste bestå av två bokstäver följda av fyra siffor.", Messager.MsgBoxStyle.Information, "Ogiltig deltagarkod!");
                     break;
                 default:
@@ -198,10 +199,10 @@ public partial class WelcomePageR : ContentView
 
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.English:
+            case STFN.Core.Utils.Constants.Languages.English:
                 Messager.MsgBox("Loading calibration view. It may take some time before it becomes responsive! Hang tight!", Messager.MsgBoxStyle.Information, "Loading calibration view!");
                 break;
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 Messager.MsgBox("Laddar kalibreringsvyn. Det kan dröja en stund innan vyn är redo!", Messager.MsgBoxStyle.Information, "Laddar kalibreringsvyn!");
                 break;
             default:

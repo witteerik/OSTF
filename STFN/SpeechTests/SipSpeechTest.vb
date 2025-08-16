@@ -1,6 +1,8 @@
-﻿Imports STFN.SipTest
-Imports STFN.Audio.SoundScene
-Imports STFN.Utils
+﻿Imports STFN.Core
+Imports STFN.Core.Audio
+Imports STFN.Core.SipTest
+Imports STFN.Core.Audio.SoundScene
+Imports STFN.Core.Utils
 
 Public Class SipSpeechTest
     Inherits SipBaseSpeechTest
@@ -35,7 +37,7 @@ Public Class SipSpeechTest
         'ShowGuiChoice_PhaseAudiometry = True
         'SupportsManualPausing = False
 
-        SelectedTestparadigm = Testparadigm.Slow
+        SelectedTestparadigm = SiPTestparadigm.Slow
 
         SipTestMode = SiPTestModes.Directional
 
@@ -88,7 +90,7 @@ Public Class SipSpeechTest
         'Creates a new test 
         CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification,, SelectedTestparadigm)
         CurrentSipTestMeasurement.TestProcedure.LengthReduplications = 1 'SelectedLengthReduplications
-        CurrentSipTestMeasurement.TestProcedure.TestParadigm = Testparadigm.FlexibleLocations 'SelectedTestparadigm
+        CurrentSipTestMeasurement.TestProcedure.TestParadigm = SiPTestparadigm.FlexibleLocations 'SelectedTestparadigm
         SelectedTestparadigm = CurrentSipTestMeasurement.TestProcedure.TestParadigm
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
@@ -106,7 +108,7 @@ Public Class SipSpeechTest
         Select Case SipTestMode
             Case SiPTestModes.Directional
 
-                If SelectedTestparadigm = Testparadigm.FlexibleLocations Then
+                If SelectedTestparadigm = SiPTestparadigm.FlexibleLocations Then
 
                     CurrentSipTestMeasurement.TestProcedure.SetTargetStimulusLocations(SelectedTestparadigm, SignalLocations)
 
@@ -145,7 +147,7 @@ Public Class SipSpeechTest
 
         'TODO: Calling GetTargetAzimuths only to ensure that the Actual Azimuths needed for presentation in the TestTrialTable exist. This should probably be done in some other way... (Only applies to the Directional3 and Directional5 Testparadigms)
         Select Case SelectedTestparadigm
-            Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
+            Case SiPTestparadigm.Directional2, SiPTestparadigm.Directional3, SiPTestparadigm.Directional5
                 CurrentSipTestMeasurement.GetTargetAzimuths()
         End Select
 
@@ -169,7 +171,7 @@ Public Class SipSpeechTest
 
 
 
-    Private Shared Sub PlanDirectionalTestTrials(ByRef SipTestMeasurement As SipMeasurement, ByVal ReferenceLevel As Double, ByVal PresetName As String,
+    Private Shared Sub PlanDirectionalTestTrials(ByRef SipTestMeasurement As SipMeasurementBase, ByVal ReferenceLevel As Double, ByVal PresetName As String,
                                       ByVal SelectedMediaSets As List(Of MediaSet), ByVal SelectedPNRs As List(Of Double), ByVal NumberOfSimultaneousMaskers As Integer,
                                                  ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
@@ -196,7 +198,7 @@ Public Class SipSpeechTest
                         'Drawing two random MaskerLocations
                         Dim CurrentMaskerLocations As New List(Of SoundSourceLocation)
                         Dim SelectedMaskerIndices As New List(Of Integer)
-                        SelectedMaskerIndices.AddRange(Utils.SampleWithoutReplacement(NumberOfSimultaneousMaskers, 0, MaskerLocations.Length, SipTestMeasurement.Randomizer))
+                        SelectedMaskerIndices.AddRange(SampleWithoutReplacement(NumberOfSimultaneousMaskers, 0, MaskerLocations.Length, SipTestMeasurement.Randomizer))
                         For Each RandomIndex In SelectedMaskerIndices
                             CurrentMaskerLocations.Add(MaskerLocations(RandomIndex))
                         Next
@@ -265,7 +267,7 @@ Public Class SipSpeechTest
         'Getting NeededTargetAzimuths for the Directional2, Directional3 and Directional5 Testparadigms
         Dim NeededTargetAzimuths As List(Of Double) = Nothing
         Select Case SelectedTestparadigm
-            Case Testparadigm.Directional2, Testparadigm.Directional3, Testparadigm.Directional5
+            Case SiPTestparadigm.Directional2, SiPTestparadigm.Directional3, SiPTestparadigm.Directional5
                 NeededTargetAzimuths = CurrentSipTestMeasurement.GetTargetAzimuths()
         End Select
 
@@ -332,7 +334,7 @@ Public Class SipSpeechTest
         'ParticipantControl.ResetTestItemPanel()
 
         'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds, using audio from the first selected MediaSet
-        Dim TestSound As Audio.Sound = CreateInitialSound(MediaSet)
+        Dim TestSound As Sound = CreateInitialSound(MediaSet)
 
         'Plays sound
         SoundPlayer.SwapOutputSounds(TestSound)
@@ -346,7 +348,7 @@ Public Class SipSpeechTest
     End Sub
 
 
-    Public Function CreateInitialSound(ByRef SelectedMediaSet As MediaSet, Optional ByVal Duration As Double? = Nothing) As Audio.Sound
+    Public Function CreateInitialSound(ByRef SelectedMediaSet As MediaSet, Optional ByVal Duration As Double? = Nothing) As Sound
 
         Try
 
@@ -357,10 +359,10 @@ Public Class SipSpeechTest
             'Sets a List of SoundSceneItem in which to put the sounds to mix
             Dim ItemList = New List(Of SoundSceneItem)
 
-            Dim SoundWaveFormat As Audio.Formats.WaveFormat = Nothing
+            Dim SoundWaveFormat As Formats.WaveFormat = Nothing
 
             'Getting a background non-speech sound
-            Dim BackgroundNonSpeech_Sound As Audio.Sound = SpeechMaterial.GetBackgroundNonspeechSound(SelectedMediaSet, 0)
+            Dim BackgroundNonSpeech_Sound As Sound = SpeechMaterial.GetBackgroundNonspeechSound(SelectedMediaSet, 0)
 
             'Stores the sample rate and the wave format
             Dim CurrentSampleRate As Integer = BackgroundNonSpeech_Sound.WaveFormat.SampleRate
@@ -379,9 +381,9 @@ Public Class SipSpeechTest
             Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, SipMeasurementRandomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
 
             'Sets up fading specifications for the background signals
-            Dim FadeSpecs_Background = New List(Of Audio.DSP.Transformations.FadeSpecifications)
-            FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
-            FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+            Dim FadeSpecs_Background = New List(Of DSP.FadeSpecifications)
+            FadeSpecs_Background.Add(New DSP.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
+            FadeSpecs_Background.Add(New DSP.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
 
             'Adds the background (non-speech) signals, with fade, duck and location specifications
             Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
@@ -398,7 +400,7 @@ Public Class SipSpeechTest
             MixStopWatch.Restart()
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
-            Dim MixedInitialSound As Audio.Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType, Transducer.LimiterThreshold)
+            Dim MixedInitialSound As Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType, Transducer.LimiterThreshold)
 
             If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
@@ -409,7 +411,7 @@ Public Class SipSpeechTest
             Return MixedInitialSound
 
         Catch ex As Exception
-            Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             Return Nothing
         End Try
 
@@ -499,7 +501,7 @@ Public Class SipSpeechTest
             'End If
 
         Catch ex As Exception
-            Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
         End Try
 
     End Sub
@@ -554,7 +556,7 @@ Public Class SipSpeechTest
             Next
 
             'Shuffling the order of response alternatives
-            ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
+            ResponseAlternatives = Shuffle(ResponseAlternatives, Randomizer).ToList
         End If
 
         CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)

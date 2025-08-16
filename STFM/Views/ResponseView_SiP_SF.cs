@@ -1,5 +1,5 @@
-﻿using STFN;
-using STFN.SipTest;
+﻿using STFN.Core;
+using STFN.Core.SipTest;
 
 namespace STFM.Views;
 

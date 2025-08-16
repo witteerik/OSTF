@@ -1,4 +1,5 @@
 ﻿Imports System.IO
+Imports STFN.Core.Audio
 
 Namespace Audio
 
@@ -20,7 +21,7 @@ Namespace Audio
                            Optional ByVal startReadTime As Decimal = 0, Optional ByVal stopReadTime As Decimal = 0,
                            Optional ByVal inputTimeFormat As TimeUnits = TimeUnits.seconds,
                                      Optional ByVal DefaultTimeWeighting As Double = 0.1,
-                                     Optional ByVal TrimWordEndStrings As Boolean = True) As Audio.Sound
+                                     Optional ByVal TrimWordEndStrings As Boolean = True) As Sound
 
                 Try
 
@@ -56,7 +57,7 @@ Namespace Audio
                     Dim fmtBlockAlign As UShort
                     Dim bitDepth As UShort
 
-                    Dim sound As Audio.Sound = Nothing
+                    Dim sound As Sound = Nothing
                     Dim FormatChunkIsRead As Boolean = False 'THis variable is used to ensure that the format chunk is read before the ptwf and the data chunks.
 
                     'Chunks to ignore
@@ -81,7 +82,7 @@ Namespace Audio
                                 fmtBlockAlign = reader.ReadUInt16
                                 bitDepth = reader.ReadUInt16
 
-                                sound = New Audio.Sound(New Audio.Formats.WaveFormat(sampleRate, bitDepth, channels,, fmtCode))
+                                sound = New Sound(New Formats.WaveFormat(sampleRate, bitDepth, channels,, fmtCode))
 
                                 'Checks to see if the whole of subchunk1 has been read
                                 While reader.BaseStream.Position < fmtChunkStartPosition + fmtSize
@@ -184,7 +185,7 @@ Namespace Audio
                                     'Word level data
                                     For word = 0 To currentWordCount - 1
 
-                                        sound.SMA.ChannelData(channel)(sentence).Add(New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, sound.SMA.ChannelData(channel)(sentence)))
+                                        sound.SMA.ChannelData(channel)(sentence).Add(New Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.WORD, sound.SMA.ChannelData(channel)(sentence)))
 
                                         Dim OrthographicFormLength As Integer = reader.ReadUInt32
                                         sound.SMA.ChannelData(channel)(sentence)(word).OrthographicForm = reader.ReadChars(OrthographicFormLength)
@@ -231,7 +232,7 @@ Namespace Audio
                                         'Phone level data
                                         For phone = 0 To phoneListLength - 1
 
-                                            Dim NewPhoneLevelData = New Audio.Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.PHONE, sound.SMA.ChannelData(channel)(sentence)(word))
+                                            Dim NewPhoneLevelData = New Sound.SpeechMaterialAnnotation.SmaComponent(sound.SMA, Sound.SpeechMaterialAnnotation.SmaTags.PHONE, sound.SMA.ChannelData(channel)(sentence)(word))
 
                                             Dim phoneticTranscription As String = reader.ReadChars(10)
                                             NewPhoneLevelData.PhoneticForm = phoneticTranscription.Trim(" ")
@@ -300,7 +301,7 @@ Namespace Audio
                                 iXMLStream.Position = 0
 
                                 'Parsing the iXML data
-                                Dim iXMLdata = Audio.Sound.ParseiXMLString(iXMLStream)
+                                Dim iXMLdata = Sound.ParseiXMLString(iXMLStream)
 
                                 'Storing the data
                                 If iXMLdata.Item1 IsNot Nothing Then
@@ -347,11 +348,11 @@ Namespace Audio
                     Dim stopReadDataPoint As Integer
 
                     Select Case inputTimeFormat
-                        Case TimeUnits.seconds
+                        Case STFN.Core.Audio.TimeUnits.seconds
                             startReadDataPoint = startReadTime * sound.WaveFormat.SampleRate * sound.WaveFormat.Channels
                             stopReadDataPoint = stopReadTime * sound.WaveFormat.SampleRate * sound.WaveFormat.Channels
 
-                        Case TimeUnits.samples
+                        Case STFN.Core.Audio.TimeUnits.samples
                             startReadDataPoint = startReadTime * sound.WaveFormat.Channels
                             stopReadDataPoint = stopReadTime * sound.WaveFormat.Channels
 
@@ -372,7 +373,7 @@ Namespace Audio
 
                     If numberOfDataPointsToRead > 0 Then
                         Select Case sound.WaveFormat.Encoding
-                            Case = Audio.Formats.WaveFormat.WaveFormatEncodings.PCM
+                            Case = Formats.WaveFormat.WaveFormatEncodings.PCM
                                 Select Case sound.WaveFormat.BitDepth
                                     Case 16
                                         For n = 0 To startReadDataPoint - 1
@@ -385,7 +386,7 @@ Namespace Audio
                                     Case Else
                                         Throw New NotImplementedException("Reading of " & sound.WaveFormat.BitDepth & " bits PCM format is not yet supported.")
                                 End Select
-                            Case = Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
+                            Case = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
                                 Select Case sound.WaveFormat.BitDepth
                                     Case 32
                                         For n = 0 To startReadDataPoint - 1

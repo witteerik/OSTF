@@ -1,6 +1,6 @@
 using System.ComponentModel;
-using STFN;
-using STFN.SipTest;
+using STFN.Core;
+using STFN.Core.SipTest;
 
 namespace STFM.Views
 {
@@ -21,7 +21,7 @@ namespace STFM.Views
 
             // Setting up default scales in the diagram
             List<float> X_PnrArray = new List<float>();
-            List<double> TestPNRs = STFN.QuickSiP.GetTestPnrs();
+            List<double> TestPNRs = STFN.Core.QuickSiP.GetTestPnrs();
             foreach (double pnr in TestPNRs)
             {
                 X_PnrArray.Add((float)pnr);
@@ -65,9 +65,9 @@ namespace STFM.Views
             ScoreSnrView.SizeChanged += (s, e) => ScoreSnrView.Invalidate();
 
 
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     StartButton.Text = "Start";
                     StopButton.Text = "Stop";
                     PauseButton.Text = "Pause";

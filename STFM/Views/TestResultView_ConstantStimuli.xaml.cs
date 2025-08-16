@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using STFN;
+using STFN.Core;
 
 namespace STFM.Views
 {
@@ -54,9 +54,9 @@ namespace STFM.Views
             DiagramView.SizeChanged += (s, e) => DiagramView.Invalidate();
 
 
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     StartButton.Text = "Start";
                     StopButton.Text = "Stop";
                     PauseButton.Text = "Pause";

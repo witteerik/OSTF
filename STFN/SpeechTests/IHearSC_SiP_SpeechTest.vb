@@ -1,6 +1,9 @@
-﻿Imports STFN.SipTest
-Imports STFN.Audio.SoundScene
+﻿Imports STFN.Core
+Imports STFN.Core.SipTest
+Imports STFN.Core.Audio
+Imports STFN.Core.Audio.SoundScene
 Imports STFN.Utils
+Imports STFN.Core.Utils
 
 Public Class IHearSC_SiP_SpeechTest
 
@@ -154,8 +157,8 @@ Public Class IHearSC_SiP_SpeechTest
         Next
 
         'Randomizing the order within trial lists
-        TempLeftTurnTrials = Utils.Shuffle(TempLeftTurnTrials, Randomizer)
-        TempRightTurnTrials = Utils.Shuffle(TempRightTurnTrials, Randomizer)
+        TempLeftTurnTrials = Shuffle(TempLeftTurnTrials, Randomizer)
+        TempRightTurnTrials = Shuffle(TempRightTurnTrials, Randomizer)
 
         'Putting the Trials in a list of the correct type
         Dim LeftTurnTrials As New List(Of SipTrial)
@@ -204,7 +207,7 @@ Public Class IHearSC_SiP_SpeechTest
         'Cretaing a context sound without any test stimulus, that runs for approx TestSetup.PretestSoundDuration seconds, using audio from the first selected MediaSet
         Dim SelectedMediaSets As List(Of MediaSet) = AvailableMediasets
 
-        Dim TestSound As Audio.Sound = CreateInitialSound(SelectedMediaSets(0))
+        Dim TestSound As Sound = CreateInitialSound(SelectedMediaSets(0))
 
         'Plays sound
         SoundPlayer.SwapOutputSounds(TestSound)
@@ -215,7 +218,7 @@ Public Class IHearSC_SiP_SpeechTest
     End Sub
 
 
-    Public Function CreateInitialSound(ByRef SelectedMediaSet As MediaSet, Optional ByVal Duration As Double? = Nothing) As Audio.Sound
+    Public Function CreateInitialSound(ByRef SelectedMediaSet As MediaSet, Optional ByVal Duration As Double? = Nothing) As Sound
 
         Try
 
@@ -226,10 +229,10 @@ Public Class IHearSC_SiP_SpeechTest
             'Sets a List of SoundSceneItem in which to put the sounds to mix
             Dim ItemList = New List(Of SoundSceneItem)
 
-            Dim SoundWaveFormat As Audio.Formats.WaveFormat = Nothing
+            Dim SoundWaveFormat As Formats.WaveFormat = Nothing
 
             'Getting a background non-speech sound
-            Dim BackgroundNonSpeech_Sound As Audio.Sound = SpeechMaterial.GetBackgroundNonspeechSound(SelectedMediaSet, 0)
+            Dim BackgroundNonSpeech_Sound As Sound = SpeechMaterial.GetBackgroundNonspeechSound(SelectedMediaSet, 0)
 
             'Stores the sample rate and the wave format
             Dim CurrentSampleRate As Integer = BackgroundNonSpeech_Sound.WaveFormat.SampleRate
@@ -248,9 +251,9 @@ Public Class IHearSC_SiP_SpeechTest
             Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, Randomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
 
             'Sets up fading specifications for the background signals
-            Dim FadeSpecs_Background = New List(Of Audio.DSP.Transformations.FadeSpecifications)
-            FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
-            FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+            Dim FadeSpecs_Background = New List(Of DSP.FadeSpecifications)
+            FadeSpecs_Background.Add(New DSP.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
+            FadeSpecs_Background.Add(New DSP.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
 
             'Adds the background (non-speech) signals, with fade, duck and location specifications
             Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
@@ -267,7 +270,7 @@ Public Class IHearSC_SiP_SpeechTest
             MixStopWatch.Restart()
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
-            Dim MixedInitialSound As Audio.Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType, Transducer.LimiterThreshold)
+            Dim MixedInitialSound As Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType, Transducer.LimiterThreshold)
 
             If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
@@ -278,7 +281,7 @@ Public Class IHearSC_SiP_SpeechTest
             Return MixedInitialSound
 
         Catch ex As Exception
-            Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             Return Nothing
         End Try
 
@@ -329,7 +332,7 @@ Public Class IHearSC_SiP_SpeechTest
         Next
 
         'Shuffling the order of response alternatives
-        ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
+        ResponseAlternatives = Shuffle(ResponseAlternatives, Randomizer).ToList
 
         'Adding the response alternatives
         CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
@@ -441,7 +444,7 @@ Public Class IHearSC_SiP_SpeechTest
     Public Overrides Function GetResultStringForGui() As String
 
         Dim TestResultSummaryLines = New List(Of String)
-        TestResultSummaryLines.Add("Resultat: " & vbTab & Math.Rounding(100 * GetAverageHeadTurnScores(Nothing)) & " % rätt")
+        TestResultSummaryLines.Add("Resultat: " & vbTab & Rounding(100 * GetAverageHeadTurnScores(Nothing)) & " % rätt")
         'TestResult.TestResultSummaryLines.Add("Head turned left: " & Math.Rounding(100 * GetAverageHeadTurnScores(False)) & " %")
         'TestResult.TestResultSummaryLines.Add("Head turned right : " & Math.Rounding(100 * GetAverageHeadTurnScores(True)) & " %")
 

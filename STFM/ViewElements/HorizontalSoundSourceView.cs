@@ -1,4 +1,4 @@
-﻿using STFN.Audio.SoundScene;
+﻿using STFN.Core.Audio.SoundScene;
 
 namespace STFM.Views;
 
@@ -61,8 +61,8 @@ public class HorizontalSoundSourceView : Frame
     }
 
 
-    STFN.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles roleType;
-    public STFN.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles RoleType
+    STFN.Core.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles roleType;
+    public STFN.Core.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles RoleType
     {
         get
         {
@@ -367,10 +367,10 @@ public class VisualSoundSourceSelectionButton : Button
 {
 
     VisualSoundSourceLocation VisualSoundSourceLocation;
-    STFN.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles RoleType;
+    STFN.Core.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles RoleType;
 
 
-    public VisualSoundSourceSelectionButton(ref VisualSoundSourceLocation visualSoundSourceLocation, STFN.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles roleType)
+    public VisualSoundSourceSelectionButton(ref VisualSoundSourceLocation visualSoundSourceLocation, STFN.Core.Audio.SoundScene.SoundSceneItem.SoundSceneItemRoles roleType)
     {
         this.VisualSoundSourceLocation = visualSoundSourceLocation;
         RoleType = roleType;

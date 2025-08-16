@@ -1,8 +1,8 @@
 using STFM.Pages;
 using STFM.SpecializedViews.SSQ12;
-using STFN;
+using STFN.Core;
 using System.Reflection;
-using static STFN.ResponseViewEvents;
+using static STFN.Core.ResponseViewEvents;
 
 namespace STFM.Views;
 
@@ -243,8 +243,8 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     SpeechTest CurrentSpeechTest
     {
-        get { return STFN.SharedSpeechTestObjects.CurrentSpeechTest; }
-        set { STFN.SharedSpeechTestObjects.CurrentSpeechTest = value; }
+        get { return SharedSpeechTestObjects.CurrentSpeechTest; }
+        set { SharedSpeechTestObjects.CurrentSpeechTest = value; }
     }
 
     OstfBase.AudioSystemSpecification SelectedTransducer = null;
@@ -288,7 +288,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             await STFM.StfmBase.InitializeSTFM(OstfBase.MediaPlayerTypes.Default);
 
             // Selecting transducer
-            var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
+            var LocalAvailableTransducers = OstfBase.AvaliableTransducers;
             if (LocalAvailableTransducers.Count == 0)
             {
                 await Messager.MsgBoxAsync("Unable to start the application since no sound transducers could be found!", Messager.MsgBoxStyle.Critical, "No transducers found");
@@ -337,9 +337,9 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         SetShowTalkbackPanel();
 
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 TalkbackGainTitle_Span.Text = "Talkback-nivå: ";
                 NewTestBtn.Text = "Nytt test";
                 SpeechTestPicker.Title = "Välj ett test";
@@ -598,9 +598,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         //SetLayoutConfiguration(LayoutConfiguration.Settings);
 
         // Resets the text on the start button, as this may have been changed if test was paused.
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 StartTestBtn.Text = "Start";
                 break;
             default:
@@ -696,13 +696,13 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = null;
 
                     // Updating settings needed for the loaded test
-                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
+                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Core.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
 
                     SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
                     StartTestBtn.IsEnabled = false;
 
                     // Instantiating a UoPta
-                    STFN.UoPta CurrentPtaTest = new UoPta();
+                    STFN.Core.UoPta CurrentPtaTest = new UoPta();
 
                     var UoAudiometerView = new UoAudView(CurrentPtaTest);
                     TestReponseGrid.Children.Add(UoAudiometerView);
@@ -728,13 +728,13 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = null;
 
                     // Updating settings needed for the loaded test
-                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
+                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Core.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
 
                     SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
                     StartTestBtn.IsEnabled = false;
 
                     // Instantiating a UoPta with screening settings
-                    STFN.UoPta CurrentScreeningPtaTest = new UoPta(PtaTestProtocol: UoPta.PtaTestProtocols.SAME96_Screening);
+                    STFN.Core.UoPta CurrentScreeningPtaTest = new UoPta(PtaTestProtocol: UoPta.PtaTestProtocols.SAME96_Screening);
 
                     var ScreeningUoAudiometerView = new UoAudView(CurrentScreeningPtaTest);
                     TestReponseGrid.Children.Add(ScreeningUoAudiometerView);
@@ -760,7 +760,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = null;
 
                     // Updating settings needed for the loaded test
-                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
+                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Core.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
 
                     SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
                     StartTestBtn.IsEnabled = false;
@@ -791,7 +791,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                     CurrentTestOptionsView = null;
 
                     // Updating settings needed for the loaded test
-                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
+                    OstfBase.SoundPlayer.ChangePlayerSettings(SelectedTransducer.ParentAudioApiSettings, 48000, 32, STFN.Core.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1, SelectedTransducer.Mixer, ReOpenStream: true, ReStartStream: true);
 
                     SetLayoutConfiguration(LayoutConfiguration.Settings_Response);
 
@@ -832,7 +832,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                             }
 
                             // Speech test
-                            // Note that CurrentSpeechTest set indirectly by a call from within SpeechTestInitiator.GetSpeechTestInitiator by setting the value of STFN.SharedSpeechTestObjects.CurrentSpeechTest (which refers to the same object as CurrentSpeechTest)
+                            // Note that CurrentSpeechTest set indirectly by a call from within SpeechTestInitiator.GetSpeechTestInitiator by setting the value of SharedSpeechTestObjects.CurrentSpeechTest (which refers to the same object as CurrentSpeechTest)
                             if (CurrentSpeechTest != null)
                             {
                                 // Adding the event handler that listens for transducer changes (but unsubscribing first to avoid multiple subscriptions)
@@ -887,9 +887,9 @@ public partial class SpeechTestView : ContentView, IDrawable
                         }
                         else
                         {
-                            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                            switch (SharedSpeechTestObjects.GuiLanguage)
                             {
-                                case STFN.Utils.Constants.Languages.Swedish:
+                                case STFN.Core.Utils.Constants.Languages.Swedish:
                                     Messager.MsgBox("Det valda testet kunde inte skapas!", Messager.MsgBoxStyle.Information, "Test saknas");
                                     break;
                                 default:
@@ -1008,7 +1008,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         {
 
             // Checking that there are any transducers
-            var LocalAvailableTransducers = STFN.OstfBase.AvaliableTransducers;
+            var LocalAvailableTransducers = OstfBase.AvaliableTransducers;
             if (LocalAvailableTransducers.Count == 0)
             {
                 Messager.MsgBox("Unable to start the sound player since no sound transducers could be found!", Messager.MsgBoxStyle.Critical, "No transducers found");
@@ -1022,8 +1022,8 @@ public partial class SpeechTestView : ContentView, IDrawable
                 // (At this stage the sound player will be started, if not already done.)
                 var argAudioApiSettings = SelectedTransducer.ParentAudioApiSettings;
                 var argMixer = SelectedTransducer.Mixer;
-                STFN.OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, 48000, 32, STFN.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, argMixer,
-                    STFN.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, ReOpenStream: true, ReStartStream: true);
+                OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, 48000, 32, STFN.Core.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints, 0.1d, argMixer,
+                    STFN.Core.Audio.SoundPlayers.iSoundPlayer.SoundDirections.PlaybackOnly, ReOpenStream: true, ReStartStream: true);
                 SelectedTransducer.Mixer = argMixer;
             }
             else
@@ -1103,9 +1103,9 @@ public partial class SpeechTestView : ContentView, IDrawable
             catch (Exception)
             {
 
-                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.Constants.Languages.Swedish:
                         Messager.MsgBox("Något gick fel när testet skulle skapas! Välj nytt test och se till att alla nödvändiga val är ifyllda.", Messager.MsgBoxStyle.Information, "Något gick fel!");
                         break;
                     default:
@@ -1166,9 +1166,9 @@ public partial class SpeechTestView : ContentView, IDrawable
                 // Removing the speech test
                 CurrentSpeechTest = null;
 
-                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.Constants.Languages.Swedish:
                         Messager.MsgBox("Något gick fel när testet skulle skapas! Välj nytt test och se till att alla nödvändiga val är ifyllda.", Messager.MsgBoxStyle.Information, "Något gick fel!");
                         break;
                     default:
@@ -1189,9 +1189,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
         else
         {
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     Messager.MsgBox("Inget test kunde skapas!", Messager.MsgBoxStyle.Information, "Något gick fel!");
                     break;
                 default:
@@ -1208,9 +1208,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         if (testInitializationResult.Item2.Trim() != "")
         {
             string MsgBoxTitle = "";
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     MsgBoxTitle = "Test valda testet säger:";
                     break;
                 default:
@@ -1279,9 +1279,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         StopAllTrialEventTimers();
 
         // The test administrator must resume the test
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 StartTestBtn.Text = "Fortsätt";
 
                 if (CurrentTestResultsView != null)
@@ -1305,9 +1305,9 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         if (CurrentSpeechTest.PauseInformation == "")
         {
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     CurrentSpeechTest.PauseInformation = "Testet är pausat";
                     break;
                 default:
@@ -1466,9 +1466,9 @@ public partial class SpeechTestView : ContentView, IDrawable
                 //    }
                 //}
 
-                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.Constants.Languages.Swedish:
                         Messager.MsgBox(CurrentSpeechTest.GetTestCompletedGuiMessage(), Messager.MsgBoxStyle.Information, "Klart!", "OK");
                         break;
                     default:
@@ -1506,7 +1506,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Updating progress (if test is not completed)
         if (SpeechTestReply != SpeechTest.SpeechTestReplies.TestIsCompleted)
         {
-            STFN.Utils.ProgressInfo CurrentProgress = CurrentSpeechTest.GetProgress();
+            STFN.Core.Utils.ProgressInfo CurrentProgress = CurrentSpeechTest.GetProgress();
             if (CurrentProgress != null)
             {
                 UpdateTestFormProgressbar(CurrentProgress.Value, CurrentProgress.Maximum, CurrentProgress.Minimum);
@@ -1801,9 +1801,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         //}
 
         // Restting start button text
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 StartTestBtn.Text = "Start";
                 break;
             default:
@@ -1855,9 +1855,9 @@ public partial class SpeechTestView : ContentView, IDrawable
         }
         if (showDefaultInfo == true)
         {
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     msgBoxResult = await Messager.MsgBoxAsync("Testet har avbrutits.", Messager.MsgBoxStyle.Information, "Avslutat", "OK");
                     break;
                 default:
@@ -1909,9 +1909,9 @@ public partial class SpeechTestView : ContentView, IDrawable
     private void OnFatalPlayerErrorSafe()
     {
 
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 CurrentSpeechTest.AbortInformation = "Ett fel har uppstått med ljuduppspelningen! \n\nHar ljudgivarna kopplats ur?\n\nTestet måste avbrytas och appen stängas!\n\nKlicka OK, se till att rätt ljudgivare är inkopplade och starta sedan om appen.";
                 break;
             default:
@@ -1953,7 +1953,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
     private void TapGestureRecognizer_Tapped(object sender, TappedEventArgs e)
     {
-        if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
+        if (OstfBase.SoundPlayer.SupportsTalkBack == true)
         {
             if (TalkbackOn == true)
             {
@@ -1976,11 +1976,11 @@ public partial class SpeechTestView : ContentView, IDrawable
         TalkbackButton.BorderColor = Colors.LightGrey;
 
         // Inactivates tackback
-        if (STFN.OstfBase.SoundPlayerIsInitialized())
+        if (OstfBase.SoundPlayerIsInitialized())
         {
-            if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
+            if (OstfBase.SoundPlayer.SupportsTalkBack == true)
             {
-                STFN.OstfBase.SoundPlayer.StopTalkback();
+                OstfBase.SoundPlayer.StopTalkback();
             }
         }
 
@@ -1993,11 +1993,11 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Directing the call to the main thread if not already on the main thread
         /// if (MainThread.IsMainThread == false) { MethodBase currentMethod = MethodBase.GetCurrentMethod(); MainThread.BeginInvokeOnMainThread(() => { currentMethod.Invoke(this, null); }); return; }
 
-        if (STFN.OstfBase.SoundPlayerIsInitialized())
+        if (OstfBase.SoundPlayerIsInitialized())
         {
-            if (STFN.OstfBase.SoundPlayer.SupportsTalkBack == true)
+            if (OstfBase.SoundPlayer.SupportsTalkBack == true)
             {
-                if (STFN.OstfBase.SoundPlayer.IsPlaying == false)
+                if (OstfBase.SoundPlayer.IsPlaying == false)
                 {
                     if (UpdateSoundPlayerSettings() == false)
                     {
@@ -2007,7 +2007,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                 }
 
                 // Activates tackback
-                STFN.OstfBase.SoundPlayer.StartTalkback();
+                OstfBase.SoundPlayer.StartTalkback();
                 TalkbackButton.BackgroundColor = Colors.GreenYellow;
                 TalkbackButton.BorderColor = Colors.YellowGreen;
 

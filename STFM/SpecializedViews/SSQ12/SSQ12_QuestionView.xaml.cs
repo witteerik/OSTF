@@ -1,4 +1,4 @@
-
+using STFN.Core;
 namespace STFM.SpecializedViews.SSQ12;
 
 public partial class SSQ12_QuestionView : ContentView
@@ -13,9 +13,9 @@ public partial class SSQ12_QuestionView : ContentView
 
         this.SsqQuestion = new  SsqQuestion(QuestionNumber);
 
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 ShowResponseAlternativeToggleLabel.Text = "Visa svarsalternativ";
                 break;
 
@@ -66,9 +66,9 @@ public partial class SSQ12_QuestionView : ContentView
 
         ShowResponseAlternativeToggleSymbol.Text = isVisible ? "+" : "-";
 
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 ShowResponseAlternativeToggleLabel.Text = isVisible ? "Visa svarsalternativ" : "Dölj svarsalternativ";
                 break;
 
@@ -138,11 +138,11 @@ public class SsqQuestion
     {
 
         this.QuestionNumber = QuestionNumber;
-        this.Question = SsqQuestions.GetQuestion(QuestionNumber, STFN.SharedSpeechTestObjects.GuiLanguage);
-        this.ResponseAlternativeComment = SsqQuestions.GetResponseAlternativeComment(QuestionNumber, STFN.SharedSpeechTestObjects.GuiLanguage);
-        this.CommentHeadingLabel = SsqQuestions.GetCommentHeadingLabelText(STFN.SharedSpeechTestObjects.GuiLanguage);
-        this.CommentInstructionLabel = SsqQuestions.GetCommentInstructionLabelText(QuestionNumber, STFN.SharedSpeechTestObjects.GuiLanguage);
-        this.AvailableResponses = SsqQuestions.GetAvailableResponses(QuestionNumber, STFN.SharedSpeechTestObjects.GuiLanguage);
+        this.Question = SsqQuestions.GetQuestion(QuestionNumber, SharedSpeechTestObjects.GuiLanguage);
+        this.ResponseAlternativeComment = SsqQuestions.GetResponseAlternativeComment(QuestionNumber, SharedSpeechTestObjects.GuiLanguage);
+        this.CommentHeadingLabel = SsqQuestions.GetCommentHeadingLabelText(SharedSpeechTestObjects.GuiLanguage);
+        this.CommentInstructionLabel = SsqQuestions.GetCommentInstructionLabelText(QuestionNumber, SharedSpeechTestObjects.GuiLanguage);
+        this.AvailableResponses = SsqQuestions.GetAvailableResponses(QuestionNumber, SharedSpeechTestObjects.GuiLanguage);
 
     }
 
@@ -163,9 +163,9 @@ public class SsqQuestion
 
         List<string> outputList = new List<string>();
 
-        switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+        switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
 
                 outputList.Add("FRÅGA: " + this.Question.ToString());
                 outputList.Add("SVAR: " + this.GetResponse()    );
@@ -217,7 +217,7 @@ public class SsqQuestion
 static class SsqQuestions
 {
 
-    public static string GetQuestion(int QuestionNumber, STFN.Utils.Constants.Languages Language)
+    public static string GetQuestion(int QuestionNumber, STFN.Core.Utils.Constants.Languages Language)
     {
 
         List<string>  questions = new List<string>();
@@ -225,7 +225,7 @@ static class SsqQuestions
         // Adding questions with language dependent strings
         switch (Language)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
 
                 questions.Add("1. Du talar med en person och en TV är på i samma rum. Kan du följa med i vad den andra personen säger, utan att sänka TV:n? ✱" );
                 questions.Add("2. Du lyssnar på en person som talar med dig, samtidigt som du försöker att följa nyheterna på TV. Kan du följa med i vad båda personerna säger? ✱" );
@@ -264,7 +264,7 @@ static class SsqQuestions
 
     }
 
-    public static SortedList<int, string> GetAvailableResponses(int QuestionNumber, STFN.Utils.Constants.Languages Language)
+    public static SortedList<int, string> GetAvailableResponses(int QuestionNumber, STFN.Core.Utils.Constants.Languages Language)
     {
 
         SortedList<int, List<string>> QuestionResponses = new SortedList<int, List<string>>();
@@ -272,7 +272,7 @@ static class SsqQuestions
         // Adding possible responses with language dependent strings
         switch (Language)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
 
                 QuestionResponses.Add(1,new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte"});
                 QuestionResponses.Add(2, new List<string> { "0 = Inte alls", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10 = Helt och hållet", "Vet inte" });
@@ -323,13 +323,13 @@ static class SsqQuestions
 
     }
 
-    public static string GetResponseAlternativeComment(int QuestionNumber, STFN.Utils.Constants.Languages Language)
+    public static string GetResponseAlternativeComment(int QuestionNumber, STFN.Core.Utils.Constants.Languages Language)
     {
 
         // Adding possible responses with language dependent strings
         switch (Language)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
 
                 if (QuestionNumber == 9)
                 {
@@ -361,11 +361,11 @@ static class SsqQuestions
         }
     }
 
-    public static string GetCommentInstructionLabelText (int QuestionNumber, STFN.Utils.Constants.Languages Language)
+    public static string GetCommentInstructionLabelText (int QuestionNumber, STFN.Core.Utils.Constants.Languages Language)
     {
         switch (Language)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
             return "Om du på fråga " + (QuestionNumber).ToString() + " valde 'vet inte', vänligen ange varför du inte vet svaret.";
         default:
                 // Using English as default
@@ -373,11 +373,11 @@ static class SsqQuestions
         }
     }
 
-    public static string GetCommentHeadingLabelText(STFN.Utils.Constants.Languages Language)
+    public static string GetCommentHeadingLabelText(STFN.Core.Utils.Constants.Languages Language)
     {
         switch (Language)
         {
-            case STFN.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.Constants.Languages.Swedish:
                 return "Kommentar.";
             default:
                 // Using English as default

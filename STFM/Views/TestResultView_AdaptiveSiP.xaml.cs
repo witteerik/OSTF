@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using STFN;
+using STFN.Core;
 
 namespace STFM.Views
 {
@@ -27,9 +27,9 @@ namespace STFM.Views
             SnrView.SizeChanged += (s, e) => SnrView.Invalidate();
 
 
-            switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+            switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.Constants.Languages.Swedish:
                     StartButton.Text = "Start";
                     StopButton.Text = "Stop";
                     PauseButton.Text = "Pause";
@@ -146,12 +146,12 @@ namespace STFM.Views
             if (speechTest.IsPractiseTest == false)
             {
                 double? FinalResult = testProtocol.GetFinalResultValue();
-                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Utils.Constants.Languages.English:
+                    case STFN.Core.Utils.Constants.Languages.English:
                         FinalResultNameLabel.Text = "SRT:";
                         break;
-                    case STFN.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.Constants.Languages.Swedish:
                         FinalResultNameLabel.Text = "Hörtröskel:";
                         break;
                     default:
@@ -170,12 +170,12 @@ namespace STFM.Views
             else
             {
                 double? PractiseTestScore = speechTest.GetAverageScore();
-                switch (STFN.SharedSpeechTestObjects.GuiLanguage)
+                switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Utils.Constants.Languages.English:
+                    case STFN.Core.Utils.Constants.Languages.English:
                         FinalResultNameLabel.Text = "Score:";
                         break;
-                    case STFN.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.Constants.Languages.Swedish:
                         FinalResultNameLabel.Text = "Andel korrekt:";
                         break;
                     default:

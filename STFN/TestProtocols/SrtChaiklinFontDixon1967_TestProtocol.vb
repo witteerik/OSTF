@@ -1,4 +1,5 @@
-﻿Public Class SrtChaiklinFontDixon1967_TestProtocol
+﻿Imports STFN.Core
+Public Class SrtChaiklinFontDixon1967_TestProtocol
     Inherits TestProtocol
 
     Public Overrides ReadOnly Property Name As String

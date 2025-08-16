@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Views;
 using Microsoft.Maui.Controls.Internals;
 using Microsoft.Maui.Layouts;
 using STFN;
+using STFN.Core;
 using STFM.Extension;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -19,7 +20,7 @@ namespace OstfTabletSuite
         {
             InitializeComponent();
 
-            STFN.Messager.OnNewMessage += (title, message, cancelButtonText) =>
+            Messager.OnNewMessage += (title, message, cancelButtonText) =>
             {
                 // Fire and forget the async call
                 _ = DisplayMessage(title, message, cancelButtonText);
@@ -43,13 +44,13 @@ namespace OstfTabletSuite
             //};
 
 
-            STFN.Messager.OnNewAsyncMessage += (sender, e) =>
+            Messager.OnNewAsyncMessage += (sender, e) =>
             {
                 // Fire and forget the async call
                 _ = DisplayMessageAsync(sender, e);
             };
 
-            STFN.Messager.OnNewQuestion += (sender, e) =>
+            Messager.OnNewQuestion += (sender, e) =>
             {
                 // Fire and forget the async call
                 _ = DisplayBooleanQuestion(sender, e);
@@ -59,11 +60,11 @@ namespace OstfTabletSuite
             //STFN.Messager.OnNewAsyncMessage += DisplayMessageAsync;
             //STFN.Messager.OnNewQuestion += DisplayBooleanQuestion;
 
-            STFN.Messager.OnGetSaveFilePath += GetSaveFilePath;
-            STFN.Messager.OnGetFolder += GetFolder;
-            STFN.Messager.OnGetOpenFilePath += GetOpenFilePath;
-            STFN.Messager.OnGetOpenFilePaths += GetOpenFilePaths;
-            STFN.Messager.OnCloseAppRequest += CloseApp;
+            Messager.OnGetSaveFilePath += GetSaveFilePath;
+            Messager.OnGetFolder += GetFolder;
+            Messager.OnGetOpenFilePath += GetOpenFilePath;
+            Messager.OnGetOpenFilePaths += GetOpenFilePaths;
+            Messager.OnCloseAppRequest += CloseApp;
 
         }
 

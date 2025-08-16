@@ -1,4 +1,6 @@
-﻿Public Class SrtAsha1979_TestProtocol
+﻿Imports STFN.Core
+
+Public Class SrtAsha1979_TestProtocol
     Inherits TestProtocol
 
     Public Overrides ReadOnly Property Name As String
