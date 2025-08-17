@@ -1,7 +1,7 @@
 ﻿
 Imports System.Runtime.CompilerServices
 
-Namespace MyBaseClassNamespace
+Namespace MyNamespace.Base
 
     Public Class MyContentClass
 
@@ -28,11 +28,11 @@ Namespace MyBaseClassNamespace
 
 End Namespace
 
-Namespace MyExtensionClassNamespace
+Namespace MyNamespace
 
 
     Public Class MyContentClass
-        Inherits MyBaseClassNamespace.MyContentClass
+        Inherits MyNamespace.Base.MyContentClass
 
         Public Shared Sub Sub2()
             Console.WriteLine("Sub2 called")
@@ -44,28 +44,14 @@ Namespace MyExtensionClassNamespace
     Public Module Extensions
 
         <Extension()>
-        Public Sub Sub3(obj As MyBaseClassNamespace.MyContentClass)
+        Public Sub Sub3(obj As MyNamespace.Base.MyContentClass)
             Console.WriteLine("Sub3 (extension method) called on MyContentClass instance")
         End Sub
 
     End Module
 
 
-    Public Class MyTestClass
-        Public Sub New()
-
-            MyBaseClassNamespace.MyContentClass.Sub1()
-            MyExtensionClassNamespace.MyContentClass.Sub1()
-            MyContentClass.Sub1()
-
-            MyContentClass.Sub2()
-
-            ' But Sub3 is an extension method, so needs an instance
-            Dim obj As New MyBaseClassNamespace.MyContentClass()
-            obj.Sub3()
-
-        End Sub
-    End Class
-
-
 End Namespace
+
+
+

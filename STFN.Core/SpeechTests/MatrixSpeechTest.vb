@@ -280,7 +280,7 @@ Public Class MatrixSpeechTest
                 'Randomizing across the first set of words, then the second set of words and so on
                 For w = 0 To WordCount - 1
 
-                    Dim RandomizedOrder = Utils.SampleWithoutReplacement(CurrentSentences.Count, 0, CurrentSentences.Count, Randomizer)
+                    Dim RandomizedOrder = DSP.SampleWithoutReplacement(CurrentSentences.Count, 0, CurrentSentences.Count, Randomizer)
                     Dim WordsInRandomOrder As New List(Of SpeechMaterialComponent)
 
                     For Each RandomIndex In RandomizedOrder

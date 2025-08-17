@@ -157,8 +157,8 @@ Public Class IHearSC_SiP_SpeechTest
         Next
 
         'Randomizing the order within trial lists
-        TempLeftTurnTrials = Shuffle(TempLeftTurnTrials, Randomizer)
-        TempRightTurnTrials = Shuffle(TempRightTurnTrials, Randomizer)
+        TempLeftTurnTrials = DSP.Shuffle(TempLeftTurnTrials, Randomizer)
+        TempRightTurnTrials = DSP.Shuffle(TempRightTurnTrials, Randomizer)
 
         'Putting the Trials in a list of the correct type
         Dim LeftTurnTrials As New List(Of SipTrial)
@@ -332,7 +332,7 @@ Public Class IHearSC_SiP_SpeechTest
         Next
 
         'Shuffling the order of response alternatives
-        ResponseAlternatives = Shuffle(ResponseAlternatives, Randomizer).ToList
+        ResponseAlternatives = DSP.Shuffle(ResponseAlternatives, Randomizer).ToList
 
         'Adding the response alternatives
         CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
@@ -444,7 +444,7 @@ Public Class IHearSC_SiP_SpeechTest
     Public Overrides Function GetResultStringForGui() As String
 
         Dim TestResultSummaryLines = New List(Of String)
-        TestResultSummaryLines.Add("Resultat: " & vbTab & Rounding(100 * GetAverageHeadTurnScores(Nothing)) & " % rätt")
+        TestResultSummaryLines.Add("Resultat: " & vbTab & DSP.Rounding(100 * GetAverageHeadTurnScores(Nothing)) & " % rätt")
         'TestResult.TestResultSummaryLines.Add("Head turned left: " & Math.Rounding(100 * GetAverageHeadTurnScores(False)) & " %")
         'TestResult.TestResultSummaryLines.Add("Head turned right : " & Math.Rounding(100 * GetAverageHeadTurnScores(True)) & " %")
 

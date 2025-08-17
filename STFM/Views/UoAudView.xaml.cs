@@ -92,7 +92,7 @@ public partial class UoAudView : ContentView
         // Creating a default wave format and silent sound
         WaveFormat = new STFN.Core.Audio.Formats.WaveFormat(48000, 32, 2, "", STFN.Core.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
 
-        silentSound = STFN.Core.Audio.GenerateSound.Signals.CreateSilence(ref this.WaveFormat, null, 3);
+        silentSound = STFN.Core.DSP.CreateSilence(ref this.WaveFormat, null, 3);
 
         // RETSPL values for DD65v2
         RetSplList = new SortedList<int, double>();
@@ -286,7 +286,7 @@ public partial class UoAudView : ContentView
         // Mixing the sound
         double RetSplCorrectedLevel = CurrentTrial.ToneLevel + RetSplList[CurrentTrial.ParentSubTest.Frequency];
         double CalibratedRetSplCorrectedLevel = RetSplCorrectedLevel + PureToneCalibrationList[CurrentTrial.ParentSubTest.Frequency];
-        double RetSplCorrectedLevel_FS = STFN.Core.Audio.AudioManagement.Standard_dBSPL_To_dBFS(CalibratedRetSplCorrectedLevel);
+        double RetSplCorrectedLevel_FS = STFN.Core.DSP.Standard_dBSPL_To_dBFS(CalibratedRetSplCorrectedLevel);
 
         // Here, to make sure the tone does not get in distorted integer sound formats, we should also add the output channel specific general calibration gain added by the sound player and which we can get from:
         // var CurrentMixer = OstfBase.SoundPlayer.GetMixer();
@@ -317,10 +317,10 @@ public partial class UoAudView : ContentView
         }
 
         // Creating the sine
-        STFN.Core.Audio.Sound SineSound = STFN.Core.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat, 1, CurrentTrial.ParentSubTest.Frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Core.Audio.AudioManagement.SoundDataUnit.dB, 
+        STFN.Core.Audio.Sound SineSound = STFN.Core.DSP.CreateSineWave(ref this.WaveFormat, 1, CurrentTrial.ParentSubTest.Frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Core.DSP.SoundDataUnit.dB, 
             CurrentTrial.ToneDuration.TotalSeconds, STFN.Core.Audio.BasicAudioEnums.TimeUnits.seconds, 0, true);
-        STFN.Core.Audio.DSP.Transformations.Fade(ref SineSound, null, 0, 1, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Core.Audio.DSP.Transformations.FadeSlopeType.Linear);
-        STFN.Core.Audio.DSP.Transformations.Fade(ref SineSound, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.1), null, STFN.Core.Audio.DSP.Transformations.FadeSlopeType.Linear);
+        STFN.Core.DSP.Fade(ref SineSound, null, 0, 1, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Core.DSP.FadeSlopeType.Linear);
+        STFN.Core.DSP.Fade(ref SineSound, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.1), null, STFN.Core.DSP.FadeSlopeType.Linear);
 
         // Padding the sine with the initial silence 
         SineSound.ZeroPad(CurrentTrial.ToneOnsetTime.TotalSeconds, null, false);

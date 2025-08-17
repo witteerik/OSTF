@@ -525,9 +525,9 @@ Public Class QuickSiP
             Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, Randomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
 
             'Sets up fading specifications for the background signals
-            Dim FadeSpecs_Background = New List(Of Audio.DSP.Transformations.FadeSpecifications)
-            FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
-            FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+            Dim FadeSpecs_Background = New List(Of DSP.FadeSpecifications)
+            FadeSpecs_Background.Add(New DSP.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
+            FadeSpecs_Background.Add(New DSP.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
 
             'Adds the background (non-speech) signals, with fade, duck and location specifications
             Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
@@ -606,7 +606,7 @@ Public Class QuickSiP
         Next
 
         'Shuffling the order of response alternatives
-        ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
+        ResponseAlternatives = DSP.Shuffle(ResponseAlternatives, Randomizer).ToList
 
         'Adding the response alternatives
         CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
@@ -710,7 +710,7 @@ Public Class QuickSiP
 
         Dim AverageScore As Double? = GetAverageScore()
         If AverageScore.HasValue Then
-            Output.Add("Overall score: " & Math.Rounding(100 * GetAverageScore()) & "%")
+            Output.Add("Overall score: " & DSP.Rounding(100 * GetAverageScore()) & "%")
         End If
 
         ResultsSummary = GetPnrScores()
@@ -719,7 +719,7 @@ Public Class QuickSiP
             Output.Add("Scores per PNR level:")
             Output.Add("PNR (dB)" & vbTab & "Score" & vbTab & "List")
             For Each kvp In ResultsSummary
-                Output.Add(kvp.Value.Item1.PNR & vbTab & Math.Rounding(100 * kvp.Value.Item2) & " %" & vbTab & kvp.Value.Item1.SMC.PrimaryStringRepresentation)
+                Output.Add(kvp.Value.Item1.PNR & vbTab & DSP.Rounding(100 * kvp.Value.Item2) & " %" & vbTab & kvp.Value.Item1.SMC.PrimaryStringRepresentation)
             Next
         End If
 

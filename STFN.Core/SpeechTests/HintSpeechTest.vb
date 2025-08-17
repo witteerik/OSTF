@@ -220,7 +220,7 @@ Public Class HintSpeechTest
                 Next
             Else
                 'Randomizing order
-                Dim RandomizedOrder = Utils.SampleWithoutReplacement(CurrentWords.Count, 0, CurrentWords.Count, Randomizer)
+                Dim RandomizedOrder = DSP.SampleWithoutReplacement(CurrentWords.Count, 0, CurrentWords.Count, Randomizer)
                 For Each RandomIndex In RandomizedOrder
                     PlannedTestSentencess.Add(CurrentWords(RandomIndex))
                     'Checking if enough words have been added

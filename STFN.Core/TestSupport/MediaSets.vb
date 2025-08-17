@@ -970,9 +970,9 @@ Public Class MediaSet
                                                             Optional ByVal VariableNamePrefix As String = "SLs")
 
         'Sets of some objects which are reused between the loops in the code below
-        Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
-        Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
-        Dim dBSPL_FSdifference As Double? = Audio.Standard_dBFS_dBSPL_Difference
+        Dim BandBank = DSP.BandBank.GetSiiCriticalRatioBandBank
+        Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, DSP.WindowingType.Hamming, False)
+        Dim dBSPL_FSdifference As Double? = DSP.Standard_dBFS_dBSPL_Difference
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
@@ -992,7 +992,7 @@ Public Class MediaSet
                                                             FadeConcatenatedSound, RemoveDcComponent)
 
             'Calculates spectrum levels
-            Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(ConcatenatedSound, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference)
+            Dim SpectrumLevels = DSP.CalculateSpectrumLevels(ConcatenatedSound, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference)
 
             'Stores the value as a custom media set variable
             For b = 0 To SpectrumLevels.Count - 1
@@ -1043,9 +1043,9 @@ Public Class MediaSet
         Dim SmaHighjackedSentenceIndex As Integer = 0
 
         'Sets of some objects which are reused between the loops in the code below
-        Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
-        Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, Audio.WindowingType.Hamming, False)
-        Dim dBSPL_FSdifference As Double? = Audio.Standard_dBFS_dBSPL_Difference
+        Dim BandBank = DSP.BandBank.GetSiiCriticalRatioBandBank
+        Dim FftFormat As New Audio.Formats.FftFormat(4 * 2048,, 1024, DSP.WindowingType.Hamming, False)
+        Dim dBSPL_FSdifference As Double? = DSP.Standard_dBFS_dBSPL_Difference
 
         Dim WaveFormat As Audio.Formats.WaveFormat = Nothing
 
@@ -1087,26 +1087,26 @@ Public Class MediaSet
 
                 'Setting each masker to the ContrastedPhonemesLevel_FS
                 For n = 0 To MaskerList.Count - 1
-                    Audio.DSP.MeasureAndAdjustSectionLevel(MaskerList(n), ContrastedPhonemesLevel_FS, 1)
+                    DSP.MeasureAndAdjustSectionLevel(MaskerList(n), ContrastedPhonemesLevel_FS, 1)
                 Next
                 'End new 2020-12-30
             End If
 
 
             'Getting concatenated sounds
-            Dim ConcatenatedSound = Audio.DSP.ConcatenateSounds(MaskerList, False,,,,, MaskerCrossFadeDuration * WaveFormat.SampleRate, False, 10, True)
+            Dim ConcatenatedSound = DSP.ConcatenateSounds(MaskerList, False,,,,, MaskerCrossFadeDuration * WaveFormat.SampleRate, False, 10, True)
 
             'Fading very slightly to avoid initial and final impulses
             If FadeConcatenatedSound = True Then
-                Audio.DSP.Fade(ConcatenatedSound, Nothing, 0,,, ConcatenatedSound.WaveFormat.SampleRate * 0.01, Audio.DSP.FadeSlopeType.Linear)
-                Audio.DSP.Fade(ConcatenatedSound, 0, Nothing,, ConcatenatedSound.WaveData.SampleData(1).Length - ConcatenatedSound.WaveFormat.SampleRate * 0.01,, Audio.DSP.FadeSlopeType.Linear)
+                DSP.Fade(ConcatenatedSound, Nothing, 0,,, ConcatenatedSound.WaveFormat.SampleRate * 0.01, DSP.FadeSlopeType.Linear)
+                DSP.Fade(ConcatenatedSound, 0, Nothing,, ConcatenatedSound.WaveData.SampleData(1).Length - ConcatenatedSound.WaveFormat.SampleRate * 0.01,, DSP.FadeSlopeType.Linear)
             End If
 
             'Removing DC-component
-            If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(ConcatenatedSound)
+            If RemoveDcComponent = True Then DSP.RemoveDcComponent(ConcatenatedSound)
 
             'Calculates spectrum levels
-            Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(ConcatenatedSound, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference)
+            Dim SpectrumLevels = DSP.CalculateSpectrumLevels(ConcatenatedSound, 1, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList, dBSPL_FSdifference)
 
             'Stores the value as a custom media set variable
             For b = 0 To SpectrumLevels.Count - 1
@@ -1196,7 +1196,7 @@ Public Class MediaSet
                 'Getting the WaveFormat from the first available sound
                 If WaveFormat Is Nothing Then WaveFormat = CurrentSoundSection.WaveFormat
 
-                MaxLevelList.Add(Audio.DSP.GetLevelOfLoudestWindow(CurrentSoundSection, 1,
+                MaxLevelList.Add(DSP.GetLevelOfLoudestWindow(CurrentSoundSection, 1,
                                                                                         CurrentSoundSection.WaveFormat.SampleRate * IntegrationTime,,,, FrequencyWeighting, True))
 
             Next
@@ -1211,7 +1211,7 @@ Public Class MediaSet
                 'Converting to linear RMS
                 Dim RMSList As New List(Of Double)
                 For Each Level In MaxLevelList
-                    RMSList.Add(Audio.dBConversion(Level, Audio.dBConversionDirection.from_dB, WaveFormat))
+                    RMSList.Add(DSP.dBConversion(Level, DSP.dBConversionDirection.from_dB, WaveFormat))
                 Next
 
                 'Inverting to the root by taking the square
@@ -1228,7 +1228,7 @@ Public Class MediaSet
                 Dim GrandRMS As Double = Math.Sqrt(GrandMeanSquare)
 
                 'Converting to dB
-                AverageLevel = Audio.dBConversion(GrandRMS, Audio.dBConversionDirection.to_dB, WaveFormat)
+                AverageLevel = DSP.dBConversion(GrandRMS, DSP.dBConversionDirection.to_dB, WaveFormat)
             Else
                 AverageLevel = Double.NegativeInfinity
             End If
@@ -1352,9 +1352,9 @@ Public Class MediaSet
                 Dim SegmentLength As Integer = CurrentSoundSection.WaveData.SampleData(1).Length
 
                 If IntegrationTime = 0 Then
-                    SoundLevelList.Add(New Tuple(Of Double, Double)(Audio.DSP.MeasureSectionLevel(CurrentSoundSection, 1, ,,,, FrequencyWeighting), SegmentLength))
+                    SoundLevelList.Add(New Tuple(Of Double, Double)(DSP.MeasureSectionLevel(CurrentSoundSection, 1, ,,,, FrequencyWeighting), SegmentLength))
                 Else
-                    SoundLevelList.Add(New Tuple(Of Double, Double)(Audio.DSP.GetLevelOfLoudestWindow(CurrentSoundSection, 1, CurrentSoundSection.WaveFormat.SampleRate * IntegrationTime,,,, FrequencyWeighting, True), SegmentLength))
+                    SoundLevelList.Add(New Tuple(Of Double, Double)(DSP.GetLevelOfLoudestWindow(CurrentSoundSection, 1, CurrentSoundSection.WaveFormat.SampleRate * IntegrationTime,,,, FrequencyWeighting, True), SegmentLength))
                 End If
 
             Next
@@ -1372,7 +1372,7 @@ Public Class MediaSet
                     For Each Level In SoundLevelList
 
                         'Converting to linear RMS
-                        Dim SegmentRMS As Double = Audio.dBConversion(Level.Item1, Audio.dBConversionDirection.from_dB, WaveFormat)
+                        Dim SegmentRMS As Double = DSP.dBConversion(Level.Item1, DSP.dBConversionDirection.from_dB, WaveFormat)
 
                         'Getting the mean square by inverting to the RMS value (by taking the square)
                         Dim SegmentMeanSquare As Double = SegmentRMS ^ 2
@@ -1395,7 +1395,7 @@ Public Class MediaSet
                     Dim RMS As Double = Math.Sqrt(MeanSquare)
 
                     'Converting to dB
-                    AverageLevel = Audio.dBConversion(RMS, Audio.dBConversionDirection.to_dB, WaveFormat)
+                    AverageLevel = DSP.dBConversion(RMS, DSP.dBConversionDirection.to_dB, WaveFormat)
 
                 Else
 
@@ -1404,7 +1404,7 @@ Public Class MediaSet
                     'Converting to linear RMS
                     Dim RMSList As New List(Of Double)
                     For Each Level In SoundLevelList
-                        RMSList.Add(Audio.dBConversion(Level.Item1, Audio.dBConversionDirection.from_dB, WaveFormat))
+                        RMSList.Add(DSP.dBConversion(Level.Item1, DSP.dBConversionDirection.from_dB, WaveFormat))
                     Next
 
                     'Getting the mean square by inverting to the RMS value (by taking the square)
@@ -1420,7 +1420,7 @@ Public Class MediaSet
                     Dim GrandRMS As Double = Math.Sqrt(GrandMeanSquare)
 
                     'Converting to dB
-                    AverageLevel = Audio.dBConversion(GrandRMS, Audio.dBConversionDirection.to_dB, WaveFormat)
+                    AverageLevel = DSP.dBConversion(GrandRMS, DSP.dBConversionDirection.to_dB, WaveFormat)
 
                 End If
 
@@ -1535,9 +1535,9 @@ Public Class MediaSet
                 'Measure sound level
                 Dim AverageLevel As Double
                 If IntegrationTime = 0 Then
-                    AverageLevel = Audio.DSP.MeasureSectionLevel(CurrentIndexSound, SoundChannel,,,,, FrequencyWeighting)
+                    AverageLevel = DSP.MeasureSectionLevel(CurrentIndexSound, SoundChannel,,,,, FrequencyWeighting)
                 Else
-                    AverageLevel = Audio.DSP.GetLevelOfLoudestWindow(CurrentIndexSound, SoundChannel, Math.Round(CurrentIndexSound.WaveFormat.SampleRate * IntegrationTime * 0.001),,,, FrequencyWeighting, True)
+                    AverageLevel = DSP.GetLevelOfLoudestWindow(CurrentIndexSound, SoundChannel, Math.Round(CurrentIndexSound.WaveFormat.SampleRate * IntegrationTime * 0.001),,,, FrequencyWeighting, True)
                 End If
 
                 'Calculates needed gain to reach TargetSoundLevel
@@ -1691,10 +1691,10 @@ Public Class MediaSet
 
             If ConcatenatedSound Is Nothing Then Continue For
 
-            Dim BandBank = Audio.DSP.BandBank.GetSiiCriticalRatioBandBank
+            Dim BandBank = DSP.BandBank.GetSiiCriticalRatioBandBank
             Dim ReusableFftFormat As Audio.Formats.FftFormat = Nothing
 
-            Dim SpectrumLevels = Audio.DSP.CalculateSpectrumLevels(ConcatenatedSound, SoundChannel, BandBank, ReusableFftFormat,,, dBSPL_FSdifference)
+            Dim SpectrumLevels = DSP.CalculateSpectrumLevels(ConcatenatedSound, SoundChannel, BandBank, ReusableFftFormat,,, dBSPL_FSdifference)
 
             'Stores the value as a custom media set variable
             'The outcommented lines can be used to get the old SiP-test component IDs
@@ -2063,7 +2063,7 @@ Public Class MediaSet
             KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(15000, 0))
             KernelFrequencyResponse.Add(New Tuple(Of Single, Single)(24000, 0))
 
-            Dim FilterKernel = Audio.GenerateSound.CreateCustumImpulseResponse(KernelFrequencyResponse, Nothing, WaveFormat, New Audio.Formats.FftFormat, 8000,, True, True)
+            Dim FilterKernel = DSP.CreateCustumImpulseResponse(KernelFrequencyResponse, Nothing, WaveFormat, New Audio.Formats.FftFormat, 8000,, True, True)
 
             If ExportToFile = True Then
                 If LogFolder = "" Then LogFolder = Utils.logFilePath
@@ -2093,7 +2093,7 @@ Public Class MediaSet
 
             'Measures level of each input sound
             Dim SumOfSquareData As Tuple(Of Double, Integer) = Nothing
-            Audio.DSP.MeasureSectionLevel(CurrentSound, MeasurementChannel,,,,, FrequencyWeighting, True, SumOfSquareData)
+            DSP.MeasureSectionLevel(CurrentSound, MeasurementChannel,,,,, FrequencyWeighting, True, SumOfSquareData)
 
             'Adds the sum-of-square data
             SumOfSquaresList.Add(SumOfSquareData)
@@ -2115,7 +2115,7 @@ Public Class MediaSet
         Dim RMS As Double = MeanSquare ^ (1 / 2)
 
         'Converting to dB
-        Dim RMSLevel As Double = Audio.dBConversion(RMS, Audio.dBConversionDirection.to_dB, InputSounds(0).WaveFormat)
+        Dim RMSLevel As Double = DSP.dBConversion(RMS, DSP.dBConversionDirection.to_dB, InputSounds(0).WaveFormat)
 
         Return RMSLevel
 

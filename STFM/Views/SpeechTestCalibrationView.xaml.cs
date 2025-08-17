@@ -194,32 +194,32 @@ public partial class SpeechTestCalibrationView : ContentView
 
         var TempWaveFormat = new STFN.Core.Audio.Formats.WaveFormat(48000, 32, 1, Encoding: STFN.Core.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints);
 
-        var GeneratedWarble = STFN.Core.Audio.GenerateSound.Signals.CreateFrequencyModulatedSineWave(ref TempWaveFormat, 1, 1000d, 0.5m, 20d, 0.125d, duration: 60d);
+        var GeneratedWarble = STFN.Core.DSP.CreateFrequencyModulatedSineWave(ref TempWaveFormat, 1, 1000d, 0.5m, 20d, 0.125d, duration: 60d);
         GeneratedWarble.FileName = "Internal1";
         GeneratedWarble.Description = "Warble tone (60 s)";
         soundsList.Add(GeneratedWarble);
         descriptionsList.Add("Internal1", "OSTF generated warble tone. The tone is frequency modulated around 1 kHz by ±12.5 %, with a modulation frequency of 20 Hz. Samplerate 48kHz, duration 60 seconds.");
 
-        var GeneratedSine = STFN.Core.Audio.GenerateSound.Signals.CreateSineWave(ref TempWaveFormat, 1, 1000d, 0.5m, duration: 60d);
+        var GeneratedSine = STFN.Core.DSP.CreateSineWave(ref TempWaveFormat, 1, 1000d, 0.5m, duration: 60d);
         GeneratedSine.FileName = "Internal2";
         GeneratedSine.Description = "Sine";
         soundsList.Add(GeneratedSine);
         descriptionsList.Add("Internal2", "OSTF generated 1kHz sine. Samplerate 48kHz, duration 60 seconds.");
 
-        var GeneratedSweep1 = STFN.Core.Audio.GenerateSound.Signals.CreateLogSineSweep(ref TempWaveFormat, 1, 20d, 20000d, false, 0.5m, TotalDuration: 15d);
+        var GeneratedSweep1 = STFN.Core.DSP.CreateLogSineSweep(ref TempWaveFormat, 1, 20d, 20000d, false, 0.5m, TotalDuration: 15d);
         GeneratedSweep1.FileName = "Internal3";
         GeneratedSweep1.Description = "Sweep";
         soundsList.Add(GeneratedSweep1);
         descriptionsList.Add("Internal3", "OSTF generated log-sine sweep, 20Hz - 20kHz. Samplerate 48kHz, duration 15 seconds.");
 
-        var GeneratedSweep2 = STFN.Core.Audio.GenerateSound.Signals.CreateLogSineSweep(ref TempWaveFormat, 1, 20d, 20000d, true, 0.5m, TotalDuration: 15d);
+        var GeneratedSweep2 = STFN.Core.DSP.CreateLogSineSweep(ref TempWaveFormat, 1, 20d, 20000d, true, 0.5m, TotalDuration: 15d);
         GeneratedSweep2.FileName = "Internal4";
         GeneratedSweep2.Description = "Sweep (flat)";
         soundsList.Add(GeneratedSweep2);
         descriptionsList.Add("Internal4", "OSTF generated (flat spectrum) log-sine sweep, 20Hz - 20kHz. Samplerate 48kHz, duration 15 seconds.");
 
         Random random = new Random();
-        var WhiteNoise = STFN.Core.Audio.GenerateSound.Signals.CreateWhiteNoise(ref TempWaveFormat, 1, 1, 15, BasicAudioEnums.TimeUnits.seconds, ref random);
+        var WhiteNoise = STFN.Core.DSP.CreateWhiteNoise(ref TempWaveFormat, 1, 1, 15, BasicAudioEnums.TimeUnits.seconds, ref random);
         WhiteNoise.FileName = "Internal5";
         WhiteNoise.Description = "White noise";
         soundsList.Add(WhiteNoise);
@@ -446,11 +446,11 @@ public partial class SpeechTestCalibrationView : ContentView
                 OstfBase.SoundPlayer.ChangePlayerSettings(argAudioApiSettings, SampleRate: (int?)CalibrationSound.WaveFormat.SampleRate, BitDepth: CalibrationSound.WaveFormat.BitDepth, Encoding: CalibrationSound.WaveFormat.Encoding, Mixer: argMixer);
 
                 // Setting the signal level
-                STFN.Core.Audio.DSP.Transformations.MeasureAndAdjustSectionLevel(ref CalibrationSound, (decimal)STFN.Core.Audio.AudioManagement.Standard_dBSPL_To_dBFS(SelectedLevel), 1, FrequencyWeighting: (STFN.Core.Audio.BasicAudioEnums.FrequencyWeightings) (int)FrequencyWeighting_ComboBox.SelectedItem);
+                STFN.Core.DSP.MeasureAndAdjustSectionLevel(ref CalibrationSound, (decimal)STFN.Core.DSP.Standard_dBSPL_To_dBFS(SelectedLevel), 1, FrequencyWeighting: (STFN.Core.Audio.BasicAudioEnums.FrequencyWeightings) (int)FrequencyWeighting_ComboBox.SelectedItem);
 
                 // Fading in and out
-                STFN.Core.Audio.DSP.Transformations.Fade(ref CalibrationSound, default(double?), 0, 1, 0, (int?)Math.Round(0.02d * (double)CalibrationSound.WaveFormat.SampleRate), STFN.Core.Audio.DSP.Transformations.FadeSlopeType.Smooth);
-                STFN.Core.Audio.DSP.Transformations.Fade(ref CalibrationSound, 0, default(double?), 1, (int)Math.Round(-0.02d * (double)CalibrationSound.WaveFormat.SampleRate), default(int?), STFN.Core.Audio.DSP.Transformations.FadeSlopeType.Smooth);
+                STFN.Core.DSP.Fade(ref CalibrationSound, default(double?), 0, 1, 0, (int?)Math.Round(0.02d * (double)CalibrationSound.WaveFormat.SampleRate), STFN.Core.DSP.FadeSlopeType.Smooth);
+                STFN.Core.DSP.Fade(ref CalibrationSound, 0, default(double?), 1, (int)Math.Round(-0.02d * (double)CalibrationSound.WaveFormat.SampleRate), default(int?), STFN.Core.DSP.FadeSlopeType.Smooth);
 
                 STFN.Core.Audio.Sound PlaySound = (STFN.Core.Audio.Sound)null;
 
@@ -492,7 +492,7 @@ public partial class SpeechTestCalibrationView : ContentView
                     int argsetoverlapSize = 0;
                     bool argInActivateWarnings = false;
                     var argfftFormat = new STFN.Core.Audio.Formats.FftFormat(setAnalysisWindowSize: ref argsetAnalysisWindowSize, setFftWindowSize: ref argsetFftWindowSize, setoverlapSize: ref argsetoverlapSize, InActivateWarnings: ref argInActivateWarnings);
-                    var FilteredSound = STFN.Core.Audio.DSP.Transformations.FIRFilter(StereoCalibrationSound, CurrentKernel, ref argfftFormat, InActivateWarnings: true);
+                    var FilteredSound = STFN.Core.DSP.FIRFilter(StereoCalibrationSound, CurrentKernel, ref argfftFormat, InActivateWarnings: true);
                     // FilteredSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "CalibSound_PostDirFilter"))
 
                     // Putting the sound in the intended channels

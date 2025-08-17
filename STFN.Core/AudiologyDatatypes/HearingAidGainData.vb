@@ -65,7 +65,7 @@ Public Class HearingAidGainData
         Dim Output = New HearingAidGainData
 
         'Setting gain arrays to 0 for all frequencies
-        For Each f In Audio.DSP.SiiCriticalBands.CentreFrequencies
+        For Each f In DSP.SiiCriticalBands.CentreFrequencies
             Output.LeftSideGain.Add(New GainPoint With {.Frequency = f, .Gain = 0})
             Output.RightSideGain.Add(New GainPoint With {.Frequency = f, .Gain = 0})
         Next
@@ -86,12 +86,12 @@ Public Class HearingAidGainData
         End If
 
         'Calculating Fig6 for each critical band
-        For n = 0 To Audio.DSP.SiiCriticalBands.CentreFrequencies.Length - 1
-            Output.LeftSideGain.Add(New GainPoint With {.Frequency = Audio.DSP.SiiCriticalBands.CentreFrequencies(n), .Gain = Output.GetFig6Interpolation(AudiogramData.Cb_Left_AC(n), ReferenceLevel)})
+        For n = 0 To DSP.SiiCriticalBands.CentreFrequencies.Length - 1
+            Output.LeftSideGain.Add(New GainPoint With {.Frequency = DSP.SiiCriticalBands.CentreFrequencies(n), .Gain = Output.GetFig6Interpolation(AudiogramData.Cb_Left_AC(n), ReferenceLevel)})
         Next
 
-        For n = 0 To Audio.DSP.SiiCriticalBands.CentreFrequencies.Length - 1
-            Output.RightSideGain.Add(New GainPoint With {.Frequency = Audio.DSP.SiiCriticalBands.CentreFrequencies(n), .Gain = Output.GetFig6Interpolation(AudiogramData.Cb_Right_AC(n), ReferenceLevel)})
+        For n = 0 To DSP.SiiCriticalBands.CentreFrequencies.Length - 1
+            Output.RightSideGain.Add(New GainPoint With {.Frequency = DSP.SiiCriticalBands.CentreFrequencies(n), .Gain = Output.GetFig6Interpolation(AudiogramData.Cb_Right_AC(n), ReferenceLevel)})
         Next
 
         Return Output

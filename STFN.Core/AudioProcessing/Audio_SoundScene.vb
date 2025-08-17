@@ -267,16 +267,16 @@ Namespace Audio.SoundScene
                         ElseIf GroupMemberMeasurementSounds.Count > 1 Then
 
                             'Adds the measurement sounds into MasterMeasurementSound 
-                            MasterMeasurementSound = Audio.DSP.SuperpositionEqualLengthSounds(GroupMemberMeasurementSounds)
+                            MasterMeasurementSound = DSP.SuperpositionEqualLengthSounds(GroupMemberMeasurementSounds)
                         Else
                             Throw New ArgumentException("Missing sound in SoundSceneItem.")
                         End If
 
                         'Measures the sound levels
                         If SoundLevelFormat.LoudestSectionMeasurement = False Then
-                            CurrentLevel_FS = Audio.DSP.MeasureSectionLevel(MasterMeasurementSound, 1,,,,, SoundLevelFormat.FrequencyWeighting)
+                            CurrentLevel_FS = DSP.MeasureSectionLevel(MasterMeasurementSound, 1,,,,, SoundLevelFormat.FrequencyWeighting)
                         Else
-                            CurrentLevel_FS = Audio.DSP.GetLevelOfLoudestWindow(MasterMeasurementSound, 1, WaveFormat.SampleRate * SoundLevelFormat.TemporalIntegrationDuration,,,, SoundLevelFormat.FrequencyWeighting, True)
+                            CurrentLevel_FS = DSP.GetLevelOfLoudestWindow(MasterMeasurementSound, 1, WaveFormat.SampleRate * SoundLevelFormat.TemporalIntegrationDuration,,,, SoundLevelFormat.FrequencyWeighting, True)
                         End If
 
                     Else
@@ -310,14 +310,14 @@ Namespace Audio.SoundScene
                     End If
 
                     'Calculating needed gain
-                    Dim NeededGain = TargetLevel_SPL - Standard_dBFS_To_dBSPL(CurrentLevel_FS)
+                    Dim NeededGain = TargetLevel_SPL - DSP.Standard_dBFS_To_dBSPL(CurrentLevel_FS)
 
                     'Applying the same gain to all sounds in the group
                     For Each Member In GroupMembers
 
                         'Applies the gain (only if not 0)
                         If NeededGain <> 0 Then
-                            Audio.DSP.AmplifySection(Member.Sound, NeededGain, 1)
+                            DSP.AmplifySection(Member.Sound, NeededGain, 1)
                         End If
 
                         'Storing the applied gain
@@ -329,7 +329,7 @@ Namespace Audio.SoundScene
                 For Each Item In SoundSceneItemList
                     If Item.FadeSpecifications IsNot Nothing Then
                         For Each FadeSpecification In Item.FadeSpecifications
-                            Audio.DSP.Fade(Item.Sound, FadeSpecification, 1)
+                            DSP.Fade(Item.Sound, FadeSpecification, 1)
                         Next
                     End If
                 Next
@@ -343,29 +343,29 @@ Namespace Audio.SoundScene
                             Dim FadeInSpecs = Item.DuckingSpecifications(i + 1)
                             Dim MidStartSample As Integer = FadeOutSpecs.StartSample + FadeOutSpecs.SectionLength
                             Dim MidLength As Integer = FadeInSpecs.StartSample - MidStartSample
-                            Dim MidFadeSpecs = New Audio.DSP.FadeSpecifications(FadeOutSpecs.EndAttenuation, FadeInSpecs.StartAttenuation,
+                            Dim MidFadeSpecs = New DSP.FadeSpecifications(FadeOutSpecs.EndAttenuation, FadeInSpecs.StartAttenuation,
                                                                                          MidStartSample, MidLength, FadeOutSpecs.SlopeType, FadeOutSpecs.CosinePower, FadeOutSpecs.EqualPower)
 
                             'Fade out
-                            Audio.DSP.Fade(Item.Sound, FadeOutSpecs, 1)
+                            DSP.Fade(Item.Sound, FadeOutSpecs, 1)
 
                             'Mid section
                             If MidFadeSpecs.StartAttenuation = MidFadeSpecs.EndAttenuation Then
 
                                 'Using amplification if start and end attenuation is the same
                                 If MidFadeSpecs.StartAttenuation <> 0 Then
-                                    Audio.DSP.AmplifySection(Item.Sound, -MidFadeSpecs.StartAttenuation, , MidFadeSpecs.StartSample, MidFadeSpecs.SectionLength, SoundDataUnit.dB)
+                                    DSP.AmplifySection(Item.Sound, -MidFadeSpecs.StartAttenuation, , MidFadeSpecs.StartSample, MidFadeSpecs.SectionLength, DSP.SoundDataUnit.dB)
                                     ' Using StartAttenuation as it's here the same as EndAttenuation
                                     ' Using negative attenuation since AmplifySection takes gain
                                 End If
 
                             Else
                                 'Using fade, since the level is changed (which it most often would not be!
-                                Audio.DSP.Fade(Item.Sound, MidFadeSpecs, 1)
+                                DSP.Fade(Item.Sound, MidFadeSpecs, 1)
                             End If
 
                             'Fade in again
-                            Audio.DSP.Fade(Item.Sound, FadeInSpecs, 1)
+                            DSP.Fade(Item.Sound, FadeInSpecs, 1)
 
                         Next
                     End If
@@ -399,7 +399,7 @@ Namespace Audio.SoundScene
                             End If
 
                             'Inserts the sound into CorrespondingChannellInOutputSound
-                            Audio.DSP.InsertSound(Item.Sound, 1, OutputSound, CorrespondingChannellInOutputSound, Item.InsertSample)
+                            DSP.InsertSound(Item.Sound, 1, OutputSound, CorrespondingChannellInOutputSound, Item.InsertSample)
 
                         Next
 
@@ -426,8 +426,8 @@ Namespace Audio.SoundScene
                             End If
 
                             'Inserts the sound into CorrespondingChannellInOutputSound
-                            Audio.DSP.InsertSound(Item.Sound, 1, OutputSound, 1, Item.InsertSample)
-                            Audio.DSP.InsertSound(Item.Sound, 2, OutputSound, 2, Item.InsertSample)
+                            DSP.InsertSound(Item.Sound, 1, OutputSound, 1, Item.InsertSample)
+                            DSP.InsertSound(Item.Sound, 2, OutputSound, 2, Item.InsertSample)
 
                         Next
 
@@ -454,7 +454,7 @@ Namespace Audio.SoundScene
                     Next
 
                     For Each c In ChannelsToCheck
-                        Dim LimiterResult = Audio.DSP.SoftLimitSection(OutputSound, c, Standard_dBSPL_To_dBFS(LimiterThreshold),,,, FrequencyWeightings.Z, True)
+                        Dim LimiterResult = DSP.SoftLimitSection(OutputSound, c, DSP.Standard_dBSPL_To_dBFS(LimiterThreshold),,,, FrequencyWeightings.Z, True)
 
                         If LimiterResult <> "" Then
                             'Limiting occurred, logging the limiter data
@@ -588,14 +588,14 @@ Namespace Audio.SoundScene
             Dim Azimuth As Integer = SoundSourceLocation.HorizontalAzimuth
 
             'Unwraps the Azimuth into the range: -180 < Azimuth <= 180
-            Dim UnwrappedAzimuth = Utils.UnwrapAngle(Azimuth)
+            Dim UnwrappedAzimuth = DSP.UnwrapAngle(Azimuth)
 
             Dim DistanceList As New List(Of Tuple(Of Integer, SoundSourceLocation, Double)) ' Channel, SpeakerAzimuth, distance
 
             For Each kvp In HardwareOutputChannelSpeakerLocations
 
                 'Calculates and stores the absolute difference between the speaker azimuth and the target azimuth
-                DistanceList.Add(New Tuple(Of Integer, SoundSourceLocation, Double)(kvp.Key, kvp.Value, Math.Abs(Utils.UnwrapAngle(UnwrappedAzimuth - kvp.Value.HorizontalAzimuth))))
+                DistanceList.Add(New Tuple(Of Integer, SoundSourceLocation, Double)(kvp.Key, kvp.Value, Math.Abs(DSP.UnwrapAngle(UnwrappedAzimuth - kvp.Value.HorizontalAzimuth))))
             Next
 
             'Gets the minimum distance value
@@ -718,7 +718,7 @@ Namespace Audio.SoundScene
                     'End If
 
                     'Applies FIR-filtering
-                    Dim FilteredSound = Audio.DSP.FIRFilter(NewSound, CurrentKernel, MyFftFormat,,,,,, True)
+                    Dim FilteredSound = DSP.FIRFilter(NewSound, CurrentKernel, MyFftFormat,,,,,, True)
 
                     'FilteredSound.WriteWaveFile("C:\SpeechTestFrameworkLog\Test1.wav")
 
@@ -806,12 +806,12 @@ Namespace Audio.SoundScene
         ''' <summary>
         ''' Specifications of fadings. Note that this can also be used to create duckings, by adding a (partial) fade out, attenuation section, and a (partial) fade in.
         ''' </summary>
-        Public FadeSpecifications As List(Of Audio.DSP.FadeSpecifications)
+        Public FadeSpecifications As List(Of DSP.FadeSpecifications)
 
         ''' <summary>
         ''' Specifications of ducking periods. A ducking perdio is specified by combining two fade out and fade in events. Multiple duckings may be specified by listing several fade in-fade out events.
         ''' </summary>
-        Public DuckingSpecifications As List(Of Audio.DSP.FadeSpecifications)
+        Public DuckingSpecifications As List(Of DSP.FadeSpecifications)
 
         ''' <summary>
         ''' Should store the gain applied to the SoundSceneItem (prior to speaker calibration or sound field simulation) 
@@ -825,8 +825,8 @@ Namespace Audio.SoundScene
                    Optional ByVal InsertSample As Integer = 0,
                    Optional ByVal LevelDefStartSample As Integer? = Nothing, Optional ByVal LevelDefLength As Integer? = Nothing,
                    Optional ByRef SoundLevelFormat As Audio.Formats.SoundLevelFormat = Nothing,
-                   Optional ByRef FadeSpecifications As List(Of Audio.DSP.FadeSpecifications) = Nothing,
-                   Optional ByRef DuckingSpecifications As List(Of Audio.DSP.FadeSpecifications) = Nothing,
+                   Optional ByRef FadeSpecifications As List(Of DSP.FadeSpecifications) = Nothing,
+                   Optional ByRef DuckingSpecifications As List(Of DSP.FadeSpecifications) = Nothing,
                    Optional ByRef AppliedGain As Utils.ReferencedNullableOfDouble = Nothing)
 
             Me.Sound = Sound

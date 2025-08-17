@@ -1849,11 +1849,11 @@ Public MustInherit Class SpeechTest
                                   Optional ByVal BackgroundNonSpeechPresentationTime As Double = 0,
                                   Optional ByVal BackgroundSpeechPresentationTime As Double = 0,
                                   Optional ByVal ContralateralMaskerPresentationTime As Double = 0,
-                                  Optional ByRef FadeSpecs_Target As List(Of Audio.DSP.Transformations.FadeSpecifications) = Nothing,
-                                  Optional ByRef FadeSpecs_Masker As List(Of Audio.DSP.Transformations.FadeSpecifications) = Nothing,
-                                  Optional ByRef FadeSpecs_BackgroundNonSpeech As List(Of Audio.DSP.Transformations.FadeSpecifications) = Nothing,
-                                  Optional ByRef FadeSpecs_BackgroundSpeech As List(Of Audio.DSP.Transformations.FadeSpecifications) = Nothing,
-                                  Optional ByRef FadeSpecs_ContralateralMasker As List(Of Audio.DSP.Transformations.FadeSpecifications) = Nothing,
+                                  Optional ByRef FadeSpecs_Target As List(Of DSP.FadeSpecifications) = Nothing,
+                                  Optional ByRef FadeSpecs_Masker As List(Of DSP.FadeSpecifications) = Nothing,
+                                  Optional ByRef FadeSpecs_BackgroundNonSpeech As List(Of DSP.FadeSpecifications) = Nothing,
+                                  Optional ByRef FadeSpecs_BackgroundSpeech As List(Of DSP.FadeSpecifications) = Nothing,
+                                  Optional ByRef FadeSpecs_ContralateralMasker As List(Of DSP.FadeSpecifications) = Nothing,
                                             Optional ExportSounds As Boolean = False)
 
         'TODO: This function is not finished, it still need implementation of BackgroundNonSpeech and BackgroundSpeech
@@ -1914,9 +1914,9 @@ Public MustInherit Class SpeechTest
 
             'Sets up default fading specifications for the target
             If FadeSpecs_Target Is Nothing Then
-                FadeSpecs_Target = New List(Of Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Target.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
-                FadeSpecs_Target.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+                FadeSpecs_Target = New List(Of DSP.FadeSpecifications)
+                FadeSpecs_Target.Add(New DSP.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                FadeSpecs_Target.Add(New DSP.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
             End If
 
             'Combining targets with the selected SignalLocations
@@ -1961,9 +1961,9 @@ Public MustInherit Class SpeechTest
 
             'Sets up fading specifications for the masker
             If FadeSpecs_Masker Is Nothing Then
-                FadeSpecs_Masker = New List(Of Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_Masker.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
-                FadeSpecs_Masker.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+                FadeSpecs_Masker = New List(Of DSP.FadeSpecifications)
+                FadeSpecs_Masker.Add(New DSP.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                FadeSpecs_Masker.Add(New DSP.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
             End If
 
             'Combining maskers with the selected SignalLocations
@@ -1984,7 +1984,7 @@ Public MustInherit Class SpeechTest
             For Index = 0 To MaskerLocations.Count - 1
 
                 Dim StartCopySample As Integer = RandomStartReadIndex + Index * InterMaskerStepLength
-                Dim CurrentSourceMaskerSound = Audio.DSP.CopySection(MaskerSound, StartCopySample, IndendedMaskerLength, 1)
+                Dim CurrentSourceMaskerSound = DSP.CopySection(MaskerSound, StartCopySample, IndendedMaskerLength, 1)
 
                 'Copying the SMA object to retain the nominal level (although other time data and other related stuff will be incorrect, if not adjusted for)
                 CurrentSourceMaskerSound.SMA = MaskerSound.SMA.CreateCopy(CurrentSourceMaskerSound)
@@ -2045,7 +2045,7 @@ Public MustInherit Class SpeechTest
             End If
 
             'Gets a copy of the sound section
-            Dim ContralateralMaskerSound = Audio.DSP.CopySection(FullContralateralMaskerSound, RandomStartReadIndex, IndendedMaskerLength, 1)
+            Dim ContralateralMaskerSound = DSP.CopySection(FullContralateralMaskerSound, RandomStartReadIndex, IndendedMaskerLength, 1)
 
             'Copying the SMA object to retain the nominal level (although other time data and other related stuff will be incorrect, if not adjusted for)
             ContralateralMaskerSound.SMA = FullContralateralMaskerSound.SMA.CreateCopy(ContralateralMaskerSound)
@@ -2055,9 +2055,9 @@ Public MustInherit Class SpeechTest
 
             'Sets up fading specifications for the contralateral masker
             If FadeSpecs_ContralateralMasker Is Nothing Then
-                FadeSpecs_ContralateralMasker = New List(Of Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_ContralateralMasker.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
-                FadeSpecs_ContralateralMasker.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+                FadeSpecs_ContralateralMasker = New List(Of DSP.FadeSpecifications)
+                FadeSpecs_ContralateralMasker.Add(New DSP.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                FadeSpecs_ContralateralMasker.Add(New DSP.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
             End If
 
             'Determining which side to put the contralateral masker
@@ -2153,9 +2153,9 @@ Public MustInherit Class SpeechTest
             Dim TargetMeasureLength As Integer = TargetSound.WaveData.SampleData(1).Length - TargetStartSample
 
             'Sets up default fading specifications for the target
-            Dim FadeSpecs_Target = New List(Of Audio.DSP.Transformations.FadeSpecifications)
-            FadeSpecs_Target.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.5))
-            FadeSpecs_Target.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.5))
+            Dim FadeSpecs_Target = New List(Of DSP.FadeSpecifications)
+            FadeSpecs_Target.Add(New DSP.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.5))
+            FadeSpecs_Target.Add(New DSP.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.5))
 
             'Combining targets with the first selected SignalLocation
             Dim Targets As New List(Of Tuple(Of Audio.Sound, SoundSourceLocation))

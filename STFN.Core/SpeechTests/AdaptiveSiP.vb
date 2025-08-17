@@ -197,7 +197,7 @@ Public Class AdaptiveSiP
 
                 Else
                     'Sampling without replacement to get en equal number of presentations of all test words
-                    RandomList.Add(twgi, Utils.SampleWithoutReplacement(3, 0, 3, CurrentSipTestMeasurement.Randomizer).ToList)
+                    RandomList.Add(twgi, DSP.SampleWithoutReplacement(3, 0, 3, CurrentSipTestMeasurement.Randomizer).ToList)
                 End If
             Next
 
@@ -292,7 +292,7 @@ Public Class AdaptiveSiP
                         If SoundsToUse.ContainsKey(LoadedSound.SourcePath) = False Then
 
                             'Storing the Nominal level into the sound file as loaded in the (68.34 dB SPL is the reference level used in SiP-test material)
-                            SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = 68.34 - Audio.Standard_dBFS_dBSPL_Difference
+                            SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = 68.34 - DSP.Standard_dBFS_dBSPL_Difference
                             SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.InferNominalLevelToAllDescendants()
 
                             SoundsToUse.Add(LoadedSound.SourcePath, LoadedSound)
@@ -309,10 +309,10 @@ Public Class AdaptiveSiP
                             'Setting all maskers to their ReferenceContrastingPhonemesLevel_SPL (converted to dB FS)
 
                             Dim CentralRegionLevel = LoadedSound.SMA.ChannelData(1)(0)(1).UnWeightedLevel
-                            Dim TargetCentralRegionLevel = SubTrial.ReferenceContrastingPhonemesLevel_SPL - Audio.Standard_dBFS_dBSPL_Difference
+                            Dim TargetCentralRegionLevel = SubTrial.ReferenceContrastingPhonemesLevel_SPL - DSP.Standard_dBFS_dBSPL_Difference
 
                             Dim GainToTargetLevel = TargetCentralRegionLevel - CentralRegionLevel
-                            Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
+                            DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
 
                             ''Shortering the maskers if TaskStandardTime is less than three seconds (standard masker length)
                             'Dim MaskerDuration As Double = LoadedSound.WaveData.SampleData(1).Length / LoadedSound.WaveFormat.SampleRate
@@ -343,13 +343,13 @@ Public Class AdaptiveSiP
                         If SoundsToUse.ContainsKey(LoadedSound.SourcePath) = False Then
 
                             'Measure the LoadedSound
-                            Dim ActualLevel_dBFS = Audio.DSP.MeasureSectionLevel(LoadedSound, 1)
+                            Dim ActualLevel_dBFS = DSP.MeasureSectionLevel(LoadedSound, 1)
 
                             'Setting it to the intended BackgroundNonspeechRealisticLevel (with 2 sound sources, i.e. appr - 3 dB), so that it does not have to be modified when used later
-                            Dim TargetLevel_dBFS = SubTrial.MediaSet.BackgroundNonspeechRealisticLevel - Audio.Standard_dBFS_dBSPL_Difference - 10 * System.Math.Log10(2)
+                            Dim TargetLevel_dBFS = SubTrial.MediaSet.BackgroundNonspeechRealisticLevel - DSP.Standard_dBFS_dBSPL_Difference - 10 * System.Math.Log10(2)
 
                             Dim GainToTargetLevel = TargetLevel_dBFS - ActualLevel_dBFS
-                            Audio.DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
+                            DSP.AmplifySection(SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath), GainToTargetLevel)
 
                             'Storing the new TargetLevel_dBFS as the Nominal level
                             SpeechMaterialComponent.SoundLibrary(LoadedSound.SourcePath).SMA.NominalLevel = TargetLevel_dBFS
@@ -448,9 +448,9 @@ Public Class AdaptiveSiP
             Dim Background2 = BackgroundNonSpeech_Sound.CopySection(1, CurrentSipTestMeasurement.Randomizer.Next(0, BackgroundNonSpeech_Sound.WaveData.SampleData(1).Length - TrialSoundLength - 2), TrialSoundLength)
 
             'Sets up fading specifications for the background signals
-            Dim FadeSpecs_Background = New List(Of Audio.DSP.Transformations.FadeSpecifications)
-            FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
-            FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+            Dim FadeSpecs_Background = New List(Of DSP.FadeSpecifications)
+            FadeSpecs_Background.Add(New DSP.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 1))
+            FadeSpecs_Background.Add(New DSP.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
 
             'Adds the background (non-speech) signals, with fade, duck and location specifications
             Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
@@ -663,7 +663,7 @@ Public Class AdaptiveSiP
             Next
 
             'Shuffling the order of response alternatives
-            ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, CurrentSipTestMeasurement.Randomizer).ToList
+            ResponseAlternatives = DSP.Shuffle(ResponseAlternatives, CurrentSipTestMeasurement.Randomizer).ToList
 
             'Adding the response alternatives
             CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
@@ -720,7 +720,7 @@ Public Class AdaptiveSiP
         Next
 
         'Mix full trial sound
-        CurrentTestTrial.Sound = Audio.DSP.ConcatenateSounds2(TrialSounds, TrialSounds(0).WaveFormat.SampleRate * OverlapTime)
+        CurrentTestTrial.Sound = DSP.ConcatenateSounds2(TrialSounds, TrialSounds(0).WaveFormat.SampleRate * OverlapTime)
 
         'Exports sound file
         If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix"))
@@ -779,7 +779,7 @@ Public Class AdaptiveSiP
 
         Else
             If FinalResult.HasValue Then
-                TestResultSummaryLines.Add("Resultat: " & vbTab & Math.Rounding(FinalResult.Value, 1) & " dB PNR")
+                TestResultSummaryLines.Add("Resultat: " & vbTab & DSP.Rounding(FinalResult.Value, 1) & " dB PNR")
             Else
                 TestResultSummaryLines.Add("Resultat: Slutgiltigt tröskelvärde kunde ej bestämmas.")
             End If

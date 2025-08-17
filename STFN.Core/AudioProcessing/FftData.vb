@@ -48,7 +48,7 @@ Namespace Audio
         <Serializable>
         Public Class TimeWindow
             Public WindowData As Double()
-            Public Property WindowingType As WindowingType?
+            Public Property WindowingType As DSP.WindowingType?
             Public Property ZeroPadding As Integer?
             Public TotalPower As Double?
 
@@ -156,7 +156,7 @@ Namespace Audio
                         BinCount = FftFormat.FftWindowSize
                     End If
                     For k = 0 To BinCount - 1
-                        _BinIndexToFrequencyList.Add(FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, k, Waveformat.SampleRate, FftFormat.FftWindowSize))
+                        _BinIndexToFrequencyList.Add(DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.BinIndexToFrequency, k, Waveformat.SampleRate, FftFormat.FftWindowSize))
                     Next
                 End If
 
@@ -525,8 +525,8 @@ Namespace Audio
                         TotalLevel += BinSpectrum(k)
 
                         If ConvertTo_dB = True Then
-                            BinSpectrum(k) = dBConversion(BinSpectrum(k) / WindowCount(Channel), dBConversionDirection.to_dB,
-                                                  SoundFormat, dBTypes.SoundPower)
+                            BinSpectrum(k) = DSP.dBConversion(BinSpectrum(k) / WindowCount(Channel), DSP.dBConversionDirection.to_dB,
+                                                  SoundFormat, DSP.dBTypes.SoundPower)
                         Else
                             BinSpectrum(k) = BinSpectrum(k) / WindowCount(Channel)
                         End If
@@ -556,8 +556,8 @@ Namespace Audio
                         BinSpectrum(k) = 2 * Math.Sqrt(BinSpectrum(k) / WindowCount(Channel))
 
                         If ConvertTo_dB = True Then
-                            BinSpectrum(k) = dBConversion(BinSpectrum(k), dBConversionDirection.to_dB,
-                                                  SoundFormat, dBTypes.SoundPressure)
+                            BinSpectrum(k) = DSP.dBConversion(BinSpectrum(k), DSP.dBConversionDirection.to_dB,
+                                                  SoundFormat, DSP.dBTypes.SoundPressure)
                         Else
                             BinSpectrum(k) = BinSpectrum(k)
                         End If
@@ -569,14 +569,14 @@ Namespace Audio
 
             End Select
 
-            If ConvertTo_dB = True Then TotalLevel = dBConversion(TotalLevel / WindowCount(Channel), dBConversionDirection.to_dB,
-                                   SoundFormat, dBTypes.SoundPower)
+            If ConvertTo_dB = True Then TotalLevel = DSP.dBConversion(TotalLevel / WindowCount(Channel), DSP.dBConversionDirection.to_dB,
+                                   SoundFormat, DSP.dBTypes.SoundPower)
 
 
             'Converting bins to frequencies
             Dim OutputList As New SortedList(Of Double, Double)
             For Each kvp In BinSpectrum
-                OutputList.Add(FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency,
+                OutputList.Add(DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.BinIndexToFrequency,
                                                      kvp.Key, SoundFormat.SampleRate, Me.FftFormat.FftWindowSize), kvp.Value)
             Next
 
@@ -686,24 +686,24 @@ Namespace Audio
 
                     'Converting frequencies to bin values
                     If LowerLimitIsInclusive = True Then
-                        LowerLimit = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, LowerLimit,
-                                                                         Waveformat.SampleRate, FftFormat.FftWindowSize, Utils.roundingMethods.alwaysDown)
+                        LowerLimit = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex, LowerLimit,
+                                                                         Waveformat.SampleRate, FftFormat.FftWindowSize, DSP.RoundingMethods.AlwaysDown)
                     Else
-                        LowerLimit = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, LowerLimit,
-                                                                         Waveformat.SampleRate, FftFormat.FftWindowSize, Utils.roundingMethods.alwaysUp)
+                        LowerLimit = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex, LowerLimit,
+                                                                         Waveformat.SampleRate, FftFormat.FftWindowSize, DSP.RoundingMethods.AlwaysUp)
 
                     End If
 
 
                     If UpperLimitIsInclusive = True Then
 
-                        UpperLimit = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, UpperLimit,
-                                                                         Waveformat.SampleRate, FftFormat.FftWindowSize, Utils.roundingMethods.alwaysUp)
+                        UpperLimit = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex, UpperLimit,
+                                                                         Waveformat.SampleRate, FftFormat.FftWindowSize, DSP.RoundingMethods.AlwaysUp)
 
                     Else
 
-                        UpperLimit = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, UpperLimit,
-                                                                         Waveformat.SampleRate, FftFormat.FftWindowSize, Utils.roundingMethods.alwaysDown)
+                        UpperLimit = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex, UpperLimit,
+                                                                         Waveformat.SampleRate, FftFormat.FftWindowSize, DSP.RoundingMethods.AlwaysDown)
 
                         'Subtracting 1 to get the exclusive limit
                         'UpperLimit -= 1
@@ -780,9 +780,9 @@ Namespace Audio
                 Dim CurrentBinCount As Integer = UpperLimit - LowerLimit + 1
 
                 'Calculating the actual cut-off band centre frequencies used
-                ActualLowerLimitFrequency = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, LowerLimit,
+                ActualLowerLimitFrequency = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.BinIndexToFrequency, LowerLimit,
                                                                          Waveformat.SampleRate, FftFormat.FftWindowSize)
-                ActualUpperLimitFrequency = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, UpperLimit,
+                ActualUpperLimitFrequency = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.BinIndexToFrequency, UpperLimit,
                                                                          Waveformat.SampleRate, FftFormat.FftWindowSize)
 
 
@@ -835,9 +835,9 @@ Namespace Audio
             Dim NegativePowerData As Single = PowerSpectrumData(channel, windowNumber).WindowData(PowerSpectrumDataLength - PositiveFrequencyBinIndex)
 
             'Adjusting for Equivalent Noise Bandwidth
-            If FftFormat.WindowingType <> WindowingType.Rectangular Then
+            If FftFormat.WindowingType <> DSP.WindowingType.Rectangular Then
 
-                If EquivalentNoiseBandwidth Is Nothing Then EquivalentNoiseBandwidth = GetEquivalentNoiseBandwidth(FftFormat.FftWindowSize, FftFormat.WindowingType, FftFormat.Tukey_r)
+                If EquivalentNoiseBandwidth Is Nothing Then EquivalentNoiseBandwidth = DSP.GetEquivalentNoiseBandwidth(FftFormat.FftWindowSize, FftFormat.WindowingType, FftFormat.Tukey_r)
 
                 'Adjusting the positive side
                 PositivePowerData /= EquivalentNoiseBandwidth
@@ -847,7 +847,7 @@ Namespace Audio
             End If
 
             'Compensating for the scaling introduced by zero padding
-            If FftFormat.WindowingType <> WindowingType.Rectangular Then
+            If FftFormat.WindowingType <> DSP.WindowingType.Rectangular Then
 
                 'Dim ZeroPaddingInverseScalingFactor As Double = 1 / (FftFormat.AnalysisWindowSize / FftFormat.FftWindowSize)
                 'ZeroPaddingInverseScalingFactor will be the same within the same time window and can be re-used, but must be re-calculated for each window. This can be achieved by setting ZeroPaddingInverseScalingFactor in the calling code for each new time window
@@ -862,9 +862,9 @@ Namespace Audio
             End If
 
             'Compensating for the scaling introduced by the windowing function
-            If FftFormat.WindowingType <> WindowingType.Rectangular Then
+            If FftFormat.WindowingType <> DSP.WindowingType.Rectangular Then
 
-                If InverseTimeWindowingScalingFactor Is Nothing Then InverseTimeWindowingScalingFactor = GetInverseWindowingScalingFactor(PowerSpectrumDataLength, FftFormat.WindowingType)
+                If InverseTimeWindowingScalingFactor Is Nothing Then InverseTimeWindowingScalingFactor = DSP.GetInverseWindowingScalingFactor(PowerSpectrumDataLength, FftFormat.WindowingType)
 
                 'Adjusting the positive side
                 PositivePowerData *= InverseTimeWindowingScalingFactor ^ 2
@@ -899,9 +899,9 @@ Namespace Audio
             Dim NegativePowerData As Single = PowerSpectrumData(channel, windowNumber).WindowData(PowerSpectrumDataLength - PositiveFrequencyBinIndex)
 
             'Adjusting for Equivalent Noise Bandwidth
-            If FftFormat.WindowingType <> WindowingType.Rectangular Then
+            If FftFormat.WindowingType <> DSP.WindowingType.Rectangular Then
 
-                If EquivalentNoiseBandwidth Is Nothing Then EquivalentNoiseBandwidth = GetEquivalentNoiseBandwidth(FftFormat.FftWindowSize, FftFormat.WindowingType, FftFormat.Tukey_r)
+                If EquivalentNoiseBandwidth Is Nothing Then EquivalentNoiseBandwidth = DSP.GetEquivalentNoiseBandwidth(FftFormat.FftWindowSize, FftFormat.WindowingType, FftFormat.Tukey_r)
 
                 'Adjusting the positive side
                 PositivePowerData /= EquivalentNoiseBandwidth
@@ -911,7 +911,7 @@ Namespace Audio
             End If
 
             'Compensating for the scaling introduced by zero padding
-            If FftFormat.WindowingType <> WindowingType.Rectangular Then
+            If FftFormat.WindowingType <> DSP.WindowingType.Rectangular Then
 
                 'Dim ZeroPaddingInverseScalingFactor As Double = 1 / (FftFormat.AnalysisWindowSize / FftFormat.FftWindowSize)
                 'ZeroPaddingInverseScalingFactor will be the same within the same time window and can be re-used, but must be re-calculated for each window. This can be achieved by setting ZeroPaddingInverseScalingFactor in the calling code for each new time window
@@ -926,9 +926,9 @@ Namespace Audio
             End If
 
             'Compensating for the scaling introduced by the windowing function
-            If FftFormat.WindowingType <> WindowingType.Rectangular Then
+            If FftFormat.WindowingType <> DSP.WindowingType.Rectangular Then
 
-                If InverseTimeWindowingScalingFactor Is Nothing Then InverseTimeWindowingScalingFactor = GetInverseWindowingScalingFactor(PowerSpectrumDataLength, FftFormat.WindowingType)
+                If InverseTimeWindowingScalingFactor Is Nothing Then InverseTimeWindowingScalingFactor = DSP.GetInverseWindowingScalingFactor(PowerSpectrumDataLength, FftFormat.WindowingType)
 
                 'Adjusting the positive side
                 PositivePowerData *= InverseTimeWindowingScalingFactor ^ 2
@@ -992,7 +992,7 @@ Namespace Audio
                             For Each Window In FilterredBandPowerArray
                                 For n = 0 To Window.Value.Count - 1
                                     'FilterredBandPowerArray(Window.Key)(n) = Math.Log10(FilterredBandPowerArray(Window.Key)(n) + Single.Epsilon)
-                                    FilterredBandPowerArray(Window.Key)(n) = dBConversion(FilterredBandPowerArray(Window.Key)(n), dBConversionDirection.to_dB, Waveformat)
+                                    FilterredBandPowerArray(Window.Key)(n) = DSP.dBConversion(FilterredBandPowerArray(Window.Key)(n), DSP.dBConversionDirection.to_dB, Waveformat)
                                 Next
                             Next
 
@@ -1069,7 +1069,7 @@ Namespace Audio
                 If TriangularFilters Is Nothing Then TriangularFilters = New SortedList(Of Integer, Single())
 
                 'Creating a list of included filter centre frequencies (only calculated if CentreFrequencies is Nothing)
-                If CentreFrequencies Is Nothing Then CentreFrequencies = GetBarkFilterCentreFrequencies(FilterOverlapRatio, LowestIncludedFrequency, HighestIncludedFrequency, True)
+                If CentreFrequencies Is Nothing Then CentreFrequencies = DSP.GetBarkFilterCentreFrequencies(FilterOverlapRatio, LowestIncludedFrequency, HighestIncludedFrequency, True)
 
                 'Getting a temporary array containing the spectrum to be used within each fft bin wide band
                 Dim TempBinSpectrum(TempSpectrumDataLength - 1) As Double
@@ -1113,13 +1113,13 @@ Namespace Audio
 
                     'Determining the range of the current Bark band (with the current centre frequency)
                     Dim CurrentCentreFrequency As Single = CentreFrequencies(CentreFrequencyIndex)
-                    Dim CurrentBandWidth As Single = Utils.CenterFrequencyToBarkFilterBandwidth(CurrentCentreFrequency)
+                    Dim CurrentBandWidth As Single = DSP.CenterFrequencyToBarkFilterBandwidth(CurrentCentreFrequency)
                     Dim LowerFrequencyLimit As Single = CurrentCentreFrequency - CurrentBandWidth 'Getting the lowest frequency that add loudness to the current critical band (This frequency is 0.5 bark below the lower cut-off frequency of the current critical band (Based on Zwicker and Fastl(1999), Phsycho-acoustics, p 164ff). (The filter approximates the auditory filter responce to noise, rather than pure tones is used.))
                     Dim HighestFrequencyLimit As Single = CurrentCentreFrequency + CurrentBandWidth 'Getting the highest frequency that add loudness to the current critical band (This frequency is 0.5 bark above the upper cut-off frequency of the current critical band (Based on Zwicker and Fastl(1999), Phsycho-acoustics, p 164ff). (The filter approximates the auditory filter responce to noise, rather than pure tones is used.))
-                    Dim LowestIncludedBinIndex As Integer = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex,
-                                                                            LowerFrequencyLimit, Waveformat.SampleRate, FftFormat.FftWindowSize, Utils.roundingMethods.alwaysDown)
-                    Dim HighestIncludedBinIndex As Integer = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex,
-                                                                            HighestFrequencyLimit, Waveformat.SampleRate, FftFormat.FftWindowSize, Utils.roundingMethods.alwaysUp)
+                    Dim LowestIncludedBinIndex As Integer = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex,
+                                                                            LowerFrequencyLimit, Waveformat.SampleRate, FftFormat.FftWindowSize, DSP.RoundingMethods.AlwaysDown)
+                    Dim HighestIncludedBinIndex As Integer = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex,
+                                                                            HighestFrequencyLimit, Waveformat.SampleRate, FftFormat.FftWindowSize, DSP.RoundingMethods.AlwaysUp)
                     'Dim CentreBinIndex As Integer = FftBinFrequencyConversion( FftBinFrequencyConversionDirection.FrequencyToBinIndex,
                     '                                                        CurrentCentreFrequency, SoundFormat.SampleRate, fftFormat.FftWindowSize,  roundingMethods.getClosestValue)
 
@@ -1139,7 +1139,7 @@ Namespace Audio
                         Next
 
                         'Windowing the filter array to create a triangual filter array
-                        WindowingFunction(myFilter, WindowingType.Triangular)
+                        DSP.WindowingFunction(myFilter, DSP.WindowingType.Triangular)
 
                         'Adding the filter array for re-use
                         TriangularFilters.Add(BandBinCount, myFilter)
@@ -1232,7 +1232,7 @@ Namespace Audio
         ''' <param name="AverageSpectrumIntoFirstIndex">If set to true, the spectral data in all time windows will be averaged into the first index of the current instance of BarkSpectrum.</param>
         ''' <param name="AverageingStartMargin">An initial proportion of the time windows that will be ignored by the averaging. (Important if, for example, the sound has been faded in.)</param>
         ''' <param name="AverageingEndMargin">A final proportion of the time windows that will be ignored by the averaging. (Important if, for example, the sound has been faded out.)</param>
-        Public Sub CalculateBarkSpectrum(ByRef InputSound As Audio.Sound, ByVal Channel As Integer, ByRef CurrentIsoPhonFilter As Audio.DSP.IsoPhonFilter,
+        Public Sub CalculateBarkSpectrum(ByRef InputSound As Audio.Sound, ByVal Channel As Integer, ByRef CurrentIsoPhonFilter As DSP.IsoPhonFilter,
                                          ByRef CurrentAuditoryFilters As AuditoryFilters, ByRef CurrentSpreadOfMaskingFilters As FftData.SpreadOfMaskingFilters,
                            ByVal FilterOverlapRatio As Double, ByVal LowestIncludedFrequency As Double, ByVal HighestIncludedFrequency As Double,
                            ByVal dbFSToSplDifference As Double, ByRef LoudnessFunction As LoudnessFunctions,
@@ -1253,10 +1253,10 @@ Namespace Audio
                 SoneScalingFactor = 1
 
                 'Creating a measurement sound
-                Dim SineWave = Audio.GenerateSound.CreateSineWave(InputSound.WaveFormat,, 1000, 0.1,, 1)
-                Audio.DSP.MeasureAndAdjustSectionLevel(SineWave, -dbFSToSplDifference + 40)
+                Dim SineWave = DSP.CreateSineWave(InputSound.WaveFormat,, 1000, 0.1,, 1)
+                DSP.MeasureAndAdjustSectionLevel(SineWave, -dbFSToSplDifference + 40)
                 SineWave.FileName = "ScalingSine"
-                SineWave.FFT = Audio.DSP.SpectralAnalysis(SineWave, InputSound.FFT.FftFormat)
+                SineWave.FFT = DSP.SpectralAnalysis(SineWave, InputSound.FFT.FftFormat)
 
                 'Calculating power spectrum
                 SineWave.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
@@ -1310,7 +1310,7 @@ Namespace Audio
             ''' <param name="AverageSpectrumIntoFirstIndex">If set to true, the spectral data in all time windows will be averaged into the first index of the current instance of BarkSpectrum.</param>
             ''' <param name="AverageingStartMargin">An initial proportion of the time windows that will be ignored by the averaging. (Important if, for example, the sound has been faded in.)</param>
             ''' <param name="AverageingEndMargin">A final proportion of the time windows that will be ignored by the averaging. (Important if, for example, the sound has been faded out.)</param>
-            Public Sub New(ByRef InputSound As Audio.Sound, ByVal Channel As Integer, ByRef CurrentIsoPhonFilter As Audio.DSP.IsoPhonFilter,
+            Public Sub New(ByRef InputSound As Audio.Sound, ByVal Channel As Integer, ByRef CurrentIsoPhonFilter As DSP.IsoPhonFilter,
                            ByRef CurrentAuditoryFilters As AuditoryFilters, ByRef CurrentSpreadOfMaskingFilters As FftData.SpreadOfMaskingFilters,
                            ByVal FilterOverlapRatio As Double, ByVal LowestIncludedFrequency As Double, ByVal HighestIncludedFrequency As Double,
                            ByVal dbFSToSplDifference As Double, ByRef LoudnessFunction As LoudnessFunctions, ByRef CurrentBandTemplateList As BandTemplateList,
@@ -1326,7 +1326,7 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                 If CurrentIsoPhonFilter Is Nothing Then
                     'Dim FrequenciesToPreCalculate As List(Of Double) = CurrentBandTemplateList.CentreFrequencies.ToList
                     Dim FrequenciesToPreCalculate As List(Of Double) = InputSound.FFT.BinIndexToFrequencyList()
-                    CurrentIsoPhonFilter = New Audio.DSP.IsoPhonFilter(FrequenciesToPreCalculate, 1)
+                    CurrentIsoPhonFilter = New DSP.IsoPhonFilter(FrequenciesToPreCalculate, 1)
                     'SetIsoPhonFilter.ExportSplToPhonData()
                 End If
 
@@ -1434,7 +1434,7 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                                ByRef CurrentFftFormat As Audio.Formats.FftFormat)
 
                     'Creating a list of included filter centre frequencies
-                    CentreFrequencies = GetBarkFilterCentreFrequencies(FilterOverlapRatio, LowestIncludedFrequency, HighestIncludedFrequency, True)
+                    CentreFrequencies = DSP.GetBarkFilterCentreFrequencies(FilterOverlapRatio, LowestIncludedFrequency, HighestIncludedFrequency, True)
 
                     'Creating template for Bark bands
                     For n = 0 To CentreFrequencies.Count - 1
@@ -1442,7 +1442,7 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                     Next
 
                     'Creating a list of included filter centre frequencies all the way to 20 kHz
-                    CentreFrequenciesTo20k = GetBarkFilterCentreFrequencies(FilterOverlapRatio, LowestIncludedFrequency, 20000, True)
+                    CentreFrequenciesTo20k = DSP.GetBarkFilterCentreFrequencies(FilterOverlapRatio, LowestIncludedFrequency, 20000, True)
 
                 End Sub
 
@@ -1469,15 +1469,15 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
 
                         'Determining the range of the current Bark band (with the current centre frequency)
                         Me.CentreFrequency = CentreFrequency
-                        Me.BandWidth = Utils.CenterFrequencyToBarkFilterBandwidth(Me.CentreFrequency)
+                        Me.BandWidth = DSP.CenterFrequencyToBarkFilterBandwidth(Me.CentreFrequency)
                         Me.LowerFrequencyLimit = CentreFrequency - BandWidth 'Getting the lowest frequency that add loudness to the current critical band (This frequency is 0.5 bark below the lower cut-off frequency of the current critical band (Based on Zwicker and Fastl(1999), Phsycho-acoustics, p 164ff). (The filter approximates the auditory filter responce to noise, rather than pure tones is used.))
                         Me.HighestFrequencyLimit = CentreFrequency + BandWidth 'Getting the highest frequency that add loudness to the current critical band (This frequency is 0.5 bark above the upper cut-off frequency of the current critical band (Based on Zwicker and Fastl(1999), Phsycho-acoustics, p 164ff). (The filter approximates the auditory filter responce to noise, rather than pure tones is used.))
-                        Me.LowestIncludedFftBinIndex = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex,
-                                                                            LowerFrequencyLimit, CurrentWaveFormat.SampleRate, CurrentFftFormat.FftWindowSize, Utils.roundingMethods.alwaysDown)
-                        Me.HighestIncludedFftBinIndex = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex,
-                                                                            HighestFrequencyLimit, CurrentWaveFormat.SampleRate, CurrentFftFormat.FftWindowSize, Utils.roundingMethods.alwaysUp)
-                        Me.CentreFftBinIndex = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex,
-                                                                        CentreFrequency, CurrentWaveFormat.SampleRate, CurrentFftFormat.FftWindowSize, Utils.roundingMethods.getClosestValue)
+                        Me.LowestIncludedFftBinIndex = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex,
+                                                                            LowerFrequencyLimit, CurrentWaveFormat.SampleRate, CurrentFftFormat.FftWindowSize, DSP.RoundingMethods.AlwaysDown)
+                        Me.HighestIncludedFftBinIndex = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex,
+                                                                            HighestFrequencyLimit, CurrentWaveFormat.SampleRate, CurrentFftFormat.FftWindowSize, DSP.RoundingMethods.AlwaysUp)
+                        Me.CentreFftBinIndex = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex,
+                                                                        CentreFrequency, CurrentWaveFormat.SampleRate, CurrentFftFormat.FftWindowSize, DSP.RoundingMethods.GetClosestValue)
                         Me.CentreBandBin = CentreFftBinIndex - LowestIncludedFftBinIndex
 
                         'Limiting the lowest and highest bin indices to the valid range
@@ -1501,7 +1501,7 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
 
                         'Adding the frequencies
                         For BinIndex = LowestIncludedFftBinIndex To HighestIncludedFftBinIndex
-                            Frequencies.Add(FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency,
+                            Frequencies.Add(DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.BinIndexToFrequency,
                                                                             BinIndex, CurrentWaveFormat.SampleRate, CurrentFftFormat.FftWindowSize))
                         Next
 
@@ -1535,7 +1535,7 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                 Public HighestIncludedFftBinIndex As Integer
 
                 Public MyWaveFormat As Audio.Formats.WaveFormat
-                Public MyIsoPhonFilter As Audio.DSP.IsoPhonFilter
+                Public MyIsoPhonFilter As DSP.IsoPhonFilter
                 Public MyAuditoryFilters As AuditoryFilters
 
                 Public dbFSToSplDifference As Double
@@ -1555,7 +1555,7 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                 ''' <param name="SetWaveFormat"></param>
                 ''' <param name="SetFftFormat"></param>
                 Public Sub New(ByRef MyBarkBandTemplate As BandTemplateList, ByVal TemplateIndex As Integer,
-                               ByRef PowerSpectrum As TimeWindow, ByRef SetIsoPhonFilter As Audio.DSP.IsoPhonFilter, ByRef SetAuditoryFilters As AuditoryFilters,
+                               ByRef PowerSpectrum As TimeWindow, ByRef SetIsoPhonFilter As DSP.IsoPhonFilter, ByRef SetAuditoryFilters As AuditoryFilters,
                     ByRef SetWaveFormat As Audio.Formats.WaveFormat, ByRef SetFftFormat As Audio.Formats.FftFormat, ByVal dbFSToSplDifference As Double)
 
 
@@ -1775,7 +1775,7 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                 Public Sub ConvertToBandLoudnessLevel()
 
                     'Converting to log base 2
-                    BandLoudness = 40 + 10 * Utils.getBase_n_Log(BandLoudness, 2)
+                    BandLoudness = 40 + 10 * DSP.getBase_n_Log(BandLoudness, 2)
 
                 End Sub
 
@@ -1881,10 +1881,10 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
 
                 'Calculating the amount of downward spread
                 Dim CurrentCentreFrequency = BarkBandCentreFrequencies(CurrentBarkBandIndex)
-                Dim LowestIncludedIndex As Integer = Utils.GetNearestIndex(CurrentCentreFrequency / DefaultSpreadingFactor, BarkBandCentreFrequencies, False)
+                Dim LowestIncludedIndex As Integer = DSP.GetNearestIndex(CurrentCentreFrequency / DefaultSpreadingFactor, BarkBandCentreFrequencies, False)
 
                 'Calculating the amount of upward spread
-                Dim DefaultHighestIncludedIndex As Integer = Utils.GetNearestIndex(CurrentCentreFrequency * DefaultSpreadingFactor, CentreFrequenciesTo20k, True)
+                Dim DefaultHighestIncludedIndex As Integer = DSP.GetNearestIndex(CurrentCentreFrequency * DefaultSpreadingFactor, CentreFrequenciesTo20k, True)
 
                 'VirtualHighestIncludedIndex is used to estimate the filter attenuation rate, where the highest possible end point is 20 kHz
                 Dim RemainingLength As Integer = CentreFrequenciesTo20k.Count - CurrentBarkBandIndex
@@ -1968,10 +1968,10 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                     If UpperInclusiveLimit Is Nothing Then UpperInclusiveLimit = SoundFormat.SampleRate / 2 - 1
 
                     'Converting frequencies to bin values
-                    LowerInclusiveLimit = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, LowerInclusiveLimit,
-                                                                         SoundFormat.SampleRate, FftFormat.FftWindowSize, Utils.roundingMethods.alwaysDown)
-                    UpperInclusiveLimit = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, UpperInclusiveLimit,
-                                                                         SoundFormat.SampleRate, FftFormat.FftWindowSize, Utils.roundingMethods.alwaysUp)
+                    LowerInclusiveLimit = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex, LowerInclusiveLimit,
+                                                                         SoundFormat.SampleRate, FftFormat.FftWindowSize, DSP.RoundingMethods.AlwaysDown)
+                    UpperInclusiveLimit = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex, UpperInclusiveLimit,
+                                                                         SoundFormat.SampleRate, FftFormat.FftWindowSize, DSP.RoundingMethods.AlwaysUp)
                 End If
 
 
@@ -1996,9 +1996,9 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                 If UpperInclusiveLimit > TempPowerSpectrumData.Length / 2 - 1 Then UpperInclusiveLimit = TempPowerSpectrumData.Length / 2 - 1
 
                 'Adjusting for Equivalent Noise Bandwidth
-                If FftFormat.WindowingType <> WindowingType.Rectangular Then
+                If FftFormat.WindowingType <> DSP.WindowingType.Rectangular Then
 
-                    Dim ENB As Double = GetEquivalentNoiseBandwidth(FftFormat.FftWindowSize, FftFormat.WindowingType, FftFormat.Tukey_r)
+                    Dim ENB As Double = DSP.GetEquivalentNoiseBandwidth(FftFormat.FftWindowSize, FftFormat.WindowingType, FftFormat.Tukey_r)
                     For n = LowerInclusiveLimit To UpperInclusiveLimit
 
                         'Adjusting the positive side
@@ -2010,9 +2010,9 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                 End If
 
                 'Compensating for the scaling introduced by the windowing function
-                If FftFormat.WindowingType <> WindowingType.Rectangular Then
+                If FftFormat.WindowingType <> DSP.WindowingType.Rectangular Then
 
-                    Dim ISF As Double = GetInverseWindowingScalingFactor(TempPowerSpectrumData.Length, FftFormat.WindowingType)
+                    Dim ISF As Double = DSP.GetInverseWindowingScalingFactor(TempPowerSpectrumData.Length, FftFormat.WindowingType)
                     For n = LowerInclusiveLimit To UpperInclusiveLimit
 
                         'Adjusting the positive side
@@ -2034,9 +2034,9 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                 Next
 
                 'Calculating the actual cut-off band centre frequencies used
-                ActualLowerInclusiveFrequency = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, LowerInclusiveLimit,
+                ActualLowerInclusiveFrequency = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.BinIndexToFrequency, LowerInclusiveLimit,
                                                                          SoundFormat.SampleRate, FftFormat.FftWindowSize)
-                ActualUpperInclusiveFrequency = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, UpperInclusiveLimit,
+                ActualUpperInclusiveFrequency = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.BinIndexToFrequency, UpperInclusiveLimit,
                                                                          SoundFormat.SampleRate, FftFormat.FftWindowSize)
 
 
@@ -2264,9 +2264,9 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                     Case SpectrumTypes.PowerSpectrum, SpectrumTypes.AmplitudeSpectrum  'TODO: check how this affects the amplitude spectrum!
 
                         'Rectagular windows have a ENB of 1, so rectangular windows are ignored
-                        If FrequencyDomainRealData(channel, windowNumber).WindowingType <> WindowingType.Rectangular Then
+                        If FrequencyDomainRealData(channel, windowNumber).WindowingType <> DSP.WindowingType.Rectangular Then
                             'Getting the EquivalentNoiseBandwidth if not supplied by the calling code
-                            If EquivalentNoiseBandwidth Is Nothing Then EquivalentNoiseBandwidth = GetEquivalentNoiseBandwidth(FftFormat.FftWindowSize, FftFormat.WindowingType, FftFormat.Tukey_r)
+                            If EquivalentNoiseBandwidth Is Nothing Then EquivalentNoiseBandwidth = DSP.GetEquivalentNoiseBandwidth(FftFormat.FftWindowSize, FftFormat.WindowingType, FftFormat.Tukey_r)
                             For coeffN = 0 To TempSpectrumArray.Length - 1
                                 TempSpectrumArray(coeffN) *= 1 / EquivalentNoiseBandwidth
                             Next
@@ -2307,11 +2307,11 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
             'Compensating for the scaling introduced by the windowing function
             If CompensateForTimeWindowingScaling = True Then
 
-                If FftFormat.WindowingType <> WindowingType.Rectangular Then
+                If FftFormat.WindowingType <> DSP.WindowingType.Rectangular Then
 
                     Select Case SpectrumType
                         Case SpectrumTypes.PowerSpectrum, SpectrumTypes.AmplitudeSpectrum
-                            If InverseTimeWindowingScalingFactor Is Nothing Then InverseTimeWindowingScalingFactor = GetInverseWindowingScalingFactor(FftFormat.FftWindowSize, FftFormat.WindowingType)
+                            If InverseTimeWindowingScalingFactor Is Nothing Then InverseTimeWindowingScalingFactor = DSP.GetInverseWindowingScalingFactor(FftFormat.FftWindowSize, FftFormat.WindowingType)
                             For coeffN = 0 To TempSpectrumArray.Length - 1
                                 TempSpectrumArray(coeffN) *= InverseTimeWindowingScalingFactor ^ 2
                             Next
@@ -2401,13 +2401,13 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
 
 
                 'Calculating cut-off frequency bin index
-                Dim topDisplayFFTBin As Single = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex,
+                Dim topDisplayFFTBin As Single = DSP.FftBinFrequencyConversion(DSP.FftBinFrequencyConversionDirection.FrequencyToBinIndex,
                                                                        spectrogramFormat.SpectrogramCutFrequency, sound.WaveFormat.SampleRate, sound.FFT.FftFormat.FftWindowSize,
-                                                                       Utils.roundingMethods.getClosestValue)
+                                                                       DSP.RoundingMethods.GetClosestValue)
 
                 Dim OriginalSoundLength As Integer = sound.WaveData.SampleData(channel).Length
                 Dim ColumnSize As Integer = FftFormat.AnalysisWindowSize - FftFormat.OverlapSize
-                Dim ColumnCount As Integer = Utils.Rounding(OriginalSoundLength / ColumnSize, Utils.roundingMethods.alwaysUp)
+                Dim ColumnCount As Integer = DSP.Rounding(OriginalSoundLength / ColumnSize, DSP.RoundingMethods.AlwaysUp)
                 Dim SoundLengthBeforeFFT As Integer = ColumnSize * ColumnCount + 2 * FftFormat.AnalysisWindowSize - ColumnSize
 
                 'Creating a temporary copy of the input sound which will be extended
@@ -2420,8 +2420,8 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                     'Creating a filterred copy of the input sound
                     Dim kernelFftFormat As Audio.Formats.FftFormat = spectrogramFormat.SpectrogramPreFilterKernelFftFormat
                     Dim filterFftFormat As Audio.Formats.FftFormat = spectrogramFormat.SpectrogramPreFirFilterFftFormat
-                    Dim kernel As Audio.Sound = Audio.GenerateSound.CreateSpecialTypeImpulseResponse(Waveformat, filterFftFormat, spectrogramFormat.PreFftFilteringKernelSize, , FilterType.LinearAttenuationBelowCF_dBPerOctave, Waveformat.SampleRate / 2,,,, spectrogramFormat.PreFftFilteringAttenuationRate,, spectrogramFormat.InActivateWarnings)
-                    Dim filterredSound As Audio.Sound = Audio.DSP.FIRFilter(sound, kernel, filterFftFormat,,,,,, spectrogramFormat.InActivateWarnings)
+                    Dim kernel As Audio.Sound = DSP.CreateSpecialTypeImpulseResponse(Waveformat, filterFftFormat, spectrogramFormat.PreFftFilteringKernelSize, , DSP.FilterType.LinearAttenuationBelowCF_dBPerOctave, Waveformat.SampleRate / 2,,,, spectrogramFormat.PreFftFilteringAttenuationRate,, spectrogramFormat.InActivateWarnings)
+                    Dim filterredSound As Audio.Sound = DSP.FIRFilter(sound, kernel, filterFftFormat,,,,,, spectrogramFormat.InActivateWarnings)
 
                     'Creating a temporary and extended copy of the filterred sound, with the delay created by the FIR-filtering removed
                     tempSound = filterredSound.CreateCopy
@@ -2448,7 +2448,7 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
 
 
                 'Calculating fft on the temporary sound 
-                tempSound.FFT = Audio.DSP.SpectralAnalysis(tempSound, FftFormat, channel)
+                tempSound.FFT = DSP.SpectralAnalysis(tempSound, FftFormat, channel)
 
                 'Transforming fft data to polar form and putting it into the local object localSpectrogramData
                 Dim localSpectrogramData As New List(Of List(Of Single()))
@@ -2483,7 +2483,7 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                 Next
 
                 'Summing up magnitude values for each column area
-                Dim ColumnsPerAnalysisWindow As Integer = Utils.Rounding(FftFormat.AnalysisWindowSize / ColumnSize, Utils.roundingMethods.alwaysUp)
+                Dim ColumnsPerAnalysisWindow As Integer = DSP.Rounding(FftFormat.AnalysisWindowSize / ColumnSize, DSP.RoundingMethods.AlwaysUp)
                 For channel = 0 To _SpectrogramData.Count - 1
                     For column = 0 To _SpectrogramData(channel).Count - 1
                         For subAnalysisWindow = 0 To ColumnsPerAnalysisWindow - 1
@@ -2547,50 +2547,6 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
 
 
     End Class
-
-    '<Serializable>
-    'Public Class LocalEnvelopeData
-
-    '    Private _envelopeData As New List(Of Single())
-
-    '    Private ReadOnly Property Waveformat As Audio.Formats.WaveFormat
-    '    Private ReadOnly Property EnvelopeFormat As Audio.Formats.EnvelopeFormat
-
-    '    Public Property EnvelopeData(Optional ByVal channel As Integer = 1) As Single()
-    '        Get
-    '            CheckChannelValue(channel, _envelopeData.Count)
-    '            Return _envelopeData(channel - 1)
-    '        End Get
-    '        Set(value As Single())
-    '            CheckChannelValue(channel, _envelopeData.Count)
-    '            _envelopeData(channel - 1) = value
-    '        End Set
-    '    End Property
-
-    '    Public Sub New(ByVal setWaveFormat As Audio.Formats.WaveFormat, ByVal setEnvelopeFormat As Audio.Formats.EnvelopeFormat)
-
-    '        Waveformat = setWaveFormat
-    '        EnvelopeFormat = setEnvelopeFormat
-
-    '        For n = 0 To Waveformat.Channels - 1
-    '            Dim ChannelSoundData As Single() = {}
-    '            _envelopeData.Add(ChannelSoundData)
-    '        Next
-
-    '    End Sub
-
-    'End Class
-
-
-    '<Serializable>
-    'Public Class LocalVoicingAnalysisData
-
-    '    Dim pointsOfZeroCrossings As List(Of Integer)
-    '    Dim voicingDataTable As DataTable
-
-    'End Class
-
-
 
 
 End Namespace

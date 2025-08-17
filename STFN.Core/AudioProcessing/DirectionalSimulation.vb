@@ -300,7 +300,7 @@ Public Class StereoKernel
 
             Dim KernelSize = IrChannelCopy.WaveData.SampleData(1).Length
 
-            Dim ZeroPhaseIR = Audio.GenerateSound.GetImpulseResponseFromSound(IrChannelCopy, New Audio.Formats.FftFormat(2 ^ 12), KernelSize * 2)
+            Dim ZeroPhaseIR = DSP.GetImpulseResponseFromSound(IrChannelCopy, New Audio.Formats.FftFormat(2 ^ 12), KernelSize * 2)
 
             'Use both to filter a sound and add gain to ZeroPhaseIR based on the resulting level difference
 
@@ -308,19 +308,19 @@ Public Class StereoKernel
             Dim IrLength As Integer = IrChannelCopy.WaveData.SampleData(1).Length
 
             'Creates a delta pulse measurement sound
-            Dim DeltaPulse_TestSound = Audio.GenerateSound.CreateSilence(MonoWaveFormat,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
+            Dim DeltaPulse_TestSound = DSP.CreateSilence(MonoWaveFormat,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
             DeltaPulse_TestSound.WaveData.SampleData(1)(IrLength * 2) = 1
 
             'Measures the pre filter level
-            Dim PreLevel As Double = Audio.DSP.MeasureSectionLevel(DeltaPulse_TestSound, 1, IrLength, 3 * IrLength)
+            Dim PreLevel As Double = DSP.MeasureSectionLevel(DeltaPulse_TestSound, 1, IrLength, 3 * IrLength)
 
             'Runs convolution
-            Dim IR_ConvolutedSound = Audio.DSP.FIRFilter(DeltaPulse_TestSound, IrChannelCopy, New Audio.Formats.FftFormat, ,,,,, True)
-            Dim ZP_IR_ConvolutedSound = Audio.DSP.FIRFilter(DeltaPulse_TestSound, ZeroPhaseIR, New Audio.Formats.FftFormat, ,,,,, True)
+            Dim IR_ConvolutedSound = DSP.FIRFilter(DeltaPulse_TestSound, IrChannelCopy, New Audio.Formats.FftFormat, ,,,,, True)
+            Dim ZP_IR_ConvolutedSound = DSP.FIRFilter(DeltaPulse_TestSound, ZeroPhaseIR, New Audio.Formats.FftFormat, ,,,,, True)
 
             'Gets the post-convolution level
-            Dim PostLevel_IR = Audio.DSP.MeasureSectionLevel(IR_ConvolutedSound, 1, IrLength, 3 * IrLength)
-            Dim PostLevel_ZP_IR = Audio.DSP.MeasureSectionLevel(ZP_IR_ConvolutedSound, 1, IrLength, 3 * IrLength)
+            Dim PostLevel_IR = DSP.MeasureSectionLevel(IR_ConvolutedSound, 1, IrLength, 3 * IrLength)
+            Dim PostLevel_ZP_IR = DSP.MeasureSectionLevel(ZP_IR_ConvolutedSound, 1, IrLength, 3 * IrLength)
 
             'Calculates the gain
             Dim IR_FilterGain As Double = PostLevel_IR - PreLevel
@@ -328,7 +328,7 @@ Public Class StereoKernel
 
             Dim Difference = ZP_IR_FilterGain - IR_FilterGain
 
-            Audio.DSP.AmplifySection(ZeroPhaseIR, -Difference)
+            DSP.AmplifySection(ZeroPhaseIR, -Difference)
 
             'ZeroPhaseIR.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "ZeroPhaseIR.wav"))
             'IrChannelCopy.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrChannelCopy.wav"))
@@ -358,12 +358,12 @@ Public Class StereoKernel
             Dim IrLength As Integer = IrSound.WaveData.SampleData(1).Length
 
             'Creates a delta pulse measurement sound
-            Dim TestSound = Audio.GenerateSound.CreateSilence(MonoWaveFormat,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
+            Dim TestSound = DSP.CreateSilence(MonoWaveFormat,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
             Dim DeltaIndex As Integer = IrLength * 2
             TestSound.WaveData.SampleData(1)(DeltaIndex) = 1
 
             'Runs convolution
-            Dim ConvolutedSound = Audio.DSP.FIRFilter(TestSound, IrSound, New Audio.Formats.FftFormat, ,,,,, True)
+            Dim ConvolutedSound = DSP.FIRFilter(TestSound, IrSound, New Audio.Formats.FftFormat, ,,,,, True)
 
             'Gets the peak sample of the convoluted delta pulse
             Dim MaxValue = ConvolutedSound.WaveData.SampleData(1).Max()
@@ -543,7 +543,7 @@ Public Class BinauralImpulseReponseSet
                 End If
                 Dim Azimuth As Double = InputFileSupport.InputFileDoubleValueParsing(LineSplit(3).Trim, False, ImpulseResponseSetSpecificationFile)
                 'Unwraps the azimuth
-                Azimuth = Utils.UnwrapAngle(Azimuth)
+                Azimuth = DSP.UnwrapAngle(Azimuth)
                 Dim Elevation As Double = InputFileSupport.InputFileDoubleValueParsing(LineSplit(4).Trim, False, ImpulseResponseSetSpecificationFile)
                 Dim Distance As Double = InputFileSupport.InputFileDoubleValueParsing(LineSplit(5).Trim, False, ImpulseResponseSetSpecificationFile)
 
@@ -621,7 +621,7 @@ Public Class BinauralImpulseReponseSet
                 If Kernel.Value.Point.GetSphericalDistance = CurrentDistance Then
 
                     'Attenuating by the calibration offset (to get zero dB filter gain for a signal with a C-weighted spectrum)
-                    Audio.DSP.AmplifySection(Kernel.Value.BinauralIR, -CurrentCalibrationOffSet)
+                    DSP.AmplifySection(Kernel.Value.BinauralIR, -CurrentCalibrationOffSet)
 
                 End If
             Next
@@ -771,8 +771,8 @@ Public Class BinauralImpulseReponseSet
             theta += 90
 
             'Converting degrees to radians 
-            theta = Utils.Math.Degrees2Radians(theta)
-            phi = Utils.Math.Degrees2Radians(phi)
+            theta = DSP.Degrees2Radians(theta)
+            phi = DSP.Degrees2Radians(phi)
 
             'Cf. https://en.wikipedia.org/wiki/Spherical_coordinate_system#Cartesian_coordinates
 
@@ -800,8 +800,8 @@ Public Class BinauralImpulseReponseSet
             Dim phi = Math.Sign(y) * Math.Acos(x / (x ^ 2 + y ^ 2))
 
             'Converting radians to degrees
-            theta = Utils.Math.Radians2Degrees(theta)
-            phi = Utils.Math.Radians2Degrees(phi)
+            theta = DSP.Radians2Degrees(theta)
+            phi = DSP.Radians2Degrees(phi)
 
             'Shifting theta to be relative to the horizontal plane instead of the polar axis
             theta -= 90
@@ -892,20 +892,20 @@ Public Class BinauralImpulseReponseSet
         Dim IrLength As Integer = IrSound.WaveData.SampleData(1).Length
 
         'Creates a delta pulse measurement sound
-        Dim TestSound = Audio.GenerateSound.CreateSilence(MonoWaveFormat,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
+        Dim TestSound = DSP.CreateSilence(MonoWaveFormat,, IrLength * 5, Audio.BasicAudioEnums.TimeUnits.samples)
         TestSound.WaveData.SampleData(1)(IrLength * 2) = 1
 
         'Filters it with a C-weighting, to avoid low and high frequency influences
-        TestSound = Audio.DSP.IIRFilter(TestSound, Audio.BasicAudioEnums.FrequencyWeightings.C)
+        TestSound = DSP.IIRFilter(TestSound, Audio.BasicAudioEnums.FrequencyWeightings.C)
 
         'Measures the pre filter level
-        Dim PreLevel As Double = Audio.DSP.MeasureSectionLevel(TestSound, 1, IrLength, 3 * IrLength)
+        Dim PreLevel As Double = DSP.MeasureSectionLevel(TestSound, 1, IrLength, 3 * IrLength)
 
         'Runs convolution
-        Dim ConvolutedSound = Audio.DSP.FIRFilter(TestSound, IrSound, New Audio.Formats.FftFormat, ,,,,, True)
+        Dim ConvolutedSound = DSP.FIRFilter(TestSound, IrSound, New Audio.Formats.FftFormat, ,,,,, True)
 
         'Gets the post-convolution level
-        Dim PostLevel = Audio.DSP.MeasureSectionLevel(ConvolutedSound, 1, IrLength, 3 * IrLength)
+        Dim PostLevel = DSP.MeasureSectionLevel(ConvolutedSound, 1, IrLength, 3 * IrLength)
 
         'Calculates the gain
         Dim FilterGain As Double = PostLevel - PreLevel

@@ -1184,7 +1184,7 @@ Namespace Audio
                         End If
 
                         Dim ConcatenatedChannelArrays(sound.WaveFormat.Channels * ChannelLength - 1) As Single
-                        Utils.Math.DeinterleaveSoundArray(InterleavedSoundArray, sound.WaveFormat.Channels, ChannelLength, ConcatenatedChannelArrays)
+                        DSP.DeinterleaveSoundArray(InterleavedSoundArray, sound.WaveFormat.Channels, ChannelLength, ConcatenatedChannelArrays)
 
                         For c As Integer = 1 To channels
                             Dim channelData(ChannelLength - 1) As Single
@@ -2453,7 +2453,7 @@ Namespace Audio
         ''' <returns></returns>
         Public Shared Function GetTestSound() As Sound
 
-            Dim TestSound = Audio.GenerateSound.CreateSineWave(New Formats.WaveFormat(48000, 32, 1, , Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 500, 0.1, 3)
+            Dim TestSound = DSP.CreateSineWave(New Formats.WaveFormat(48000, 32, 1, , Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 500, 0.1, 3)
 
             TestSound.SMA = New SpeechMaterialAnnotation
             TestSound.SMA.AddChannelData(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.CHANNEL, Nothing) With {.OrthographicForm = "Test sound, channel 1", .PhoneticForm = "Test sound, channel 1 (phonetic form)"})

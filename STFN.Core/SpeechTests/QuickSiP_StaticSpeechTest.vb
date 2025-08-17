@@ -130,7 +130,7 @@ Public Class QuickSiP_StaticSpeechTest
             Next
 
             'Shuffling the order of response alternatives
-            ResponseAlternatives = Utils.Shuffle(ResponseAlternatives, Randomizer).ToList
+            ResponseAlternatives = DSP.Shuffle(ResponseAlternatives, Randomizer).ToList
 
             NewTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)
 
@@ -209,11 +209,11 @@ Public Class QuickSiP_StaticSpeechTest
                 Dim CurrentTestRootPath As String = PlannedTestTrials(0).SpeechMaterialComponent.ParentTestSpecification.GetTestRootPath
                 Dim InitialSoundPath = IO.Path.Combine(CurrentTestRootPath, MediaSet.LombardNoisePath)
                 Dim InitialSound = Sound.LoadWaveFile(InitialSoundPath)
-                Audio.DSP.CropSection(InitialSound, 0, InitialSound.WaveFormat.SampleRate * AddedTime + 0.5) ' Adding 0.5 seconds to compensate for the halv second crossfading below
+                DSP.CropSection(InitialSound, 0, InitialSound.WaveFormat.SampleRate * AddedTime + 0.5) ' Adding 0.5 seconds to compensate for the halv second crossfading below
 
                 Dim TrialSoundFilePath = CurrentTestTrial.SpeechMaterialComponent.GetSoundPath(MediaSet, 0)
                 Dim TrialSound = Sound.LoadWaveFile(TrialSoundFilePath)
-                Dim FirstTrialSound = Audio.DSP.ConcatenateSounds({InitialSound, TrialSound}.ToList, ,,,,, InitialSound.WaveFormat.SampleRate / 2)
+                Dim FirstTrialSound = DSP.ConcatenateSounds({InitialSound, TrialSound}.ToList, ,,,,, InitialSound.WaveFormat.SampleRate / 2)
 
                 CurrentTestTrial.Sound = FirstTrialSound
 

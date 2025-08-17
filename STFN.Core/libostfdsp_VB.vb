@@ -300,14 +300,14 @@ Public Class LibOstfDsp_VB
     End Sub
 
 
-    Public Shared Sub Fft_complex(real As Double(), imag As Double(), size As Integer, Optional Direction As Audio.DSP.FftDirections = Audio.DSP.FftDirections.Forward, Optional reorder As Boolean = True, Optional scaleForwardTransform As Boolean = True)
+    Public Shared Sub Fft_complex(real As Double(), imag As Double(), size As Integer, Optional Direction As DSP.FftDirections = DSP.FftDirections.Forward, Optional reorder As Boolean = True, Optional scaleForwardTransform As Boolean = True)
 
         'Translating Direction to the corresponding integer Array used in the optimization libraries
         Dim dir As Integer
         Select Case Direction
-            Case Audio.DSP.FftDirections.Forward
+            Case DSP.FftDirections.Forward
                 dir = 1
-            Case Audio.DSP.FftDirections.Backward
+            Case DSP.FftDirections.Backward
                 dir = -1
             Case Else
                 Throw New ArgumentException("Unknown value for Direction!")
@@ -330,7 +330,7 @@ Public Class LibOstfDsp_VB
                     Throw New ArgumentException("The x and y arrays need to have the same Length in FastFourierTransform!")
                 End If
 
-                Dim TrigonArrays = Audio.DSP.Radix2TrigonometricLookup.GetArrays(size, Direction) ' Note that the Enum (not the translated value for Direction is used here)
+                Dim TrigonArrays = DSP.Radix2TrigonometricLookup.GetArrays(size, Direction) ' Note that the Enum (not the translated value for Direction is used here)
 
                 fft_complex_android(real, imag, size, TrigonArrays.Item1, TrigonArrays.Item2, dir, reorder, scaleForwardTransform)
 

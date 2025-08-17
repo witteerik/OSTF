@@ -8,9 +8,9 @@ Public Module ImpulseResponseCustomFunctions
 
         Dim Ir = Sound.LoadWaveFile(IrPath)
 
-        Dim WhiteNoise = GenerateSound.CreateWhiteNoise(Ir.WaveFormat, 1, 1, 5)
+        Dim WhiteNoise = DSP.CreateWhiteNoise(Ir.WaveFormat, 1, 1, 5)
 
-        Dim BandPassIr = GenerateSound.CreateSpecialTypeImpulseResponse(Ir.WaveFormat, New Formats.FftFormat(), 8192, 1, FilterType.BandPass, 200, 8000, -100, 0, 18)
+        Dim BandPassIr = DSP.CreateSpecialTypeImpulseResponse(Ir.WaveFormat, New Formats.FftFormat(), 8192, 1, DSP.FilterType.BandPass, 200, 8000, -100, 0, 18)
 
         'Bandbass-filter noise
         Dim BandPassNoise = DSP.FIRFilter(WhiteNoise, BandPassIr, New Formats.FftFormat,,,,,,, True)

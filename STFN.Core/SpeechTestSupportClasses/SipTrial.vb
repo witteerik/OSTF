@@ -193,7 +193,7 @@ Namespace SipTest
             Me.BackgroundLocations = BackgroundLocations
 
             'Setting some levels
-            Dim Fs2Spl As Double = Audio.Standard_dBFS_dBSPL_Difference
+            Dim Fs2Spl As Double = DSP.Standard_dBFS_dBSPL_Difference
 
             'Calculating levels
             ReferenceSpeechMaterialLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection).GetNumericMediaSetVariableValue(MediaSet, "Lc")
@@ -250,7 +250,7 @@ Namespace SipTest
             Me.BmldNoiseMode = NoiseMode
 
             'Setting some levels
-            Dim Fs2Spl As Double = Audio.Standard_dBFS_dBSPL_Difference
+            Dim Fs2Spl As Double = DSP.Standard_dBFS_dBSPL_Difference
 
             'Calculating levels
             ReferenceSpeechMaterialLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection).GetNumericMediaSetVariableValue(MediaSet, "Lc")
@@ -448,7 +448,7 @@ Namespace SipTest
                 Dim NumberOfMaskers As Integer = MaskerLocations.Length
 
                 If FixedMaskerIndices Is Nothing Then
-                    SelectedMaskerIndices.AddRange(Utils.SampleWithoutReplacement(NumberOfMaskers, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer))
+                    SelectedMaskerIndices.AddRange(DSP.SampleWithoutReplacement(NumberOfMaskers, 0, Me.MediaSet.MaskerAudioItems, SipMeasurementRandomizer))
                 Else
                     If FixedMaskerIndices.Count <> NumberOfMaskers Then Throw New ArgumentException("FixedMaskerIndices must be either Nothing or contain " & NumberOfMaskers & " integers.")
                     SelectedMaskerIndices.AddRange(FixedMaskerIndices)
@@ -569,7 +569,7 @@ Namespace SipTest
                     For Each Background In Backgrounds
                         TempBackgroundSoundList.Add(Background.Item1)
                     Next
-                    Dim SuperPositionedBackgroundSounds = Audio.DSP.SuperpositionEqualLengthSounds(TempBackgroundSoundList)
+                    Dim SuperPositionedBackgroundSounds = DSP.SuperpositionEqualLengthSounds(TempBackgroundSoundList)
 
                     'Replacing the individual background sounds with the superpositioned on, to get the same sound mix in all background sources
                     For bi = 0 To Backgrounds.Count - 1
@@ -599,48 +599,48 @@ Namespace SipTest
                 End If
 
                 'Sets up fading specifications for the test word
-                Dim FadeSpecs_TestWord = New List(Of Audio.DSP.Transformations.FadeSpecifications)
-                FadeSpecs_TestWord.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
-                FadeSpecs_TestWord.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
+                Dim FadeSpecs_TestWord = New List(Of DSP.FadeSpecifications)
+                FadeSpecs_TestWord.Add(New DSP.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.002))
+                FadeSpecs_TestWord.Add(New DSP.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.002))
 
                 'Sets up fading specifications for the maskers
-                Dim FadeSpecs_Maskers = New List(Of Audio.DSP.Transformations.FadeSpecifications)
+                Dim FadeSpecs_Maskers = New List(Of DSP.FadeSpecifications)
                 If SkipNoiseFadeIn = False Then
-                    FadeSpecs_Maskers.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, MaskerFadeInLength))
+                    FadeSpecs_Maskers.Add(New DSP.FadeSpecifications(Nothing, 0, 0, MaskerFadeInLength))
                 End If
                 If SkipNoiseFadeOut = False Then
-                    FadeSpecs_Maskers.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -MaskerFadeOutLength))
+                    FadeSpecs_Maskers.Add(New DSP.FadeSpecifications(0, Nothing, -MaskerFadeOutLength))
                 End If
 
                 'Sets up fading specifications for the background signals
-                Dim FadeSpecs_Background = New List(Of Audio.DSP.Transformations.FadeSpecifications)
+                Dim FadeSpecs_Background = New List(Of DSP.FadeSpecifications)
                 If SkipNoiseFadeIn = False Then
-                    FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
+                    FadeSpecs_Background.Add(New DSP.FadeSpecifications(Nothing, 0, 0, CurrentSampleRate * 0.01))
                 End If
                 If SkipNoiseFadeOut = False Then
-                    FadeSpecs_Background.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
+                    FadeSpecs_Background.Add(New DSP.FadeSpecifications(0, Nothing, -CurrentSampleRate * 0.01))
                 End If
 
                 'Sets up ducking specifications for the background (non-speech) signals
-                Dim DuckSpecs_BackgroundNonSpeech = New List(Of Audio.DSP.Transformations.FadeSpecifications)
+                Dim DuckSpecs_BackgroundNonSpeech = New List(Of DSP.FadeSpecifications)
                 'BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 3, Me.MediaSet.BackgroundNonspeechRealisticLevel))
                 BackgroundNonSpeechDucking = Math.Max(0, Me.MediaSet.BackgroundNonspeechRealisticLevel - Math.Min(Me.TargetMasking_SPL.Value - 6, Me.MediaSet.BackgroundNonspeechRealisticLevel)) ' Ducking 6 dB instead of 3
                 'Dim BackgroundStartDuckSample As Integer = Math.Max(0, TestWordStartSample - CurrentSampleRate * 0.5)
                 Dim BackgroundStartDuckSample As Integer = Math.Max(0, TestWordStartSample - CurrentSampleRate * 1) ' Extending ducking fade to 1 sec before and after test word, to get a smoother fade
                 Dim BackgroundDuckFade1StageLength As Integer = TestWordStartSample - BackgroundStartDuckSample
-                DuckSpecs_BackgroundNonSpeech.Add(New Audio.DSP.Transformations.FadeSpecifications(0, BackgroundNonSpeechDucking, BackgroundStartDuckSample, BackgroundDuckFade1StageLength))
+                DuckSpecs_BackgroundNonSpeech.Add(New DSP.FadeSpecifications(0, BackgroundNonSpeechDucking, BackgroundStartDuckSample, BackgroundDuckFade1StageLength))
                 'Dim BackgroundDuckFade2StageLength As Integer = Math.Min(CurrentSampleRate * 0.5, (TrialSoundLength - TestWordCompletedSample - 2))
                 Dim BackgroundDuckFade2StageLength As Integer = Math.Min(CurrentSampleRate * 1, (TrialSoundLength - TestWordCompletedSample - 2))
-                DuckSpecs_BackgroundNonSpeech.Add(New Audio.DSP.Transformations.FadeSpecifications(BackgroundNonSpeechDucking, 0, TestWordCompletedSample, BackgroundDuckFade2StageLength))
+                DuckSpecs_BackgroundNonSpeech.Add(New DSP.FadeSpecifications(BackgroundNonSpeechDucking, 0, TestWordCompletedSample, BackgroundDuckFade2StageLength))
 
                 'Sets up ducking specifications for the background (speech) signals
-                Dim DuckSpecs_BackgroundSpeech = New List(Of Audio.DSP.Transformations.FadeSpecifications)
+                Dim DuckSpecs_BackgroundSpeech = New List(Of DSP.FadeSpecifications)
                 Dim BGS_DuckFadeOutStart As Integer = Math.Max(0, TestWordStartSample - CurrentSampleRate * 1)
                 Dim BGS_DuckFadeOutlength As Integer = Math.Max(0, TestWordStartSample - BGS_DuckFadeOutStart - CurrentSampleRate * 0.5)
-                DuckSpecs_BackgroundSpeech.Add(New Audio.DSP.Transformations.FadeSpecifications(0, Nothing, BGS_DuckFadeOutStart, BGS_DuckFadeOutlength))
+                DuckSpecs_BackgroundSpeech.Add(New DSP.FadeSpecifications(0, Nothing, BGS_DuckFadeOutStart, BGS_DuckFadeOutlength))
                 Dim BGS_DuckFadeInStart As Integer = Math.Min(TestWordCompletedSample + CurrentSampleRate * 0.5, TrialSoundLength)
                 Dim BGS_DuckFadeInLength As Integer = Math.Min(CurrentSampleRate * 0.5, (TrialSoundLength - BGS_DuckFadeInStart - 2))
-                DuckSpecs_BackgroundSpeech.Add(New Audio.DSP.Transformations.FadeSpecifications(Nothing, 0, BGS_DuckFadeInStart, BGS_DuckFadeInLength))
+                DuckSpecs_BackgroundSpeech.Add(New DSP.FadeSpecifications(Nothing, 0, BGS_DuckFadeInStart, BGS_DuckFadeInLength))
 
                 'Adds the test word signal, with fade and location specifications
                 Dim LevelGroup As Integer = 1 ' The level group value is used to set the added sound level of items sharing the same (arbitrary) LevelGroup value to the indicated sound level. (Thus, the sounds with the same LevelGroup value are measured together.)
@@ -771,11 +771,11 @@ Namespace SipTest
 
                         'Applies FIR-filtering
                         Dim MyFftFormat As Audio.Formats.FftFormat = New Formats.FftFormat
-                        TargetSound = Audio.DSP.FIRFilter(TargetSound, CurrentKernel, MyFftFormat,,,,,, True)
-                        If MaskerItemsSound IsNot Nothing Then MaskerItemsSound = Audio.DSP.FIRFilter(MaskerItemsSound, CurrentKernel, MyFftFormat,,,,,, True)
-                        If BackgroundNonspeechItemsSound IsNot Nothing Then BackgroundNonspeechItemsSound = Audio.DSP.FIRFilter(BackgroundNonspeechItemsSound, CurrentKernel, MyFftFormat,,,,,, True)
-                        If BackgroundSpeechItemsSound IsNot Nothing Then BackgroundSpeechItemsSound = Audio.DSP.FIRFilter(BackgroundSpeechItemsSound, CurrentKernel, MyFftFormat,,,,,, True)
-                        NontargetSound = Audio.DSP.FIRFilter(NontargetSound, CurrentKernel, MyFftFormat,,,,,, True)
+                        TargetSound = DSP.FIRFilter(TargetSound, CurrentKernel, MyFftFormat,,,,,, True)
+                        If MaskerItemsSound IsNot Nothing Then MaskerItemsSound = DSP.FIRFilter(MaskerItemsSound, CurrentKernel, MyFftFormat,,,,,, True)
+                        If BackgroundNonspeechItemsSound IsNot Nothing Then BackgroundNonspeechItemsSound = DSP.FIRFilter(BackgroundNonspeechItemsSound, CurrentKernel, MyFftFormat,,,,,, True)
+                        If BackgroundSpeechItemsSound IsNot Nothing Then BackgroundSpeechItemsSound = DSP.FIRFilter(BackgroundSpeechItemsSound, CurrentKernel, MyFftFormat,,,,,, True)
+                        NontargetSound = DSP.FIRFilter(NontargetSound, CurrentKernel, MyFftFormat,,,,,, True)
 
                         'Storing the actual location values used in the simulation
                         For locationIndex = 0 To Me.TargetStimulusLocations.Length - 1
@@ -822,7 +822,7 @@ Namespace SipTest
                     End If
 
                     'Creating the combined mix
-                    MixedTestTrialSound = Audio.DSP.SuperpositionSounds({TargetSound, NontargetSound}.ToList)
+                    MixedTestTrialSound = DSP.SuperpositionSounds({TargetSound, NontargetSound}.ToList)
 
                     'Stores the sounds in TrialSoundsToExport, to be exported later.
 
@@ -1053,10 +1053,10 @@ Namespace SipTest
                                                               Optional ByVal MaskerSpectrumLevelsVariableNamePrefix As String = "SLm")
 
             'Using thresholds and gain data from the side with the best aided thresholds (selecting side separately for each critical band)
-            Dim Thresholds(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-            Dim Gain(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+            Dim Thresholds(DSP.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+            Dim Gain(DSP.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
 
-            For i = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
+            For i = 0 To DSP.SiiCriticalBands.CentreFrequencies.Length - 1
                 'TODO: should we allow for the lack of gain data here, or should we always use a gain of zero when no hearing aid is used?
                 Dim AidedThreshold_Left As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i).Gain
                 Dim AidedThreshold_Right As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i).Gain
@@ -1071,12 +1071,12 @@ Namespace SipTest
             Next
 
             'Getting spectral levels
-            Dim CorrectResponseSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-            Dim MaskerSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+            Dim CorrectResponseSpectralLevels(DSP.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+            Dim MaskerSpectralLevels(DSP.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
             Dim Siblings = Me.SpeechMaterialComponent.GetSiblingsExcludingSelf
             Dim IncorrectResponsesSpectralLevels As New List(Of Double())
             For Each Sibling In Siblings
-                Dim IncorrectResponseSpectralLevels(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
+                Dim IncorrectResponseSpectralLevels(DSP.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
                 IncorrectResponsesSpectralLevels.Add(IncorrectResponseSpectralLevels)
             Next
 
@@ -1090,8 +1090,8 @@ Namespace SipTest
             Dim CurrentMaskerGain As Double = TargetMasking_SPL - ReferenceContrastingPhonemesLevel_SPL + RefLevelDifference 'Audio.Standard_dBFS_To_dBSPL(Common.SipTestReferenceMaskerLevel_FS) 'TODO: In the SiP-test maskers sound files the level is set to -30 dB FS across the whole sounds. A more detailed sound level data could be used instead!
             If LogToConsole = True Then Console.WriteLine(Me.SpeechMaterialComponent.PrimaryStringRepresentation & " PNR: " & Me.PNR & " CurrentMaskerGain: " & CurrentMaskerGain)
 
-            For i = 0 To Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies.Length - 1
-                Dim VariableNameSuffix = Math.Round(Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies(i)).ToString("00000")
+            For i = 0 To DSP.SiiCriticalBands.CentreFrequencies.Length - 1
+                Dim VariableNameSuffix = Math.Round(DSP.SiiCriticalBands.CentreFrequencies(i)).ToString("00000")
                 Dim SLsName As String = SpeechSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
                 Dim SLmName As String = MaskerSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
 
@@ -1122,7 +1122,7 @@ Namespace SipTest
                 LogList.Add("CurrentSpeechGain:" & vbTab & CurrentSpeechGain)
                 LogList.Add("CurrentMaskerGain:" & vbTab & CurrentMaskerGain)
 
-                LogList.Add("CentreFrequencies:" & vbTab & String.Join("; ", Audio.DSP.PsychoAcoustics.SiiCriticalBands.CentreFrequencies))
+                LogList.Add("CentreFrequencies:" & vbTab & String.Join("; ", DSP.SiiCriticalBands.CentreFrequencies))
                 LogList.Add("Thresholds:" & vbTab & String.Join("; ", Thresholds))
                 LogList.Add("Gain:" & vbTab & String.Join("; ", Gain))
 

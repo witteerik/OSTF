@@ -155,7 +155,7 @@ Namespace Audio
             Public Property FftWindowSize As Integer
             Public Property AnalysisWindowSize As Integer
             Public Property OverlapSize As Integer
-            Public Property WindowingType As WindowingType = WindowingType.Rectangular
+            Public Property WindowingType As DSP.WindowingType = WindowingType.Rectangular
             Public Property Tukey_r As Double
 
             ''' <summary>
@@ -167,7 +167,7 @@ Namespace Audio
             ''' <param name="setWindowing">Determines which windowing function of the analysis window that will be used the before the fft calculation.</param>
             ''' <param name="Tukey_r">The ratio between windowing size and the cosine sections in a Tukey window. Only needed if Tukey windowing is used.</param>
             Public Sub New(Optional ByRef setAnalysisWindowSize As Integer = 1024, Optional ByRef setFftWindowSize As Integer = -1, Optional ByRef setoverlapSize As Integer = 0,
-                   Optional setWindowing As WindowingType = WindowingType.Rectangular, Optional ByRef InActivateWarnings As Boolean = False,
+                   Optional setWindowing As DSP.WindowingType = DSP.WindowingType.Rectangular, Optional ByRef InActivateWarnings As Boolean = False,
                    Optional Tukey_r As Double = 0.5)
 
                 'Adjusting setAnalysisWindowSize
@@ -179,7 +179,7 @@ Namespace Audio
                 If setFftWindowSize < 0 Then setFftWindowSize = AnalysisWindowSize
 
                 'Checking fft size
-                CheckAndAdjustFFTSize(setFftWindowSize, AnalysisWindowSize, InActivateWarnings)
+                DSP.CheckAndAdjustFFTSize(setFftWindowSize, AnalysisWindowSize, InActivateWarnings)
                 FftWindowSize = setFftWindowSize
 
                 'Checking overlap size
@@ -368,7 +368,7 @@ Namespace Audio
 
             Public Sub New(Optional ByVal setSpectrogramCutFrequency As Single = 8000, Optional spectrogramAnalysisWindowSize As Integer = 1024, Optional spectrogramFftSize As Integer = 1024,
         Optional spectrogramAnalysisWindowOverlapSize As Integer = 512,
-                   Optional spectrogramWindowingMethod As WindowingType = WindowingType.Hamming,
+                   Optional spectrogramWindowingMethod As DSP.WindowingType = DSP.WindowingType.Hamming,
                    Optional ByVal setUsePreFftFiltering As Boolean = True,
                    Optional ByVal setPreFftFilteringAttenuationRate As Single = 6, Optional ByVal setPreFftFilteringKernelSize As Integer = 2000,
                    Optional ByVal setPreFftFilteringAnalysisWindowSize As Integer = 1024,
@@ -383,8 +383,8 @@ Namespace Audio
 
                 SpectrogramCutFrequency = setSpectrogramCutFrequency
                 SpectrogramFftFormat = New FftFormat(spectrogramAnalysisWindowSize, spectrogramFftSize, spectrogramAnalysisWindowOverlapSize, spectrogramWindowingMethod, InActivateWarnings)
-                SpectrogramPreFilterKernelFftFormat = New FftFormat(PreFftFilteringKernelCreationAnalysisWindowSize,,, WindowingType.Hamming, InActivateWarnings) 'TODO should there be a windowing function specified here?
-                SpectrogramPreFirFilterFftFormat = New FftFormat(PreFftFilteringAnalysisWindowSize,,, WindowingType.Hamming, InActivateWarnings) 'TODO should there be a windowing function specified here?
+                SpectrogramPreFilterKernelFftFormat = New FftFormat(PreFftFilteringKernelCreationAnalysisWindowSize,,, DSP.WindowingType.Hamming, InActivateWarnings) 'TODO should there be a windowing function specified here?
+                SpectrogramPreFirFilterFftFormat = New FftFormat(PreFftFilteringAnalysisWindowSize,,, DSP.WindowingType.Hamming, InActivateWarnings) 'TODO should there be a windowing function specified here?
 
             End Sub
 

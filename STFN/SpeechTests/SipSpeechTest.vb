@@ -198,7 +198,7 @@ Public Class SipSpeechTest
                         'Drawing two random MaskerLocations
                         Dim CurrentMaskerLocations As New List(Of SoundSourceLocation)
                         Dim SelectedMaskerIndices As New List(Of Integer)
-                        SelectedMaskerIndices.AddRange(SampleWithoutReplacement(NumberOfSimultaneousMaskers, 0, MaskerLocations.Length, SipTestMeasurement.Randomizer))
+                        SelectedMaskerIndices.AddRange(DSP.SampleWithoutReplacement(NumberOfSimultaneousMaskers, 0, MaskerLocations.Length, SipTestMeasurement.Randomizer))
                         For Each RandomIndex In SelectedMaskerIndices
                             CurrentMaskerLocations.Add(MaskerLocations(RandomIndex))
                         Next
@@ -556,7 +556,7 @@ Public Class SipSpeechTest
             Next
 
             'Shuffling the order of response alternatives
-            ResponseAlternatives = Shuffle(ResponseAlternatives, Randomizer).ToList
+            ResponseAlternatives = DSP.Shuffle(ResponseAlternatives, Randomizer).ToList
         End If
 
         CurrentTestTrial.ResponseAlternativeSpellings.Add(ResponseAlternatives)

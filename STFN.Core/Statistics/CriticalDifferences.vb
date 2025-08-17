@@ -582,10 +582,10 @@
         Select Case Floor.Length
             Case 0
                 Dim CommonFloor As Double = 0
-                Floor = Utils.Repeat(CommonFloor, X.Length)
+                Floor = DSP.Repeat(CommonFloor, X.Length)
             Case 1
                 Dim CommonFloor As Double = Floor(0)
-                Floor = Utils.Repeat(CommonFloor, X.Length)
+                Floor = DSP.Repeat(CommonFloor, X.Length)
             Case X.Length
                 'Already correct length. No need to do anything.
             Case Else

@@ -512,11 +512,11 @@ Namespace Audio
 
                     'Low-pass filter
                     Dim LpFirFilter_FftFormat = New Formats.FftFormat(1024 * 4,,,, True)
-                    Dim ReusedLpFirKernel As Audio.Sound = Audio.GenerateSound.CreateSpecialTypeImpulseResponse(Me.ParentSound.WaveFormat, LpFirFilter_FftFormat, 4000, , FilterType.LinearAttenuationAboveCF_dBPerOctave, 15,,,, 25,, True)
+                    Dim ReusedLpFirKernel As Audio.Sound = DSP.CreateSpecialTypeImpulseResponse(Me.ParentSound.WaveFormat, LpFirFilter_FftFormat, 4000, , DSP.FilterType.LinearAttenuationAboveCF_dBPerOctave, 15,,,, 25,, True)
 
                     'High-pass filterring the sound to reduce vibration influences
                     Dim HpFirFilter_FftFormat = New Formats.FftFormat(1024 * 4,,,, True)
-                    Dim ReusedHpFirKernel As Audio.Sound = Audio.GenerateSound.CreateSpecialTypeImpulseResponse(Me.ParentSound.WaveFormat, HpFirFilter_FftFormat, 4000, , FilterType.LinearAttenuationBelowCF_dBPerOctave, 100,,,, 25,, True)
+                    Dim ReusedHpFirKernel As Audio.Sound = DSP.CreateSpecialTypeImpulseResponse(Me.ParentSound.WaveFormat, HpFirFilter_FftFormat, 4000, , DSP.FilterType.LinearAttenuationBelowCF_dBPerOctave, 100,,,, 25,, True)
 
                     For s = 0 To Me.ChannelData(CurrentChannel).Count - 1
 
@@ -524,7 +524,7 @@ Namespace Audio
 
                         Dim SentenceSoundCopy = SentenceSmaComponent.GetSoundFileSection(CurrentChannel)
 
-                        Dim FilterredSound As Audio.Sound = Audio.DSP.FIRFilter(SentenceSoundCopy, ReusedHpFirKernel, HpFirFilter_FftFormat,,,,,, True, True)
+                        Dim FilterredSound As Audio.Sound = DSP.FIRFilter(SentenceSoundCopy, ReusedHpFirKernel, HpFirFilter_FftFormat,,,,,, True, True)
 
                         'Detecting the start position, and level, of the loudest 25 ms window
                         Dim WindowSize As Integer = 0.025 * ParentSound.WaveFormat.SampleRate
@@ -546,7 +546,7 @@ Namespace Audio
 
                         'SmoothNonSound.WriteWaveFile("C:\Temp\PreFilt.wav")
 
-                        Dim FilterredLevelArray As Audio.Sound = Audio.DSP.FIRFilter(SmoothNonSound, ReusedLpFirKernel, LpFirFilter_FftFormat,,,,,, True, True)
+                        Dim FilterredLevelArray As Audio.Sound = DSP.FIRFilter(SmoothNonSound, ReusedLpFirKernel, LpFirFilter_FftFormat,,,,,, True, True)
 
                         'ReusedLpFirKernel.WriteWaveFile("C:\Temp\Kern.wav")
 
@@ -691,7 +691,7 @@ Namespace Audio
 
                 'Creating a silent sound with the length of IntervalLength - 2 * FadedMarginLength to insert between the sentence level segments
                 Dim SilenceLength As Integer = IntervalLength - 2 * FadedMarginLength
-                Dim SilentSound = Audio.GenerateSound.CreateSilence(ParentSound.WaveFormat, CurrentChannel, SilenceLength, TimeUnits.samples)
+                Dim SilentSound = DSP.CreateSilence(ParentSound.WaveFormat, CurrentChannel, SilenceLength, TimeUnits.samples)
 
                 Dim SentenceSoundSections As New List(Of Sound)
                 'Getting all sentence sound sections including a margin of FadedMarginTime
@@ -733,8 +733,8 @@ Namespace Audio
 
                     'Fading the margins
                     If FadeInterval = True Then
-                        Audio.DSP.Fade(SentenceSound,, 0, CurrentChannel, 0, FadedMarginLength, FadeType, CosinePower)
-                        Audio.DSP.Fade(SentenceSound, 0, , CurrentChannel, SentenceData.Length - FadedMarginLength, FadedMarginLength, FadeType, CosinePower)
+                        DSP.Fade(SentenceSound,, 0, CurrentChannel, 0, FadedMarginLength, FadeType, CosinePower)
+                        DSP.Fade(SentenceSound, 0, , CurrentChannel, SentenceData.Length - FadedMarginLength, FadedMarginLength, FadeType, CosinePower)
                     End If
 
                     'Adding the sentence sound
@@ -748,7 +748,7 @@ Namespace Audio
                 Next
 
                 'Concatenates the sounds
-                Dim ConcatenatedSound = Audio.DSP.ConcatenateSounds(SentenceSoundSections)
+                Dim ConcatenatedSound = DSP.ConcatenateSounds(SentenceSoundSections)
 
                 'Storing the concatenated sound array in Me.ParentSound
                 Me.ParentSound.WaveData.SampleData(CurrentChannel) = ConcatenatedSound.WaveData.SampleData(CurrentChannel)
@@ -1451,7 +1451,7 @@ Namespace Audio
                 ''' <param name="AttemptedMeasurementCount">The number of attempted measurements</param>
                 ''' <param name="SuccesfullMeasurementsCount">The number of successful measurements</param>
                 Public Sub MeasureSoundLevels(ByVal IncludeCriticalBandLevels As Boolean, ByVal c As Integer, ByRef AttemptedMeasurementCount As Integer, ByRef SuccesfullMeasurementsCount As Integer,
-                                              Optional BandInfo As Audio.DSP.BandBank = Nothing,
+                                              Optional BandInfo As DSP.BandBank = Nothing,
                                          Optional FftFormat As Audio.Formats.FftFormat = Nothing)
 
                     Dim ParentSound = ParentSMA.ParentSound
@@ -1466,13 +1466,13 @@ Namespace Audio
 
                             'Measuring UnWeightedLevel
                             UnWeightedLevel = Nothing
-                            UnWeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB)
+                            UnWeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, DSP.SoundDataUnit.dB)
                             AttemptedMeasurementCount += 1
                             If UnWeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
                             'Meaures UnWeightedPeakLevel
                             UnWeightedPeakLevel = Nothing
-                            UnWeightedPeakLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB, SoundMeasurementType.AbsolutePeakAmplitude)
+                            UnWeightedPeakLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, DSP.SoundDataUnit.dB, DSP.SoundMeasurementType.AbsolutePeakAmplitude)
                             AttemptedMeasurementCount += 1
                             If UnWeightedPeakLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
 
@@ -1483,7 +1483,7 @@ Namespace Audio
                                                                                      GetTimeWeighting() * ParentSound.WaveFormat.SampleRate,
                                                                                       StartSample, Length, , GetFrequencyWeighting, True)
                             Else
-                                WeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, SoundDataUnit.dB, SoundMeasurementType.RMS, GetFrequencyWeighting)
+                                WeightedLevel = DSP.MeasureSectionLevel(ParentSound, c, StartSample, Length, DSP.SoundDataUnit.dB, DSP.SoundMeasurementType.RMS, GetFrequencyWeighting)
                             End If
                             AttemptedMeasurementCount += 1
                             If WeightedLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
@@ -1495,7 +1495,7 @@ Namespace Audio
                                 Dim SoundFileSection = Me.GetSoundFileSection(c)
 
                                 'Calculating and storing the band levels
-                                Dim TempBandLevelList = Audio.DSP.CalculateBandLevels(SoundFileSection, 1, BandInfo)
+                                Dim TempBandLevelList = DSP.CalculateBandLevels(SoundFileSection, 1, BandInfo)
                                 AttemptedMeasurementCount += 1
                                 If TempBandLevelList IsNot Nothing Then
                                     SuccesfullMeasurementsCount += 1
@@ -1533,7 +1533,7 @@ Namespace Audio
                 Public Function GetSpectrumLevels(Optional ByVal dBSPL_FSdifference As Double? = Nothing) As Double()
 
                     'Setting default dBSPL_FSdifference 
-                    If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Audio.Standard_dBFS_dBSPL_Difference
+                    If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = DSP.Standard_dBFS_dBSPL_Difference
 
                     Dim SpectrumLevelList As New List(Of Double)
                     If BandLevels.Length = BandWidths.Length Then
@@ -1545,7 +1545,7 @@ Namespace Audio
 
                             'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
                             'Dim SpectrumLevel As Double = BandLevel_SPL - 10 * Math.Log10(BandWidths(i) / 1)
-                            Dim SpectrumLevel As Double = Audio.DSP.BandLevel2SpectrumLevel(BandLevel_SPL, BandWidths(i))
+                            Dim SpectrumLevel As Double = DSP.BandLevel2SpectrumLevel(BandLevel_SPL, BandWidths(i))
                             SpectrumLevelList.Add(SpectrumLevel)
                         Next
                     End If
@@ -1575,7 +1575,7 @@ Namespace Audio
                                 'Aborting measurements if the current channel InitialPeak is already set (-1 is the default/unmeasured value)
                                 'Measures UnWeightedPeakLevel of each word using Z-weighting
                                 Dim UnWeightedPeakLevel As Double?
-                                UnWeightedPeakLevel = DSP.MeasureSectionLevel(MeasurementSound, c, StartSample, Length, SoundDataUnit.linear, SoundMeasurementType.AbsolutePeakAmplitude)
+                                UnWeightedPeakLevel = DSP.MeasureSectionLevel(MeasurementSound, c, StartSample, Length, DSP.SoundDataUnit.linear, DSP.SoundMeasurementType.AbsolutePeakAmplitude)
 
                                 AttemptedMeasurementCount += 1
                                 If UnWeightedPeakLevel IsNot Nothing Then SuccesfullMeasurementsCount += 1
@@ -2352,7 +2352,7 @@ Namespace Audio
 
                     'Getting the current peak amplitude
                     'Meaures UnWeightedPeakLevel
-                    Dim CurrentPeakAmplitude As Double? = DSP.MeasureSectionLevel(MeasurementSound, MeasurementChannel, Me.StartSample, Me.Length, SoundDataUnit.dB, SoundMeasurementType.AbsolutePeakAmplitude)
+                    Dim CurrentPeakAmplitude As Double? = DSP.MeasureSectionLevel(MeasurementSound, MeasurementChannel, Me.StartSample, Me.Length, DSP.SoundDataUnit.dB, DSP.SoundMeasurementType.AbsolutePeakAmplitude)
 
                     'Returns nothing if measurement failed 
                     If CurrentPeakAmplitude Is Nothing Then
@@ -2360,7 +2360,7 @@ Namespace Audio
                     End If
 
                     'Converting the initial peak amplitude to dB
-                    Dim InitialPeakLevel As Double = dBConversion(Me.InitialPeak, dBConversionDirection.to_dB, MeasurementSound.WaveFormat)
+                    Dim InitialPeakLevel As Double = DSP.dBConversion(Me.InitialPeak, DSP.dBConversionDirection.to_dB, MeasurementSound.WaveFormat)
 
                     'Getting the currently applied gain
                     Dim Gain As Double = CurrentPeakAmplitude - InitialPeakLevel
@@ -2384,19 +2384,19 @@ Namespace Audio
                             Dim FadeLength As Integer = Math.Min(SoftEdgeSamples, Math.Floor(Length / 10))
                             If FadeLength = 0 Then
                                 'Amplifies the whole section
-                                Audio.DSP.AmplifySection(ParentSMA.ParentSound, Gain, CurrentChannel, StartSample, Length)
+                                DSP.AmplifySection(ParentSMA.ParentSound, Gain, CurrentChannel, StartSample, Length)
                             Else
 
                                 'Fades in and out during fade length number of samples
-                                Audio.DSP.Fade(ParentSMA.ParentSound, 0, -Gain, CurrentChannel, StartSample, FadeLength)
-                                Audio.DSP.AmplifySection(ParentSMA.ParentSound, Gain, CurrentChannel, StartSample + FadeLength, Length - 2 * FadeLength)
-                                Audio.DSP.Fade(ParentSMA.ParentSound, 0, -Gain, CurrentChannel, StartSample + Length - FadeLength, FadeLength)
+                                DSP.Fade(ParentSMA.ParentSound, 0, -Gain, CurrentChannel, StartSample, FadeLength)
+                                DSP.AmplifySection(ParentSMA.ParentSound, Gain, CurrentChannel, StartSample + FadeLength, Length - 2 * FadeLength)
+                                DSP.Fade(ParentSMA.ParentSound, 0, -Gain, CurrentChannel, StartSample + Length - FadeLength, FadeLength)
 
                             End If
 
                         Else
                             'Applies gain
-                            Audio.DSP.AmplifySection(ParentSMA.ParentSound, Gain, CurrentChannel, StartSample, Length)
+                            DSP.AmplifySection(ParentSMA.ParentSound, Gain, CurrentChannel, StartSample, Length)
                         End If
 
                         ParentSMA.ParentSound.SetIsChangedManually(True)

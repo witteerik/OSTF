@@ -633,7 +633,7 @@ Public Class SpeechMaterialComponent
                 'Creating a padding sound if needed
                 If Paddinglength.HasValue Then
                     If PaddingSound Is Nothing Then
-                        PaddingSound = Audio.GenerateSound.CreateSilence(CurrentComponentSound.WaveFormat,, Paddinglength.Value, Audio.BasicAudioEnums.TimeUnits.samples)
+                        PaddingSound = DSP.CreateSilence(CurrentComponentSound.WaveFormat,, Paddinglength.Value, Audio.BasicAudioEnums.TimeUnits.samples)
                     End If
                     If i = 0 Then
                         'Adding initial padding sound
@@ -675,7 +675,7 @@ Public Class SpeechMaterialComponent
                     If i <> CorrespondingSmaComponentList.Count - 1 Then
                         'Creating a inter-stimulus sound if needed
                         If SilentInterStimulusSound Is Nothing Then
-                            SilentInterStimulusSound = Audio.GenerateSound.CreateSilence(CurrentComponentSound.WaveFormat,, InterComponentlength.Value, Audio.BasicAudioEnums.TimeUnits.samples)
+                            SilentInterStimulusSound = DSP.CreateSilence(CurrentComponentSound.WaveFormat,, InterComponentlength.Value, Audio.BasicAudioEnums.TimeUnits.samples)
                         End If
 
                         'Adding the interstimulus sound
@@ -750,7 +750,7 @@ Public Class SpeechMaterialComponent
             If SoundList.Count = 1 Then
                 ReturnSound = SoundList(0) ' Directly referencing the return sound
             ElseIf SoundList.Count > 0 Then
-                ReturnSound = Audio.DSP.ConcatenateSounds(SoundList, ,,,,, CrossFadeLength)
+                ReturnSound = DSP.ConcatenateSounds(SoundList, ,,,,, CrossFadeLength)
             End If
 
             If ReturnSound IsNot Nothing Then
@@ -1143,16 +1143,16 @@ Public Class SpeechMaterialComponent
         Next
 
         'Concatenates the sounds
-        Dim ConcatenatedSound = Audio.DSP.ConcatenateSounds(SoundSectionList, False,,,,, ComponentCrossFadeDuration * WaveFormat.SampleRate, False, 10, True)
+        Dim ConcatenatedSound = DSP.ConcatenateSounds(SoundSectionList, False,,,,, ComponentCrossFadeDuration * WaveFormat.SampleRate, False, 10, True)
 
         'Fading very slightly to avoid initial and final impulses
         If FadeConcatenatedSound = True Then
-            Audio.DSP.Fade(ConcatenatedSound, Nothing, 0,,, ConcatenatedSound.WaveFormat.SampleRate * 0.01, Audio.DSP.FadeSlopeType.Linear)
-            Audio.DSP.Fade(ConcatenatedSound, 0, Nothing,, ConcatenatedSound.WaveData.SampleData(1).Length - ConcatenatedSound.WaveFormat.SampleRate * 0.01,, Audio.DSP.FadeSlopeType.Linear)
+            DSP.Fade(ConcatenatedSound, Nothing, 0,,, ConcatenatedSound.WaveFormat.SampleRate * 0.01, DSP.FadeSlopeType.Linear)
+            DSP.Fade(ConcatenatedSound, 0, Nothing,, ConcatenatedSound.WaveData.SampleData(1).Length - ConcatenatedSound.WaveFormat.SampleRate * 0.01,, DSP.FadeSlopeType.Linear)
         End If
 
         'Removing DC-component
-        If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(ConcatenatedSound)
+        If RemoveDcComponent = True Then DSP.RemoveDcComponent(ConcatenatedSound)
 
         Return ConcatenatedSound
 
@@ -1245,16 +1245,16 @@ Public Class SpeechMaterialComponent
             Next
 
             'Concatenates the sounds
-            Dim ConcatenatedSound = Audio.DSP.ConcatenateSounds(SoundSectionList, False,,,,, ComponentCrossFadeDuration * WaveFormat.SampleRate, False, 10, True)
+            Dim ConcatenatedSound = DSP.ConcatenateSounds(SoundSectionList, False,,,,, ComponentCrossFadeDuration * WaveFormat.SampleRate, False, 10, True)
 
             'Fading very slightly to avoid initial and final impulses
             If FadeConcatenatedSound = True Then
-                Audio.DSP.Fade(ConcatenatedSound, Nothing, 0,,, ConcatenatedSound.WaveFormat.SampleRate * 0.01, Audio.DSP.FadeSlopeType.Linear)
-                Audio.DSP.Fade(ConcatenatedSound, 0, Nothing,, ConcatenatedSound.WaveData.SampleData(1).Length - ConcatenatedSound.WaveFormat.SampleRate * 0.01,, Audio.DSP.FadeSlopeType.Linear)
+                DSP.Fade(ConcatenatedSound, Nothing, 0,,, ConcatenatedSound.WaveFormat.SampleRate * 0.01, DSP.FadeSlopeType.Linear)
+                DSP.Fade(ConcatenatedSound, 0, Nothing,, ConcatenatedSound.WaveData.SampleData(1).Length - ConcatenatedSound.WaveFormat.SampleRate * 0.01,, DSP.FadeSlopeType.Linear)
             End If
 
             'Removing DC-component
-            If RemoveDcComponent = True Then Audio.DSP.RemoveDcComponent(ConcatenatedSound)
+            If RemoveDcComponent = True Then DSP.RemoveDcComponent(ConcatenatedSound)
 
             OutputSounds.Add(ConcatenatedSound)
 
@@ -2813,7 +2813,7 @@ Public Class SpeechMaterialComponent
 
         Dim n As Integer = Math.Min(AllDescenents.Count, Max)
 
-        Dim RandomIndices = Utils.SampleWithoutReplacement(n, 0, AllDescenents.Count, Randomizer)
+        Dim RandomIndices = DSP.SampleWithoutReplacement(n, 0, AllDescenents.Count, Randomizer)
         For i = 0 To RandomIndices.Length - 1
             Output.Add(AllDescenents(RandomIndices(i)))
         Next
@@ -3080,8 +3080,8 @@ Public Class SpeechMaterialComponent
                 If CustomVariableNames.Trim <> "" Then
                     CurrentCustomVariablesOutputList.Add(CustomVariableNames)
 
-                    Dim CategoricalVariableTypes = Utils.Repeat("C", CategoricalVariableNames.Count).ToList
-                    Dim NumericVariableTypes = Utils.Repeat("N", NumericVariableNames.Count).ToList
+                    Dim CategoricalVariableTypes = DSP.Repeat("C", CategoricalVariableNames.Count).ToList
+                    Dim NumericVariableTypes = DSP.Repeat("N", NumericVariableNames.Count).ToList
                     Dim CustomVariableTypesList As New List(Of String)
                     CustomVariableTypesList.AddRange(CategoricalVariableTypes)
                     CustomVariableTypesList.AddRange(NumericVariableTypes)
@@ -3180,7 +3180,7 @@ Public Class SpeechMaterialComponent
                 Case NumericSummaryMetricTypes.CoefficientOfVariation
 
                     'Storing the result
-                    Dim SummaryResult As Double = Utils.CoefficientOfVariation(ValueList)
+                    Dim SummaryResult As Double = DSP.CoefficientOfVariation(ValueList)
                     Me.SetNumericVariableValue(VariableNameSourceLevelPrefix & "CV_" & CustomVariableName, SummaryResult)
 
             End Select

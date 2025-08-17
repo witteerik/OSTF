@@ -155,13 +155,13 @@ Public Class HTT23SpeechTest
         Next
 
         'Adding familiarization words in randomized order
-        Dim RandomizedOrder1 = Utils.SampleWithoutReplacement(FamiliarizationWords.Count, 0, FamiliarizationWords.Count, Randomizer)
+        Dim RandomizedOrder1 = DSP.SampleWithoutReplacement(FamiliarizationWords.Count, 0, FamiliarizationWords.Count, Randomizer)
         For Each RandomIndex In RandomizedOrder1
             PlannedFamiliarizationWords.Add(FamiliarizationWords(RandomIndex))
         Next
 
         'Adding test words in randomized order
-        Dim RandomizedOrder2 = Utils.SampleWithoutReplacement(TestStageWords.Count, 0, TestStageWords.Count, Randomizer)
+        Dim RandomizedOrder2 = DSP.SampleWithoutReplacement(TestStageWords.Count, 0, TestStageWords.Count, Randomizer)
         For Each RandomIndex In RandomizedOrder2
             PlannedTestWords.Add(TestStageWords(RandomIndex))
         Next

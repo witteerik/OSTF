@@ -120,52 +120,6 @@ Namespace Audio
 
         End Function
 
-        '''' <summary>
-        '''' 'This sub checks to see if the values given for startSample and sectionLength is too high or below zero.
-        '''' If startSample is below 0, it is set to 0. If it is higher than the length of the array, it is set to the last sampe in the array.
-        '''' If sectionlength is below zero, it is set to 0. If it is too long for the array, it changed to fit within the length of the array.
-        '''' </summary>
-        '''' <param name="inputArrayLength">The length of the input array.</param>
-        '''' <param name="startSample">The index of the start sample.</param>
-        '''' <param name="sectionLength">The length of the section in samples. If the input value is Nothing, then sectionLength is set to the length of the rest of the sound.</param>
-        '''' <returns>Returns True if any of startSample or sectionLength was corrected, and False if no correction was made.</returns>
-        'Public Function CheckAndCorrectSectionLength(ByVal inputArrayLength As Double, ByRef startSample As Integer, ByRef sectionLength As Integer?) As Boolean
-
-        '    Dim modified As Integer = 0
-
-        '    If startSample < 0 Then
-        '        startSample = 0
-        '        modified += 1
-        '    End If
-
-        '    If startSample > inputArrayLength - 1 Then
-        '        startSample = inputArrayLength - 1
-        '        modified += 1
-        '    End If
-
-        '    If sectionLength Is Nothing Then
-        '        sectionLength = inputArrayLength
-        '        modified += 1
-        '    End If
-
-        '    If sectionLength < 0 Then
-        '        sectionLength = 0
-        '        modified += 1
-        '    End If
-
-        '    If sectionLength > inputArrayLength - startSample Then
-        '        sectionLength = inputArrayLength - startSample
-        '        modified += 1
-        '    End If
-
-        '    If modified > 0 Then
-        '        Return True
-        '    Else
-        '        Return False
-        '    End If
-
-        'End Function
-
 
 
         ''' <summary>
@@ -196,93 +150,12 @@ Namespace Audio
             End Select
         End Function
 
-        Public Enum dBTypes
-            SoundPressure
-            SoundPower
-        End Enum
+        Public Sub CheckChannelValue(ByRef channelValue As Integer, ByVal upperBound As Integer)
+            If channelValue < 1 Then Throw New Exception("Channel value cannot be lower than 1.")
+            If channelValue > upperBound Then Throw New Exception("The referred instance does not have " & channelValue & " channels.")
+        End Sub
 
-        Public Function dBConversion(ByVal inputValue As Double, ByVal conversionDirection As dBConversionDirection,
-                                     ByVal soundFormat As Formats.WaveFormat,
-                                     Optional ByVal dBConversionType As dBTypes = dBTypes.SoundPressure) As Double
 
-            Try
-
-                Dim posFS As Double = soundFormat.PositiveFullScale
-
-                Select Case dBConversionType
-                    Case dBTypes.SoundPressure
-                        Select Case conversionDirection
-                            Case dBConversionDirection.to_dB
-                                Dim dBFS = 20 * Math.Log10(inputValue / posFS)
-                                Return dBFS
-                            Case dBConversionDirection.from_dB
-                                Dim RMS As Double = posFS * 10 ^ (inputValue / 20)
-                                Return RMS
-                            Case Else
-                                Throw New ArgumentException("Invalid conversionDirection")
-                        End Select
-
-                    Case dBTypes.SoundPower
-                        Select Case conversionDirection
-                            Case dBConversionDirection.to_dB
-                                Dim dBFS = 10 * Math.Log10(inputValue / posFS)
-                                Return dBFS
-                            Case dBConversionDirection.from_dB
-                                Dim RMS As Double = posFS * 10 ^ (inputValue / 10)
-                                Return RMS
-                            Case Else
-                                Throw New ArgumentException("Invalid conversionDirection")
-                        End Select
-                    Case Else
-                        Throw New ArgumentException("Invalid dBConversionType")
-                End Select
-
-            Catch ex As Exception
-                MsgBox(ex.ToString)
-                Return Nothing
-            End Try
-
-        End Function
-
-        Public Enum SoundMeasurementType
-            RMS 'Measuring the RMS value
-            AbsolutePeakAmplitude 'Measuring the absolute peak amplidude
-            averageAbsoluteAmplitude 'Measuring the average absolute valued amplidude
-        End Enum
-
-        Public Enum SoundDataUnit
-            dB
-            linear
-            unity
-        End Enum
-
-        Public Enum dBConversionDirection
-            to_dB
-            from_dB
-        End Enum
-
-        ''' <summary>
-        ''' Holds the simulated sound field output level of a 1 kHz sine wave at an (hypothetical) RMS level of 0 dBFS. 
-        ''' </summary>
-        Public Const Standard_dBFS_dBSPL_Difference As Double = 100
-
-        ''' <summary>
-        ''' Converts the sound pressure level given by InputSPL to a value in dB FS using the conversion value given by Standard_dBFS_dBSPL_Difference
-        ''' </summary>
-        ''' <param name="InputSPL"></param>
-        ''' <returns></returns>
-        Public Function Standard_dBSPL_To_dBFS(ByVal InputSPL As Double) As Double
-            Return InputSPL - Standard_dBFS_dBSPL_Difference
-        End Function
-
-        ''' <summary>
-        ''' Converts the full scale sound level given by InputFS to a sound pressure level value using the conversion value given by Standard_dBFS_dBSPL_Difference
-        ''' </summary>
-        ''' <param name="InputFS"></param>
-        ''' <returns></returns>
-        Public Function Standard_dBFS_To_dBSPL(ByVal InputFS As Double) As Double
-            Return Standard_dBFS_dBSPL_Difference + InputFS
-        End Function
 
 
     End Module

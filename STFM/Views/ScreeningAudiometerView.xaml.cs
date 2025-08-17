@@ -43,7 +43,7 @@ public partial class ScreeningAudiometerView : ContentView
 
         WaveFormat = new STFN.Core.Audio.Formats.WaveFormat(48000,32, 2,"", STFN.Core.Audio.Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints );
 
-        silentSound = STFN.Core.Audio.GenerateSound.Signals.CreateSilence(ref this.WaveFormat, null, 3);
+        silentSound = STFN.Core.DSP.CreateSilence(ref this.WaveFormat, null, 3);
 
         Frequencies = new List<int>() { 125, 250, 500, 750, 1000, 1500, 2000, 3000, 4000, 6000, 8000 };
         Levels = new List<double>() { 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70 };
@@ -173,7 +173,7 @@ public partial class ScreeningAudiometerView : ContentView
 
         double RetSplCorrectedLevel = level + RetSplList[frequency];
         double CalibratedRetSplCorrectedLevel = RetSplCorrectedLevel + PureToneCalibrationList[frequency];
-        double RetSplCorrectedLevel_FS = STFN.Core.Audio.AudioManagement.Standard_dBSPL_To_dBFS(CalibratedRetSplCorrectedLevel);
+        double RetSplCorrectedLevel_FS = STFN.Core.DSP.Standard_dBSPL_To_dBFS(CalibratedRetSplCorrectedLevel);
 
         // Here, to make sure the tone does not get in distorted integer sound formats, we should also add the output channel specific general calibration gain added by the sound player and which we can get from:
         // var CurrentMixer = OstfBase.SoundPlayer.GetMixer();
@@ -214,14 +214,14 @@ public partial class ScreeningAudiometerView : ContentView
             switch (side)
             {
                 case SignalSides.Left:
-                    newSine = STFN.Core.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,1, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Core.Audio.AudioManagement.SoundDataUnit.dB, MaxSoundDuration);
-                    STFN.Core.Audio.DSP.Transformations.Fade(ref newSine, null, 0, 1, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Core.Audio.DSP.Transformations.FadeSlopeType.Linear);
-                    STFN.Core.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.1),null, STFN.Core.Audio.DSP.Transformations.FadeSlopeType.Linear);
+                    newSine = STFN.Core.DSP.CreateSineWave(ref this.WaveFormat,1, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Core.DSP.SoundDataUnit.dB, MaxSoundDuration);
+                    STFN.Core.DSP.Fade(ref newSine, null, 0, 1, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Core.DSP.FadeSlopeType.Linear);
+                    STFN.Core.DSP.Fade(ref newSine, 0, null, 1, (int)(-WaveFormat.SampleRate * 0.1),null, STFN.Core.DSP.FadeSlopeType.Linear);
                     break;
                 case SignalSides.Right:
-                    newSine = STFN.Core.Audio.GenerateSound.Signals.CreateSineWave(ref this.WaveFormat,2, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Core.Audio.AudioManagement.SoundDataUnit.dB, MaxSoundDuration);
-                    STFN.Core.Audio.DSP.Transformations.Fade(ref newSine, null, 0, 2, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Core.Audio.DSP.Transformations.FadeSlopeType.Linear);
-                    STFN.Core.Audio.DSP.Transformations.Fade(ref newSine, 0, null, 2, (int)(-WaveFormat.SampleRate * 0.1),null, STFN.Core.Audio.DSP.Transformations.FadeSlopeType.Linear);
+                    newSine = STFN.Core.DSP.CreateSineWave(ref this.WaveFormat,2, frequency, (decimal)RetSplCorrectedLevel_FS, STFN.Core.DSP.SoundDataUnit.dB, MaxSoundDuration);
+                    STFN.Core.DSP.Fade(ref newSine, null, 0, 2, 0, (int)(WaveFormat.SampleRate * 0.1), STFN.Core.DSP.FadeSlopeType.Linear);
+                    STFN.Core.DSP.Fade(ref newSine, 0, null, 2, (int)(-WaveFormat.SampleRate * 0.1),null, STFN.Core.DSP.FadeSlopeType.Linear);
                     break;
                 default:
                     throw new Exception("Invalid value for sides");
