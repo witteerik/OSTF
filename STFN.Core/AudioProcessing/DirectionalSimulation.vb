@@ -18,7 +18,7 @@ Public Class DirectionalSimulation
 
             If AvailableIrSets(i).Trim = "" Then Continue For
             If AvailableIrSets(i).Trim.StartsWith("//") Then Continue For
-            Dim ImpulseResponseSetSpecificationFile = Utils.NormalizeCrossPlatformPath(IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, AvailableIrSets(i)))
+            Dim ImpulseResponseSetSpecificationFile = Utils.GeneralIO.NormalizeCrossPlatformPath(IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.RoomImpulsesSubDirectory, AvailableIrSets(i)))
             If IO.File.Exists(ImpulseResponseSetSpecificationFile) = False Then Continue For
 
             Dim NewBinauralImpulseReponseSet = New BinauralImpulseReponseSet(ImpulseResponseSetSpecificationFile)
@@ -388,8 +388,8 @@ Public Class StereoKernel
             End If
 
             If ExportSoundFiles = True Then
-                TestSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrDelays", IrSetName & "_" & GetExportName() & "Channel_" & Channel & "_Delay_" & Delay & "_OriginalSound.wav"))
-                ConvolutedSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrDelays", IrSetName & "_" & GetExportName() & "Channel_" & Channel & "_Delay_" & Delay & "_ConvolutedSound.wav"))
+                TestSound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "IrDelays", IrSetName & "_" & GetExportName() & "Channel_" & Channel & "_Delay_" & Delay & "_OriginalSound.wav"))
+                ConvolutedSound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "IrDelays", IrSetName & "_" & GetExportName() & "Channel_" & Channel & "_Delay_" & Delay & "_ConvolutedSound.wav"))
             End If
 
         Next
@@ -487,7 +487,7 @@ Public Class BinauralImpulseReponseSet
 
             If ReadSourceLocations = False Then
                 If Line.Trim.StartsWith("Name") Then Name = InputFileSupport.GetInputFileValue(Line, True)
-                If Line.Trim.StartsWith("ImpulseResponseSubFolder") Then ImpulseResponseFolder = Utils.NormalizeCrossPlatformPath(IO.Path.Combine(OstfBase.RoomImpulsesSubDirectory, InputFileSupport.InputFilePathValueParsing(Line, "", True)))
+                If Line.Trim.StartsWith("ImpulseResponseSubFolder") Then ImpulseResponseFolder = Utils.GeneralIO.NormalizeCrossPlatformPath(IO.Path.Combine(OstfBase.RoomImpulsesSubDirectory, InputFileSupport.InputFilePathValueParsing(Line, "", True)))
                 If Line.Trim.StartsWith("SampleRate") Then _SampleRate = InputFileSupport.InputFileIntegerValueParsing(Line, True, ImpulseResponseSetSpecificationFile)
                 If Line.Trim.StartsWith("<AvailableSourceLocations>") Then
                     Exit For
@@ -550,7 +550,7 @@ Public Class BinauralImpulseReponseSet
                 'Loading the sound file if needed
                 If LoadedSoundFiles.ContainsKey(SoundFile) = False Then
 
-                    Dim LoadedSound = Audio.Sound.LoadWaveFile(Utils.NormalizeCrossPlatformPath(IO.Path.Combine(MediaRootDirectory, ImpulseResponseFolder, SoundFile)))
+                    Dim LoadedSound = Audio.Sound.LoadWaveFile(Utils.GeneralIO.NormalizeCrossPlatformPath(IO.Path.Combine(MediaRootDirectory, ImpulseResponseFolder, SoundFile)))
                     Select Case LoadedSound.WaveFormat.BitDepth
                         Case 16
 
@@ -911,8 +911,8 @@ Public Class BinauralImpulseReponseSet
         Dim FilterGain As Double = PostLevel - PreLevel
 
         If ExportSoundFiles = True Then
-            TestSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "OriginalSound.wav"))
-            ConvolutedSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "IrGains", IrName & "Channel_" & Channel & "ConvolutedSound.wav"))
+            TestSound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "IrGains", IrName & "Channel_" & Channel & "OriginalSound.wav"))
+            ConvolutedSound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "IrGains", IrName & "Channel_" & Channel & "ConvolutedSound.wav"))
         End If
 
         Return FilterGain

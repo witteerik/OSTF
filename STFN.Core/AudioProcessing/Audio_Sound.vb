@@ -37,7 +37,7 @@ Namespace Audio
 
         Public Description As String = ""
 
-        Private _fileName As String
+        Protected _fileName As String
         Public Property FileName As String
             Get
                 Return _fileName
@@ -65,7 +65,7 @@ Namespace Audio
         ''' <returns></returns>
         Public ReadOnly Property WaveFormat As Formats.WaveFormat
 
-        Private _SMA As SpeechMaterialAnnotation
+        Protected _SMA As SpeechMaterialAnnotation
 
         ''' <summary>
         ''' Holds SMA type data (Speech Material Annotation)
@@ -94,7 +94,7 @@ Namespace Audio
         ''' A list that holds wave file chunks that were never parsed, but instead just kept as byte arrays. Thses should never be modified, lest wave file writing will break!
         ''' </summary>
         ''' <returns></returns>
-        Private UnparsedWaveChunks As New List(Of Byte())
+        Protected UnparsedWaveChunks As New List(Of Byte())
 
 
         ''' <summary>
@@ -133,7 +133,7 @@ Namespace Audio
             If Me.WaveData IsNot Nothing Then Me.WaveData.StoreUnchangedState()
         End Sub
 
-        Private ManuallySetIsChangedValue As Boolean?
+        Protected ManuallySetIsChangedValue As Boolean?
 
         ''' <summary>
         ''' The sub can be used to manually override the value returned by IsChanged
@@ -516,12 +516,12 @@ Namespace Audio
 
 
         <Serializable>
-        Class LocalWaveData
+        Public Class LocalWaveData
 
             <XmlIgnore>
-            Private ChangeDetector As Utils.ObjectChangeDetector
+            Protected ChangeDetector As Utils.GeneralIO.ObjectChangeDetector
             Public Sub StoreUnchangedState()
-                ChangeDetector = New Utils.ObjectChangeDetector(Me)
+                ChangeDetector = New Utils.GeneralIO.ObjectChangeDetector(Me)
                 ChangeDetector.SetUnchangedState()
             End Sub
 
@@ -533,7 +533,7 @@ Namespace Audio
                 End If
             End Function
 
-            Private _sampleData As List(Of Single())
+            Protected _sampleData As List(Of Single())
 
             ''' <summary>
             ''' Determines whether some none empty channels in the current instance of LocalWaveData has unequal lengths.
@@ -710,264 +710,6 @@ Namespace Audio
 #Region "IO"
 
 
-        ''' <summary>
-        ''' Reads a sound (.wav or .ptwf) from file and stores it in a new Sounds object.
-        ''' </summary>
-        ''' <param name="filePath">The file path to the file to read. If left empty a open file dialogue box will appear.</param>
-        ''' <param name="startReadTime"></param>
-        ''' <param name="stopReadTime"></param>
-        ''' <param name="inputTimeFormat"></param>
-        ''' <param name="StoreSourcePath">If set to True, the full path of the audio file from which the Sound object was created is stored in Sound.SourcePath.</param>
-        ''' <returns>Returns a new Sound containing the sound data from the input sound file.</returns>
-        Public Shared Function LoadWaveFile_Original(ByVal filePath As String,
-                                            Optional ByVal startReadTime As Decimal = 0,
-                                            Optional ByVal stopReadTime As Decimal = 0,
-                                            Optional ByVal inputTimeFormat As TimeUnits = TimeUnits.seconds,
-                                            Optional ByVal StoreSourcePath As Boolean = True,
-                                            Optional ByVal StoreUnchangedState As Boolean = False) As Sound
-
-            Try
-
-                Dim fileName As String = ""
-
-                'Finds out the filename
-                If Not filePath = "" Then fileName = Path.GetFileNameWithoutExtension(filePath)
-
-                'Creates a variable to hold data chunk size
-                Dim dataSize As UInteger = 0
-
-                Dim fileStreamRead As FileStream = New FileStream(filePath, FileMode.Open)
-                Dim reader As BinaryReader = New BinaryReader(fileStreamRead, Text.Encoding.UTF8)
-
-                'Starts reading
-
-                Dim chunkID As String = reader.ReadChars(4)
-                Dim fileSize As UInteger = reader.ReadUInt32
-                Dim riffType As String = reader.ReadChars(4)
-                'Abort if riffType is not WAVE
-                If Not riffType = "WAVE" Then
-                    Throw New Exception("The file is not a wave-file!")
-                End If
-
-                Dim fmtID As String
-                Dim fmtSize As UInteger
-                Dim fmtCode As UShort
-                Dim channels As UShort
-                Dim sampleRate As UInteger
-                Dim fmtAvgBPS As UInteger
-                Dim fmtBlockAlign As UShort
-                Dim bitDepth As UShort
-
-                Dim sound As Sound = Nothing
-                Dim FormatChunkIsRead As Boolean = False 'THis variable is used to ensure that the format chunk is read before the ptwf and the data chunks.
-
-                Dim UnparsedWaveChunks As New List(Of Byte())
-
-                'Chunks to ignore
-                Dim dataChunkFound As Boolean
-                While dataChunkFound = False
-
-                    Dim IDOfNextChunk As String = reader.ReadChars(4)
-                    Dim sizeOfNextChunk As UInteger = reader.ReadUInt32
-                    Select Case IDOfNextChunk
-
-                        Case "fmt "
-
-                            Dim fmtChunkStartPosition As Integer = reader.BaseStream.Position
-
-                            ' Reading the format chunk (not all data is stored)
-                            fmtID = IDOfNextChunk ' reader.ReadChars(4)
-                            fmtSize = sizeOfNextChunk ' reader.ReadUInt32
-                            fmtCode = reader.ReadUInt16
-                            channels = reader.ReadUInt16
-                            sampleRate = reader.ReadUInt32
-                            fmtAvgBPS = reader.ReadUInt32
-                            fmtBlockAlign = reader.ReadUInt16
-                            bitDepth = reader.ReadUInt16
-
-                            sound = New Sound(New Formats.WaveFormat(sampleRate, bitDepth, channels,, fmtCode))
-
-                            'Stores the source file path
-                            If StoreSourcePath = True Then
-                                sound.SourcePath = filePath
-                            End If
-
-                            'Checks to see if the whole of subchunk1 has been read
-                            While reader.BaseStream.Position < fmtChunkStartPosition + fmtSize
-                                reader.ReadByte()
-                            End While
-
-                            'Noting that the format chunk is read
-                            FormatChunkIsRead = True
-
-
-                        Case "iXML"
-
-                            Dim iXMLDataStartReadPosition As Integer = reader.BaseStream.Position
-
-                            'Copying iXML data to a new stream
-                            Dim iXMLStream As New MemoryStream
-                            For s = 0 To sizeOfNextChunk - 1
-                                iXMLStream.WriteByte(fileStreamRead.ReadByte)
-                            Next
-                            iXMLStream.Position = 0
-
-                            'Parsing the iXML data
-                            Dim iXMLdata = ParseiXMLString(iXMLStream)
-
-                            'Storing the data
-                            If iXMLdata.Item1 IsNot Nothing Then
-                                sound.SMA = iXMLdata.Item1
-                            End If
-                            If iXMLdata.Item2 IsNot Nothing Then
-                                sound.iXmlNodes = iXMLdata.Item2
-                            End If
-
-                            'Checks if a padding byte needs to be read
-                            Dim currentBaseStreamPosition As Integer = reader.BaseStream.Position
-                            If Not currentBaseStreamPosition Mod 2 = 0 Then
-                                reader.ReadByte()
-                            End If
-
-                        Case "data"
-
-                            'Aborting if the format chink has not yet been read
-                            If FormatChunkIsRead = False Then
-                                AudioError("The wave file has an unsupported internal structure.")
-                                Return Nothing
-                            End If
-
-                            dataChunkFound = True
-                            dataSize = sizeOfNextChunk
-
-                        Case Else
-                            Dim SizeOfUnknownChunk As UInteger = sizeOfNextChunk
-
-                            'Reads to the end of the chunk but does not save the data
-                            'Stores the unknown chunk so that it can be retained upon save
-                            UnparsedWaveChunks.Add(reader.ReadBytes(SizeOfUnknownChunk))
-
-                            'Reads any padding bytes
-                            If SizeOfUnknownChunk Mod 2 = 1 Then
-                                reader.ReadByte()
-                            End If
-
-                    End Select
-
-                End While
-
-                'Stores any detected UnparsedWaveChunks 
-                sound.UnparsedWaveChunks = UnparsedWaveChunks
-
-                Dim startReadDataPoint As Integer
-                Dim stopReadDataPoint As Integer
-
-                Select Case inputTimeFormat
-                    Case TimeUnits.seconds
-                        startReadDataPoint = startReadTime * sound.WaveFormat.SampleRate * sound.WaveFormat.Channels
-                        stopReadDataPoint = stopReadTime * sound.WaveFormat.SampleRate * sound.WaveFormat.Channels
-
-                    Case TimeUnits.samples
-                        startReadDataPoint = startReadTime * sound.WaveFormat.Channels
-                        stopReadDataPoint = stopReadTime * sound.WaveFormat.Channels
-
-                End Select
-
-                Dim soundIndexOfDataPoints As Integer = dataSize / (sound.WaveFormat.BitDepth / 8)
-
-                If stopReadTime = 0 Then
-                    stopReadDataPoint = soundIndexOfDataPoints - 1
-                End If
-
-                If stopReadDataPoint > soundIndexOfDataPoints Then
-                    stopReadDataPoint = soundIndexOfDataPoints - 1
-                End If
-
-                Dim numberOfDataPointsToRead As Integer = stopReadDataPoint + 1 - startReadDataPoint
-                Dim soundDataArray(numberOfDataPointsToRead - 1) As Double
-
-                If numberOfDataPointsToRead > 0 Then
-                    Select Case sound.WaveFormat.Encoding
-                        Case = Formats.WaveFormat.WaveFormatEncodings.PCM
-                            Select Case sound.WaveFormat.BitDepth
-                                Case 16
-                                    For n = 0 To startReadDataPoint - 1
-                                        reader.ReadInt16()
-                                    Next
-                                    For n = startReadDataPoint To stopReadDataPoint '- 1?
-                                        soundDataArray(n - startReadDataPoint) = reader.ReadInt16()
-                                        'MsgBox("Reading" & n - startReadDataPoint & " " & soundDataArray(n - startReadDataPoint))
-                                    Next
-
-                                Case 32
-                                    For n = 0 To startReadDataPoint - 1
-                                        reader.ReadInt32()
-                                    Next
-                                    For n = startReadDataPoint To stopReadDataPoint '- 1?
-                                        soundDataArray(n - startReadDataPoint) = reader.ReadInt32()
-                                        'MsgBox("Reading" & n - startReadDataPoint & " " & soundDataArray(n - startReadDataPoint))
-                                    Next
-
-                                Case Else
-                                    Throw New NotImplementedException("Reading of " & sound.WaveFormat.BitDepth & " bits PCM format is not yet supported.")
-                            End Select
-                        Case = Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
-                            Select Case sound.WaveFormat.BitDepth
-                                Case 32
-                                    For n = 0 To startReadDataPoint - 1
-                                        reader.ReadSingle()
-                                    Next
-                                    For n = startReadDataPoint To stopReadDataPoint '- 1?
-                                        soundDataArray(n - startReadDataPoint) = reader.ReadSingle()
-                                        'MsgBox("Reading" & n - startReadDataPoint & " " & soundDataArray(n - startReadDataPoint))
-                                    Next
-                                Case Else
-                                    Throw New NotImplementedException("Reading of " & sound.WaveFormat.BitDepth & " bits IEEE floating points format is not yet supported.")
-                            End Select
-                    End Select
-
-                Else
-                    If numberOfDataPointsToRead < 0 Then Throw New Exception("The number of data points to read was below zero.")
-                End If
-
-                fileStreamRead.Close()
-
-                'Dim  As Integer = sound.waveFormat.channels
-                If Not numberOfDataPointsToRead Mod channels = 0 Then Throw New Exception("ReadWaveFile detected unequal number of samples between the channels.")
-                Dim numberofDataPointsIneachChannelarray = (numberOfDataPointsToRead / channels)
-
-                For c = 1 To channels
-                    Dim channelData((numberofDataPointsIneachChannelarray) - 1) As Single
-
-                    If numberOfDataPointsToRead > channels Then
-                        Dim counter As Integer = 0
-                        For n = c - 1 To soundDataArray.Length - 1 Step channels
-                            channelData(counter) = soundDataArray(n)
-                            'MsgBox("Sorting channel " & c & counter & " " & channelData(counter))
-                            counter += 1
-                        Next
-                    Else
-                        If numberOfDataPointsToRead < 0 Then Throw New Exception("The number of data points to read was below zero.")
-                    End If
-
-                    sound.WaveData.SampleData(c) = channelData
-
-                Next
-
-                'Adding the input file name
-                sound.FileName = fileName
-
-                'Storing the read version as serialized
-                If StoreUnchangedState = True Then sound.StoreUnchangedState()
-
-                Return sound
-
-            Catch ex As Exception
-                AudioError(ex.ToString)
-                Return Nothing
-            End Try
-
-        End Function
 
         ''' <summary>
         ''' Reads a sound (.wav or .ptwf) from file and stores it in a new Sounds object.
@@ -2447,56 +2189,6 @@ Namespace Audio
 
 #End Region
 
-        ''' <summary>
-        ''' Create and returns a new sound that can be used for debugging etc.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Shared Function GetTestSound() As Sound
-
-            Dim TestSound = DSP.CreateSineWave(New Formats.WaveFormat(48000, 32, 1, , Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints), 1, 500, 0.1, 3)
-
-            TestSound.SMA = New SpeechMaterialAnnotation
-            TestSound.SMA.AddChannelData(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.CHANNEL, Nothing) With {.OrthographicForm = "Test sound, channel 1", .PhoneticForm = "Test sound, channel 1 (phonetic form)"})
-
-            TestSound.SMA.ChannelData(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.SENTENCE, TestSound.SMA.ChannelData(1)) With {.OrthographicForm = "Sentence 1 (orthographic form)", .PhoneticForm = "Sentence 1 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(0)) With {.OrthographicForm = "Word 1 (orthographic form)", .PhoneticForm = "Word 1 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(0)) With {.OrthographicForm = "Word 2 (orthographic form)", .PhoneticForm = "Word 2 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(0)) With {.OrthographicForm = "Word 3 (orthographic form)", .PhoneticForm = "Word 3 (phonetic form)"})
-
-            TestSound.SMA.ChannelData(1)(0)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(0)) With {.OrthographicForm = "G1", .PhoneticForm = "P1"})
-            TestSound.SMA.ChannelData(1)(0)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(0)) With {.OrthographicForm = "G2", .PhoneticForm = "P2"})
-            TestSound.SMA.ChannelData(1)(0)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(0)) With {.OrthographicForm = "G3", .PhoneticForm = "P3"})
-
-            TestSound.SMA.ChannelData(1)(0)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(1)) With {.OrthographicForm = "G4", .PhoneticForm = "P4"})
-            TestSound.SMA.ChannelData(1)(0)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(1)) With {.OrthographicForm = "G5", .PhoneticForm = "P5"})
-            TestSound.SMA.ChannelData(1)(0)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(1)) With {.OrthographicForm = "G6", .PhoneticForm = "P6"})
-
-            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(2)) With {.OrthographicForm = "G7", .PhoneticForm = "P7"})
-            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(2)) With {.OrthographicForm = "G8", .PhoneticForm = "P8"})
-            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(2)) With {.OrthographicForm = "G9", .PhoneticForm = "P9"})
-            TestSound.SMA.ChannelData(1)(0)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(0)(2)) With {.OrthographicForm = "G10", .PhoneticForm = "P10"})
-
-            TestSound.SMA.ChannelData(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.SENTENCE, TestSound.SMA.ChannelData(1)) With {.OrthographicForm = "Sentence 2 (orthographic form)", .PhoneticForm = "Sentence 2 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(1)) With {.OrthographicForm = "Word 4 (orthographic form)", .PhoneticForm = "Word 4 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(1)) With {.OrthographicForm = "Word 5 (orthographic form)", .PhoneticForm = "Word 5 (phonetic form)"})
-            TestSound.SMA.ChannelData(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.WORD, TestSound.SMA.ChannelData(1)(1)) With {.OrthographicForm = "Word 6 (orthographic form)", .PhoneticForm = "Word 6 (phonetic form)"})
-
-            TestSound.SMA.ChannelData(1)(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(0)) With {.OrthographicForm = "G11", .PhoneticForm = "P11"})
-            TestSound.SMA.ChannelData(1)(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(0)) With {.OrthographicForm = "G12", .PhoneticForm = "P12"})
-            TestSound.SMA.ChannelData(1)(1)(0).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(0)) With {.OrthographicForm = "G13", .PhoneticForm = "P13"})
-
-            TestSound.SMA.ChannelData(1)(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(1)) With {.OrthographicForm = "G14", .PhoneticForm = "P14"})
-            TestSound.SMA.ChannelData(1)(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(1)) With {.OrthographicForm = "G15", .PhoneticForm = "P15"})
-            TestSound.SMA.ChannelData(1)(1)(1).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(1)) With {.OrthographicForm = "G16", .PhoneticForm = "P16"})
-
-            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(2)) With {.OrthographicForm = "G17", .PhoneticForm = "P17"})
-            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(2)) With {.OrthographicForm = "G18", .PhoneticForm = "P18"})
-            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(2)) With {.OrthographicForm = "G19", .PhoneticForm = "P19"})
-            TestSound.SMA.ChannelData(1)(1)(2).Add(New SpeechMaterialAnnotation.SmaComponent(TestSound.SMA, SpeechMaterialAnnotation.SmaTags.PHONE, TestSound.SMA.ChannelData(1)(1)(2)) With {.OrthographicForm = "G20", .PhoneticForm = "P20"})
-
-            Return TestSound
-
-        End Function
 
         Public Overrides Function ToString() As String
             If Description <> "" Then

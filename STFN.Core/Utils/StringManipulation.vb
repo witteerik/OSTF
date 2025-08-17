@@ -1,8 +1,8 @@
 ﻿Namespace Utils
 
-    Public Module StringManipulation
+    Public Class StringManipulation
 
-        Public Function SplitStringByLines(input As String) As String()
+        Public Shared Function SplitStringByLines(input As String) As String()
 
             Return input.Split({vbCrLf, vbLf, vbCr}, StringSplitOptions.None)
 
@@ -10,6 +10,6 @@
             'Return Regex.Split(input, "\r\n|\n\r|\r|\n")
         End Function
 
-    End Module
+    End Class
 
 End Namespace

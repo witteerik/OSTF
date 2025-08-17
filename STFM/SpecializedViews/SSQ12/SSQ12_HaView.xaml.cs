@@ -18,7 +18,7 @@ public partial class SSQ12_HaView : ContentView
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
 
-            case STFN.Core.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
 
                 HA_UseQuestion_Label.Text = "Använder du hörapparat?";
                 HA_DoUse_RadioButton.Content = "Jag använder hörapparat";
@@ -95,7 +95,7 @@ public partial class SSQ12_HaView : ContentView
                 // Asks the user to specify left / righ / or both sides
                 switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                         await Messager.MsgBoxAsync("Vänligen ange om du använder hörapparat på vänster, höger eller båda öronen!", Messager.MsgBoxStyle.Information, "Ange hörapparatsida!");
 
                         break;
@@ -126,7 +126,7 @@ public partial class SSQ12_HaView : ContentView
 
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Core.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
 
                 if (SSQ12_MainView.MinimalVersion == false)
                 {

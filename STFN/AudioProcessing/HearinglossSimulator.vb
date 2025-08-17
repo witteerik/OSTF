@@ -163,13 +163,13 @@ Namespace Audio
             Next
 
             Select Case Side
-                Case STFN.Core.Utils.Constants.Sides.Left
+                Case STFN.Core.Utils.EnumCollection.Sides.Left
                     For Each TimeWindow In TimeWindows
                         For b = 0 To DSP.SiiCriticalBands.CentreFrequencies.Length - 1
                             BandGains(DSP.SiiCriticalBands.CentreFrequencies(b)).Add(TimeWindow.Left_SimulationBandGains(b))
                         Next
                     Next
-                Case STFN.Core.Utils.Constants.Sides.Right
+                Case STFN.Core.Utils.EnumCollection.Sides.Right
                     For Each TimeWindow In TimeWindows
                         For b = 0 To DSP.SiiCriticalBands.CentreFrequencies.Length - 1
                             BandGains(DSP.SiiCriticalBands.CentreFrequencies(b)).Add(TimeWindow.Right_SimulationBandGains(b))

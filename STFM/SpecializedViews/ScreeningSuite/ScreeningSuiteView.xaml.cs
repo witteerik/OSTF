@@ -122,7 +122,7 @@ public partial class ScreeningSuiteView : ContentView
 
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Core.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
 
                 TestInclusionOptionLabel.Text = "Välj test";
                 RunSSQ12_Checkbox_Label.Text = "SSQ12";
@@ -194,7 +194,7 @@ public partial class ScreeningSuiteView : ContentView
                         {
                             switch (SharedSpeechTestObjects.GuiLanguage)
                             {
-                                case STFN.Core.Utils.Constants.Languages.Swedish:
+                                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                                     InstructionsEditor.Text = "Inga resultat att visa";
                                     break;
                                 default:
@@ -735,7 +735,7 @@ public partial class ScreeningSuiteView : ContentView
 
                 switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                         Messager.MsgBox("Något gick fel när testet skulle skapas! Välj nytt test och se till att alla nödvändiga val är ifyllda.", Messager.MsgBoxStyle.Information, "Något gick fel!");
                         break;
                     default:
@@ -758,7 +758,7 @@ public partial class ScreeningSuiteView : ContentView
         {
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Core.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                     Messager.MsgBox("Inget test kunde skapas!", Messager.MsgBoxStyle.Information, "Något gick fel!");
                     break;
                 default:
@@ -777,7 +777,7 @@ public partial class ScreeningSuiteView : ContentView
             string MsgBoxTitle = "";
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Core.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                     MsgBoxTitle = "Test valda testet säger:";
                     break;
                 default:
@@ -973,7 +973,7 @@ public partial class ScreeningSuiteView : ContentView
         // Updating progress (if test is not completed)
         if (SpeechTestReply != SpeechTest.SpeechTestReplies.TestIsCompleted)
         {
-            STFN.Core.Utils.ProgressInfo CurrentProgress = CurrentSpeechTest.GetProgress();
+            STFN.Core.ProgressInfo CurrentProgress = CurrentSpeechTest.GetProgress();
             if (CurrentProgress != null)
             {
                 UpdateTestFormProgressbar(CurrentProgress.Value, CurrentProgress.Maximum, CurrentProgress.Minimum);
@@ -1291,7 +1291,7 @@ public partial class ScreeningSuiteView : ContentView
         {
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Core.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                     msgBoxResult = await Messager.MsgBoxAsync("Testet har avbrutits.", Messager.MsgBoxStyle.Information, "Avslutat", "OK");
                     break;
                 default:
@@ -1333,7 +1333,7 @@ public partial class ScreeningSuiteView : ContentView
 
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Core.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                 CurrentSpeechTest.AbortInformation = "Ett fel har uppstått med ljuduppspelningen! \n\nHar ljudgivarna kopplats ur?\n\nTestet måste avbrytas och appen stängas!\n\nKlicka OK, se till att rätt ljudgivare är inkopplade och starta sedan om appen.";
                 break;
             default:

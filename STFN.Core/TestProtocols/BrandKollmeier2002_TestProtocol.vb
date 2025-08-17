@@ -78,9 +78,9 @@ Public Class BrandKollmeier2002_TestProtocol
 
         For i = 1 To TrialHistory.Count - 1
             If (TrialHistory(i).AdaptiveProtocolValue > TrialHistory(i - 1).AdaptiveProtocolValue) Then
-                DirectionList.Add(Utils.Constants.ElevationChange.Ascending)
+                DirectionList.Add(Utils.EnumCollection.ElevationChange.Ascending)
             ElseIf TrialHistory(i).AdaptiveProtocolValue < TrialHistory(i - 1).AdaptiveProtocolValue Then
-                DirectionList.Add(Utils.Constants.ElevationChange.Descendning)
+                DirectionList.Add(Utils.EnumCollection.ElevationChange.Descendning)
             Else
                 'TODO: how should Unchanged be counted?
                 'As for now, unchanged is ignored

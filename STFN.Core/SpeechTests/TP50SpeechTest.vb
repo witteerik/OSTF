@@ -106,8 +106,8 @@ Public Class TP50SpeechTest
 
         'Checking/updating things that may have changed since initial initalization on every call
         If SignalLocations.Count = 0 Then
-            Select Case Utils.Constants.Languages.Swedish
-                Case Utils.Constants.Languages.Swedish
+            Select Case Utils.EnumCollection.Languages.Swedish
+                Case Utils.EnumCollection.Languages.Swedish
                     Return New Tuple(Of Boolean, String)(False, "Du måste välja en ljudkälla för tal!")
                 Case Else
                     Return New Tuple(Of Boolean, String)(False, "You must select a signal sound source!")
@@ -294,7 +294,7 @@ Public Class TP50SpeechTest
             'TODO: We must store the responses and response times!!!
 
             'Taking a dump of the SpeechTest before swapping to the new trial, but after the protocol reply so that the protocol results also gets dumped
-            CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+            CurrentTestTrial.SpeechTestPropertyDump = Logging.ListObjectPropertyValues(Me.GetType, Me)
 
             'Calculating the speech level
             ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
@@ -338,9 +338,9 @@ Public Class TP50SpeechTest
             If DoubleCheckMaskingIsActive = True Then
                 If MaskerLocations.Count = 0 Then
                     Select Case GuiLanguage
-                        Case Utils.Constants.Languages.Swedish
+                        Case Utils.EnumCollection.Languages.Swedish
                             Messager.MsgBox("Inget maskeringsljud har aktiverats! Prova att starta om testet!", , "Varning!")
-                        Case Utils.Constants.Languages.English
+                        Case Utils.EnumCollection.Languages.English
                             Messager.MsgBox("No masking sound has been activated! Try to restart the test!", , "Varning!")
                     End Select
                 End If
@@ -554,9 +554,9 @@ Public Class TP50SpeechTest
         If DoubleCheckMaskingIsActive = True Then
             If MaskerLocations.Count = 0 Then
                 Select Case GuiLanguage
-                    Case Utils.Constants.Languages.Swedish
+                    Case Utils.EnumCollection.Languages.Swedish
                         Messager.MsgBox("Inget maskeringsljud har aktiverats! Prova att starta om testet!", , "Varning!")
-                    Case Utils.Constants.Languages.English
+                    Case Utils.EnumCollection.Languages.English
                         Messager.MsgBox("No masking sound has been activated! Try to restart the test!", , "Varning!")
                 End Select
             End If
@@ -577,10 +577,10 @@ Public Class TP50SpeechTest
 
     End Function
 
-    Public Overrides Function GetProgress() As Utils.ProgressInfo
+    Public Overrides Function GetProgress() As ProgressInfo
 
         If GetTotalTrialCount() <> -1 Then
-            Dim NewProgressInfo As New Utils.ProgressInfo
+            Dim NewProgressInfo As New ProgressInfo
             NewProgressInfo.Value = GetObservedTestTrials.Count
             NewProgressInfo.Maximum = GetTotalTrialCount()
             Return NewProgressInfo

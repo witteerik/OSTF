@@ -1,14 +1,14 @@
 ﻿
-Public Module Messager
+Public Class Messager
 
-    Public Event OnNewMessage(ByVal Title As String, ByVal Message As String, ByVal CancelButtonText As String)
-    Public Event OnNewAsyncMessage As EventHandler(Of MessageEventArgs)
-    Public Event OnNewQuestion As EventHandler(Of QuestionEventArgs)
-    Public Event OnGetSaveFilePath As EventHandler(Of PathEventArgs)
-    Public Event OnGetFolder As EventHandler(Of PathEventArgs)
-    Public Event OnGetOpenFilePath As EventHandler(Of PathEventArgs)
-    Public Event OnGetOpenFilePaths As EventHandler(Of PathsEventArgs)
-    Public Event OnCloseAppRequest()
+    Public Shared Event OnNewMessage(ByVal Title As String, ByVal Message As String, ByVal CancelButtonText As String)
+    Public Shared Event OnNewAsyncMessage As EventHandler(Of MessageEventArgs)
+    Public Shared Event OnNewQuestion As EventHandler(Of QuestionEventArgs)
+    Public Shared Event OnGetSaveFilePath As EventHandler(Of PathEventArgs)
+    Public Shared Event OnGetFolder As EventHandler(Of PathEventArgs)
+    Public Shared Event OnGetOpenFilePath As EventHandler(Of PathEventArgs)
+    Public Shared Event OnGetOpenFilePaths As EventHandler(Of PathsEventArgs)
+    Public Shared Event OnCloseAppRequest()
 
 
     Public Enum MsgBoxStyle
@@ -24,7 +24,7 @@ Public Module Messager
     ''' <param name="Style"></param>
     ''' <param name="Title"></param>
     ''' <param name="CancelButtonText"></param>
-    Public Sub MsgBox(ByVal Message As String, Optional ByVal Style As MsgBoxStyle = MsgBoxStyle.Information, Optional ByVal Title As String = "", Optional ByVal CancelButtonText As String = "OK")
+    Public Shared Sub MsgBox(ByVal Message As String, Optional ByVal Style As MsgBoxStyle = MsgBoxStyle.Information, Optional ByVal Title As String = "", Optional ByVal CancelButtonText As String = "OK")
 
         Select Case Style
             Case MsgBoxStyle.Information
@@ -49,7 +49,7 @@ Public Module Messager
     ''' <param name="Title"></param>
     ''' <param name="CancelButtonText"></param>
     ''' <returns>Awaits the response but the boolean value returned is meaningless.</returns>
-    Public Async Function MsgBoxAsync(ByVal Message As String, Optional ByVal Style As MsgBoxStyle = MsgBoxStyle.Information, Optional ByVal Title As String = "", Optional ByVal CancelButtonText As String = "OK") As Task(Of Boolean)
+    Public Shared Async Function MsgBoxAsync(ByVal Message As String, Optional ByVal Style As MsgBoxStyle = MsgBoxStyle.Information, Optional ByVal Title As String = "", Optional ByVal CancelButtonText As String = "OK") As Task(Of Boolean)
 
         'TODO: This function could perhaps be rewritten to wait for the response without having to return a Task of Boolean...
 
@@ -71,7 +71,7 @@ Public Module Messager
 
     End Function
 
-    Public Async Function MsgBoxAcceptQuestion(ByVal Question As String, Optional ByVal Title As String = "",
+    Public Shared Async Function MsgBoxAcceptQuestion(ByVal Question As String, Optional ByVal Title As String = "",
                                           Optional ByVal AcceptButtonText As String = "Yes", Optional ByVal CancelButtonText As String = "No") As Task(Of Boolean)
 
         Dim tcs As New TaskCompletionSource(Of Boolean)()
@@ -91,7 +91,7 @@ Public Module Messager
     ''' <param name="fileExtensions">Optional possible extensions</param>
     ''' <param name="Title">The message/title on the file dialog box</param>
     ''' <returns>Returns the file path, or nothing if a file path could not be created.</returns>
-    Public Async Function GetSaveFilePath(Optional directory As String = "", Optional fileName As String = "", Optional fileExtensions() As String = Nothing, Optional Title As String = "") As Task(Of String)
+    Public Shared Async Function GetSaveFilePath(Optional directory As String = "", Optional fileName As String = "", Optional fileExtensions() As String = Nothing, Optional Title As String = "") As Task(Of String)
 
         Dim tcs As New TaskCompletionSource(Of String)()
         RaiseEvent OnGetSaveFilePath(Nothing, New PathEventArgs(tcs, "OK", "Cancel", directory, fileName, fileExtensions, Title))
@@ -105,7 +105,7 @@ Public Module Messager
     ''' <param name="directory">Optional initial Directory.</param>
     ''' <param name="Title">The message/title on the file dialog box</param>
     ''' <returns>Returns the folder path, or an empty string if a folder path was not selected.</returns>
-    Public Async Function GetFolder(Optional directory As String = "", Optional Title As String = "") As Task(Of String)
+    Public Shared Async Function GetFolder(Optional directory As String = "", Optional Title As String = "") As Task(Of String)
 
         Dim tcs As New TaskCompletionSource(Of String)()
         RaiseEvent OnGetFolder(Nothing, New PathEventArgs(tcs, "OK", "Cancel", directory,,, Title))
@@ -121,7 +121,7 @@ Public Module Messager
     ''' <param name="fileExtensions">Optional possible extensions</param>
     ''' <param name="Title">The message/title on the file dialog box</param>
     ''' <returns>Returns the file path, or nothing if a file path could not be created.</returns>
-    Public Async Function GetOpenFilePath(Optional directory As String = "", Optional fileName As String = "", Optional fileExtensions() As String = Nothing, Optional Title As String = "", Optional ReturnEmptyStringOnCancel As Boolean = False) As Task(Of String)
+    Public Shared Async Function GetOpenFilePath(Optional directory As String = "", Optional fileName As String = "", Optional fileExtensions() As String = Nothing, Optional Title As String = "", Optional ReturnEmptyStringOnCancel As Boolean = False) As Task(Of String)
 
         Dim tcs As New TaskCompletionSource(Of String)()
         RaiseEvent OnGetOpenFilePath(Nothing, New PathEventArgs(tcs, "OK", "Cancel", directory, fileName, fileExtensions, Title, ReturnEmptyStringOnCancel))
@@ -137,7 +137,7 @@ Public Module Messager
     ''' <param name="FileExtensions">Optional possible extensions</param>
     ''' <param name="Title">The message/title on the file dialog box</param>
     ''' <returns>Returns the file path, or nothing if a file path could not be created.</returns>
-    Public Async Function GetOpenFilePaths(Optional Directory As String = "", Optional FileExtensions() As String = Nothing, Optional Title As String = "", Optional ReturnEmptyStringArrayOnCancel As Boolean = False) As Task(Of String())
+    Public Shared Async Function GetOpenFilePaths(Optional Directory As String = "", Optional FileExtensions() As String = Nothing, Optional Title As String = "", Optional ReturnEmptyStringArrayOnCancel As Boolean = False) As Task(Of String())
 
         Dim tcs As New TaskCompletionSource(Of String())()
         RaiseEvent OnGetOpenFilePaths(Nothing, New PathsEventArgs(tcs, "OK", "Cancel", Directory, FileExtensions, Title, ReturnEmptyStringArrayOnCancel))
@@ -152,7 +152,7 @@ Public Module Messager
     ''' <param name="fileName"></param>
     ''' <param name="fileFormat"></param>
     ''' <returns>The file path to which the sound file should be written.</returns>
-    Public Async Function SaveSoundFileDialog(Optional Directory As String = "", Optional FileName As String = "", Optional ByVal FileFormat As Audio.SoundFileFormats = Audio.SoundFileFormats.wav) As Task(Of String)
+    Public Shared Async Function SaveSoundFileDialog(Optional Directory As String = "", Optional FileName As String = "", Optional ByVal FileFormat As Audio.SoundFileFormats = Audio.SoundFileFormats.wav) As Task(Of String)
 
         Dim SelectedExtension As String() = {}
         Select Case FileFormat
@@ -172,19 +172,19 @@ Public Module Messager
     ''' <param name="directory"></param>
     ''' <param name="fileName"></param>
     ''' <returns></returns>
-    Public Async Function OpenSoundFileDialog(Optional Directory As String = "", Optional FileName As String = "") As Task(Of String)
+    Public Shared Async Function OpenSoundFileDialog(Optional Directory As String = "", Optional FileName As String = "") As Task(Of String)
         Return Await GetOpenFilePath(Directory, FileName, {".wav", ".ptwf"})
     End Function
 
     ''' <summary>
     ''' A method that can be used to cloase the app from lower level libraries, but requires that the GUI listens to and handles the OnCloseAppRequest event.
     ''' </summary>
-    Public Sub RequestCloseApp()
+    Public Shared Sub RequestCloseApp()
         'TODO, this function shuld probably be defined elsewhere, in a more app specific Module.
         RaiseEvent OnCloseAppRequest()
     End Sub
 
-End Module
+End Class
 
 
 Public Class QuestionEventArgs
@@ -285,14 +285,4 @@ Public Class PathsEventArgs
     End Sub
 End Class
 
-Namespace Utils
-
-    'TODO. Shouldn't everything in this file be in the Utils namespace?
-    Public Class ProgressInfo
-        Public Value As Integer = 0
-        Public Maximum As Integer = 0
-        Public Minimum As Integer = 0
-    End Class
-
-End Namespace
 

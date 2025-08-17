@@ -18,10 +18,10 @@ Namespace Audio
         Public Class SpeechMaterialAnnotation
 
             <XmlIgnore>
-            Private ChangeDetector As Utils.ObjectChangeDetector
+            Private ChangeDetector As Utils.GeneralIO.ObjectChangeDetector
 
             Public Sub StoreUnchangedState()
-                ChangeDetector = New Utils.ObjectChangeDetector(Me)
+                ChangeDetector = New Utils.GeneralIO.ObjectChangeDetector(Me)
                 ChangeDetector.SetUnchangedState()
             End Sub
 

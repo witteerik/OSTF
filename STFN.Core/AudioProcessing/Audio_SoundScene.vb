@@ -392,7 +392,7 @@ Namespace Audio.SoundScene
                             Dim CorrespondingChannellInOutputSound As Integer? = OutputRouting(ClosestHardwareOutput)
 
                             If ExportSounds = True Then
-                                Item.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "ExportSounds", ExportPrefix & "_" & ExportSoundIndex & "_PointSpeakers_" & Item.Role & "_" &
+                                Item.Sound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "ExportSounds", ExportPrefix & "_" & ExportSoundIndex & "_PointSpeakers_" & Item.Role & "_" &
                                                                          Item.SoundLevel & "dB_(AppliedGain_" & Math.Round(Item.AppliedGain.Value.Value, 1) & ")") & "_" &
                                                                          Math.Round(Item.SourceLocation.HorizontalAzimuth, 1) & "deg_(Channel_" & CorrespondingChannellInOutputSound & ").wav")
                                 ExportSoundIndex += 1
@@ -419,7 +419,7 @@ Namespace Audio.SoundScene
                         For Each Item In SoundSceneItemList
 
                             If ExportSounds = True Then
-                                Item.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "ExportSounds", ExportPrefix & "_" & ExportSoundIndex & "_SimulatedSoundField_" & Item.Role & "_" &
+                                Item.Sound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "ExportSounds", ExportPrefix & "_" & ExportSoundIndex & "_SimulatedSoundField_" & Item.Role & "_" &
                                                                          Item.SoundLevel & "dB_(AppliedGain_" & Math.Round(Item.AppliedGain.Value.Value, 1) & ")") & "_" &
                                                                          Math.Round(Item.SourceLocation.HorizontalAzimuth, 1) & ".wav")
                                 ExportSoundIndex += 1
@@ -443,7 +443,7 @@ Namespace Audio.SoundScene
                 If LimiterThreshold.HasValue Then
 
                     If ExportSounds = True Then
-                        OutputSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "ExportSounds", ExportPrefix & "_PreLimiterMix.wav"))
+                        OutputSound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "ExportSounds", ExportPrefix & "_PreLimiterMix.wav"))
                     End If
 
                     'Limiting the total sound level
@@ -458,7 +458,7 @@ Namespace Audio.SoundScene
 
                         If LimiterResult <> "" Then
                             'Limiting occurred, logging the limiter data
-                            Utils.SendInfoToLog(
+                            Logging.SendInfoToLog(
                             "channel " & c &
                             " had it's output level limited to  " & LimiterThreshold & " dB, " & DateTime.Now.ToString & vbCrLf &
                             "Section:" & vbTab & "Startattenuation" & vbTab & "EndAttenuation" & vbCrLf &
@@ -468,7 +468,7 @@ Namespace Audio.SoundScene
                 End If
 
                 If ExportSounds = True Then
-                    OutputSound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "ExportSounds", ExportPrefix & "_FinalMix.wav"))
+                    OutputSound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "ExportSounds", ExportPrefix & "_FinalMix.wav"))
                 End If
 
                 Return OutputSound

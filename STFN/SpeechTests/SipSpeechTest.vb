@@ -37,7 +37,7 @@ Public Class SipSpeechTest
         'ShowGuiChoice_PhaseAudiometry = True
         'SupportsManualPausing = False
 
-        SelectedTestparadigm = SiPTestparadigm.Slow
+        SelectedTestparadigm = SiPTestProcedure.SiPTestparadigm.Slow
 
         SipTestMode = SiPTestModes.Directional
 
@@ -88,9 +88,9 @@ Public Class SipSpeechTest
         'SelectedTestProtocol.IsInPretestMode = IsPractiseTest
 
         'Creates a new test 
-        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification,, SelectedTestparadigm)
+        CurrentSipTestMeasurement = New SipTest.SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification,, SelectedTestparadigm)
         CurrentSipTestMeasurement.TestProcedure.LengthReduplications = 1 'SelectedLengthReduplications
-        CurrentSipTestMeasurement.TestProcedure.TestParadigm = SiPTestparadigm.FlexibleLocations 'SelectedTestparadigm
+        CurrentSipTestMeasurement.TestProcedure.TestParadigm = SiPTestProcedure.SiPTestparadigm.FlexibleLocations 'SelectedTestparadigm
         SelectedTestparadigm = CurrentSipTestMeasurement.TestProcedure.TestParadigm
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
@@ -108,7 +108,7 @@ Public Class SipSpeechTest
         Select Case SipTestMode
             Case SiPTestModes.Directional
 
-                If SelectedTestparadigm = SiPTestparadigm.FlexibleLocations Then
+                If SelectedTestparadigm = SiPTestProcedure.SiPTestparadigm.FlexibleLocations Then
 
                     CurrentSipTestMeasurement.TestProcedure.SetTargetStimulusLocations(SelectedTestparadigm, SignalLocations)
 
@@ -147,7 +147,7 @@ Public Class SipSpeechTest
 
         'TODO: Calling GetTargetAzimuths only to ensure that the Actual Azimuths needed for presentation in the TestTrialTable exist. This should probably be done in some other way... (Only applies to the Directional3 and Directional5 Testparadigms)
         Select Case SelectedTestparadigm
-            Case SiPTestparadigm.Directional2, SiPTestparadigm.Directional3, SiPTestparadigm.Directional5
+            Case SiPTestProcedure.SiPTestparadigm.Directional2, SiPTestProcedure.SiPTestparadigm.Directional3, SiPTestProcedure.SiPTestparadigm.Directional5
                 CurrentSipTestMeasurement.GetTargetAzimuths()
         End Select
 
@@ -171,7 +171,7 @@ Public Class SipSpeechTest
 
 
 
-    Private Shared Sub PlanDirectionalTestTrials(ByRef SipTestMeasurement As SipMeasurementBase, ByVal ReferenceLevel As Double, ByVal PresetName As String,
+    Private Shared Sub PlanDirectionalTestTrials(ByRef SipTestMeasurement As SipMeasurement, ByVal ReferenceLevel As Double, ByVal PresetName As String,
                                       ByVal SelectedMediaSets As List(Of MediaSet), ByVal SelectedPNRs As List(Of Double), ByVal NumberOfSimultaneousMaskers As Integer,
                                                  ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
@@ -267,7 +267,7 @@ Public Class SipSpeechTest
         'Getting NeededTargetAzimuths for the Directional2, Directional3 and Directional5 Testparadigms
         Dim NeededTargetAzimuths As List(Of Double) = Nothing
         Select Case SelectedTestparadigm
-            Case SiPTestparadigm.Directional2, SiPTestparadigm.Directional3, SiPTestparadigm.Directional5
+            Case SiPTestProcedure.SiPTestparadigm.Directional2, SiPTestProcedure.SiPTestparadigm.Directional3, SiPTestProcedure.SiPTestparadigm.Directional5
                 NeededTargetAzimuths = CurrentSipTestMeasurement.GetTargetAzimuths()
         End Select
 
@@ -411,7 +411,7 @@ Public Class SipSpeechTest
             Return MixedInitialSound
 
         Catch ex As Exception
-            SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            Logging.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             Return Nothing
         End Try
 
@@ -463,7 +463,7 @@ Public Class SipSpeechTest
             'Resetting CurrentTestSound
             'CurrentTestSound = Nothing
 
-            If CurrentSipTestMeasurement.TestProcedure.AdaptiveType <> SipTest.AdaptiveTypes.Fixed Then
+            If CurrentSipTestMeasurement.TestProcedure.AdaptiveType <> SiPTestProcedure.AdaptiveTypes.Fixed Then
                 'Levels only need to be set here, and possibly not even here, in adaptive procedures. Its better if the level is set directly upon selection of the trial...
                 'CurrentSipTrial.SetLevels()
             End If
@@ -501,7 +501,7 @@ Public Class SipSpeechTest
             'End If
 
         Catch ex As Exception
-            SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            Logging.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
         End Try
 
     End Sub

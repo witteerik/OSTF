@@ -312,8 +312,9 @@ Namespace Audio
         ''' <param name="CompensateForZeroPaddingScaling"></param>
         ''' <param name="CompensateForTimeWindowingScaling"></param>
         Public Sub CalculateAmplitudeSpectrum(Optional ByVal CompensateForEquivalentNoiseBandwidthScaling As Boolean = True,
-                                     Optional ByVal CompensateForZeroPaddingScaling As Boolean = True,
-                                     Optional ByVal CompensateForTimeWindowingScaling As Boolean = True)
+                                              Optional ByVal CompensateForZeroPaddingScaling As Boolean = True,
+                                              Optional ByVal CompensateForTimeWindowingScaling As Boolean = True,
+                                              Optional ByVal AllowParallelProcessing As Boolean = True)
 
             Try
 
@@ -324,7 +325,7 @@ Namespace Audio
                 Next
 
 
-                If Utils.GenerallyAllowParallelProcessing = False Then
+                If AllowParallelProcessing = False Then
 
                     'Declaring some variables that will be re-used between channels and time windows
                     Dim EquivalentNoiseBandwidth As Double? = Nothing
@@ -411,9 +412,10 @@ Namespace Audio
         ''' <param name="CompensateForTimeWindowingScaling"></param>
         ''' <param name="ZeroPaddingCompensationLowerLimit">If set, limits the effect of zero padding compensation to a proportion of the fft size (e.g. 0.25 for using fftsize*0.25 as lowest compensation factor.).</param>
         Public Sub CalculatePowerSpectrum(Optional ByVal CompensateForEquivalentNoiseBandwidthScaling As Boolean = True,
-                                     Optional ByVal CompensateForZeroPaddingScaling As Boolean = True,
-                                     Optional ByVal CompensateForTimeWindowingScaling As Boolean = True,
-                                          Optional ByVal ZeroPaddingCompensationLowerLimit As Double? = Nothing)
+                                          Optional ByVal CompensateForZeroPaddingScaling As Boolean = True,
+                                          Optional ByVal CompensateForTimeWindowingScaling As Boolean = True,
+                                          Optional ByVal ZeroPaddingCompensationLowerLimit As Double? = Nothing,
+                                          Optional ByVal AllowParallelProcessing As Boolean = True)
 
             'Resetting channel power spectrum data
             For channel = 0 To _PowerSpectrumData.Count - 1
@@ -421,7 +423,7 @@ Namespace Audio
             Next
 
 
-            If Utils.GenerallyAllowParallelProcessing = False Then
+            If AllowParallelProcessing = False Then
 
                 'Declaring some variables that will be re-used between channels and time windows
                 Dim EquivalentNoiseBandwidth As Double? = Nothing
@@ -588,7 +590,7 @@ Namespace Audio
                                        Optional ByVal OutputFolder As String = "", Optional SkipNegativeFrequencies As Boolean = True,
                                        Optional ByVal ConvertTo_dB As Boolean = True, Optional ByVal ReferenceIntensity As Double = 1)
 
-            If OutputFolder = Nothing Then OutputFolder = Utils.logFilePath
+            If OutputFolder = Nothing Then OutputFolder = Logging.LogFileDirectory
 
             Dim OutputList As New List(Of String)
 
@@ -984,7 +986,7 @@ Namespace Audio
                         Case SpectrumTypes.PowerSpectrum
                             For Each Window In FilterredBandPowerArray
                                 For n = 0 To Window.Value.Count - 1
-                                    FilterredBandPowerArray(Window.Key)(n) = 10 * Math.Log10(FilterredBandPowerArray(Window.Key)(n) / Utils.ReferenceSoundIntensityLevel)
+                                    FilterredBandPowerArray(Window.Key)(n) = 10 * Math.Log10(FilterredBandPowerArray(Window.Key)(n) / Audio.ReferenceSoundIntensityLevel)
                                 Next
                             Next
 
@@ -1775,7 +1777,7 @@ InputSound.WaveFormat, InputSound.FFT.FftFormat)
                 Public Sub ConvertToBandLoudnessLevel()
 
                     'Converting to log base 2
-                    BandLoudness = 40 + 10 * DSP.getBase_n_Log(BandLoudness, 2)
+                    BandLoudness = 40 + 10 * DSP.GetBase_n_Log(BandLoudness, 2)
 
                 End Sub
 

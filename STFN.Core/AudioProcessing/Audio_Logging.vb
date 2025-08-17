@@ -48,7 +48,7 @@ Namespace Audio
                 'Attempts to enter a spin lock to avoid multiple thread conflicts when saving to the same file
                 AudioLogSpinLock.Enter(SpinLockTaken)
 
-                If LogFileTemporaryPath = "" Then LogFileTemporaryPath = Utils.logFilePath
+                If LogFileTemporaryPath = "" Then LogFileTemporaryPath = Logging.LogFileDirectory
 
                 Dim FileNameToUse As String = ""
 

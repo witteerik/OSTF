@@ -11,7 +11,7 @@ Namespace SipTest
 
         Public Property Description As String = ""
 
-        Public Property ParentMeasurement As SipMeasurementBase
+        Public Property ParentMeasurement As SipMeasurement
 
         Public Property SpeechMaterialComponents As New List(Of SpeechMaterialComponent)
 
@@ -23,7 +23,7 @@ Namespace SipTest
 
         Public Property TestProtocol As TestProtocol
 
-        Public Sub New(ByRef ParentMeasurement As SipMeasurementBase, Optional ByVal Description As String = "")
+        Public Sub New(ByRef ParentMeasurement As SipMeasurement, Optional ByVal Description As String = "")
             Me.ParentMeasurement = ParentMeasurement
             Me.Description = Description
         End Sub
@@ -36,7 +36,7 @@ Namespace SipTest
             PlannedTrials.Clear()
 
             Select Case ParentMeasurement.TestProcedure.AdaptiveType
-                Case AdaptiveTypes.Fixed
+                Case SiPTestProcedure.AdaptiveTypes.Fixed
 
                     'For n = 1 To ParentMeasurement.TestProcedure.LengthReduplications ' Should this be done here, or at a higher level?
                     For c = 0 To SpeechMaterialComponents.Count - 1
@@ -63,7 +63,7 @@ Namespace SipTest
         Public Function GetNextTrial(ByRef rnd As Random) As SipTrial
 
             Select Case ParentMeasurement.TestProcedure.AdaptiveType
-                Case AdaptiveTypes.Fixed
+                Case SiPTestProcedure.AdaptiveTypes.Fixed
 
                     If PlannedTrials.Count = 0 Then Return Nothing
 
@@ -91,7 +91,7 @@ Namespace SipTest
         Public Function IsCompleted() As Boolean
 
             Select Case ParentMeasurement.TestProcedure.AdaptiveType
-                Case AdaptiveTypes.Fixed
+                Case SiPTestProcedure.AdaptiveTypes.Fixed
 
                     If PlannedTrials.Count = 0 Then
                         Return True

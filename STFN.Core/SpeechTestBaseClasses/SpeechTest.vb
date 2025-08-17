@@ -636,7 +636,7 @@ Public MustInherit Class SpeechTest
     Public Overridable Function GetTestCompletedGuiMessage() As String
 
         Select Case SharedSpeechTestObjects.GuiLanguage
-            Case Utils.Constants.Languages.Swedish
+            Case Utils.EnumCollection.Languages.Swedish
                 Return "Testet är klart!"
             Case Else
                 Return "The test is finished!"
@@ -1482,7 +1482,7 @@ Public MustInherit Class SpeechTest
 
         'Updating titles
         Select Case GuiLanguage
-            Case Utils.Constants.Languages.Swedish
+            Case Utils.EnumCollection.Languages.Swedish
                 ReferenceLevelTitle = "Referensnivå (" & dBString() & ")"
                 TargetLevelTitle = "Talnivå (" & dBString() & ")"
                 MaskingLevelTitle = "Maskeringsnivå (" & dBString() & ")"
@@ -1885,9 +1885,9 @@ Public MustInherit Class SpeechTest
 
                 'Overriding the value Both if signal is only the left or only the right side
                 If HasLeftSideTarget = True And HasRightSideTarget = False Then
-                    CurrentTestEar = Utils.Constants.SidesWithBoth.Left
+                    CurrentTestEar = Utils.EnumCollection.SidesWithBoth.Left
                 ElseIf HasLeftSideTarget = False And HasRightSideTarget = True Then
-                    CurrentTestEar = Utils.Constants.SidesWithBoth.Right
+                    CurrentTestEar = Utils.EnumCollection.SidesWithBoth.Right
                 End If
             End If
         End If
@@ -2062,10 +2062,10 @@ Public MustInherit Class SpeechTest
 
             'Determining which side to put the contralateral masker
             Dim ContralateralMaskerLocation As New Audio.SoundScene.SoundSourceLocation With {.Distance = 0, .Elevation = 0}
-            If CurrentTestEar = Utils.Constants.SidesWithBoth.Left Then
+            If CurrentTestEar = Utils.EnumCollection.SidesWithBoth.Left Then
                 'Putting contralateral masker in right ear
                 ContralateralMaskerLocation.HorizontalAzimuth = 90
-            ElseIf CurrentTestEar = Utils.Constants.SidesWithBoth.Right Then
+            ElseIf CurrentTestEar = Utils.EnumCollection.SidesWithBoth.Right Then
                 'Putting contralateral masker in left ear
                 ContralateralMaskerLocation.HorizontalAzimuth = -90
             Else
@@ -2362,7 +2362,7 @@ Public MustInherit Class SpeechTest
     ''' Should deliver the current progress of the test, or Nothing if progress indication is not supported.
     ''' </summary>
     ''' <returns></returns>
-    Public MustOverride Function GetProgress() As Utils.ProgressInfo
+    Public MustOverride Function GetProgress() As ProgressInfo
 
 
 #End Region
@@ -2494,7 +2494,7 @@ Public MustInherit Class SpeechTest
         Dim OutputFilename = Me.FilePathRepresentation & "_TrialResults_" & SharedSpeechTestObjects.CurrentParticipantID
 
         Dim TestTrialResultsString = GetTestTrialResultExportString()
-        Utils.SendInfoToLog(TestTrialResultsString, OutputFilename, OutputPath, False, True, False, True, True)
+        Logging.SendInfoToLog(TestTrialResultsString, OutputFilename, OutputPath, False, True, False, True, True)
 
         Dim SelectedVariables = GetSelectedExportVariables()
         If SelectedVariables IsNot Nothing Then
@@ -2502,7 +2502,7 @@ Public MustInherit Class SpeechTest
             Dim OutputFilename_SelectedVariables = Me.FilePathRepresentation & "_TrialResults_SelectedVariables_" & SharedSpeechTestObjects.CurrentParticipantID
 
             Dim TestTrialResultsString_SelectedVariables = GetTestTrialResultExportString(SelectedVariables)
-            Utils.SendInfoToLog(TestTrialResultsString_SelectedVariables, OutputFilename_SelectedVariables, OutputPath, False, True, False, True, True)
+            Logging.SendInfoToLog(TestTrialResultsString_SelectedVariables, OutputFilename_SelectedVariables, OutputPath, False, True, False, True, True)
 
         End If
 
@@ -2514,14 +2514,14 @@ Public MustInherit Class SpeechTest
 
         Dim LanguageBit As String
         Select Case GuiLanguage
-            Case Utils.Constants.Languages.Swedish
+            Case Utils.EnumCollection.Languages.Swedish
                 LanguageBit = "Sparade skärmdumpar"
             Case Else
                 LanguageBit = "SavedScreenShot"
         End Select
 
         Dim OutputFolder = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, LanguageBit, Me.FilePathRepresentation)
-        Dim OutputFilename = Me.FilePathRepresentation & "_" & SharedSpeechTestObjects.CurrentParticipantID & "_" & Utils.CreateDateTimeStringForFileNames & ".png"
+        Dim OutputFilename = Me.FilePathRepresentation & "_" & SharedSpeechTestObjects.CurrentParticipantID & "_" & Logging.CreateDateTimeStringForFileNames & ".png"
         Dim OutputPath = System.IO.Path.Combine(OutputFolder, OutputFilename)
         Return OutputPath
 

@@ -61,7 +61,7 @@ Public Class QuickSiP
 
         'Transducer = AvaliableTransducers(1)
 
-        CurrentSipTestMeasurement = New SipMeasurementBase(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, AdaptiveTypes.Fixed, SelectedTestparadigm)
+        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, SiPTestProcedure.AdaptiveTypes.Fixed, SelectedTestparadigm)
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
 
@@ -555,7 +555,7 @@ Public Class QuickSiP
             Return MixedInitialSound
 
         Catch ex As Exception
-            Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            Logging.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             Return Nothing
         End Try
 

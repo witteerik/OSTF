@@ -61,7 +61,7 @@ Public Class UoPta
 
     Private TestFrequencies As New List(Of Integer) From {1000, 2000, 4000, 6000, 500}
 
-    Public FirstSide As Utils.Sides = Utils.Constants.Sides.Right
+    Public FirstSide As Utils.Sides = Utils.EnumCollection.Sides.Right
 
     ''' <summary>
     ''' Keeps track of whether the second side (i.e. left or right) has been started.
@@ -731,7 +731,7 @@ Public Class UoPta
             Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, UoPta.FilePathRepresentation)
             Dim OutputFilename = UoPta.FilePathRepresentation & "_PtaTrialData_" & SharedSpeechTestObjects.CurrentParticipantID
 
-            Utils.SendInfoToLog(String.Join(vbCrLf, ExportedLines), OutputFilename, OutputPath, False, True, False, True, True)
+            Logging.SendInfoToLog(String.Join(vbCrLf, ExportedLines), OutputFilename, OutputPath, False, True, False, True, True)
 
         End Sub
 
@@ -837,25 +837,25 @@ Public Class UoPta
         'Adding the first side tests
 
         'Creating subtests
-        If FirstSide = Utils.Constants.Sides.Right Then
+        If FirstSide = Utils.EnumCollection.Sides.Right Then
 
             'Adding subtests
             For Each Frequency In TestFrequencies
-                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Right, .Frequency = Frequency, .IsReliabilityCheck = False})
+                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.EnumCollection.Sides.Right, .Frequency = Frequency, .IsReliabilityCheck = False})
             Next
 
             'Adding the reliability check
-            SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Right, .Frequency = 1000, .IsReliabilityCheck = True})
+            SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.EnumCollection.Sides.Right, .Frequency = 1000, .IsReliabilityCheck = True})
 
         Else
 
             'Adding subtests
             For Each Frequency In TestFrequencies
-                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Left, .Frequency = Frequency, .IsReliabilityCheck = False})
+                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.EnumCollection.Sides.Left, .Frequency = Frequency, .IsReliabilityCheck = False})
             Next
 
             'Adding the reliability check
-            SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Left, .Frequency = 1000, .IsReliabilityCheck = True})
+            SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.EnumCollection.Sides.Left, .Frequency = 1000, .IsReliabilityCheck = True})
 
         End If
 
@@ -867,18 +867,18 @@ Public Class UoPta
         'Adding the second side tests
 
         'Creating subtests
-        If FirstSide = Utils.Constants.Sides.Right Then
+        If FirstSide = Utils.EnumCollection.Sides.Right Then
 
             'Adding subtests
             For Each Frequency In TestFrequencies
-                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Left, .Frequency = Frequency, .IsReliabilityCheck = False})
+                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.EnumCollection.Sides.Left, .Frequency = Frequency, .IsReliabilityCheck = False})
             Next
 
         Else
 
             'Adding subtests
             For Each Frequency In TestFrequencies
-                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.Constants.Sides.Right, .Frequency = Frequency, .IsReliabilityCheck = False})
+                SubTests.Add(New PtaSubTest(Randomizer, Me) With {.Side = Utils.EnumCollection.Sides.Right, .Frequency = Frequency, .IsReliabilityCheck = False})
             Next
 
         End If
@@ -971,7 +971,7 @@ Public Class UoPta
         Dim ColumnWidth5 As Integer = 8
 
         Select Case GuiLanguage
-            Case Utils.Constants.Languages.Swedish
+            Case Utils.EnumCollection.Languages.Swedish
                 ResultList.Add("Audiogramtyp:")
                 If IncludeDetails = True Then
                     ResultList.Add("Sida".PadRight(ColumnWidth1) &
@@ -1038,14 +1038,14 @@ Public Class UoPta
 
             Dim SideWord As String
             Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
-                    If Side = Utils.Constants.Sides.Left Then
+                Case Utils.EnumCollection.Languages.Swedish
+                    If Side = Utils.EnumCollection.Sides.Left Then
                         SideWord = "Vänster"
                     Else
                         SideWord = "Höger"
                     End If
                 Case Else
-                    If Side = Utils.Constants.Sides.Left Then
+                    If Side = Utils.EnumCollection.Sides.Left Then
                         SideWord = "Left"
                     Else
                         SideWord = "Right"
@@ -1056,21 +1056,21 @@ Public Class UoPta
             Select Case ApproxResult.Item2
                 Case BisgaardAudiogramsLimitedFit.Good
                     Select Case GuiLanguage
-                        Case Utils.Constants.Languages.Swedish
+                        Case Utils.EnumCollection.Languages.Swedish
                             FitWord = "Bra"
                         Case Else
                             FitWord = "Good"
                     End Select
                 Case BisgaardAudiogramsLimitedFit.Medium
                     Select Case GuiLanguage
-                        Case Utils.Constants.Languages.Swedish
+                        Case Utils.EnumCollection.Languages.Swedish
                             FitWord = "Måttlig"
                         Case Else
                             FitWord = "Fair"
                     End Select
                 Case BisgaardAudiogramsLimitedFit.Poor
                     Select Case GuiLanguage
-                        Case Utils.Constants.Languages.Swedish
+                        Case Utils.EnumCollection.Languages.Swedish
                             FitWord = "Dålig"
                         Case Else
                             FitWord = "Poor"
@@ -1226,7 +1226,7 @@ Public Class UoPta
         Dim OutputPath = IO.Path.Combine(SharedSpeechTestObjects.TestResultsRootFolder, UoPta.FilePathRepresentation)
         Dim OutputFilename = UoPta.FilePathRepresentation & "_AudiogramData_" & SharedSpeechTestObjects.CurrentParticipantID
 
-        Utils.SendInfoToLog(ResultSummary, OutputFilename, OutputPath, False, True, False, True, True)
+        Logging.SendInfoToLog(ResultSummary, OutputFilename, OutputPath, False, True, False, True, True)
 
     End Sub
 
@@ -1260,7 +1260,7 @@ Public Class UoPta
         AudiogramList.Add(GetAudiogramClasification(IncludeDetails))
 
         Select Case GuiLanguage
-            Case Utils.Constants.Languages.Swedish
+            Case Utils.EnumCollection.Languages.Swedish
                 AudiogramList.Add("Test-retest-skillnad (1 kHz): " & TestRetestDifference & " dB HL")
             Case Else
                 AudiogramList.Add("Test-retest difference (1 kHz): " & TestRetestDifference & " dB HL")

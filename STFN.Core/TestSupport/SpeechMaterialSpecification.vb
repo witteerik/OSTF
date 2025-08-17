@@ -180,7 +180,7 @@ Public Class SpeechMaterialSpecification
     Public Sub WriteTextFile(Optional FilePath As String = "")
 
         If FilePath = "" Then
-            FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save OSTF test specification file as")
+            FilePath = Utils.GeneralIO.GetSaveFilePath(,, {".txt"}, "Save OSTF test specification file as")
         End If
 
         Dim OutputList As New List(Of String)
@@ -208,7 +208,7 @@ Public Class SpeechMaterialSpecification
             OutputList.Add("TestPresetsSubFilePath = TestPresetsSubFilePath")
         End If
 
-        Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
+        Logging.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
 
     End Sub
 

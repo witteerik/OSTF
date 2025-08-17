@@ -24,173 +24,171 @@
 Imports System.IO
 Imports System.Threading
 
-Namespace Utils
-    Public Module Logging
+Partial Public Class Logging
 
-        ''' <summary>
-        ''' Can be used to block all logging, for example when run on a web-server. But rather than blocking from within Utils.SendInfoToLog, logging should be blocked
-        ''' from the calling code.
-        ''' </summary>
-        Public GeneralLogIsActive As Boolean = True
-        Public logFilePath As String = "C:\SpeechTestFrameworkLog\"
-        Public showErrors As Boolean = True
-        Public logErrors As Boolean = True
-        Public logIsMultiThreadApplication As Boolean = False
+    ''' <summary>
+    ''' Can be used to block all logging, for example when run on a web-server. But rather than blocking from within Utils.SendInfoToLog, logging should be blocked
+    ''' from the calling code.
+    ''' </summary>
+    Public Shared GeneralLogIsActive As Boolean = True
+    Public Shared LogFileDirectory As String = "C:\SpeechTestFrameworkLog\"
+    Public Shared ShowErrors As Boolean = True
+    Public Shared LogErrors As Boolean = True
+    Public Shared LogIsMultiThreadApplication As Boolean = False
 
-        Private LoggingSpinLock As New Threading.SpinLock
+    Private Shared LoggingSpinLock As New Threading.SpinLock
 
-        Public Sub SendInfoToLog(ByVal message As String,
-                                 Optional ByVal LogFileNameWithoutExtension As String = "",
-                                 Optional LogFileTemporaryPath As String = "",
-                                 Optional ByVal OmitDateInsideLog As Boolean = False,
-                                 Optional ByVal OmitDateInFileName As Boolean = False,
-                                 Optional ByVal OverWrite As Boolean = False,
-                                 Optional ByVal AddDateOnEveryRow As Boolean = False,
-                                 Optional ByVal SkipIfEmpty As Boolean = False)
+    Public Shared Sub SendInfoToLog(ByVal message As String,
+                             Optional ByVal LogFileNameWithoutExtension As String = "",
+                             Optional LogFileTemporaryPath As String = "",
+                             Optional ByVal OmitDateInsideLog As Boolean = False,
+                             Optional ByVal OmitDateInFileName As Boolean = False,
+                             Optional ByVal OverWrite As Boolean = False,
+                             Optional ByVal AddDateOnEveryRow As Boolean = False,
+                             Optional ByVal SkipIfEmpty As Boolean = False)
 
-            'Skipping directly if message is empty
-            If SkipIfEmpty = True Then
-                If message = "" Then Exit Sub
+        'Skipping directly if message is empty
+        If SkipIfEmpty = True Then
+            If message = "" Then Exit Sub
+        End If
+
+        Dim SpinLockTaken As Boolean = False
+
+        'Skipping logging if the demo participant ID is set
+        If CurrentParticipantID = NoTestId Then Exit Sub
+
+        Try
+
+            'Blocks logging if GeneralLogIsActive is False
+            If GeneralLogIsActive = False Then Exit Sub
+
+            'Attempts to enter a spin lock to avoid multiple thread conflicts when saving to the same file
+            LoggingSpinLock.Enter(SpinLockTaken)
+
+            If LogFileTemporaryPath = "" Then LogFileTemporaryPath = LogFileDirectory
+
+            Dim FileNameToUse As String = ""
+
+            If OmitDateInFileName = False Then
+                If LogFileNameWithoutExtension = "" Then
+                    FileNameToUse = "log-" & CreateDateTimeStringForFileNames() & ".txt"
+                Else
+                    FileNameToUse = LogFileNameWithoutExtension & "-" & CreateDateTimeStringForFileNames() & ".txt"
+                End If
+            Else
+                If LogFileNameWithoutExtension = "" Then
+                    FileNameToUse = "log.txt"
+                Else
+                    FileNameToUse = LogFileNameWithoutExtension & ".txt"
+                End If
+
             End If
 
-            Dim SpinLockTaken As Boolean = False
+            Dim OutputFilePath As String = Path.Combine(LogFileTemporaryPath, FileNameToUse)
 
-            'Skipping logging if the demo participant ID is set
-            If CurrentParticipantID = NoTestId Then Exit Sub
+            'Adds a thread ID if in multi thread app
+            If LogIsMultiThreadApplication = True Then
+                Dim TreadName As String = Thread.CurrentThread.ManagedThreadId
+                OutputFilePath &= "ThreadID_" & TreadName
+            End If
+
+            'Adds the file to AddFileToCopy for later copying of test results
+            AddFileToCopy(OutputFilePath)
 
             Try
+                'If File.Exists(logFilePathway) Then File.Delete(logFilePathway)
+                If Not Directory.Exists(LogFileTemporaryPath) Then Directory.CreateDirectory(LogFileTemporaryPath)
 
-                'Blocks logging if GeneralLogIsActive is False
-                If GeneralLogIsActive = False Then Exit Sub
+                If OverWrite = True Then
+                    'Deleting the files before writing if overwrite is true
+                    If IO.File.Exists(OutputFilePath) Then IO.File.Delete(OutputFilePath)
+                End If
 
-                'Attempts to enter a spin lock to avoid multiple thread conflicts when saving to the same file
-                LoggingSpinLock.Enter(SpinLockTaken)
-
-                If LogFileTemporaryPath = "" Then LogFileTemporaryPath = Utils.logFilePath
-
-                Dim FileNameToUse As String = ""
-
-                If OmitDateInFileName = False Then
-                    If LogFileNameWithoutExtension = "" Then
-                        FileNameToUse = "log-" & CreateDateTimeStringForFileNames() & ".txt"
+                Dim Writer As New StreamWriter(OutputFilePath, FileMode.Append)
+                If OmitDateInsideLog = False Then
+                    If AddDateOnEveryRow = False Then
+                        Writer.WriteLine(DateTime.Now.ToString & vbCrLf & message)
                     Else
-                        FileNameToUse = LogFileNameWithoutExtension & "-" & CreateDateTimeStringForFileNames() & ".txt"
+
+                        Dim lineBreaks As String() = {vbCr, vbCrLf, vbLf}
+                        Dim MessageSplit = message.Split(lineBreaks, StringSplitOptions.None)
+                        Dim MessageRowsWithDate As New List(Of String)
+                        For Each MessageRow In MessageSplit
+                            If SkipIfEmpty = True And MessageRow = "" Then Continue For
+                            MessageRowsWithDate.Add(DateTime.Now.ToString & vbTab & MessageRow)
+                        Next
+                        Writer.WriteLine(String.Join(vbCrLf, MessageRowsWithDate))
+
                     End If
                 Else
-                    If LogFileNameWithoutExtension = "" Then
-                        FileNameToUse = "log.txt"
-                    Else
-                        FileNameToUse = LogFileNameWithoutExtension & ".txt"
-                    End If
-
+                    Writer.WriteLine(message)
                 End If
+                Writer.Close()
 
-                Dim OutputFilePath As String = Path.Combine(LogFileTemporaryPath, FileNameToUse)
-
-                'Adds a thread ID if in multi thread app
-                If logIsMultiThreadApplication = True Then
-                    Dim TreadName As String = Thread.CurrentThread.ManagedThreadId
-                    OutputFilePath &= "ThreadID_" & TreadName
-                End If
-
-                'Adds the file to AddFileToCopy for later copying of test results
-                AddFileToCopy(OutputFilePath)
-
-                Try
-                    'If File.Exists(logFilePathway) Then File.Delete(logFilePathway)
-                    If Not Directory.Exists(LogFileTemporaryPath) Then Directory.CreateDirectory(LogFileTemporaryPath)
-
-                    If OverWrite = True Then
-                        'Deleting the files before writing if overwrite is true
-                        If IO.File.Exists(OutputFilePath) Then IO.File.Delete(OutputFilePath)
-                    End If
-
-                    Dim Writer As New StreamWriter(OutputFilePath, FileMode.Append)
-                    If OmitDateInsideLog = False Then
-                        If AddDateOnEveryRow = False Then
-                            Writer.WriteLine(DateTime.Now.ToString & vbCrLf & message)
-                        Else
-
-                            Dim lineBreaks As String() = {vbCr, vbCrLf, vbLf}
-                            Dim MessageSplit = message.Split(lineBreaks, StringSplitOptions.None)
-                            Dim MessageRowsWithDate As New List(Of String)
-                            For Each MessageRow In MessageSplit
-                                If SkipIfEmpty = True And MessageRow = "" Then Continue For
-                                MessageRowsWithDate.Add(DateTime.Now.ToString & vbTab & MessageRow)
-                            Next
-                            Writer.WriteLine(String.Join(vbCrLf, MessageRowsWithDate))
-
-                        End If
-                    Else
-                        Writer.WriteLine(message)
-                    End If
-                    Writer.Close()
-
-                Catch ex As Exception
-                    Errors(ex.ToString, "Error saving to log file!")
-                End Try
-
-            Finally
-
-                'Releases any spinlock
-                If SpinLockTaken = True Then LoggingSpinLock.Exit()
+            Catch ex As Exception
+                Errors(ex.ToString, "Error saving to log file!")
             End Try
 
-        End Sub
+        Finally
 
-        ''' <summary>
-        ''' Creates a string containing year month day hours minutes seconds and milliseconds sutiable for use in filenames.
-        ''' </summary>
-        ''' <returns></returns>
-        Public Function CreateDateTimeStringForFileNames() As String
-            Return DateTime.Now.ToString("yyyyMMdd_HHmmss_fff")
-        End Function
+            'Releases any spinlock
+            If SpinLockTaken = True Then LoggingSpinLock.Exit()
+        End Try
 
-        Public Sub Errors(ByVal errorText As String, Optional ByVal errorTitle As String = "Error")
+    End Sub
 
-            If showErrors = True Then
-                MsgBox(errorText, MsgBoxStyle.Critical, errorTitle)
-            End If
+    ''' <summary>
+    ''' Creates a string containing year month day hours minutes seconds and milliseconds sutiable for use in filenames.
+    ''' </summary>
+    ''' <returns></returns>
+    Public Shared Function CreateDateTimeStringForFileNames() As String
+        Return DateTime.Now.ToString("yyyyMMdd_HHmmss_fff")
+    End Function
 
-            If logErrors = True Then
-                Utils.SendInfoToLog("The following error occurred: " & vbCrLf & errorTitle & errorText, "Errors")
-            End If
+    Public Shared Sub Errors(ByVal errorText As String, Optional ByVal errorTitle As String = "Error")
 
-        End Sub
+        If ShowErrors = True Then
+            MsgBox(errorText, MsgBoxStyle.Critical, errorTitle)
+        End If
 
-        Public FilesToCopy As New SortedSet(Of String)
+        If LogErrors = True Then
+            SendInfoToLog("The following error occurred: " & vbCrLf & errorTitle & errorText, "Errors")
+        End If
 
-        ''' <summary>
-        ''' Add file paths that should later be copied to a specific folder using the public sub CopyFilesToFolder.
-        ''' </summary>
-        ''' <param name="FullFilePath"></param>
-        Public Sub AddFileToCopy(ByVal FullFilePath As String)
-            If Not FilesToCopy.Contains(FullFilePath) Then
-                FilesToCopy.Add(FullFilePath)
-            End If
-        End Sub
+    End Sub
 
-        Private SoundFileExportFilenameLogLock As New Object
+    Public Shared FilesToCopy As New SortedSet(Of String)
 
-        ''' <summary>
-        ''' Creates the path needed for file export
-        ''' </summary>
-        ''' <param name="RoutingString">This string should contain the output routing for the channels, in the format 
-        ''' 1_2-6_5-6 meaning wave channels 1 goes to hardware channel 1, wave channel 2 goes to  hardware channels 2 and 6, and wave channel 3 goes to hardware channel 5 and 6...</param>
-        ''' <returns></returns>
-        Public Function GetSoundFileExportLogPath(ByVal RoutingString As String) As String
+    ''' <summary>
+    ''' Add file paths that should later be copied to a specific folder using the public sub CopyFilesToFolder.
+    ''' </summary>
+    ''' <param name="FullFilePath"></param>
+    Public Shared Sub AddFileToCopy(ByVal FullFilePath As String)
+        If Not FilesToCopy.Contains(FullFilePath) Then
+            FilesToCopy.Add(FullFilePath)
+        End If
+    End Sub
 
-            SyncLock SoundFileExportFilenameLogLock
+    Private Shared SoundFileExportFilenameLogLock As New Object
 
-                Return IO.Path.Combine(logFilePath, "PlayedSoundsLog", CreateDateTimeStringForFileNames() & "_" & RoutingString & ".wav")
+    ''' <summary>
+    ''' Creates the path needed for file export
+    ''' </summary>
+    ''' <param name="RoutingString">This string should contain the output routing for the channels, in the format 
+    ''' 1_2-6_5-6 meaning wave channels 1 goes to hardware channel 1, wave channel 2 goes to  hardware channels 2 and 6, and wave channel 3 goes to hardware channel 5 and 6...</param>
+    ''' <returns></returns>
+    Public Shared Function GetSoundFileExportLogPath(ByVal RoutingString As String) As String
 
-                'Sleeps two milliseconds two prevent the same log file name being created twice
-                Thread.Sleep(2)
+        SyncLock SoundFileExportFilenameLogLock
 
-            End SyncLock
+            Return IO.Path.Combine(LogFileDirectory, "PlayedSoundsLog", CreateDateTimeStringForFileNames() & "_" & RoutingString & ".wav")
 
-        End Function
+            'Sleeps two milliseconds two prevent the same log file name being created twice
+            Thread.Sleep(2)
 
-    End Module
+        End SyncLock
 
-End Namespace
+    End Function
+
+End Class
+

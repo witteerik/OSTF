@@ -54,7 +54,7 @@ Public Class IHearSC_SiP_SpeechTest
 
         Transducer = AvaliableTransducers(0)
 
-        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, AdaptiveTypes.Fixed, SelectedTestparadigm)
+        CurrentSipTestMeasurement = New SipTest.SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, SiPTestProcedure.AdaptiveTypes.Fixed, SelectedTestparadigm)
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False
 
@@ -281,7 +281,7 @@ Public Class IHearSC_SiP_SpeechTest
             Return MixedInitialSound
 
         Catch ex As Exception
-            SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            Logging.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             Return Nothing
         End Try
 

@@ -67,7 +67,7 @@ namespace STFM.Views
 
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Core.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                     StartButton.Text = "Start";
                     StopButton.Text = "Stop";
                     PauseButton.Text = "Pause";

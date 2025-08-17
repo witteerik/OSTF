@@ -82,7 +82,7 @@ Public Class AdaptiveSiP
 
         'Transducer = AvaliableTransducers(0)
 
-        CurrentSipTestMeasurement = New SipMeasurementBase(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, AdaptiveTypes.Fixed, SelectedTestparadigm)
+        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, SiPTestProcedure.AdaptiveTypes.Fixed, SelectedTestparadigm)
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False ' TODO Set to false!
 
@@ -478,7 +478,7 @@ Public Class AdaptiveSiP
             Return MixedInitialSound
 
         Catch ex As Exception
-            Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            Logging.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             Return Nothing
         End Try
 
@@ -579,7 +579,7 @@ Public Class AdaptiveSiP
             'End If
 
             'Taking a dump of the SpeechTest before swapping to the new trial
-            CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+            CurrentTestTrial.SpeechTestPropertyDump = Logging.ListObjectPropertyValues(Me.GetType, Me)
 
         Else
             'Nothing to correct (this should be the start of a new test)
@@ -705,7 +705,7 @@ Public Class AdaptiveSiP
             End If
 
             'Exports sound file
-            If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i))
+            If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i))
 
             'Storing the test word start times
             If i = 0 Then
@@ -723,7 +723,7 @@ Public Class AdaptiveSiP
         CurrentTestTrial.Sound = DSP.ConcatenateSounds2(TrialSounds, TrialSounds(0).WaveFormat.SampleRate * OverlapTime)
 
         'Exports sound file
-        If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix"))
+        If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix"))
 
         'Waiting for the trial sound to be mixed, if not yet completed
         'WaitForTestTrialSound()
@@ -875,7 +875,7 @@ Public Class AdaptiveSiP
     Public Overrides Function GetTestCompletedGuiMessage() As String
 
         Select Case SharedSpeechTestObjects.GuiLanguage
-            Case Utils.Constants.Languages.Swedish
+            Case Utils.EnumCollection.Languages.Swedish
                 If IsPractiseTest = True Then
                     Return "Övningstestet är klart!"
                 Else

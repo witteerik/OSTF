@@ -1034,7 +1034,7 @@ Public Class DSP
                     newDoubleArray(0, p) = CentreFrequencies(p)
                     newDoubleArray(1, p) = CenterFrequencyToBarkFilterBandwidth(CentreFrequencies(p))
                 Next
-                Utils.SaveMatrixToFile(newDoubleArray, IO.Path.Combine(MatrixOutputFolder, "CentreFrequencies.txt"))
+                Utils.GeneralIO.SaveMatrixToFile(newDoubleArray, IO.Path.Combine(MatrixOutputFolder, "CentreFrequencies.txt"))
             End If
 
             If UseImprovementsAfterSiB = True Then
@@ -1075,7 +1075,7 @@ Public Class DSP
                         newDoubleArray(p, q) = FilterredMagnitudesArray1(p)(q)
                     Next
                 Next
-                Utils.SaveMatrixToFile(newDoubleArray, IO.Path.Combine(MatrixOutputFolder, "Spectrum_" & FileComparisonID & "A.txt"))
+                Utils.GeneralIO.SaveMatrixToFile(newDoubleArray, IO.Path.Combine(MatrixOutputFolder, "Spectrum_" & FileComparisonID & "A.txt"))
 
                 Dim newDoubleArray2(FilterredMagnitudesArray2.Count - 1, FilterredMagnitudesArray2(0).Length - 1) As Double
                 For p = 0 To FilterredMagnitudesArray2.Count - 1
@@ -1083,7 +1083,7 @@ Public Class DSP
                         newDoubleArray2(p, q) = FilterredMagnitudesArray2(p)(q)
                     Next
                 Next
-                Utils.SaveMatrixToFile(newDoubleArray2, IO.Path.Combine(MatrixOutputFolder, "Spectrum_" & FileComparisonID & "B.txt"))
+                Utils.GeneralIO.SaveMatrixToFile(newDoubleArray2, IO.Path.Combine(MatrixOutputFolder, "Spectrum_" & FileComparisonID & "B.txt"))
 
             End If
 
@@ -1109,7 +1109,7 @@ Public Class DSP
 
             'Saving matrix to file
             If ExportDetails = True And MatrixOutputFolder <> "" Then
-                Utils.SaveMatrixToFile(DistanceMatrix, IO.Path.Combine(MatrixOutputFolder, FileComparisonID & "_Distance.txt"))
+                Utils.GeneralIO.SaveMatrixToFile(DistanceMatrix, IO.Path.Combine(MatrixOutputFolder, FileComparisonID & "_Distance.txt"))
             End If
 
             'Doing dynamic time warping into a new table, the first window is only used for initial comparison (as if it repressented sound prior to the first window), whereby the matrix need to be,
@@ -1287,7 +1287,7 @@ Public Class DSP
                 For Each CurrentPTWPoint In DtwMatrix(ColumnCount - 1, RowCount - 1).History
                     HistoryOutputList.Add(CurrentPTWPoint.ColumnIndex & "," & CurrentPTWPoint.RowIndex & vbCrLf)
                 Next
-                Utils.SaveListOfStringToTxtFile(HistoryOutputList, MatrixOutputFolder, "WinnerHistory")
+                Utils.GeneralIO.SaveListOfStringToTxtFile(HistoryOutputList, MatrixOutputFolder, "WinnerHistory")
             End If
 
 
@@ -1610,7 +1610,7 @@ Public Class DSP
 
         Private Shared Sub SaveDTWPointMatrixToFile(ByRef DistanceMatrix(,) As DTWPoint, Optional ByVal FilePath As String = "")
 
-            If FilePath = "" Then FilePath = STFN.Core.Utils.GetSaveFilePath()
+            If FilePath = "" Then FilePath = Utils.GeneralIO.GetSaveFilePath()
 
             Dim SaveFolder As String = Path.GetDirectoryName(FilePath)
             If Not Directory.Exists(SaveFolder) Then Directory.CreateDirectory(SaveFolder)
@@ -1781,7 +1781,7 @@ Public Class DSP
                             newDoubleArray(p, q) = FilterredBandPowerArray1(p)(q)
                         Next
                     Next
-                    Utils.SaveMatrixToFile(newDoubleArray, IO.Path.Combine(MatrixOutputFolder, "BarkSpectrum_" & FileComparisonID & "A.txt"))
+                    Utils.GeneralIO.SaveMatrixToFile(newDoubleArray, IO.Path.Combine(MatrixOutputFolder, "BarkSpectrum_" & FileComparisonID & "A.txt"))
 
                     Dim FilterredBandPowerArray2 As SortedList(Of Integer, Single()) = Sound2.FFT.BarkSpectrumData(1)
                     Dim newDoubleArray2(FilterredBandPowerArray2.Count - 1, FilterredBandPowerArray2(0).Length - 1) As Double
@@ -1790,7 +1790,7 @@ Public Class DSP
                             newDoubleArray2(p, q) = FilterredBandPowerArray2(p)(q)
                         Next
                     Next
-                    Utils.SaveMatrixToFile(newDoubleArray2, IO.Path.Combine(MatrixOutputFolder, "BarkSpectrum_" & FileComparisonID & "B.txt"))
+                    Utils.GeneralIO.SaveMatrixToFile(newDoubleArray2, IO.Path.Combine(MatrixOutputFolder, "BarkSpectrum_" & FileComparisonID & "B.txt"))
 
                 End If
 
@@ -1878,7 +1878,7 @@ Public Class DSP
 
                 'Saving matrix to file
                 If ExportDetails = True And MatrixOutputFolder <> "" Then
-                    Utils.SaveMatrixToFile(DistanceMatrix, IO.Path.Combine(MatrixOutputFolder, FileComparisonID & "_Distance.txt"))
+                    Utils.GeneralIO.SaveMatrixToFile(DistanceMatrix, IO.Path.Combine(MatrixOutputFolder, FileComparisonID & "_Distance.txt"))
                 End If
 
                 'Doing dynamic time warping into a new table, the first window is only used for initial comparison (as if it repressented sound prior to the first window), whereby the matrix need to be,
@@ -2056,7 +2056,7 @@ Public Class DSP
                     For Each CurrentPTWPoint In DtwMatrix(ColumnCount - 1, RowCount - 1).History
                         HistoryOutputList.Add(CurrentPTWPoint.ColumnIndex & ", " & CurrentPTWPoint.RowIndex & vbCrLf)
                     Next
-                    Utils.SaveListOfStringToTxtFile(HistoryOutputList, MatrixOutputFolder, FileComparisonID & "_WinnerHistory")
+                    Utils.GeneralIO.SaveListOfStringToTxtFile(HistoryOutputList, MatrixOutputFolder, FileComparisonID & "_WinnerHistory")
                 End If
 
 
@@ -2155,7 +2155,7 @@ Public Class DSP
 
         Private Shared Sub SaveDTWPointMatrixToFile(ByRef DistanceMatrix(,) As DTWPoint, Optional ByVal FilePath As String = "")
 
-            If FilePath = "" Then FilePath = STFN.Core.Utils.GetSaveFilePath()
+            If FilePath = "" Then FilePath = Utils.GeneralIO.GetSaveFilePath()
 
             Dim SaveFolder As String = Path.GetDirectoryName(FilePath)
             If Not Directory.Exists(SaveFolder) Then Directory.CreateDirectory(SaveFolder)
@@ -4656,7 +4656,7 @@ Public Class DSP
         End Select
 
         'Using the general log folder as default working path
-        If WorkFolder = "" Then WorkFolder = STFN.Core.Utils.logFilePath
+        If WorkFolder = "" Then WorkFolder = Logging.LogFileDirectory
 
         'Returns nothing if ResampAudio.exe cannot be found
         If Not File.Exists(ResampAudioPath) Then
@@ -5354,7 +5354,7 @@ Public Class DSP
         ''' <param name="OutputFolder"></param>
         Public Sub ExportKernels(Optional ByVal OutputFolder As String = "")
 
-            If OutputFolder = "" Then OutputFolder = STFN.Core.Utils.logFilePath
+            If OutputFolder = "" Then OutputFolder = Logging.LogFileDirectory
 
             For n = 0 To FilterKernels.Count - 1
                 FilterKernels(n).WriteWaveFile(IO.Path.Combine(OutputFolder, "GammatoneFirKernel_fc_" & CentreFrequencies(n) & "_bw_" & Bandwidths(n) & ".wav"))
@@ -5368,7 +5368,7 @@ Public Class DSP
         ''' <param name="OutputFolder"></param>
         Public Sub ExportFilterDescription(Optional ByVal OutputFolder As String = "")
 
-            If OutputFolder = "" Then OutputFolder = STFN.Core.Utils.logFilePath
+            If OutputFolder = "" Then OutputFolder = Logging.LogFileDirectory
 
             Dim OutputList As New List(Of String)
             OutputList.Add("Gammatone FIR filterbank info")
@@ -5377,7 +5377,7 @@ Public Class DSP
                 OutputList.Add(n & vbTab & CentreFrequencies(n) & vbTab & Bandwidths(n))
             Next
 
-            STFN.Core.Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), "GammatoneFilterbankInfo", OutputFolder)
+            Logging.SendInfoToLog(String.Join(vbCrLf, OutputList), "GammatoneFilterbankInfo", OutputFolder)
 
         End Sub
 
@@ -6761,9 +6761,9 @@ Public Class DSP
 
         Dim ValidFrequenciesLog2 As New SortedSet(Of Double)
         For Each f In ValidFrequencies
-            ValidFrequenciesLog2.Add(getBase_n_Log(f, 2))
+            ValidFrequenciesLog2.Add(GetBase_n_Log(f, 2))
         Next
-        Dim NearestIndex = GetNearestIndex(getBase_n_Log(Frequency, 2), ValidFrequenciesLog2, True)
+        Dim NearestIndex = GetNearestIndex(GetBase_n_Log(Frequency, 2), ValidFrequenciesLog2, True)
         Dim RoundedValue = ValidFrequencies(NearestIndex)
         Return RoundedValue
 
@@ -7282,14 +7282,14 @@ Public Class DSP
         Dim Y = GetNearestIndices(InputY, InterPolationList.Values.ToArray)
         If Y.NearestLowerIndex Is Nothing Then
             'Returning the lowest value in the list
-            If SendInfoToLogWhenOutsideInterpolationListValues = True Then STFN.Core.Utils.SendInfoToLog("Input value below Interpolation list values!")
+            If SendInfoToLogWhenOutsideInterpolationListValues = True Then Logging.SendInfoToLog("Input value below Interpolation list values!")
 
             Return InterPolationList.Keys.ToArray(Y.NearestHigherIndex)
         End If
         If Y.NearestHigherIndex Is Nothing Then
             'Returning the highest value in the list
 
-            If SendInfoToLogWhenOutsideInterpolationListValues = True Then STFN.Core.Utils.SendInfoToLog("Input value below Interpolation list values!")
+            If SendInfoToLogWhenOutsideInterpolationListValues = True Then Logging.SendInfoToLog("Input value below Interpolation list values!")
 
             Return InterPolationList.Keys.ToArray(Y.NearestLowerIndex)
         End If
@@ -7385,7 +7385,7 @@ Public Class DSP
                                               Optional ByVal LogFolder As String = "",
                                               Optional ByVal ExportID As String = "dtw") As DtwResult
 
-            If LogFolder = "" Then LogFolder = STFN.Core.Utils.logFilePath
+            If LogFolder = "" Then LogFolder = Logging.LogFileDirectory
 
             Try
 
@@ -7611,7 +7611,7 @@ Public Class DSP
                     For Each CurrentPTWPoint In DtwMatrix(ColumnCount - 1, RowCount - 1).History
                         HistoryOutputList.Add(CurrentPTWPoint.Column_x & ", " & CurrentPTWPoint.Row_y)
                     Next
-                    STFN.Core.Utils.SendInfoToLog("Dynamic time warping results, indices of the selected winner path" & vbCrLf & String.Join(vbCrLf, HistoryOutputList), ExportID & "_WinnerHistoryList", LogFolder)
+                    Logging.SendInfoToLog("Dynamic time warping results, indices of the selected winner path" & vbCrLf & String.Join(vbCrLf, HistoryOutputList), ExportID & "_WinnerHistoryList", LogFolder)
 
                     'Exporting the distance matrix
                     Dim DistanceMatrixOutputList As New List(Of String)
@@ -7622,7 +7622,7 @@ Public Class DSP
                         Next
                         DistanceMatrixOutputList.Add(CurrentRow)
                     Next
-                    STFN.Core.Utils.SendInfoToLog("Dynamic time warping results, distance matrix" & vbCrLf & String.Join(vbCrLf, DistanceMatrixOutputList), ExportID & "_DistanceMatrix", LogFolder)
+                    Logging.SendInfoToLog("Dynamic time warping results, distance matrix" & vbCrLf & String.Join(vbCrLf, DistanceMatrixOutputList), ExportID & "_DistanceMatrix", LogFolder)
 
 
                     'Exporting the dtw matrix
@@ -7634,7 +7634,7 @@ Public Class DSP
                         Next
                         DtwMatrixOutputList.Add(CurrentRow)
                     Next
-                    STFN.Core.Utils.SendInfoToLog("Dynamic time warping results, accumulated distances." & vbCrLf & String.Join(vbCrLf, DtwMatrixOutputList), ExportID & "_AccumulatedDistanceMatrix", LogFolder)
+                    Logging.SendInfoToLog("Dynamic time warping results, accumulated distances." & vbCrLf & String.Join(vbCrLf, DtwMatrixOutputList), ExportID & "_AccumulatedDistanceMatrix", LogFolder)
 
                     'Exporting the dtw matrix with the winner path marked
                     Dim DtwMatrixWinnerMarkedOutputList As New List(Of String)
@@ -7652,7 +7652,7 @@ Public Class DSP
                         Next
                         DtwMatrixWinnerMarkedOutputList.Add(CurrentRow)
                     Next
-                    STFN.Core.Utils.SendInfoToLog("Dynamic time warping results, with winner path marked." & vbCrLf & String.Join(vbCrLf, DtwMatrixWinnerMarkedOutputList), ExportID & "_DtwMatrixWithWinnerPath", LogFolder)
+                    Logging.SendInfoToLog("Dynamic time warping results, with winner path marked." & vbCrLf & String.Join(vbCrLf, DtwMatrixWinnerMarkedOutputList), ExportID & "_DtwMatrixWithWinnerPath", LogFolder)
 
                 End If
 

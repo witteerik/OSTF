@@ -208,7 +208,7 @@ Public Class MediaSet
     Public Shared Function LoadMediaSetSpecification(ByRef ParentTestSpecification As SpeechMaterialSpecification, ByVal FilePath As String) As MediaSet
 
         'Gets a file path from the user if none is supplied
-        If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a media set specification .txt file.")
+        If FilePath = "" Then FilePath = Utils.GeneralIO.GetOpenFilePath(,, {".txt"}, "Please open a media set specification .txt file.")
         If FilePath = "" Then
             MsgBox("No file selected!")
             Return Nothing
@@ -503,16 +503,16 @@ Public Class MediaSet
         End Try
 
         'Normalizing paths read from file
-        Output.BackgroundNonspeechParentFolder = Utils.NormalizeCrossPlatformPath(Output.BackgroundNonspeechParentFolder)
-        Output.BackgroundSpeechParentFolder = Utils.NormalizeCrossPlatformPath(Output.BackgroundSpeechParentFolder)
-        Output.CustomVariablesFolder = Utils.NormalizeCrossPlatformPath(Output.CustomVariablesFolder)
-        Output.LombardNoisePath = Utils.NormalizeCrossPlatformPath(Output.LombardNoisePath)
-        Output.MaskerParentFolder = Utils.NormalizeCrossPlatformPath(Output.MaskerParentFolder)
-        Output.ContralateralMaskerParentFolder = Utils.NormalizeCrossPlatformPath(Output.ContralateralMaskerParentFolder)
-        Output.CalibrationSignalParentFolder = Utils.NormalizeCrossPlatformPath(Output.CalibrationSignalParentFolder)
-        Output.MasterPrototypeRecordingPath = Utils.NormalizeCrossPlatformPath(Output.MasterPrototypeRecordingPath)
-        Output.MediaParentFolder = Utils.NormalizeCrossPlatformPath(Output.MediaParentFolder)
-        Output.PrototypeMediaParentFolder = Utils.NormalizeCrossPlatformPath(Output.PrototypeMediaParentFolder)
+        Output.BackgroundNonspeechParentFolder = Utils.GeneralIO.NormalizeCrossPlatformPath(Output.BackgroundNonspeechParentFolder)
+        Output.BackgroundSpeechParentFolder = Utils.GeneralIO.NormalizeCrossPlatformPath(Output.BackgroundSpeechParentFolder)
+        Output.CustomVariablesFolder = Utils.GeneralIO.NormalizeCrossPlatformPath(Output.CustomVariablesFolder)
+        Output.LombardNoisePath = Utils.GeneralIO.NormalizeCrossPlatformPath(Output.LombardNoisePath)
+        Output.MaskerParentFolder = Utils.GeneralIO.NormalizeCrossPlatformPath(Output.MaskerParentFolder)
+        Output.ContralateralMaskerParentFolder = Utils.GeneralIO.NormalizeCrossPlatformPath(Output.ContralateralMaskerParentFolder)
+        Output.CalibrationSignalParentFolder = Utils.GeneralIO.NormalizeCrossPlatformPath(Output.CalibrationSignalParentFolder)
+        Output.MasterPrototypeRecordingPath = Utils.GeneralIO.NormalizeCrossPlatformPath(Output.MasterPrototypeRecordingPath)
+        Output.MediaParentFolder = Utils.GeneralIO.NormalizeCrossPlatformPath(Output.MediaParentFolder)
+        Output.PrototypeMediaParentFolder = Utils.GeneralIO.NormalizeCrossPlatformPath(Output.PrototypeMediaParentFolder)
 
         'Also loading custom variables
         If Output IsNot Nothing Then
@@ -717,7 +717,7 @@ Public Class MediaSet
             'Creates file paths for files not present
             For n = ExistingFileCount To MediaAudioItems - 1
                 'Creating a file name (avoiding file name conflicts)
-                LackingFilesList.Add(New Tuple(Of String, String, SpeechMaterialComponent)(Utils.CheckFileNameConflict(IO.Path.Combine(FullMediaFolderPath, Component.GetMediaFolderName & "_" & (n).ToString("000") & ".wav")), PrototypeRecordingPath, Component))
+                LackingFilesList.Add(New Tuple(Of String, String, SpeechMaterialComponent)(Utils.GeneralIO.CheckFileNameConflict(IO.Path.Combine(FullMediaFolderPath, Component.GetMediaFolderName & "_" & (n).ToString("000") & ".wav")), PrototypeRecordingPath, Component))
                 AllPaths.Add(LackingFilesList.Last)
             Next
 
@@ -747,7 +747,7 @@ Public Class MediaSet
 
         If ExpectedAudioPaths.Item3.Count > 0 Then
 
-            Dim MsgResult = Await MsgBoxAcceptQuestion(ExpectedAudioPaths.Item3.Count & " audio files are missing from media set " & MediaSetName & ". Do you want to prepare new wave files for these components?")
+            Dim MsgResult = Await Messager.MsgBoxAcceptQuestion(ExpectedAudioPaths.Item3.Count & " audio files are missing from media set " & MediaSetName & ". Do you want to prepare new wave files for these components?")
             ' TODO: This has not yet been tested. Does the code stop and wait for a response here??? I guess not...
             If MsgResult = True Then
 
@@ -2066,7 +2066,7 @@ Public Class MediaSet
             Dim FilterKernel = DSP.CreateCustumImpulseResponse(KernelFrequencyResponse, Nothing, WaveFormat, New Audio.Formats.FftFormat, 8000,, True, True)
 
             If ExportToFile = True Then
-                If LogFolder = "" Then LogFolder = Utils.logFilePath
+                If LogFolder = "" Then LogFolder = Logging.LogFileDirectory
                 FilterKernel.WriteWaveFile(IO.Path.Combine(LogFolder, "GeneralSoundFilterKernel"))
             End If
 

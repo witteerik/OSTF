@@ -15,7 +15,7 @@ public partial class SpeechTestCalibrationView : ContentView
     private SortedList<string, string> CalibrationFileDescriptions = new SortedList<string, string>();
     private List<Sound> CalibrationSounds = new List<Sound>();
     private OstfBase.AudioSystemSpecification SelectedTransducer = (OstfBase.AudioSystemSpecification)null;
-    private STFN.Core.Utils.Constants.UserTypes UserType;
+    private STFN.Core.Utils.EnumCollection.UserTypes UserType;
 
     private string CalibrationFilesDirectory = "";
 

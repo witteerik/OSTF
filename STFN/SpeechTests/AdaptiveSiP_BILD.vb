@@ -1,6 +1,5 @@
 ﻿Imports STFN.AdaptiveSiP_BILD
 Imports STFN.Core.Audio.SoundScene
-Imports STFN.Core.SipTest
 Imports STFN.Core.TestProtocol
 Imports STFN.Core.Utils
 Imports STFN.Core
@@ -107,7 +106,7 @@ Public Class AdaptiveSiP_BILD
 
         'Transducer = AvaliableTransducers(0)
 
-        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, AdaptiveTypes.Fixed, SelectedTestparadigm)
+        CurrentSipTestMeasurement = New SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, SiPTestProcedure.AdaptiveTypes.Fixed, SelectedTestparadigm)
 
         CurrentSipTestMeasurement.ExportTrialSoundFiles = False ' TODO Set to false!
 
@@ -213,7 +212,7 @@ Public Class AdaptiveSiP_BILD
         End Select
 
         'Creating one test unit per list
-        Dim CurrentTestUnit = New SiPTestUnit(CurrentSipTestMeasurement)
+        Dim CurrentTestUnit = New STFN.Core.SipTest.SiPTestUnit(CurrentSipTestMeasurement)
         CurrentSipTestMeasurement.TestUnits.Add(CurrentTestUnit)
 
         'Creating test trials
@@ -546,13 +545,13 @@ Public Class AdaptiveSiP_BILD
             LevelGroup += 1
 
             MixStopWatch.Stop()
-            If LogToConsole = True Then Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
+            If STFN.Core.SipTest.LogToConsole = True Then Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
             MixStopWatch.Restart()
 
             'Creating the mix by calling CreateSoundScene of the current Mixer
             Dim MixedInitialSound As STFN.Core.Audio.Sound = Transducer.Mixer.CreateSoundScene(ItemList, False, False, SelectedSoundPropagationType, Transducer.LimiterThreshold)
 
-            If LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
+            If STFN.Core.SipTest.LogToConsole = True Then Console.WriteLine("Mixed sound in " & MixStopWatch.ElapsedMilliseconds & " ms.")
 
             'TODO: Here we can simulate and/or compensate for hearing loss:
             'SimulateHearingLoss,
@@ -561,7 +560,7 @@ Public Class AdaptiveSiP_BILD
             Return MixedInitialSound
 
         Catch ex As Exception
-            STFN.Core.Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+            Logging.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             Return Nothing
         End Try
 
@@ -662,7 +661,7 @@ Public Class AdaptiveSiP_BILD
             'End If
 
             'Taking a dump of the SpeechTest before swapping to the new trial
-            CurrentTestTrial.SpeechTestPropertyDump = STFN.Core.Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+            CurrentTestTrial.SpeechTestPropertyDump = Logging.ListObjectPropertyValues(Me.GetType, Me)
 
         Else
             'Nothing to correct (this should be the start of a new test)
@@ -715,7 +714,7 @@ Public Class AdaptiveSiP_BILD
             While CurrentTestTrial.Sound Is Nothing
                 WaitPeriods += 1
                 Threading.Thread.Sleep(100)
-                If LogToConsole = True Then Console.WriteLine("Waiting for sound to mix: " & WaitPeriods * 100 & " ms")
+                If STFN.Core.SipTest.LogToConsole = True Then Console.WriteLine("Waiting for sound to mix: " & WaitPeriods * 100 & " ms")
             End While
 
         Catch ex As Exception
@@ -788,7 +787,7 @@ Public Class AdaptiveSiP_BILD
             End If
 
             'Exports sound file
-            If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(STFN.Core.Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i))
+            If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then DirectCast(SubTrial, SipTrial).Sound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "AdaptiveSipSounds", "AdaptiveSipSounds_" & i))
 
             'Storing the test word start times
             If i = 0 Then
@@ -806,7 +805,7 @@ Public Class AdaptiveSiP_BILD
         CurrentTestTrial.Sound = DSP.ConcatenateSounds2(TrialSounds, TrialSounds(0).WaveFormat.SampleRate * OverlapTime)
 
         'Exports sound file
-        If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(STFN.Core.Utils.logFilePath, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix"))
+        If CurrentSipTestMeasurement.ExportTrialSoundFiles = True Then CurrentTestTrial.Sound.WriteWaveFile(IO.Path.Combine(Logging.LogFileDirectory, "AdaptiveSipSounds", "AdaptiveSipSounds_Mix"))
 
         'Waiting for the trial sound to be mixed, if not yet completed
         'WaitForTestTrialSound()
@@ -958,7 +957,7 @@ Public Class AdaptiveSiP_BILD
     Public Overrides Function GetTestCompletedGuiMessage() As String
 
         Select Case STFN.Core.SharedSpeechTestObjects.GuiLanguage
-            Case STFN.Core.Utils.Constants.Languages.Swedish
+            Case STFN.Core.Utils.EnumCollection.Languages.Swedish
                 If IsPractiseTest = True Then
                     Return "Övningstestet är klart!"
                 Else

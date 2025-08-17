@@ -21,12 +21,12 @@
 'OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 'SOFTWARE.
 
-Imports System.Text.RegularExpressions
+
 
 Namespace Utils
 
-
-    Public Module StringComparison
+    Public Class StringManipulation
+        Inherits STFN.Core.Utils.StringManipulation
 
         ''' <summary>
         ''' Compares two string arrays and returns true only if they have the same lengths and all corresponding items are equal. Items are compared in the given order. 
@@ -34,7 +34,7 @@ Namespace Utils
         ''' <param name="Strings1"></param>
         ''' <param name="Strings2"></param>
         ''' <returns></returns>
-        Public Function AllStringsEqual(ByVal Strings1() As String, ByVal Strings2() As String) As Boolean
+        Public Shared Function AllStringsEqual(ByVal Strings1() As String, ByVal Strings2() As String) As Boolean
             If Strings1.Length <> Strings2.Length Then Return False
             For n = 0 To Strings1.Length - 1
                 If Strings1(n) <> Strings2(n) Then Return False
@@ -43,11 +43,7 @@ Namespace Utils
         End Function
 
 
-    End Module
-
-    Public Module StringArrayExclusionMethods
-
-        Public Sub ExcludeStringArrayMembersDueToLength(ByRef input() As String, ByVal upperStringLengthInclusionLimit As Integer)
+        Public Shared Sub ExcludeStringArrayMembersDueToLength(ByRef input() As String, ByVal upperStringLengthInclusionLimit As Integer)
 
             Dim inclusionCount As Integer = 0
 
@@ -79,14 +75,14 @@ Namespace Utils
         ''' Removes all exact duplicates of a string in an array of String.
         ''' </summary>
         ''' <param name="inputArray"></param>
-        Public Sub RemoveStringArrayDuplicates(ByRef inputArray() As String, Optional ByVal LogActive As Boolean = False, Optional TrimBlankSpaces As Boolean = True, Optional UseToLower As Boolean = True)
+        Public Shared Sub RemoveStringArrayDuplicates(ByRef inputArray() As String, Optional ByVal LogActive As Boolean = False, Optional TrimBlankSpaces As Boolean = True, Optional UseToLower As Boolean = True)
 
             Dim startTime As DateTime = DateTime.Now
 
             Dim originalArrayLength As Integer = inputArray.Length
 
             If LogActive = True Then
-                STFN.Core.Utils.SendInfoToLog("Initializing removal of string array duplicates.")
+                Logging.SendInfoToLog("Initializing removal of string array duplicates.")
             End If
 
             'Putting unique strings in a temporary SortedSet (and selectively applying trimming and/or to lower)
@@ -133,7 +129,7 @@ Namespace Utils
             inputArray = outputArray
 
             If LogActive = True Then
-                STFN.Core.Utils.SendInfoToLog("     " & originalArrayLength - outputArray.Length & " duplicate strings were removed. " & outputArray.Length & " strings remain in the array." & " Processing time: " & (DateTime.Now - startTime).TotalSeconds & " seconds.")
+                Logging.SendInfoToLog("     " & originalArrayLength - outputArray.Length & " duplicate strings were removed. " & outputArray.Length & " strings remain in the array." & " Processing time: " & (DateTime.Now - startTime).TotalSeconds & " seconds.")
             End If
 
         End Sub
@@ -143,7 +139,7 @@ Namespace Utils
         ''' Removes all duplicates strings in an array of string, as long as the duplicates come in a straight order after each other. 
         ''' </summary>
         ''' <param name="inputArray"></param>
-        Public Sub RemoveSortedStringArrayDuplicates(ByRef inputArray() As String)
+        Public Shared Sub RemoveSortedStringArrayDuplicates(ByRef inputArray() As String)
 
             Dim originalArrayLength As Long = inputArray.Length
 
@@ -172,7 +168,7 @@ Namespace Utils
         ''' </summary>
         ''' <param name="InputArray"></param>
         ''' <param name="ListArray"></param>
-        Public Function RemoveStringsNotInList(ByVal InputArray() As String, ByVal ListArray As String()) As String()
+        Public Shared Function RemoveStringsNotInList(ByVal InputArray() As String, ByVal ListArray As String()) As String()
 
             Dim SortedListArraySet As New SortedSet(Of String)
             For Each Item In ListArray
@@ -193,6 +189,6 @@ Namespace Utils
 
         End Function
 
-    End Module
+    End Class
 
 End Namespace

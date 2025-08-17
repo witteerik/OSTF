@@ -43,7 +43,7 @@ public partial class UoAudView : ContentView
         // Setting default texts
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Core.Utils.Constants.Languages.English:
+            case STFN.Core.Utils.EnumCollection.Languages.English:
 
                 MessageButton.Text = "Click here to start!";
                 MessageLabel.Text = "Press when you hear a tone.\nRelease when the tone disappears.";
@@ -54,7 +54,7 @@ public partial class UoAudView : ContentView
 
                 break;
 
-            case STFN.Core.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
 
                 MessageButton.Text = "Tryck här för att starta!";
                 MessageLabel.Text = "Tryck på knappen nedanför när du hör en ton.\nSläpp knappen när tonen tystnar.";
@@ -253,12 +253,12 @@ public partial class UoAudView : ContentView
 
                 switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Core.Utils.Constants.Languages.English:
+                    case STFN.Core.Utils.EnumCollection.Languages.English:
                         MessageButton.Text = "This hearing test is now completed.\n\nClick here to continue!";
                         LevelLabel.Text = "";
                         RatingLabel.Text = "";
                         break;
-                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                         MessageButton.Text = "Detta test är nu klart.\n\nTryck här för att gå vidare!";
                         LevelLabel.Text = "";
                         RatingLabel.Text = "";
@@ -330,13 +330,13 @@ public partial class UoAudView : ContentView
 
         switch (CurrentTrial.ParentSubTest.Side)
         {
-            case STFN.Core.Utils.Constants.Sides.Left:
+            case STFN.Core.Utils.EnumCollection.Sides.Left:
 
                 TrialSound.WaveData.set_SampleData(1, SineSound.WaveData.get_SampleData(1)); 
                 // Leaving the other channel empty
 
                 break;
-            case STFN.Core.Utils.Constants.Sides.Right:
+            case STFN.Core.Utils.EnumCollection.Sides.Right:
 
                 TrialSound.WaveData.set_SampleData(2, SineSound.WaveData.get_SampleData(1));
                 // Leaving the other channel empty

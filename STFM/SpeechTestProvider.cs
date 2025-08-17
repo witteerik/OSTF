@@ -62,7 +62,7 @@ namespace STFM
                         speechTestInitiator.UseExtraWindow = true;
                         switch (SharedSpeechTestObjects.GuiLanguage)
                         {
-                            case STFN.Core.Utils.Constants.Languages.Swedish:
+                            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                                 speechTestInitiator.ExtraWindowTitle = "Testresultat";
                                 break;
                             default:
@@ -144,7 +144,7 @@ namespace STFM
                         speechTestInitiator.UseExtraWindow = true;
                         switch (SharedSpeechTestObjects.GuiLanguage)
                         {
-                            case STFN.Core.Utils.Constants.Languages.Swedish:
+                            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                                 speechTestInitiator.ExtraWindowTitle = "Testresultat";
                                 break;
                             default:
@@ -182,7 +182,7 @@ namespace STFM
                         speechTestInitiator.UseExtraWindow = true;
                         switch (SharedSpeechTestObjects.GuiLanguage)
                         {
-                            case STFN.Core.Utils.Constants.Languages.Swedish:
+                            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                                 speechTestInitiator.ExtraWindowTitle = "Testresultat";
                                 break;
                             default:
@@ -222,7 +222,7 @@ namespace STFM
                         speechTestInitiator.UseExtraWindow = true;
                         switch (SharedSpeechTestObjects.GuiLanguage)
                         {
-                            case STFN.Core.Utils.Constants.Languages.Swedish:
+                            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                                 speechTestInitiator.ExtraWindowTitle = "Testresultat";
                                 break;
                             default:

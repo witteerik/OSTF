@@ -175,7 +175,7 @@ Public Class QuickSiP_StaticSpeechTest
             ObservedTrials.Add(CurrentTestTrial)
 
             'Taking a dump of the SpeechTest
-            CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+            CurrentTestTrial.SpeechTestPropertyDump = Logging.ListObjectPropertyValues(Me.GetType, Me)
 
 
         Else

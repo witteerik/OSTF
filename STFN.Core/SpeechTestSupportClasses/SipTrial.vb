@@ -6,24 +6,14 @@ Imports System.Runtime.Serialization
 
 Namespace SipTest
 
-
-
-
     Public Class SipTrial
         Inherits TestTrial
-
 
         ''' <summary>
         ''' Holds a reference to the test unit to which the current test trial belongs
         ''' </summary>
         ''' <returns></returns>
         Public ReadOnly Property ParentTestUnit As SiPTestUnit
-
-        '''' <summary>
-        '''' Holds a reference to the SpeechMaterial presented in the trial.
-        '''' </summary>
-        '''' <returns></returns>
-        'Public ReadOnly Property SpeechMaterialComponent As SpeechMaterialComponent
 
         Public Property SelectedMediaIndex As Integer
 
@@ -58,6 +48,12 @@ Namespace SipTest
             End Get
         End Property
 
+        Public Enum PossibleResults
+            Correct
+            Incorrect
+            Missing
+        End Enum
+
         ''' <summary>
         ''' The response time in milliseconds
         ''' </summary>
@@ -66,7 +62,6 @@ Namespace SipTest
 
         Public Property ResponseMoment As DateTime
 
-        Public Property AdjustedSuccessProbability As Double
 
         Public Function DetermineResponseAlternativeCount() As Boolean
 
@@ -80,7 +75,7 @@ Namespace SipTest
             Return True
         End Function
 
-        Private _ResponseAlternativeCount As Integer? = Nothing
+        Protected _ResponseAlternativeCount As Integer? = Nothing
         Public Property ResponseAlternativeCount As Integer?
             Get
                 Return _ResponseAlternativeCount
@@ -107,15 +102,6 @@ Namespace SipTest
         ''' </summary>
         Public TargetStartSample As Integer
 
-        ''' <summary>
-        ''' A list that can hold non-presented (hypothical) test trials containing the contrasting alternatives.
-        ''' </summary>
-        Public PseudoTrials As New List(Of SipTrial)
-
-        ''' <summary>
-        ''' A list of Tuples that can hold various sound mixes used in the test trial, to be exported to sound file later. Each Sound should be come with a descriptive string (that can be used in the output file name).)
-        ''' </summary>
-        Public TrialSoundsToExport As New List(Of Tuple(Of String, Audio.Sound))
 
         ''' <summary>
         ''' A list of gain applied to all different SoundSceneItems in the presented TestTrial
@@ -225,95 +211,11 @@ Namespace SipTest
         End Sub
 
 
-        ''' <summary>
-        ''' Creates a new SiP-test trial in BMLD mode
-        ''' </summary>
-        ''' <param name="ParentTestUnit"></param>
-        ''' <param name="SpeechMaterialComponent"></param>
-        ''' <param name="MediaSet"></param>
-        ''' <param name="SipMeasurementRandomizer"></param>
-        Public Sub New(ByRef ParentTestUnit As SiPTestUnit,
-                       ByRef SpeechMaterialComponent As SpeechMaterialComponent,
-                       ByRef MediaSet As MediaSet,
-                       ByVal SoundPropagationType As SoundPropagationTypes,
-                       ByRef SignalMode As BmldModes,
-                       ByRef NoiseMode As BmldModes,
-                       ByRef SipMeasurementRandomizer As Random)
-
-            IsBmldTrial = True
-            Me.SoundPropagationType = SoundPropagationType
-
-            Me.ParentTestUnit = ParentTestUnit
-            Me.SpeechMaterialComponent = SpeechMaterialComponent
-            Me.MediaSet = MediaSet
-            Me.BmldSignalMode = SignalMode
-            Me.BmldNoiseMode = NoiseMode
-
-            'Setting some levels
-            Dim Fs2Spl As Double = DSP.Standard_dBFS_dBSPL_Difference
-
-            'Calculating levels
-            ReferenceSpeechMaterialLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.ListCollection).GetNumericMediaSetVariableValue(MediaSet, "Lc")
-            ReferenceTestWordLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
-            ReferenceContrastingPhonemesLevel_SPL = Fs2Spl + SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericMediaSetVariableValue(MediaSet, "RLxs")
-            SelectedMediaIndex = SipMeasurementRandomizer.Next(0, Me.MediaSet.MediaAudioItems)
-
-            'Setting up signal and masker locations
-            Select Case BmldSignalMode
-                Case BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted
-                    TargetStimulusLocations = {
-                        New SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0},
-                        New SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
-
-                Case BmldModes.LeftOnly
-                    TargetStimulusLocations = {
-                        New SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0}}
-
-                Case BmldModes.RightOnly
-                    TargetStimulusLocations = {
-                        New SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
-
-            End Select
-
-            Select Case BmldNoiseMode
-                Case BmldModes.BinauralSamePhase, BmldModes.BinauralPhaseInverted, BmldModes.BinauralUncorrelated
-                    MaskerLocations = {
-                        New SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0},
-                        New SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
-
-                    BackgroundLocations = {
-                        New SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0},
-                        New SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0},
-                        New SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0},
-                        New SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
-
-                Case BmldModes.LeftOnly
-                    MaskerLocations = {
-                        New SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0}}
-
-                    BackgroundLocations = {
-                        New SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0},
-                        New SoundSourceLocation With {.HorizontalAzimuth = -90, .Distance = 1, .Elevation = 0}}
-
-                Case BmldModes.RightOnly
-                    MaskerLocations = {
-                        New SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
-
-                    BackgroundLocations = {
-                        New SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0},
-                        New SoundSourceLocation With {.HorizontalAzimuth = 90, .Distance = 1, .Elevation = 0}}
-
-            End Select
-
-
-
-        End Sub
-
 
         Public Property Reference_SPL As Double
         Public Property PNR As Double
 
-        Private _TargetMasking_SPL As Double? = Nothing
+        Protected _TargetMasking_SPL As Double? = Nothing
 
         ''' <summary>
         ''' Returns the intended masker sound level at the position of the listeners head, or Nothing if not calculated
@@ -327,7 +229,7 @@ Namespace SipTest
 
         Public Property ContextRegionSpeech_SPL As Double
 
-        Private Property _TestWordLevel As Double? = Nothing
+        Protected Property _TestWordLevel As Double? = Nothing
         Public ReadOnly Property TestWordLevel As Double?
             Get
                 Return _TestWordLevel
@@ -346,7 +248,7 @@ Namespace SipTest
         ''' </summary>
         ''' <param name="ReferenceLevel"></param>
         ''' <param name="PNR"></param>
-        Public Sub SetLevels(ByVal ReferenceLevel As Double, ByVal PNR As Double)
+        Public Overridable Sub SetLevels(ByVal ReferenceLevel As Double, ByVal PNR As Double)
 
             'Setting the levels
 
@@ -408,16 +310,9 @@ Namespace SipTest
 
             End If
 
-            If PseudoTrials IsNot Nothing Then
-                For Each NonpresentedAlternativeTrial In PseudoTrials
-                    NonpresentedAlternativeTrial.SetLevels(ReferenceLevel, PNR)
-                Next
-            End If
-
-
         End Sub
 
-        Public Sub MixSound(ByRef SelectedTransducer As AudioSystemSpecification,
+        Public Overridable Sub MixSound(ByRef SelectedTransducer As AudioSystemSpecification,
                              ByVal MinimumStimulusOnsetTime As Double, ByVal MaximumStimulusOnsetTime As Double,
                              ByRef SipMeasurementRandomizer As Random, ByVal TrialSoundMaxDuration As Double, ByVal UseBackgroundSpeech As Boolean,
                              Optional ByVal FixedMaskerIndices As List(Of Integer) = Nothing, Optional ByVal FixedSpeechIndex As Integer? = Nothing,
@@ -693,174 +588,10 @@ Namespace SipTest
                 If LogToConsole = True Then Console.WriteLine("Prepared sounds in " & MixStopWatch.ElapsedMilliseconds & " ms.")
                 MixStopWatch.Restart()
 
-                Dim MixedTestTrialSound As Audio.Sound
 
-                If ParentTestUnit.ParentMeasurement.ExportTrialSoundFiles = True Or Me.IsBmldTrial = True Then
+                'Creating the mix by calling CreateSoundScene of the current Mixer
+                Dim MixedTestTrialSound As Audio.Sound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
 
-                    'Creating the mix directly by calling CreateSoundScene of the current Mixer and exporting the sound for comparison with the separately exported sounds below
-                    Dim ExportAllItemTypes As Boolean = False
-                    If ExportAllItemTypes = True Then
-                        If Me.IsBmldTrial = True Then Throw New NotImplementedException("Exporting the final mix directly is not supported with BMLD trials.")
-                        Dim TempMixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
-                        TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("OriginalMix", TempMixedTestTrialSound))
-                    End If
-
-                    'Creating separate sound files for target, maskers, and the final mix
-                    Dim Target_Items As New List(Of SoundSceneItem)
-                    Dim Masker_Items As New List(Of SoundSceneItem)
-                    Dim BackgroundNonspeech_Items As New List(Of SoundSceneItem)
-                    Dim BackgroundSpeech_Items As New List(Of SoundSceneItem)
-                    Dim Nontarget_Items As New List(Of SoundSceneItem)
-
-                    For Each Item In ItemList
-
-                        If Item.Role = SoundSceneItem.SoundSceneItemRoles.Target Then
-                            'Collecting the target/s
-                            Target_Items.Add(Item)
-                        Else
-                            'Collecting the non targets
-                            Nontarget_Items.Add(Item)
-                        End If
-
-                        If ExportAllItemTypes = True Then
-                            Select Case Item.Role
-                                Case SoundSceneItem.SoundSceneItemRoles.Masker
-                                    'Collecting the maskers/s
-                                    Masker_Items.Add(Item)
-                                Case SoundSceneItem.SoundSceneItemRoles.BackgroundNonspeech
-                                    'Collecting the BackgroundNonspeech item/s
-                                    BackgroundNonspeech_Items.Add(Item)
-                                Case SoundSceneItem.SoundSceneItemRoles.BackgroundSpeech
-                                    'Collecting the BackgroundSpeech item/s
-                                    BackgroundSpeech_Items.Add(Item)
-                            End Select
-                        End If
-
-                    Next
-
-                    'Creating the target mix by calling CreateSoundScene of the current Mixer
-                    Dim TargetSound = SelectedTransducer.Mixer.CreateSoundScene(Target_Items, UseNominalLevels, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
-
-                    Dim MaskerItemsSound As Audio.Sound = Nothing
-                    If Masker_Items.Count > 0 Then
-                        MaskerItemsSound = SelectedTransducer.Mixer.CreateSoundScene(Masker_Items, UseNominalLevels, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
-                    End If
-
-                    Dim BackgroundNonspeechItemsSound As Audio.Sound = Nothing
-                    If BackgroundNonspeech_Items.Count > 0 Then
-                        BackgroundNonspeechItemsSound = SelectedTransducer.Mixer.CreateSoundScene(BackgroundNonspeech_Items, UseNominalLevels, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
-                    End If
-
-                    Dim BackgroundSpeechItemsSound As Audio.Sound = Nothing
-                    If BackgroundSpeech_Items.Count > 0 Then
-                        BackgroundSpeechItemsSound = SelectedTransducer.Mixer.CreateSoundScene(BackgroundSpeech_Items, UseNominalLevels, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
-                    End If
-
-                    'Creating the non-target mix by calling CreateSoundScene of the current Mixer
-                    Dim NontargetSound = SelectedTransducer.Mixer.CreateSoundScene(Nontarget_Items, UseNominalLevels, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
-
-                    'If, BMLD trial, applying frontal left ear only room simulation,phase inverting the appropriate sounds
-                    If Me.IsBmldTrial = True Then
-
-                        'Attains a copy of the appropriate directional FIR-filter kernel
-                        Dim FrontalTwoLeftEarsKernel = DirectionalSimulator.GetStereoKernel(DirectionalSimulator.SelectedDirectionalSimulationSetName, 0, 0, 3).TwoLeftEarsKernel
-                        'Dim SelectedSimulationKernel = DirectionalSimulator.GetStereoKernel(ImpulseReponseSetName, SoundSceneItem.SourceLocation.HorizontalAzimuth, SoundSceneItem.SourceLocation.Elevation, SoundSceneItem.SourceLocation.Distance)
-                        Dim CurrentKernel = FrontalTwoLeftEarsKernel.BinauralIR.CreateSoundDataCopy
-                        Dim SelectedActualPoint = FrontalTwoLeftEarsKernel.Point
-                        Dim SelectedActualBinauralDelay = FrontalTwoLeftEarsKernel.BinauralDelay
-
-                        'Applies FIR-filtering
-                        Dim MyFftFormat As Audio.Formats.FftFormat = New Formats.FftFormat
-                        TargetSound = DSP.FIRFilter(TargetSound, CurrentKernel, MyFftFormat,,,,,, True)
-                        If MaskerItemsSound IsNot Nothing Then MaskerItemsSound = DSP.FIRFilter(MaskerItemsSound, CurrentKernel, MyFftFormat,,,,,, True)
-                        If BackgroundNonspeechItemsSound IsNot Nothing Then BackgroundNonspeechItemsSound = DSP.FIRFilter(BackgroundNonspeechItemsSound, CurrentKernel, MyFftFormat,,,,,, True)
-                        If BackgroundSpeechItemsSound IsNot Nothing Then BackgroundSpeechItemsSound = DSP.FIRFilter(BackgroundSpeechItemsSound, CurrentKernel, MyFftFormat,,,,,, True)
-                        NontargetSound = DSP.FIRFilter(NontargetSound, CurrentKernel, MyFftFormat,,,,,, True)
-
-                        'Storing the actual location values used in the simulation
-                        For locationIndex = 0 To Me.TargetStimulusLocations.Length - 1
-                            TargetStimulusLocations(locationIndex).ActualLocation = New SoundSourceLocation
-                            TargetStimulusLocations(locationIndex).ActualLocation.HorizontalAzimuth = SelectedActualPoint.GetSphericalAzimuth
-                            TargetStimulusLocations(locationIndex).ActualLocation.Elevation = SelectedActualPoint.GetSphericalElevation
-                            TargetStimulusLocations(locationIndex).ActualLocation.Distance = SelectedActualPoint.GetSphericalDistance
-                            TargetStimulusLocations(locationIndex).ActualLocation.BinauralDelay = FrontalTwoLeftEarsKernel.BinauralDelay
-                        Next
-                        For locationIndex = 0 To Me.MaskerLocations.Length - 1
-                            MaskerLocations(locationIndex).ActualLocation = New SoundSourceLocation
-                            MaskerLocations(locationIndex).ActualLocation.HorizontalAzimuth = SelectedActualPoint.GetSphericalAzimuth
-                            MaskerLocations(locationIndex).ActualLocation.Elevation = SelectedActualPoint.GetSphericalElevation
-                            MaskerLocations(locationIndex).ActualLocation.Distance = SelectedActualPoint.GetSphericalDistance
-                            MaskerLocations(locationIndex).ActualLocation.BinauralDelay = FrontalTwoLeftEarsKernel.BinauralDelay
-                        Next
-                        For locationIndex = 0 To Me.BackgroundLocations.Length - 1
-                            BackgroundLocations(locationIndex).ActualLocation = New SoundSourceLocation
-                            BackgroundLocations(locationIndex).ActualLocation.HorizontalAzimuth = SelectedActualPoint.GetSphericalAzimuth
-                            BackgroundLocations(locationIndex).ActualLocation.Elevation = SelectedActualPoint.GetSphericalElevation
-                            BackgroundLocations(locationIndex).ActualLocation.Distance = SelectedActualPoint.GetSphericalDistance
-                            BackgroundLocations(locationIndex).ActualLocation.BinauralDelay = FrontalTwoLeftEarsKernel.BinauralDelay
-                        Next
-
-                        'Phase inverting if needed
-                        If Me.BmldSignalMode = BmldModes.BinauralPhaseInverted Then
-                            'Phase inverting signal, by inverting the right channel
-                            TargetSound.InvertChannel(2)
-
-                            'Inverting also the other sounds if they exist (for export)
-                            If BackgroundSpeechItemsSound IsNot Nothing Then BackgroundSpeechItemsSound.InvertChannel(2)
-
-                        End If
-
-                        If Me.BmldNoiseMode = BmldModes.BinauralPhaseInverted Then
-                            'Phase inverting noise, by inverting the right channel
-                            NontargetSound.InvertChannel(2)
-
-                            'Inverting also the other sounds if they exist (for export)
-                            If MaskerItemsSound IsNot Nothing Then MaskerItemsSound.InvertChannel(2)
-                            If BackgroundNonspeechItemsSound IsNot Nothing Then BackgroundNonspeechItemsSound.InvertChannel(2)
-
-                        End If
-                    End If
-
-                    'Creating the combined mix
-                    MixedTestTrialSound = DSP.SuperpositionSounds({TargetSound, NontargetSound}.ToList)
-
-                    'Stores the sounds in TrialSoundsToExport, to be exported later.
-
-                    'Add target and masker sound file indices, as well as background start samples (i.e. the first samples at which each file was read from the source background sould file)
-                    SelectedTargetIndexString = SelectedMediaIndex
-                    SelectedMaskerIndicesString = String.Join("_", SelectedMaskerIndices)
-                    BackgroundStartSamplesString = ""
-                    Dim BackgroundStartSamplesList As New List(Of Integer)
-                    For Each Background In Backgrounds
-                        BackgroundStartSamplesList.Add(Background.Item3)
-                    Next
-                    BackgroundStartSamplesString = String.Join("_", BackgroundStartSamplesList)
-
-                    BackgroundSpeechStartSamplesString = ""
-                    Dim BackgroundSpeechSectionSampleList As New List(Of Integer)
-                    For Each BackgroundSpeechSection In BackgroundSpeechSelections
-                        BackgroundSpeechSectionSampleList.Add(BackgroundSpeechSection.Item3)
-                    Next
-                    If BackgroundSpeechSectionSampleList.Count > 0 Then
-                        BackgroundSpeechStartSamplesString = String.Join("_", BackgroundSpeechSectionSampleList)
-                    End If
-
-                    'Storing the sounds
-                    TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("TargetSound", TargetSound))
-                    If MaskerItemsSound IsNot Nothing Then TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("MaskersSound", MaskerItemsSound))
-                    If BackgroundNonspeechItemsSound IsNot Nothing Then TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("BackgroundNonspeechSound", BackgroundNonspeechItemsSound))
-                    If BackgroundSpeechItemsSound IsNot Nothing Then TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("BackgroundSpeechSound", BackgroundSpeechItemsSound))
-                    TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("NontargetSound", NontargetSound))
-                    TrialSoundsToExport.Add(New Tuple(Of String, Audio.Sound)("MixedTestTrialSound", MixedTestTrialSound))
-
-                    'Empties the TrialSoundsToExport if no trial sounds should be exported
-                    If ParentTestUnit.ParentMeasurement.ExportTrialSoundFiles = False Then TrialSoundsToExport.Clear()
-
-                Else
-
-                    'Creating the mix by calling CreateSoundScene of the current Mixer
-                    MixedTestTrialSound = SelectedTransducer.Mixer.CreateSoundScene(ItemList, UseNominalLevels, False, Me.SoundPropagationType, SelectedTransducer.LimiterThreshold)
-                End If
 
                 'Getting the applied gain for all items
                 GainList.Clear()
@@ -886,18 +617,11 @@ Namespace SipTest
 
                 Sound = MixedTestTrialSound
 
-                'Mixing non-presented trials as well
-                If PseudoTrials IsNot Nothing Then
-                    For Each NonpresentedAlternativeTrial In PseudoTrials
-                        NonpresentedAlternativeTrial.MixSound(SelectedTransducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, SipMeasurementRandomizer, TrialSoundMaxDuration, UseBackgroundSpeech, FixedMaskerIndices, FixedSpeechIndex)
-                    Next
-                End If
-
                 'Stores the testword start sample
                 Me.TargetStartSample = TestWordStartSample
 
             Catch ex As Exception
-                Utils.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
+                Logging.SendInfoToLog(ex.ToString, "ExceptionsDuringTesting")
             End Try
 
         End Sub
@@ -955,216 +679,6 @@ Namespace SipTest
 
 
 
-        Private _EstimatedSuccessProbability As Double? = Nothing
-
-        Public ReadOnly Property EstimatedSuccessProbability(ByVal ReCalculate As Boolean) As Double
-            Get
-                If _EstimatedSuccessProbability.HasValue = False Or ReCalculate = True Then
-                    UpdateEstimatedSuccessProbability()
-                End If
-                Return _EstimatedSuccessProbability
-            End Get
-        End Property
-
-        Public Sub OverideEstimatedSuccessProbabilityValue(ByVal Newvalue As Double)
-            _EstimatedSuccessProbability = Newvalue
-        End Sub
-
-        Public Sub UpdateEstimatedSuccessProbability()
-
-            'Select Case Me.ParentTestUnit.ParentMeasurement.Prediction.Models.SelectedModel.GetSwedishSipTestA
-
-            'Getting predictors
-            Dim PDL As Double = Me.PhonemeDiscriminabilityLevel
-
-            'TODO! Decide whether exact duration of the presented phoneme should be used (slower, but as in Witte,2021) or if average test phoneme duration (for the five exemplar recordings of each word) should be used (a little faster)
-            Dim DurationList = Me.SpeechMaterialComponent.GetDurationOfContrastingComponents(Me.MediaSet, SpeechMaterialComponent.LinguisticLevels.Phoneme, Me.SelectedMediaIndex, 1)
-            Dim TPD As Double = DurationList(0)
-            'Dim TPD As Double = Me.SpeechMaterial.GetNumericMediaSetVariableValue(MediaSet, "Tc")
-
-            Dim Z As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("Z")
-            Dim iPNDP As Double = 1 / Me.SpeechMaterialComponent.GetNumericVariableValue("PNDP")
-            Dim PP As Double = Me.SpeechMaterialComponent.GetNumericVariableValue("PP")
-            Dim PT As Double = Me.SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericVariableValue("V")
-
-            'Calculating centred and scaled values for PDL and PBTAH
-            Dim PDL_gmc_div = (PDL - 10.46) / 50
-            Dim Z_gmc_div = (Z - 3.7) / 10
-            Dim iPNDP_gmc_div = (iPNDP - 20.6) / 50
-
-            'Calculating model eta
-            Dim Eta = 0.73 +
-                8.22 * PDL_gmc_div +
-                5.11 * (TPD - 0.33) +
-                4.24 * Z_gmc_div -
-                1.44 * iPNDP_gmc_div +
-                4.58 * (PP - 0.92) -
-                1.1 * (PT - 0.43) -
-                7.25 * PDL_gmc_div * Z_gmc_div +
-                7.47 * PDL_gmc_div * iPNDP_gmc_div +
-                3.32 * PDL_gmc_div * (PT - 0.43)
-
-            'Calculating estimated success probability
-            Dim p As Double = 1 / 3 + (2 / 3) * (1 / (1 + Math.Exp(-Eta)))
-
-            If LogToConsole = True Then
-                Dim LogList As New List(Of String)
-                LogList.Add("PrimaryStringRepresentation:" & vbTab & Me.SpeechMaterialComponent.PrimaryStringRepresentation)
-                LogList.Add("Reference_SPL:" & vbTab & Reference_SPL)
-                LogList.Add("PNR:" & vbTab & PNR)
-                LogList.Add("PDL:" & vbTab & PDL)
-                LogList.Add("TPD:" & vbTab & TPD)
-                LogList.Add("Z:" & vbTab & Z)
-                LogList.Add("iPNDP:" & vbTab & iPNDP)
-                LogList.Add("PP:" & vbTab & PP)
-                LogList.Add("PT:" & vbTab & PT)
-                LogList.Add("PDL_gmc_div:" & vbTab & PDL_gmc_div)
-                LogList.Add("Z_gmc_div:" & vbTab & Z_gmc_div)
-                LogList.Add("iPNDP_gmc_div:" & vbTab & iPNDP_gmc_div)
-                LogList.Add("Eta:" & vbTab & Eta)
-                LogList.Add("p:" & vbTab & p)
-
-                Console.WriteLine(String.Join(vbCrLf, LogList))
-            End If
-
-            'Stores the result in PredictedSuccessProbability
-            _EstimatedSuccessProbability = p
-
-        End Sub
-
-        Private _PhonemeDiscriminabilityLevel As Double? = Nothing
-
-        Public ReadOnly Property PhonemeDiscriminabilityLevel(Optional ByVal ReCalculate As Boolean = True,
-                                                              Optional ByVal SpeechSpectrumLevelsVariableNamePrefix As String = "SLs",
-                                                              Optional ByVal MaskerSpectrumLevelsVariableNamePrefix As String = "SLm") As Double
-            Get
-                If _PhonemeDiscriminabilityLevel.HasValue = False Or ReCalculate = True Then
-                    UpdatePhonemeDiscriminabilityLevel(SpeechSpectrumLevelsVariableNamePrefix, MaskerSpectrumLevelsVariableNamePrefix)
-                End If
-                Return _PhonemeDiscriminabilityLevel
-            End Get
-        End Property
-
-        Public Sub SetPhonemeDiscriminabilityLevelExternally(ByVal Value As Double)
-            _PhonemeDiscriminabilityLevel = Value
-        End Sub
-
-        Public Sub UpdatePhonemeDiscriminabilityLevel(Optional ByVal SpeechSpectrumLevelsVariableNamePrefix As String = "SLs",
-                                                              Optional ByVal MaskerSpectrumLevelsVariableNamePrefix As String = "SLm")
-
-            'Using thresholds and gain data from the side with the best aided thresholds (selecting side separately for each critical band)
-            Dim Thresholds(DSP.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-            Dim Gain(DSP.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-
-            For i = 0 To DSP.SiiCriticalBands.CentreFrequencies.Length - 1
-                'TODO: should we allow for the lack of gain data here, or should we always use a gain of zero when no hearing aid is used?
-                Dim AidedThreshold_Left As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i).Gain
-                Dim AidedThreshold_Right As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i).Gain
-
-                If AidedThreshold_Left < AidedThreshold_Right Then
-                    Thresholds(i) = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i)
-                    Gain(i) = Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i).Gain
-                Else
-                    Thresholds(i) = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i)
-                    Gain(i) = Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i).Gain
-                End If
-            Next
-
-            'Getting spectral levels
-            Dim CorrectResponseSpectralLevels(DSP.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-            Dim MaskerSpectralLevels(DSP.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-            Dim Siblings = Me.SpeechMaterialComponent.GetSiblingsExcludingSelf
-            Dim IncorrectResponsesSpectralLevels As New List(Of Double())
-            For Each Sibling In Siblings
-                Dim IncorrectResponseSpectralLevels(DSP.SiiCriticalBands.CentreFrequencies.Length - 1) As Double
-                IncorrectResponsesSpectralLevels.Add(IncorrectResponseSpectralLevels)
-            Next
-
-            'Calculating the difference between the standard ReferenceSpeechMaterialLevel_SPL (68.34 dB SPL) reference level and the one currently used
-            Dim RefLevelDifference As Double = Me.Reference_SPL - ReferenceSpeechMaterialLevel_SPL
-
-            'Getting the current gain, compared to the reference test-word and masker levels
-            Dim CurrentSpeechGain As Double = TestWordLevel - ReferenceTestWordLevel_SPL + RefLevelDifference ' SpeechMaterial.GetNumericMediaSetVariableValue(MediaSet, "Lc") 'TestStimulus.TestWord_ReferenceSPL
-            If LogToConsole = True Then Console.WriteLine(Me.SpeechMaterialComponent.PrimaryStringRepresentation & " PNR: " & Me.PNR & " SpeechGain : " & CurrentSpeechGain)
-
-            Dim CurrentMaskerGain As Double = TargetMasking_SPL - ReferenceContrastingPhonemesLevel_SPL + RefLevelDifference 'Audio.Standard_dBFS_To_dBSPL(Common.SipTestReferenceMaskerLevel_FS) 'TODO: In the SiP-test maskers sound files the level is set to -30 dB FS across the whole sounds. A more detailed sound level data could be used instead!
-            If LogToConsole = True Then Console.WriteLine(Me.SpeechMaterialComponent.PrimaryStringRepresentation & " PNR: " & Me.PNR & " CurrentMaskerGain: " & CurrentMaskerGain)
-
-            For i = 0 To DSP.SiiCriticalBands.CentreFrequencies.Length - 1
-                Dim VariableNameSuffix = Math.Round(DSP.SiiCriticalBands.CentreFrequencies(i)).ToString("00000")
-                Dim SLsName As String = SpeechSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
-                Dim SLmName As String = MaskerSpectrumLevelsVariableNamePrefix & "_" & VariableNameSuffix
-
-                'Retreiving the reference levels and adjusts them by the CurrentSpeechGain and CurrentMaskerGain
-                CorrectResponseSpectralLevels(i) = Me.SpeechMaterialComponent.GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
-                MaskerSpectralLevels(i) = Me.SpeechMaterialComponent.GetAncestorAtLevel(SpeechMaterialComponent.LinguisticLevels.List).GetNumericMediaSetVariableValue(MediaSet, SLmName) + CurrentMaskerGain
-                For s = 0 To Siblings.Count - 1
-                    IncorrectResponsesSpectralLevels(s)(i) = Siblings(s).GetNumericMediaSetVariableValue(MediaSet, SLsName) + CurrentSpeechGain
-                Next
-            Next
-
-            Dim SRFM As Double?() = GetMLD(Nothing, 1.01) ' Cf Witte's Thesis for the value of c_factor
-
-            'N.B. SRFM and SF 30 need to change if presented in other speaker azimuths!
-
-            'Calculating SDRs
-            Dim SDRt = PDL.CalculateSDR(CorrectResponseSpectralLevels, MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
-            Dim SDRcs As New List(Of Double())
-            For s = 0 To Siblings.Count - 1
-                Dim SDRc = PDL.CalculateSDR(IncorrectResponsesSpectralLevels(s), MaskerSpectralLevels, Thresholds, Gain, True, True, SRFM)
-                SDRcs.Add(SDRc)
-            Next
-
-            If LogToConsole = True Then
-                Dim LogList As New List(Of String)
-                LogList.Add("PrimaryStringRepresentation:" & vbTab & Me.SpeechMaterialComponent.PrimaryStringRepresentation)
-                LogList.Add("RefLevelDifference:" & vbTab & RefLevelDifference)
-                LogList.Add("CurrentSpeechGain:" & vbTab & CurrentSpeechGain)
-                LogList.Add("CurrentMaskerGain:" & vbTab & CurrentMaskerGain)
-
-                LogList.Add("CentreFrequencies:" & vbTab & String.Join("; ", DSP.SiiCriticalBands.CentreFrequencies))
-                LogList.Add("Thresholds:" & vbTab & String.Join("; ", Thresholds))
-                LogList.Add("Gain:" & vbTab & String.Join("; ", Gain))
-
-                LogList.Add("CorrectResponseSpectralLevels:" & vbTab & String.Join("; ", CorrectResponseSpectralLevels))
-                For s = 0 To Siblings.Count - 1
-                    LogList.Add("IncorrectResponsesSpectralLevels_" & s & ":" & vbTab & String.Join("; ", IncorrectResponsesSpectralLevels(s)))
-                Next
-                LogList.Add("MaskerSpectralLevels:" & vbTab & String.Join("; ", MaskerSpectralLevels))
-                LogList.Add("SRFM:" & vbTab & String.Join("; ", SRFM))
-
-                LogList.Add("SDRt:" & vbTab & String.Join("; ", SDRt))
-                For s = 0 To Siblings.Count - 1
-                    LogList.Add("SDRcs_" & s & ":" & vbTab & String.Join("; ", SDRcs(s)))
-                Next
-
-                Console.WriteLine(String.Join(vbCrLf, LogList))
-            End If
-
-            'Calculating PDL
-            _PhonemeDiscriminabilityLevel = PDL.CalculatePDL(SDRt, SDRcs)
-
-        End Sub
-
-        Public Sub ExportTrialResult(ByVal IncludeHeadings As Boolean, ByVal SkipExportOfSoundFiles As Boolean)
-
-            Dim FilePath = IO.Path.Combine(Me.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TestResults")
-
-            Dim OutputLines As New List(Of String)
-
-            If IncludeHeadings = True Then
-                OutputLines.Add(SiPTestMeasurementHistory.NewMeasurementMarker)
-                OutputLines.Add(SipTrial.CreateExportHeadings())
-            End If
-
-            Dim TrialExportString = Me.CreateExportString(SkipExportOfSoundFiles)
-
-            OutputLines.Add(TrialExportString)
-
-            Utils.SendInfoToLog(String.Join(vbCrLf, OutputLines), IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
-
-        End Sub
-
         Public Shared Function CreateExportHeadings() As String
 
             Dim Headings As New List(Of String)
@@ -1184,8 +698,6 @@ Namespace SipTest
             Headings.Add("TargetMasking_SPL")
             Headings.Add("TestWordLevelLimit")
             Headings.Add("ContextSpeechLimit")
-            Headings.Add("EstimatedSuccessProbability")
-            Headings.Add("AdjustedSuccessProbability")
             Headings.Add("SoundPropagationType")
 
             Headings.Add("IntendedTargetLocation_Distance")
@@ -1225,7 +737,6 @@ Namespace SipTest
             Headings.Add("ResponseTime")
             Headings.Add("ResponseAlternativeCount")
             Headings.Add("IsTestTrial")
-            Headings.Add("PhonemeDiscriminabilityLevel")
 
             Headings.Add("PrimaryStringRepresentation")
 
@@ -1233,79 +744,53 @@ Namespace SipTest
             Headings.Add("SpellingAFC")
             Headings.Add("Transcription")
             Headings.Add("TranscriptionAFC")
-            Headings.Add("PseudoTrialIds")
-            Headings.Add("PseudoTrialSpellings")
-
-            Headings.Add("TargetTrial_ExportedTrialSoundFiles")
-            Headings.Add("PseudoTrials_ExportedTrialSoundFiles")
 
             Headings.Add("TargetTrial_SelectedTargetSoundIndex")
             Headings.Add("TargetTrial_SelectedMaskerSoundIndices")
             Headings.Add("TargetTrial_BackgroundNonspeechSoundStartSamples")
             Headings.Add("TargetTrial_BackgroundSpeechSoundStartSamples")
 
-            Headings.Add("PseudoTrials_SelectedTargetSoundIndex")
-            Headings.Add("PseudoTrials_SelectedMaskerSoundIndices")
-            Headings.Add("PseudoTrials_BackgroundNonspeechSoundStartSamples")
-            Headings.Add("PseudoTrials_BackgroundSpeechSoundStartSamples")
-
             Headings.Add("TargetTrial_BackgroundNonSpeechDucking")
-            Headings.Add("PseudoTrials_BackgroundNonSpeechDucking")
 
             Headings.Add("TargetTrial_ContextRegionSpeech_SPL")
             Headings.Add("TargetTrial_TestWordLevel")
             Headings.Add("TargetTrial_ReferenceTestWordLevel_SPL")
 
-            Headings.Add("PseudoTrials_ContextRegionSpeech_SPL")
-            Headings.Add("PseudoTrials_TestWordLevel")
-            Headings.Add("PseudoTrials_ReferenceTestWordLevel_SPL")
-
             Headings.Add("TargetStartSample")
-            Headings.Add("PseudoTrials_TargetStartSample")
             Headings.Add("TestPhonemeStartSample")
             Headings.Add("TestPhonemelength")
-            Headings.Add("PseudoTrials_TP_StartSamples")
-            Headings.Add("PseudoTrials_TP_Length")
 
             Headings.Add("TargetTrial_Gains")
-            Headings.Add("PseudoTrials_Gains")
 
             Return String.Join(vbTab, Headings)
 
         End Function
 
-        Public Function CreateExportString(Optional ByVal SkipExportOfSoundFiles As Boolean = True) As String
+        Public Overridable Function CreateExportString(Optional ByVal SkipExportOfSoundFiles As Boolean = True) As String
 
-            Dim TrialList As New List(Of String)
-            TrialList.Add(Me.ParentTestUnit.ParentMeasurement.ParticipantID)
-            TrialList.Add(Me.ParentTestUnit.ParentMeasurement.MeasurementDateTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
-            TrialList.Add(Me.ParentTestUnit.ParentMeasurement.Description)
-            TrialList.Add(Me.ParentTestUnit.ParentMeasurement.GetParentTestUnitIndex(Me))
-            TrialList.Add(Me.ParentTestUnit.Description)
-            TrialList.Add(Me.SpeechMaterialComponent.Id)
-            TrialList.Add(Me.SpeechMaterialComponent.ParentComponent.PrimaryStringRepresentation)
-            TrialList.Add(Me.MediaSet.MediaSetName)
-            TrialList.Add(Me.PresentationOrder)
-            TrialList.Add(Me.ReferenceSpeechMaterialLevel_SPL)
-            TrialList.Add(Me.ReferenceContrastingPhonemesLevel_SPL)
-            TrialList.Add(Me.Reference_SPL)
-            TrialList.Add(Me.PNR)
+            Dim TrialDataList As New List(Of String)
+            TrialDataList.Add(Me.ParentTestUnit.ParentMeasurement.ParticipantID)
+            TrialDataList.Add(Me.ParentTestUnit.ParentMeasurement.MeasurementDateTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            TrialDataList.Add(Me.ParentTestUnit.ParentMeasurement.Description)
+            TrialDataList.Add(Me.ParentTestUnit.ParentMeasurement.GetParentTestUnitIndex(Me))
+            TrialDataList.Add(Me.ParentTestUnit.Description)
+            TrialDataList.Add(Me.SpeechMaterialComponent.Id)
+            TrialDataList.Add(Me.SpeechMaterialComponent.ParentComponent.PrimaryStringRepresentation)
+            TrialDataList.Add(Me.MediaSet.MediaSetName)
+            TrialDataList.Add(Me.PresentationOrder)
+            TrialDataList.Add(Me.ReferenceSpeechMaterialLevel_SPL)
+            TrialDataList.Add(Me.ReferenceContrastingPhonemesLevel_SPL)
+            TrialDataList.Add(Me.Reference_SPL)
+            TrialDataList.Add(Me.PNR)
             If TargetMasking_SPL.HasValue = True Then
-                TrialList.Add(TargetMasking_SPL)
+                TrialDataList.Add(TargetMasking_SPL)
             Else
-                TrialList.Add("NA")
+                TrialDataList.Add("NA")
             End If
-            TrialList.Add(TestWordLevelLimit)
-            TrialList.Add(ContextSpeechLimit)
+            TrialDataList.Add(TestWordLevelLimit)
+            TrialDataList.Add(ContextSpeechLimit)
 
-            If Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
-                TrialList.Add(Me.EstimatedSuccessProbability(False))
-                TrialList.Add(Me.AdjustedSuccessProbability)
-            Else
-                TrialList.Add("No audiogram stored - cannot calculate")
-                TrialList.Add("No audiogram stored - cannot calculate")
-            End If
-            TrialList.Add(Me.SoundPropagationType.ToString)
+            TrialDataList.Add(Me.SoundPropagationType.ToString)
 
             If Me.TargetStimulusLocations.Length > 0 Then
                 Dim Distances As New List(Of String)
@@ -1327,17 +812,17 @@ Namespace SipTest
                     ActualBinauralDelay_Left.Add(Me.TargetStimulusLocations(i).ActualLocation.BinauralDelay.LeftDelay)
                     ActualBinauralDelay_Right.Add(Me.TargetStimulusLocations(i).ActualLocation.BinauralDelay.RightDelay)
                 Next
-                TrialList.Add(String.Join(";", Distances))
-                TrialList.Add(String.Join(";", HorizontalAzimuths))
-                TrialList.Add(String.Join(";", Elevations))
-                TrialList.Add(String.Join(";", ActualDistances))
-                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
-                TrialList.Add(String.Join(";", ActualElevations))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
+                TrialDataList.Add(String.Join(";", Distances))
+                TrialDataList.Add(String.Join(";", HorizontalAzimuths))
+                TrialDataList.Add(String.Join(";", Elevations))
+                TrialDataList.Add(String.Join(";", ActualDistances))
+                TrialDataList.Add(String.Join(";", ActualHorizontalAzimuths))
+                TrialDataList.Add(String.Join(";", ActualElevations))
+                TrialDataList.Add(String.Join(";", ActualBinauralDelay_Left))
+                TrialDataList.Add(String.Join(";", ActualBinauralDelay_Right))
             Else
                 For n = 1 To 8
-                    TrialList.Add("")
+                    TrialDataList.Add("")
                 Next
             End If
 
@@ -1361,17 +846,17 @@ Namespace SipTest
                     ActualBinauralDelay_Left.Add(Me.MaskerLocations(i).ActualLocation.BinauralDelay.LeftDelay)
                     ActualBinauralDelay_Right.Add(Me.MaskerLocations(i).ActualLocation.BinauralDelay.RightDelay)
                 Next
-                TrialList.Add(String.Join(";", Distances))
-                TrialList.Add(String.Join(";", HorizontalAzimuths))
-                TrialList.Add(String.Join(";", Elevations))
-                TrialList.Add(String.Join(";", ActualDistances))
-                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
-                TrialList.Add(String.Join(";", ActualElevations))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
+                TrialDataList.Add(String.Join(";", Distances))
+                TrialDataList.Add(String.Join(";", HorizontalAzimuths))
+                TrialDataList.Add(String.Join(";", Elevations))
+                TrialDataList.Add(String.Join(";", ActualDistances))
+                TrialDataList.Add(String.Join(";", ActualHorizontalAzimuths))
+                TrialDataList.Add(String.Join(";", ActualElevations))
+                TrialDataList.Add(String.Join(";", ActualBinauralDelay_Left))
+                TrialDataList.Add(String.Join(";", ActualBinauralDelay_Right))
             Else
                 For n = 1 To 8
-                    TrialList.Add("")
+                    TrialDataList.Add("")
                 Next
             End If
 
@@ -1395,183 +880,80 @@ Namespace SipTest
                     ActualBinauralDelay_Left.Add(Me.BackgroundLocations(i).ActualLocation.BinauralDelay.LeftDelay)
                     ActualBinauralDelay_Right.Add(Me.BackgroundLocations(i).ActualLocation.BinauralDelay.RightDelay)
                 Next
-                TrialList.Add(String.Join(";", Distances))
-                TrialList.Add(String.Join(";", HorizontalAzimuths))
-                TrialList.Add(String.Join(";", Elevations))
-                TrialList.Add(String.Join(";", ActualDistances))
-                TrialList.Add(String.Join(";", ActualHorizontalAzimuths))
-                TrialList.Add(String.Join(";", ActualElevations))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Left))
-                TrialList.Add(String.Join(";", ActualBinauralDelay_Right))
+                TrialDataList.Add(String.Join(";", Distances))
+                TrialDataList.Add(String.Join(";", HorizontalAzimuths))
+                TrialDataList.Add(String.Join(";", Elevations))
+                TrialDataList.Add(String.Join(";", ActualDistances))
+                TrialDataList.Add(String.Join(";", ActualHorizontalAzimuths))
+                TrialDataList.Add(String.Join(";", ActualElevations))
+                TrialDataList.Add(String.Join(";", ActualBinauralDelay_Left))
+                TrialDataList.Add(String.Join(";", ActualBinauralDelay_Right))
             Else
                 For n = 1 To 8
-                    TrialList.Add("")
+                    TrialDataList.Add("")
                 Next
             End If
 
-            TrialList.Add(Me.IsBmldTrial)
+            TrialDataList.Add(Me.IsBmldTrial)
             If Me.IsBmldTrial = True Then
-                TrialList.Add(Me.BmldNoiseMode.ToString)
-                TrialList.Add(Me.BmldSignalMode.ToString)
+                TrialDataList.Add(Me.BmldNoiseMode.ToString)
+                TrialDataList.Add(Me.BmldSignalMode.ToString)
             Else
-                TrialList.Add("")
-                TrialList.Add("")
+                TrialDataList.Add("")
+                TrialDataList.Add("")
             End If
 
-            TrialList.Add(Me.Response)
-            TrialList.Add(Me.Result.ToString)
-            TrialList.Add(Me.Score)
-            TrialList.Add(Me.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            TrialDataList.Add(Me.Response)
+            TrialDataList.Add(Me.Result.ToString)
+            TrialDataList.Add(Me.Score)
+            TrialDataList.Add(Me.ResponseTime.ToString(System.Globalization.CultureInfo.InvariantCulture))
             If ResponseAlternativeCount IsNot Nothing Then
-                TrialList.Add(Me.ResponseAlternativeCount)
+                TrialDataList.Add(Me.ResponseAlternativeCount)
             Else
-                TrialList.Add(0)
+                TrialDataList.Add(0)
             End If
-            TrialList.Add(Me.IsTestTrial.ToString)
-            If Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
-                TrialList.Add(Me.PhonemeDiscriminabilityLevel(False))
-            Else
-                TrialList.Add("No audiogram stored")
-            End If
+            TrialDataList.Add(Me.IsTestTrial.ToString)
 
-            TrialList.Add(Me.SpeechMaterialComponent.PrimaryStringRepresentation)
-            TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
-            TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("SpellingAFC"))
-            TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("Transcription"))
-            TrialList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("TranscriptionAFC"))
+            TrialDataList.Add(Me.SpeechMaterialComponent.PrimaryStringRepresentation)
+            TrialDataList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
+            TrialDataList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("SpellingAFC"))
+            TrialDataList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("Transcription"))
+            TrialDataList.Add(Me.SpeechMaterialComponent.GetCategoricalVariableValue("TranscriptionAFC"))
 
-            Dim PseudoTrialIds As New List(Of String)
-            Dim PseudoTrialSpellings As New List(Of String)
-            For Each PseudoTrial In PseudoTrials
-                PseudoTrialIds.Add(PseudoTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling"))
-                PseudoTrialSpellings.Add(PseudoTrial.SpeechMaterialComponent.Id)
-            Next
-            TrialList.Add(String.Join("; ", PseudoTrialIds))
-            TrialList.Add(String.Join("; ", PseudoTrialSpellings))
+            TrialDataList.Add(SelectedTargetIndexString)
+            TrialDataList.Add(SelectedMaskerIndicesString)
+            TrialDataList.Add(BackgroundStartSamplesString)
+            TrialDataList.Add(BackgroundSpeechStartSamplesString)
 
-            'Adding export of sound files,
-            Dim ExportedSoundFilesList As New List(Of String)
-            If SkipExportOfSoundFiles = False Then
-                For i = 0 To Me.TrialSoundsToExport.Count - 1
-                    Dim ExportSound = Me.TrialSoundsToExport(i).Item2
-                    Dim FileName = IO.Path.Combine(Me.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Me.PresentationOrder & "_" & Me.TrialSoundsToExport(i).Item1 & "_" & Me.SpeechMaterialComponent.Id & ".wav")
-                    ExportSound.WriteWaveFile(FileName)
-                    ExportedSoundFilesList.Add(FileName)
-                Next
-            End If
-            TrialList.Add(String.Join(";", ExportedSoundFilesList))
+            TrialDataList.Add(BackgroundNonSpeechDucking)
 
-            Dim ExportedPseudoTrialSoundFilesList As New List(Of String)
-            If SkipExportOfSoundFiles = False Then
-                If PseudoTrials IsNot Nothing Then
-                    For Each PseudoTrial In PseudoTrials
-                        For i = 0 To PseudoTrial.TrialSoundsToExport.Count - 1
-                            Dim ExportSound = PseudoTrial.TrialSoundsToExport(i).Item2
-                            Dim FileName = IO.Path.Combine(Me.ParentTestUnit.ParentMeasurement.TrialResultsExportFolder, "TrialSoundFiles", "Trial_" & Me.PresentationOrder & "_Pseudo_" & PseudoTrial.TrialSoundsToExport(i).Item1 & "_" & PseudoTrial.SpeechMaterialComponent.Id & ".wav")
-                            ExportSound.WriteWaveFile(FileName)
-                            ExportedPseudoTrialSoundFilesList.Add(FileName)
-                        Next
-                    Next
-                End If
-            End If
-            TrialList.Add(String.Join(";", ExportedPseudoTrialSoundFilesList))
-
-            TrialList.Add(SelectedTargetIndexString)
-            TrialList.Add(SelectedMaskerIndicesString)
-            TrialList.Add(BackgroundStartSamplesString)
-            TrialList.Add(BackgroundSpeechStartSamplesString)
-
-            Dim PseudoTrial_SelectedTargetIndexStringList As New List(Of String)
-            Dim PseudoTrial_SelectedMaskerIndicesStringList As New List(Of String)
-            Dim PseudoTrial_BackgroundStartSamplesStringList As New List(Of String)
-            Dim PseudoTrial_BackgroundSpeechStartSamplesStringList As New List(Of String)
-            For Each PseduTrial In PseudoTrials
-                PseudoTrial_SelectedTargetIndexStringList.Add(PseduTrial.SelectedTargetIndexString)
-                PseudoTrial_SelectedMaskerIndicesStringList.Add(PseduTrial.SelectedMaskerIndicesString)
-                PseudoTrial_BackgroundStartSamplesStringList.Add(PseduTrial.BackgroundStartSamplesString)
-                PseudoTrial_BackgroundSpeechStartSamplesStringList.Add(PseduTrial.BackgroundSpeechStartSamplesString)
-            Next
-            TrialList.Add(String.Join(";", PseudoTrial_SelectedTargetIndexStringList))
-            TrialList.Add(String.Join(";", PseudoTrial_SelectedMaskerIndicesStringList))
-            TrialList.Add(String.Join(";", PseudoTrial_BackgroundStartSamplesStringList))
-            TrialList.Add(String.Join(";", PseudoTrial_BackgroundSpeechStartSamplesStringList))
-
-            TrialList.Add(BackgroundNonSpeechDucking)
-            Dim PseudoTrial_BackgroundNonSpeechDuckingList As New List(Of String)
-            For Each PseduTrial In PseudoTrials
-                PseudoTrial_BackgroundNonSpeechDuckingList.Add(PseduTrial.BackgroundNonSpeechDucking)
-            Next
-            TrialList.Add(String.Join(";", PseudoTrial_BackgroundNonSpeechDuckingList))
-
-            TrialList.Add(ContextRegionSpeech_SPL)
+            TrialDataList.Add(ContextRegionSpeech_SPL)
             If TestWordLevel.HasValue = True Then
-                TrialList.Add(TestWordLevel)
+                TrialDataList.Add(TestWordLevel)
             Else
-                TrialList.Add("NA")
+                TrialDataList.Add("NA")
             End If
-            TrialList.Add(ReferenceTestWordLevel_SPL)
-
-            Dim ContextRegionSpeech_SPL_List As New List(Of String)
-            Dim TestWordLevel_List As New List(Of String)
-            Dim ReferenceTestWordLevel_SPL_List As New List(Of String)
-            For Each PseduTrial In PseudoTrials
-                ContextRegionSpeech_SPL_List.Add(PseduTrial.ContextRegionSpeech_SPL)
-                If PseduTrial.TestWordLevel.HasValue = True Then
-                    TestWordLevel_List.Add(PseduTrial.TestWordLevel)
-                Else
-                    TestWordLevel_List.Add("NA")
-                End If
-                ReferenceTestWordLevel_SPL_List.Add(PseduTrial.ReferenceTestWordLevel_SPL)
-            Next
-            TrialList.Add(String.Join(";", ContextRegionSpeech_SPL_List))
-            TrialList.Add(String.Join(";", TestWordLevel_List))
-            TrialList.Add(String.Join(";", ReferenceTestWordLevel_SPL_List))
+            TrialDataList.Add(ReferenceTestWordLevel_SPL)
 
             'Target Startsamples
-            TrialList.Add(TargetStartSample)
-            Dim PseudoTrials_TargetStartSample As New List(Of String)
-            For Each PseduTrial In PseudoTrials
-                PseudoTrials_TargetStartSample.Add(PseduTrial.TargetStartSample)
-            Next
-            TrialList.Add(String.Join(";", PseudoTrials_TargetStartSample))
+            TrialDataList.Add(TargetStartSample)
 
             'Test phoneme start sample and length
             If TargetInitialMargins.Count = 0 Then TargetInitialMargins.Add(0) ' Adding an initial margin of zero if for some reason empty
             Dim TP_SaL = GetTestPhonemeStartAndLength(TargetInitialMargins(0)) ' N.B. / TODO: Here initial margins are assumed only for one target. Need to be changed if several targets with different initial marginsa are to be used.
             Dim TestPhonemeStartSample As Integer = TP_SaL.Item1
             Dim TestPhonemelength As Integer = TP_SaL.Item2
-            TrialList.Add(TestPhonemeStartSample)
-            TrialList.Add(TestPhonemelength)
-
-            Dim PseudoTrials_TP_StartSamples As New List(Of String)
-            Dim PseudoTrials_TP_Length As New List(Of String)
-            For pseudoTrialIndex = 0 To PseudoTrials.Count - 1
-                If PseudoTrials(pseudoTrialIndex).TargetInitialMargins.Count = 0 Then PseudoTrials(pseudoTrialIndex).TargetInitialMargins.Add(0) ' Adding an initial margin of zero if for some reason empty
-                Dim PS_TP_SaL = PseudoTrials(pseudoTrialIndex).GetTestPhonemeStartAndLength(PseudoTrials(pseudoTrialIndex).TargetInitialMargins(0)) ' N.B. / TODO: Here initial margins are assumed only for one target. Need to be changed if several targets with different initial marginsa are to be used.
-                PseudoTrials_TP_StartSamples.Add(PS_TP_SaL.Item1)
-                PseudoTrials_TP_Length.Add(PS_TP_SaL.Item2)
-            Next
-            TrialList.Add(String.Join(";", PseudoTrials_TP_StartSamples))
-            TrialList.Add(String.Join(";", PseudoTrials_TP_Length))
+            TrialDataList.Add(TestPhonemeStartSample)
+            TrialDataList.Add(TestPhonemelength)
 
             'Gains
             Dim TargetTrialGains As New List(Of String)
             For Each Item In GainList
                 TargetTrialGains.Add(Item.Key.ToString & ": " & String.Join(";", Item.Value))
             Next
-            TrialList.Add(String.Join(" / ", TargetTrialGains))
+            TrialDataList.Add(String.Join(" / ", TargetTrialGains))
 
-            Dim PseudoTrialsGains As New List(Of String)
-            For pseudoTrialIndex = 0 To PseudoTrials.Count - 1
-                Dim PseudoTrialGains As New List(Of String)
-                For Each Item In PseudoTrials(pseudoTrialIndex).GainList
-                    PseudoTrialGains.Add(Item.Key.ToString & ": " & String.Join(";", Item.Value))
-                Next
-                PseudoTrialsGains.Add(String.Join(" / ", PseudoTrialGains))
-            Next
-            TrialList.Add(String.Join(" | ", PseudoTrialsGains))
-
-            Return String.Join(vbTab, TrialList)
+            Return String.Join(vbTab, TrialDataList)
 
         End Function
 
@@ -1595,32 +977,7 @@ Namespace SipTest
 
         End Function
 
-        'Removes all sounds from the trial free up memory
-        Public Sub RemoveSounds()
 
-            'Removes the sound, since it's not going to be used again (and could take up quite some memory if kept...)
-            If Sound IsNot Nothing Then Sound = Nothing
-
-            If TrialSoundsToExport IsNot Nothing Then
-                For i = 0 To TrialSoundsToExport.Count - 1
-                    TrialSoundsToExport(i) = New Tuple(Of String, Audio.Sound)(TrialSoundsToExport(i).Item1, Nothing)
-                Next
-            End If
-
-            'And also the pseudo trial sounds if any
-            If PseudoTrials IsNot Nothing Then
-                For Each PseudoTrial In PseudoTrials
-                    If PseudoTrial.Sound IsNot Nothing Then PseudoTrial.Sound = Nothing
-
-                    If PseudoTrial.TrialSoundsToExport IsNot Nothing Then
-                        For i = 0 To PseudoTrial.TrialSoundsToExport.Count - 1
-                            PseudoTrial.TrialSoundsToExport(i) = New Tuple(Of String, Audio.Sound)(PseudoTrial.TrialSoundsToExport(i).Item1, Nothing)
-                        Next
-                    End If
-                Next
-            End If
-
-        End Sub
 
         Public Overrides Function TestResultColumnHeadings() As String
 
@@ -1693,6 +1050,13 @@ Namespace SipTest
 
         End Function
 
+        'Removes all sounds from the trial free up memory
+        Public Overridable Sub RemoveSounds()
+
+            'Removes the sound, since it's not going to be used again (and could take up quite some memory if kept...)
+            If Sound IsNot Nothing Then Sound = Nothing
+
+        End Sub
 
     End Class
 

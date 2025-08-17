@@ -2948,7 +2948,7 @@ Public Class DSP
                         'Leaving it in the SIL range and not taking -dbFSToSplDifference
 
                         'Shifting back to Linear scale (I= Ir * 10^(LI/10))
-                        Dim LinearLoudness As Double = Utils.ReferenceSoundIntensityLevel * 10 ^ (CurrentPhonValue / 10)
+                        Dim LinearLoudness As Double = Audio.ReferenceSoundIntensityLevel * 10 ^ (CurrentPhonValue / 10)
 
                         'Storing the new value
                         InputSound.FFT.PowerSpectrumData(channel, TimeWindow).WindowData(k) = LinearLoudness
@@ -2963,7 +2963,7 @@ Public Class DSP
         Public Sub ExportSplToPhonData(Optional ByVal OutputFolder As String = "", Optional ByVal FileName As String = "SplToPhonData",
                                        Optional ByVal ExportLevelStep As Double? = Nothing)
 
-            If OutputFolder = "" Then OutputFolder = Utils.logFilePath
+            If OutputFolder = "" Then OutputFolder = Logging.LogFileDirectory
 
             Dim OutputList As New List(Of String)
 
@@ -2983,7 +2983,7 @@ Public Class DSP
 
         Public Sub ExportIsoPhonCurves(Optional ByVal OutputFolder As String = "", Optional ByVal FileName As String = "IsoPhoneData")
 
-            If OutputFolder = "" Then OutputFolder = Utils.logFilePath
+            If OutputFolder = "" Then OutputFolder = Logging.LogFileDirectory
 
             Dim OutputList As New List(Of String)
 
@@ -3002,7 +3002,7 @@ Public Class DSP
                                               Optional ByVal FileName As String = "InverseIsoPhonData",
                                               Optional ByVal ShowAsAttenuation As Boolean = False)
 
-            If OutputFolder = "" Then OutputFolder = Utils.logFilePath
+            If OutputFolder = "" Then OutputFolder = Logging.LogFileDirectory
 
             Dim OutputList As New List(Of String)
 
@@ -4486,7 +4486,7 @@ Public Class DSP
                                 'Setting the magnitudes below cut-off frequency 1
                                 For k = 0 To kForCF1 - 1
                                     Dim frequency As Single = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, k, waveFormat.SampleRate, fftFormat.FftWindowSize, RoundingMethods.DoNotRound)
-                                    Dim attenuationIn_dB As Single = attenuationRate * getBase_n_Log(frequency, 2) - attenuationRate * getBase_n_Log(CutOffFreq1, 2)
+                                    Dim attenuationIn_dB As Single = attenuationRate * GetBase_n_Log(frequency, 2) - attenuationRate * GetBase_n_Log(CutOffFreq1, 2)
                                     Dim attenuationFactor As Single = dBConversion(attenuationIn_dB, dBConversionDirection.from_dB, waveFormat) / posFS
                                     magnitudeArray(k) = passBandLevel * attenuationFactor
                                 Next
@@ -4511,7 +4511,7 @@ Public Class DSP
                                 'Setting the magnitudes above cut-off frequency 1
                                 For k = kForCF1 + 1 To magnitudeArray.Length / 2 - 1
                                     Dim frequency As Single = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, k, waveFormat.SampleRate, fftFormat.FftWindowSize, RoundingMethods.DoNotRound)
-                                    Dim attenuationIn_dB As Single = attenuationRate * getBase_n_Log(CutOffFreq1, 2) - attenuationRate * getBase_n_Log(frequency, 2)
+                                    Dim attenuationIn_dB As Single = attenuationRate * GetBase_n_Log(CutOffFreq1, 2) - attenuationRate * GetBase_n_Log(frequency, 2)
                                     Dim attenuationFactor As Single = dBConversion(attenuationIn_dB, dBConversionDirection.from_dB, waveFormat) / posFS
                                     magnitudeArray(k) = passBandLevel * attenuationFactor
 
@@ -5859,14 +5859,14 @@ Public Class DSP
         Dim X = GetNearestIndices(InputX, InterPolationList.Keys.ToArray)
         If X.NearestLowerIndex Is Nothing Then
             'Returning the lowest value in the list
-            If SendInfoToLogWhenOutsideInterpolationListValues = True Then Utils.SendInfoToLog("Input value below Interpolation list values!")
+            If SendInfoToLogWhenOutsideInterpolationListValues = True Then Logging.SendInfoToLog("Input value below Interpolation list values!")
 
             Return InterPolationList.Values.ToArray(X.NearestHigherIndex)
         End If
         If X.NearestHigherIndex Is Nothing Then
             'Returning the highest value in the list
 
-            If SendInfoToLogWhenOutsideInterpolationListValues = True Then Utils.SendInfoToLog("Input value below Interpolation list values!")
+            If SendInfoToLogWhenOutsideInterpolationListValues = True Then Logging.SendInfoToLog("Input value below Interpolation list values!")
 
             Return InterPolationList.Values.ToArray(X.NearestLowerIndex)
         End If
@@ -6054,7 +6054,7 @@ Public Class DSP
 
     End Function
 
-    Public Shared Function getBase_n_Log(ByVal value As Double, Optional ByVal n As Double = 2) As Double
+    Public Shared Function GetBase_n_Log(ByVal value As Double, Optional ByVal n As Double = 2) As Double
 
         Return System.Math.Log10(value) / System.Math.Log10(n)
 
@@ -6187,7 +6187,7 @@ Public Class DSP
             Return StandardDeviation / ArithmetricMean
 
         Catch ex As Exception
-            Utils.Errors("The following exception occured: " & ex.ToString)
+            Logging.Errors("The following exception occured: " & ex.ToString)
             Return Nothing
         End Try
 

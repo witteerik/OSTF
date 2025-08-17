@@ -107,8 +107,8 @@ Public Class MatrixSpeechTest
         If IsInitialized = True Then Return New Tuple(Of Boolean, String)(True, "")
 
         If SignalLocations.Count = 0 Then
-            Select Case Utils.Constants.Languages.Swedish
-                Case Utils.Constants.Languages.Swedish
+            Select Case Utils.EnumCollection.Languages.Swedish
+                Case Utils.EnumCollection.Languages.Swedish
                     Return New Tuple(Of Boolean, String)(False, "Du måste välja minst en ljudkälla för tal!")
                 Case Else
                     Return New Tuple(Of Boolean, String)(False, "You must select a signal sound source!")
@@ -116,8 +116,8 @@ Public Class MatrixSpeechTest
         End If
 
         If MaskerLocations.Count = 0 And TestMode = TestModes.AdaptiveNoise Then
-            Select Case Utils.Constants.Languages.Swedish
-                Case Utils.Constants.Languages.Swedish
+            Select Case Utils.EnumCollection.Languages.Swedish
+                Case Utils.EnumCollection.Languages.Swedish
                     Return New Tuple(Of Boolean, String)(False, "Du måste välja minst en ljudkälla för brus!")
                 Case Else
                     Return New Tuple(Of Boolean, String)(False, "You must select at least one masker sound source!")
@@ -356,7 +356,7 @@ Public Class MatrixSpeechTest
             ProtocolReply = TestProtocol.NewResponse(ObservedTrials)
 
             'Taking a dump of the SpeechTest before swapping to the new trial, but after the protocol reply so that the protocol results also gets dumped
-            CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+            CurrentTestTrial.SpeechTestPropertyDump = Logging.ListObjectPropertyValues(Me.GetType, Me)
 
         Else
             'Nothing to correct (this should be the start of a new test)
@@ -499,9 +499,9 @@ Public Class MatrixSpeechTest
         If DoubleCheckMaskingIsActive = True Then
             If MaskerLocations.Count = 0 Then
                 Select Case GuiLanguage
-                    Case Utils.Constants.Languages.Swedish
+                    Case Utils.EnumCollection.Languages.Swedish
                         Messager.MsgBox("Inget maskeringsljud har aktiverats! Prova att starta om testet!", , "Varning!")
-                    Case Utils.Constants.Languages.English
+                    Case Utils.EnumCollection.Languages.English
                         Messager.MsgBox("No masking sound has been activated! Try to restart the test!", , "Varning!")
                 End Select
             End If
@@ -611,10 +611,10 @@ Public Class MatrixSpeechTest
         Throw New NotImplementedException()
     End Sub
 
-    Public Overrides Function GetProgress() As Utils.ProgressInfo
+    Public Overrides Function GetProgress() As ProgressInfo
 
         If GetTotalTrialCount() <> -1 Then
-            Dim NewProgressInfo As New Utils.ProgressInfo
+            Dim NewProgressInfo As New ProgressInfo
             NewProgressInfo.Value = GetObservedTestTrials.Count
             NewProgressInfo.Maximum = GetTotalTrialCount()
             Return NewProgressInfo

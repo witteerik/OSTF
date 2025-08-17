@@ -40,6 +40,7 @@ Public Module OstfBase
     'Optimization libraries
     Public Property UseOptimizationLibraries As Boolean = False ' This can be used to determine if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
 
+
     'Other basic settings
     Public Property AllowDirectionalSimulation As Boolean = True
 
@@ -419,7 +420,7 @@ Public Module OstfBase
 
     Private Sub LoadAudioSystemSpecificationFile()
 
-        Dim AudioSystemSpecificationFilePath = Utils.NormalizeCrossPlatformPath(IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AudioSystemSettingsFile))
+        Dim AudioSystemSpecificationFilePath = Utils.GeneralIO.NormalizeCrossPlatformPath(IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AudioSystemSettingsFile))
         ''Getting calibration file descriptions from the text file
         Dim InputLines() As String = System.IO.File.ReadAllLines(AudioSystemSpecificationFilePath, System.Text.Encoding.UTF8)
 

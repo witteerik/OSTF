@@ -40,7 +40,7 @@ public static class ScreenShooter
             {
                 switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                         await Messager.MsgBoxAsync("Skärmdumpar stöds inte på denna enhet!", Messager.MsgBoxStyle.Information, "Kunde inte ta skärmdump!");
                         break;
                     default:
@@ -54,7 +54,7 @@ public static class ScreenShooter
 
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Core.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                     await Messager.MsgBoxAsync("Misslyckades med att ta skärmdump!\n\n" + e.ToString(),  Messager.MsgBoxStyle.Information, "Något gick fel!");
                     break;
                 default:

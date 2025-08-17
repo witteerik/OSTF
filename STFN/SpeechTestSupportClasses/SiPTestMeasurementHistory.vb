@@ -1,4 +1,7 @@
-﻿Imports STFN.Core.Audio.SoundScene
+﻿
+Imports STFN.Core
+Imports STFN.Core.SipTest
+Imports STFN.Core.Audio.SoundScene
 Imports STFN.Core.Audio.Formats
 Imports System.Reflection
 Imports System.Runtime.Serialization
@@ -18,9 +21,9 @@ Namespace SipTest
 
             'Gets a file path from the user if none is supplied
             If SaveOnlyLast = False Then
-                If FilePath = "" Then FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save stuctured measurement history .txt file as...")
+                If FilePath = "" Then FilePath = Utils.GeneralIO.GetSaveFilePath(,, {".txt"}, "Save stuctured measurement history .txt file as...")
             Else
-                If FilePath = "" Then FilePath = Utils.GetSaveFilePath(,, {".txt"}, "Save stuctured measurement (.txt) file as...")
+                If FilePath = "" Then FilePath = Utils.GeneralIO.GetSaveFilePath(,, {".txt"}, "Save stuctured measurement (.txt) file as...")
             End If
             If FilePath = "" Then
                 MsgBox("No file selected!")
@@ -37,7 +40,7 @@ Namespace SipTest
                 If Measurements.Count > 0 Then Output.Add(Measurements(Measurements.Count - 1).CreateExportString)
             End If
 
-            Utils.SendInfoToLog(String.Join(vbCrLf, Output), IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
+            Logging.SendInfoToLog(String.Join(vbCrLf, Output), IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
 
         End Sub
 
@@ -51,7 +54,7 @@ Namespace SipTest
             Dim Output As New SiPTestMeasurementHistory
 
             'Gets a file path from the user if none is supplied
-            If FilePath = "" Then FilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured measurement history .txt file.")
+            If FilePath = "" Then FilePath = Utils.GeneralIO.GetOpenFilePath(,, {".txt"}, "Please open a stuctured measurement history .txt file.")
             If FilePath = "" Then
                 MsgBox("No file selected!")
                 Return Nothing

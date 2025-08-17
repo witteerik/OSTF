@@ -22,17 +22,13 @@
 'SOFTWARE.
 
 Imports System.IO
-Imports System.Runtime.Serialization
-Imports System.Xml.Serialization
 Imports STFN.Core
-Imports STFN.Core.Utils
 
 
 Namespace Utils
 
-    Public Module GeneralIO
-
-
+    Public Class GeneralIO
+        Inherits STFN.Core.Utils.GeneralIO
 
 
         ''' <summary>
@@ -43,7 +39,7 @@ Namespace Utils
         ''' <param name="fileExtensions">Optional possible extensions</param>
         ''' <param name="BoxTitle">The message/title on the file dialog box</param>
         ''' <returns>Returns the file path, or nothing if a file path could not be created.</returns>
-        Public Function GetOpenFilePaths(Optional directory As String = "",
+        Public Shared Function GetOpenFilePaths(Optional directory As String = "",
                                     Optional fileExtensions() As String = Nothing,
                                     Optional BoxTitle As String = "",
                                     Optional ReturnEmptyStringArrayOnCancel As Boolean = False) As String()
@@ -93,7 +89,7 @@ Namespace Utils
 
         End Function
 
-        Public Function GetFilesIncludingAllSubdirectories(ByVal Directory As String) As String()
+        Public Shared Function GetFilesIncludingAllSubdirectories(ByVal Directory As String) As String()
 
             Dim FileList As New List(Of String)
             AddFiles(FileList, Directory)
@@ -102,7 +98,7 @@ Namespace Utils
 
         End Function
 
-        Private Sub AddFiles(ByRef MyList As List(Of String), ByVal Directory As String)
+        Private Shared Sub AddFiles(ByRef MyList As List(Of String), ByVal Directory As String)
 
             'Adding the current level files
             Dim CurrentLevelFiles() As String = IO.Directory.GetFiles(Directory)
@@ -119,7 +115,7 @@ Namespace Utils
         End Sub
 
 
-        Public Function GetFilesIncludingAllSubdirectories(ByVal Directory As String, ByVal SubDirectoryLevelsToInclude As Integer) As String()
+        Public Shared Function GetFilesIncludingAllSubdirectories(ByVal Directory As String, ByVal SubDirectoryLevelsToInclude As Integer) As String()
 
             Dim CurrentSubDirectoryLevel As Integer = 0
 
@@ -130,7 +126,7 @@ Namespace Utils
 
         End Function
 
-        Private Sub AddFiles(ByRef MyList As List(Of String), ByVal Directory As String,
+        Private Shared Sub AddFiles(ByRef MyList As List(Of String), ByVal Directory As String,
                          ByRef CurrentSubDirectoryLevel As Integer, ByRef LowestSubDirectoryLevelToInclude As Integer)
 
 
@@ -162,10 +158,10 @@ Namespace Utils
         ''' Compares two tab delimited files and detects any differences
         ''' </summary>
         ''' <param name="IgnoreFile2ColumnIndex"></param>
-        Public Sub CompareTwoTabDelimitedTxtFiles(Optional IgnoreFile2ColumnIndex As Integer? = Nothing)
+        Public Shared Sub CompareTwoTabDelimitedTxtFiles(Optional IgnoreFile2ColumnIndex As Integer? = Nothing)
 
-            Dim FilePath1 As String = STFN.Core.Utils.GetOpenFilePath(,,, "Select file 1")
-            Dim FilePath2 As String = STFN.Core.Utils.GetOpenFilePath(,,, "Select file 2")
+            Dim FilePath1 As String = GetOpenFilePath(,,, "Select file 1")
+            Dim FilePath2 As String = GetOpenFilePath(,,, "Select file 2")
 
             Dim inputArray1() As String = System.IO.File.ReadAllLines(FilePath1)
             Dim inputArray2() As String = System.IO.File.ReadAllLines(FilePath2)
@@ -239,9 +235,9 @@ Namespace Utils
         End Sub
 
 
-        Public Sub SaveDoubleArrayToFile(ByRef DoubleMatrix() As Double, Optional ByVal FilePath As String = "")
+        Public Shared Sub SaveDoubleArrayToFile(ByRef DoubleMatrix() As Double, Optional ByVal FilePath As String = "")
 
-            If FilePath = "" Then FilePath = STFN.Core.Utils.GetSaveFilePath()
+            If FilePath = "" Then FilePath = GetSaveFilePath()
 
             Dim SaveFolder As String = Path.GetDirectoryName(FilePath)
             If Not Directory.Exists(SaveFolder) Then Directory.CreateDirectory(SaveFolder)
@@ -256,9 +252,9 @@ Namespace Utils
 
         End Sub
 
-        Public Sub SaveMatrixToFile(ByRef DoubleMatrix(,) As Double, Optional ByVal FilePath As String = "")
+        Public Shared Sub SaveMatrixToFile(ByRef DoubleMatrix(,) As Double, Optional ByVal FilePath As String = "")
 
-            If FilePath = "" Then FilePath = STFN.Core.Utils.GetSaveFilePath()
+            If FilePath = "" Then FilePath = GetSaveFilePath()
 
             Dim SaveFolder As String = Path.GetDirectoryName(FilePath)
             If Not Directory.Exists(SaveFolder) Then Directory.CreateDirectory(SaveFolder)
@@ -291,9 +287,9 @@ Namespace Utils
         ''' </summary>
         ''' <param name="DoubleMatrix"></param>
         ''' <param name="FilePath"></param>
-        Public Sub SaveMatrixToFile(ByRef DoubleMatrix(,,) As Double, Optional ByVal FilePath As String = "", Optional ByVal ZdimensionToSave As Integer = 0)
+        Public Shared Sub SaveMatrixToFile(ByRef DoubleMatrix(,,) As Double, Optional ByVal FilePath As String = "", Optional ByVal ZdimensionToSave As Integer = 0)
 
-            If FilePath = "" Then FilePath = STFN.Core.Utils.GetSaveFilePath()
+            If FilePath = "" Then FilePath = GetSaveFilePath()
 
             Dim SaveFolder As String = Path.GetDirectoryName(FilePath)
             If Not Directory.Exists(SaveFolder) Then Directory.CreateDirectory(SaveFolder)
@@ -331,7 +327,7 @@ Namespace Utils
         ''' <param name="initialDirectory">The directory that the open file dialogue box starts on if a file path is not set.</param>
         ''' <param name="dialogueBoxCommand">The title of the open file dialogue box starts on if a file path is not set.</param>
         ''' <returns>Returns a string array</returns>
-        Public Function ReadTxtFileToString(Optional filePath As String = "", Optional ByVal initialDirectory As String = "",
+        Public Shared Function ReadTxtFileToString(Optional filePath As String = "", Optional ByVal initialDirectory As String = "",
                                                    Optional ByVal dialogueBoxCommand As String = "Please select the file to load",
                                             Optional ByVal readType As TextReadType = TextReadType.readAllLines) As String()
             'Selecting the file path of the txt file, if not allready set
@@ -353,7 +349,7 @@ Namespace Utils
 
                 End Select
 
-                SendInfoToLog(inputArray.Length & "lines from the file: " & filePath & " loaded into Array.")
+                Logging.SendInfoToLog(inputArray.Length & "lines from the file: " & filePath & " loaded into Array.")
 
                 Return inputArray
 
@@ -367,7 +363,7 @@ Namespace Utils
 
         End Function
 
-        Public Function SaveStringArrayToTxtFile(ByRef input() As String, ByRef saveDirectory As String, ByRef saveFileName As String, Optional AppendData As Boolean = True) As Boolean
+        Public Shared Function SaveStringArrayToTxtFile(ByRef input() As String, ByRef saveDirectory As String, ByRef saveFileName As String, Optional AppendData As Boolean = True) As Boolean
             Try
                 If Not saveDirectory.Substring(saveDirectory.Length - 1) = "\" Then saveDirectory = saveDirectory & "\"
                 If Not Directory.Exists(saveDirectory) Then Directory.CreateDirectory(saveDirectory)
@@ -386,7 +382,7 @@ Namespace Utils
             End Try
         End Function
 
-        Public Function SaveStringListArrayToTxtFile(ByRef input() As List(Of String), ByRef saveDirectory As String, ByRef saveFileName As String) As Boolean
+        Public Shared Function SaveStringListArrayToTxtFile(ByRef input() As List(Of String), ByRef saveDirectory As String, ByRef saveFileName As String) As Boolean
 
             Try
                 If Not saveDirectory.Substring(saveDirectory.Length - 1) = "\" Then saveDirectory = saveDirectory & "\"
@@ -412,18 +408,18 @@ Namespace Utils
 
         End Function
 
-        Public Sub SaveListOfStringToTxtFile(ByRef InputList As List(Of String), Optional ByRef saveDirectory As String = "", Optional ByRef saveFileName As String = "ListOfStringOutput",
+        Public Shared Sub SaveListOfStringToTxtFile(ByRef InputList As List(Of String), Optional ByRef saveDirectory As String = "", Optional ByRef saveFileName As String = "ListOfStringOutput",
                                                 Optional BoxTitle As String = "Choose location to store the List of String export file...")
 
             Try
 
-                SendInfoToLog("Attempts to save List of string to .txt file.")
+                Logging.SendInfoToLog("Attempts to save List of string to .txt file.")
 
                 'Choosing file location
                 Dim filepath As String = ""
                 'Ask the user for file path if not incomplete file path is given
                 If saveDirectory = "" Or saveFileName = "" Then
-                    filepath = STFN.Core.Utils.GetSaveFilePath(saveDirectory, saveFileName, {"txt"}, BoxTitle)
+                    filepath = GetSaveFilePath(saveDirectory, saveFileName, {"txt"}, BoxTitle)
                 Else
                     filepath = Path.Combine(saveDirectory, saveFileName & ".txt")
                     If Not Directory.Exists(Path.GetDirectoryName(filepath)) Then Directory.CreateDirectory(Path.GetDirectoryName(filepath))
@@ -438,7 +434,7 @@ Namespace Utils
 
                 writer.Close()
 
-                SendInfoToLog("   List of String data were successfully saved to .txt file: " & filepath)
+                Logging.SendInfoToLog("   List of String data were successfully saved to .txt file: " & filepath)
 
             Catch ex As Exception
                 MsgBox(ex.ToString)
@@ -446,7 +442,7 @@ Namespace Utils
 
         End Sub
 
-        Public Function CompareBatchOfFiles(ByVal Folder1 As String, ByVal Folder2 As String, Optional Method As FileComparisonMethods = FileComparisonMethods.CompareWaveFileData, Optional ByVal ShowDifferences As Boolean = True) As Boolean
+        Public Shared Function CompareBatchOfFiles(ByVal Folder1 As String, ByVal Folder2 As String, Optional Method As FileComparisonMethods = FileComparisonMethods.CompareWaveFileData, Optional ByVal ShowDifferences As Boolean = True) As Boolean
 
             Dim Files1 = IO.Directory.GetFiles(Folder1)
             Dim Files2 = IO.Directory.GetFiles(Folder2)
@@ -470,7 +466,7 @@ Namespace Utils
             CompareWaveFileData
         End Enum
 
-        Public Function CompareFiles(ByVal FilePath1 As String, ByVal FilePath2 As String, Optional Method As FileComparisonMethods = FileComparisonMethods.CompareBytes, Optional ByVal ShowDifferences As Boolean = False) As Boolean
+        Public Shared Function CompareFiles(ByVal FilePath1 As String, ByVal FilePath2 As String, Optional Method As FileComparisonMethods = FileComparisonMethods.CompareBytes, Optional ByVal ShowDifferences As Boolean = False) As Boolean
 
             Select Case Method
                 Case FileComparisonMethods.CompareBytes
@@ -528,7 +524,7 @@ Namespace Utils
 
 
 
-        Public Function CopySubFolderContent(ByVal SourceFolder As String, ByVal TargetFolder As String,
+        Public Shared Function CopySubFolderContent(ByVal SourceFolder As String, ByVal TargetFolder As String,
                                          ByVal MaxNumberOfFilesPerSubFolder As Integer?,
                                          Optional ByVal ExcludeIfFileNameContains As String = "") As Boolean
 
@@ -594,7 +590,7 @@ Namespace Utils
         ''' <param name="HeadingLine">The zero based index of the column headings, read only from the first file. If left to -1, the add-heading-line functionality is ignored.</param>
         ''' <param name="Directory">The directory from which files should be read. If left empty, the directory in which the application file is located will be used.</param>
         ''' <returns></returns>
-        Public Function MergeTextFiles(ByVal AddFileNameColumn As Boolean, ByVal SkipRows As Integer, ByVal Encoding As Text.Encoding, Optional ByVal HeadingLine As Integer = -1, Optional ByVal Directory As String = "") As Boolean
+        Public Shared Function MergeTextFiles(ByVal AddFileNameColumn As Boolean, ByVal SkipRows As Integer, ByVal Encoding As Text.Encoding, Optional ByVal HeadingLine As Integer = -1, Optional ByVal Directory As String = "") As Boolean
 
             Try
 
@@ -645,7 +641,7 @@ Namespace Utils
                 If AllIncludedTextLines.Count > 0 Then
 
                     Dim OutputDirectory As String = Path.Combine(Directory, "MergedTextFiles")
-                    SendInfoToLog(String.Join(vbCrLf, AllIncludedTextLines), "MergedTextFiles", OutputDirectory, True, False, True)
+                    Logging.SendInfoToLog(String.Join(vbCrLf, AllIncludedTextLines), "MergedTextFiles", OutputDirectory, True, False, True)
 
                 End If
 
@@ -657,7 +653,7 @@ Namespace Utils
 
         End Function
 
-    End Module
+    End Class
 
     Public Class Utf8ToByteStringConverter
 

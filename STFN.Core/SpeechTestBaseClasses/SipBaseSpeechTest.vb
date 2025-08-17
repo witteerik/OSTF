@@ -64,11 +64,11 @@ Public MustInherit Class SipBaseSpeechTest
         End Set
     End Property
 
-    Protected CurrentSipTestMeasurement As SipMeasurementBase
+    Protected CurrentSipTestMeasurement As SipMeasurement
 
     Public SelectedSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.SimulatedSoundField
 
-    Protected SelectedTestparadigm As SiPTestparadigm = SiPTestparadigm.Quick
+    Protected SelectedTestparadigm As SiPTestProcedure.SiPTestparadigm = SiPTestProcedure.SiPTestparadigm.Quick
 
     Protected MinimumStimulusOnsetTime As Double = 0.3
     Protected MaximumStimulusOnsetTime As Double = 0.8
@@ -112,12 +112,12 @@ Public MustInherit Class SipBaseSpeechTest
             Select Case e.LinguisticResponses(0)
                 Case CurrentTestTrial.SpeechMaterialComponent.GetCategoricalVariableValue("Spelling")
                     CurrentTestTrial.ScoreList.Add(1)
-                    DirectCast(CurrentTestTrial, SipTrial).Result = PossibleResults.Correct
+                    DirectCast(CurrentTestTrial, SipTrial).Result = SipTrial.PossibleResults.Correct
                     CurrentTestTrial.IsCorrect = True
 
                 Case ""
                     CurrentTestTrial.ScoreList.Add(0)
-                    DirectCast(CurrentTestTrial, SipTrial).Result = PossibleResults.Missing
+                    DirectCast(CurrentTestTrial, SipTrial).Result = SipTrial.PossibleResults.Missing
 
                     'Randomizing IsCorrect with a 1/3 chance for True
                     Dim ChanceList As New List(Of Boolean) From {True, False, False}
@@ -126,7 +126,7 @@ Public MustInherit Class SipBaseSpeechTest
 
                 Case Else
                     CurrentTestTrial.ScoreList.Add(0)
-                    DirectCast(CurrentTestTrial, SipTrial).Result = PossibleResults.Incorrect
+                    DirectCast(CurrentTestTrial, SipTrial).Result = SipTrial.PossibleResults.Incorrect
                     CurrentTestTrial.IsCorrect = False
 
             End Select
@@ -137,7 +137,7 @@ Public MustInherit Class SipBaseSpeechTest
             CurrentSipTestMeasurement.MoveTrialToHistory(CurrentTestTrial)
 
             'Taking a dump of the SpeechTest
-            CurrentTestTrial.SpeechTestPropertyDump = Utils.Logging.ListObjectPropertyValues(Me.GetType, Me)
+            CurrentTestTrial.SpeechTestPropertyDump = Logging.ListObjectPropertyValues(Me.GetType, Me)
 
 
         Else
@@ -188,7 +188,7 @@ Public MustInherit Class SipBaseSpeechTest
 
         If Title = "" Then
             Select Case GuiLanguage
-                Case Utils.Constants.Languages.Swedish
+                Case Utils.EnumCollection.Languages.Swedish
                     Title = "SiP-testet"
                 Case Else
                     Title = "SiP-test"

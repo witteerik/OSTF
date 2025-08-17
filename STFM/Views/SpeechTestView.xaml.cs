@@ -339,7 +339,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Core.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                 TalkbackGainTitle_Span.Text = "Talkback-nivå: ";
                 NewTestBtn.Text = "Nytt test";
                 SpeechTestPicker.Title = "Välj ett test";
@@ -600,7 +600,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Resets the text on the start button, as this may have been changed if test was paused.
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Core.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                 StartTestBtn.Text = "Start";
                 break;
             default:
@@ -889,7 +889,7 @@ public partial class SpeechTestView : ContentView, IDrawable
                         {
                             switch (SharedSpeechTestObjects.GuiLanguage)
                             {
-                                case STFN.Core.Utils.Constants.Languages.Swedish:
+                                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                                     Messager.MsgBox("Det valda testet kunde inte skapas!", Messager.MsgBoxStyle.Information, "Test saknas");
                                     break;
                                 default:
@@ -1105,7 +1105,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                         Messager.MsgBox("Något gick fel när testet skulle skapas! Välj nytt test och se till att alla nödvändiga val är ifyllda.", Messager.MsgBoxStyle.Information, "Något gick fel!");
                         break;
                     default:
@@ -1168,7 +1168,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                         Messager.MsgBox("Något gick fel när testet skulle skapas! Välj nytt test och se till att alla nödvändiga val är ifyllda.", Messager.MsgBoxStyle.Information, "Något gick fel!");
                         break;
                     default:
@@ -1191,7 +1191,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         {
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Core.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                     Messager.MsgBox("Inget test kunde skapas!", Messager.MsgBoxStyle.Information, "Något gick fel!");
                     break;
                 default:
@@ -1210,7 +1210,7 @@ public partial class SpeechTestView : ContentView, IDrawable
             string MsgBoxTitle = "";
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Core.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                     MsgBoxTitle = "Test valda testet säger:";
                     break;
                 default:
@@ -1281,7 +1281,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // The test administrator must resume the test
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Core.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                 StartTestBtn.Text = "Fortsätt";
 
                 if (CurrentTestResultsView != null)
@@ -1307,7 +1307,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         {
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Core.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                     CurrentSpeechTest.PauseInformation = "Testet är pausat";
                     break;
                 default:
@@ -1468,7 +1468,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
                 switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                         Messager.MsgBox(CurrentSpeechTest.GetTestCompletedGuiMessage(), Messager.MsgBoxStyle.Information, "Klart!", "OK");
                         break;
                     default:
@@ -1506,7 +1506,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Updating progress (if test is not completed)
         if (SpeechTestReply != SpeechTest.SpeechTestReplies.TestIsCompleted)
         {
-            STFN.Core.Utils.ProgressInfo CurrentProgress = CurrentSpeechTest.GetProgress();
+            STFN.Core.ProgressInfo CurrentProgress = CurrentSpeechTest.GetProgress();
             if (CurrentProgress != null)
             {
                 UpdateTestFormProgressbar(CurrentProgress.Value, CurrentProgress.Maximum, CurrentProgress.Minimum);
@@ -1803,7 +1803,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         // Restting start button text
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Core.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                 StartTestBtn.Text = "Start";
                 break;
             default:
@@ -1857,7 +1857,7 @@ public partial class SpeechTestView : ContentView, IDrawable
         {
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Core.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                     msgBoxResult = await Messager.MsgBoxAsync("Testet har avbrutits.", Messager.MsgBoxStyle.Information, "Avslutat", "OK");
                     break;
                 default:
@@ -1911,7 +1911,7 @@ public partial class SpeechTestView : ContentView, IDrawable
 
         switch (SharedSpeechTestObjects.GuiLanguage)
         {
-            case STFN.Core.Utils.Constants.Languages.Swedish:
+            case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                 CurrentSpeechTest.AbortInformation = "Ett fel har uppstått med ljuduppspelningen! \n\nHar ljudgivarna kopplats ur?\n\nTestet måste avbrytas och appen stängas!\n\nKlicka OK, se till att rätt ljudgivare är inkopplade och starta sedan om appen.";
                 break;
             default:

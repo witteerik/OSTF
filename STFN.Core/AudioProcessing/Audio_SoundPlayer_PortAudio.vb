@@ -831,7 +831,7 @@ Namespace Audio
                 'Exports the output sound
                 If NewOutputSound IsNot Nothing Then
                     If OstfBase.LogAllPlayedSoundFiles = True Then
-                        NewOutputSound.WriteWaveFile(Utils.GetSoundFileExportLogPath(Mixer.GetOutputRoutingToString()))
+                        NewOutputSound.WriteWaveFile(Logging.GetSoundFileExportLogPath(Mixer.GetOutputRoutingToString()))
                     End If
                 End If
 

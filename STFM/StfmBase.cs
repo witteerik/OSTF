@@ -2,7 +2,7 @@
 using STFN.Core.Utils;
 using STFN.Core;
 using System.IO.Compression;
-using static STFN.Core.Utils.AppCache;
+using static STFN.Core.AppCache;
 
 
 #if ANDROID
@@ -32,15 +32,15 @@ namespace STFM
             IsInitialized = true;
 
             //Setting up app cache callbacks
-            STFN.Core.Utils.AppCache.OnAppCacheVariableExists += AppCacheVariableExists;
-            STFN.Core.Utils.AppCache.OnSetAppCacheStringVariableValue += SetAppCacheStringVariableValue;
-            STFN.Core.Utils.AppCache.OnSetAppCacheIntegerVariableValue += SetAppCacheIntegerVariableValue;
-            STFN.Core.Utils.AppCache.OnSetAppCacheDoubleVariableValue += SetAppCacheDoubleVariableValue;
-            STFN.Core.Utils.AppCache.OnGetAppCacheStringVariableValue += GetAppCacheStringVariableValue;
-            STFN.Core.Utils.AppCache.OnGetAppCacheDoubleVariableValue += GetAppCacheDoubleVariableValue;
-            STFN.Core.Utils.AppCache.OnGetAppCacheIntegerVariableValue += GetAppCacheIntegerVariableValue;
-            STFN.Core.Utils.AppCache.OnRemoveAppCacheVariable += RemoveAppCacheVariable;
-            STFN.Core.Utils.AppCache.OnClearAppCache += ClearAppCache;
+            STFN.Core.AppCache.OnAppCacheVariableExists += AppCacheVariableExists;
+            STFN.Core.AppCache.OnSetAppCacheStringVariableValue += SetAppCacheStringVariableValue;
+            STFN.Core.AppCache.OnSetAppCacheIntegerVariableValue += SetAppCacheIntegerVariableValue;
+            STFN.Core.AppCache.OnSetAppCacheDoubleVariableValue += SetAppCacheDoubleVariableValue;
+            STFN.Core.AppCache.OnGetAppCacheStringVariableValue += GetAppCacheStringVariableValue;
+            STFN.Core.AppCache.OnGetAppCacheDoubleVariableValue += GetAppCacheDoubleVariableValue;
+            STFN.Core.AppCache.OnGetAppCacheIntegerVariableValue += GetAppCacheIntegerVariableValue;
+            STFN.Core.AppCache.OnRemoveAppCacheVariable += RemoveAppCacheVariable;
+            STFN.Core.AppCache.OnClearAppCache += ClearAppCache;
 
 
             await CheckAndSetOstfLogRootFolder(RequestExternalStoragePermission);
@@ -342,9 +342,9 @@ namespace STFM
         {
 
             // Trying to read the logFilePath from pevious app sessions
-            STFN.Core.Utils.Logging.logFilePath = ReadOstfLogRootDirectory();
+            Logging.LogFileDirectory = ReadOstfLogRootDirectory();
 
-            string previouslyStoredOstfLogRootFolder = STFN.Core.Utils.Logging.logFilePath;
+            string previouslyStoredOstfLogRootFolder = Logging.LogFileDirectory;
 
             bool askForOstfLogRootFolder = true;
 
@@ -361,7 +361,7 @@ namespace STFM
             // Checking if the folder exists
             try
             {
-                if (System.IO.Directory.Exists(STFN.Core.Utils.Logging.logFilePath))
+                if (System.IO.Directory.Exists(Logging.LogFileDirectory))
                 {
                     askForOstfLogRootFolder = false;
                 }
@@ -371,7 +371,7 @@ namespace STFM
                 askForOstfLogRootFolder = true;
             }
 
-            if (STFN.Core.Utils.Logging.logFilePath == "")
+            if (Logging.LogFileDirectory == "")
             {
                 askForOstfLogRootFolder = true;
             }
@@ -381,10 +381,10 @@ namespace STFM
                 await PickOstfLogRootFolder();
             }
 
-            if (previouslyStoredOstfLogRootFolder != STFN.Core.Utils.Logging.logFilePath)
+            if (previouslyStoredOstfLogRootFolder != Logging.LogFileDirectory)
             {
                 // Storing the logFilePath for future instances of the app, but only if it was changed
-                StoreOstfLogRootDirectory(STFN.Core.Utils.Logging.logFilePath);
+                StoreOstfLogRootDirectory(Logging.LogFileDirectory);
             }
         }
 
@@ -463,13 +463,13 @@ namespace STFM
             if (result.IsSuccessful)
             {
                 //await Toast.Make($"The folder was picked: Name - {result.Folder.Name}, Path - {result.Folder.Path}", ToastDuration.Long).Show(CancellationToken.None);
-                STFN.Core.Utils.Logging.logFilePath = result.Folder.Path;
-                await Messager.MsgBoxAsync("You have picked the following log folder: " + STFN.Core.Utils.Logging.logFilePath);
+                Logging.LogFileDirectory = result.Folder.Path;
+                await Messager.MsgBoxAsync("You have picked the following log folder: " + Logging.LogFileDirectory);
 
             }
             else
             {
-                await Messager.MsgBoxAsync("Unable to selected the picked folder (" + STFN.Core.Utils.Logging.logFilePath + ") shutting down the application.");
+                await Messager.MsgBoxAsync("Unable to selected the picked folder (" + Logging.LogFileDirectory + ") shutting down the application.");
                 Messager.RequestCloseApp();
                 //await Toast.Make($"The folder was not picked with error: {result.Exception.Message}").Show(CancellationToken.None);
             }

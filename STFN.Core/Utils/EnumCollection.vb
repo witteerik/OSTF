@@ -1,7 +1,7 @@
 ﻿
 Namespace Utils
 
-    Public Module Constants 'TODO: This should be renamed!!! It no longer contains any constants!!! ;-)
+    Public Module EnumCollection
 
         Public Enum Sides
             Left

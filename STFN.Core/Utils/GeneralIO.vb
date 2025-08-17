@@ -4,7 +4,7 @@ Imports System.Xml.Serialization
 
 Namespace Utils
 
-    Public Module GeneralIO
+    Public Class GeneralIO
 
         ''' <summary>
         ''' Asks the user to supply a file path by using a save file dialog box.
@@ -14,7 +14,7 @@ Namespace Utils
         ''' <param name="fileExtensions">Optional possible extensions</param>
         ''' <param name="BoxTitle">The message/title on the file dialog box</param>
         ''' <returns>Returns the file path, or nothing if a file path could not be created.</returns>
-        Public Function GetSaveFilePath(Optional ByRef directory As String = "",
+        Public Shared Function GetSaveFilePath(Optional ByRef directory As String = "",
                                 Optional ByRef fileName As String = "",
                                     Optional fileExtensions() As String = Nothing,
                                     Optional BoxTitle As String = "") As String
@@ -31,7 +31,7 @@ Namespace Utils
         ''' <param name="fileExtensions">Optional possible extensions</param>
         ''' <param name="BoxTitle">The message/title on the file dialog box</param>
         ''' <returns>Returns the file path, or nothing if a file path could not be created.</returns>
-        Public Function GetOpenFilePath(Optional directory As String = "",
+        Public Shared Function GetOpenFilePath(Optional directory As String = "",
                                     Optional fileName As String = "",
                                     Optional fileExtensions() As String = Nothing,
                                     Optional BoxTitle As String = "",
@@ -43,7 +43,7 @@ Namespace Utils
 
 
 
-        Public Function NormalizeCrossPlatformPath(ByVal InputPath As String) As String
+        Public Shared Function NormalizeCrossPlatformPath(ByVal InputPath As String) As String
 
             Dim InputHasInitialDoubleBackslash As Boolean = False
             If InputPath.StartsWith("\\") Then InputHasInitialDoubleBackslash = True
@@ -68,7 +68,7 @@ Namespace Utils
         ''' but if it already exists, a new numeral suffix is added to the file name. The file name extension is never changed.
         ''' </summary>
         ''' <returns></returns>
-        Public Function CheckFileNameConflict(ByVal InputFilePath As String) As String
+        Public Shared Function CheckFileNameConflict(ByVal InputFilePath As String) As String
 
             Dim WorkingFilePath As String = InputFilePath
 
@@ -160,6 +160,6 @@ Namespace Utils
 
         End Class
 
-    End Module
+    End Class
 
 End Namespace

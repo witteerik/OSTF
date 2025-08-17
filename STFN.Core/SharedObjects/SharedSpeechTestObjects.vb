@@ -8,7 +8,7 @@
 
     Public CurrentSpeechTest As SpeechTest
 
-    Public GuiLanguage As Utils.Languages = Utils.Constants.Languages.Swedish
+    Public GuiLanguage As Utils.Languages = Utils.EnumCollection.Languages.Swedish
 
     Public TestResultsRootFolder As String = ""
 

@@ -556,7 +556,7 @@ namespace STFM
             {
                 if (OstfBase.LogAllPlayedSoundFiles == true)
                 {
-                    string logFilePath = STFN.Core.Utils.Logging.GetSoundFileExportLogPath(Mixer.GetOutputRoutingToString());
+                    string logFilePath = Logging.GetSoundFileExportLogPath(Mixer.GetOutputRoutingToString());
                     NewOutputSound.WriteWaveFile(ref logFilePath);
                 }
             }

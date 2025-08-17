@@ -10,6 +10,22 @@ Namespace SipTest
     Public Class SiPTestProcedure
         Public Property AdaptiveType As AdaptiveTypes
         Public Property TestParadigm As SiPTestparadigm
+
+        Public Enum AdaptiveTypes
+            SimpleUpDown
+            Fixed
+        End Enum
+
+        Public Enum SiPTestparadigm
+            Quick
+            Slow
+            Directional2
+            Directional3
+            Directional5
+            FlexibleLocations
+            BMLD
+        End Enum
+
         Public Property LengthReduplications As Integer?
         Public Property RandomizeOrder As Boolean = True
 

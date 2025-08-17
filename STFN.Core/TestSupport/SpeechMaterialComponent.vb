@@ -2438,7 +2438,7 @@ Public Class SpeechMaterialComponent
     Public Shared Function LoadSpeechMaterial(ByVal SpeechMaterialComponentFilePath As String, ByVal TestRootPath As String) As SpeechMaterialComponent
 
         'Gets a file path from the user if none is supplied
-        If SpeechMaterialComponentFilePath = "" Then SpeechMaterialComponentFilePath = Utils.GetOpenFilePath(,, {".txt"}, "Please open a stuctured speech material component .txt file.")
+        If SpeechMaterialComponentFilePath = "" Then SpeechMaterialComponentFilePath = Utils.GeneralIO.GetOpenFilePath(,, {".txt"}, "Please open a stuctured speech material component .txt file.")
         If SpeechMaterialComponentFilePath = "" Then
             MsgBox("No file selected!")
             Return Nothing
@@ -3050,7 +3050,7 @@ Public Class SpeechMaterialComponent
 
 
         'Writing to file
-        Utils.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(SpeechMaterialComponentFileName), OutputSpeechMaterialFolder, True, True, ExportAtThisLevel)
+        Logging.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(SpeechMaterialComponentFileName), OutputSpeechMaterialFolder, True, True, ExportAtThisLevel)
 
         'Custom variables
         Dim CustomVariablesDatabasePath As String = SpeechMaterialComponent.GetDatabaseFileName(LinguisticLevel)
@@ -3122,7 +3122,7 @@ Public Class SpeechMaterialComponent
         If ExportAtThisLevel = True Then
             'Exporting custom variables
             For Each item In CustomVariablesExportList
-                Utils.SendInfoToLog(String.Join(vbCrLf, item.Value), IO.Path.GetFileNameWithoutExtension(item.Key), OutputSpeechMaterialFolder, True, True, ExportAtThisLevel)
+                Logging.SendInfoToLog(String.Join(vbCrLf, item.Value), IO.Path.GetFileNameWithoutExtension(item.Key), OutputSpeechMaterialFolder, True, True, ExportAtThisLevel)
             Next
         End If
 

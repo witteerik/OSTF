@@ -29,7 +29,7 @@ namespace STFM.Views
 
             switch (SharedSpeechTestObjects.GuiLanguage)
             {
-                case STFN.Core.Utils.Constants.Languages.Swedish:
+                case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                     StartButton.Text = "Start";
                     StopButton.Text = "Stop";
                     PauseButton.Text = "Pause";
@@ -148,10 +148,10 @@ namespace STFM.Views
                 double? FinalResult = testProtocol.GetFinalResultValue();
                 switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Core.Utils.Constants.Languages.English:
+                    case STFN.Core.Utils.EnumCollection.Languages.English:
                         FinalResultNameLabel.Text = "SRT:";
                         break;
-                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                         FinalResultNameLabel.Text = "Hörtröskel:";
                         break;
                     default:
@@ -172,10 +172,10 @@ namespace STFM.Views
                 double? PractiseTestScore = speechTest.GetAverageScore();
                 switch (SharedSpeechTestObjects.GuiLanguage)
                 {
-                    case STFN.Core.Utils.Constants.Languages.English:
+                    case STFN.Core.Utils.EnumCollection.Languages.English:
                         FinalResultNameLabel.Text = "Score:";
                         break;
-                    case STFN.Core.Utils.Constants.Languages.Swedish:
+                    case STFN.Core.Utils.EnumCollection.Languages.Swedish:
                         FinalResultNameLabel.Text = "Andel korrekt:";
                         break;
                     default:
