@@ -1,6 +1,6 @@
 ﻿Imports System.Runtime.CompilerServices
 
-Public Module Extensions
+Partial Public Module Extensions
 
     ''' <summary>
     ''' Create and returns a new sound that can be used for debugging etc.
@@ -53,5 +53,6 @@ Public Module Extensions
         Return TestSound
 
     End Function
+
 
 End Module

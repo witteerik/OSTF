@@ -14,4 +14,8 @@
     <ProjectReference Include="..\STFN.Core\STFN.Core.vbproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestSupport\" />
+  </ItemGroup>
+
 </Project>
