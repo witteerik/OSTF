@@ -119,7 +119,7 @@ Namespace SipTest
 
         Public BackgroundNonSpeechDucking As Double
 
-        Public SoundPropagationType As SoundPropagationTypes
+        Public SoundPropagationType As Utils.SoundPropagationTypes
 
         ''' <summary>
         ''' Holds the location(s) of the target(s)
@@ -164,7 +164,7 @@ Namespace SipTest
         Public Sub New(ByRef ParentTestUnit As SiPTestUnit,
                        ByRef SpeechMaterialComponent As SpeechMaterialComponent,
                        ByRef MediaSet As MediaSet,
-                       ByRef SoundPropagationType As SoundPropagationTypes,
+                       ByRef SoundPropagationType As Utils.SoundPropagationTypes,
                        ByVal TargetStimulusLocations As SoundSourceLocation(),
                        ByVal MaskerLocations As SoundSourceLocation(),
                        ByVal BackgroundLocations As SoundSourceLocation(),

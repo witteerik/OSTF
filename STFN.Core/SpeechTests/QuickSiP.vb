@@ -80,7 +80,7 @@ Public Class QuickSiP
             'Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
             'DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer, False)
 
-            Dim FoundDirSimulator As Boolean = DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, Transducer, False)
+            Dim FoundDirSimulator As Boolean = OstfBase.DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, Transducer, False)
             If FoundDirSimulator = False Then
                 Return New Tuple(Of Boolean, String)(False, "Unable to find the directional simulation set " & DirectionalSimulationSet)
             End If
@@ -92,7 +92,7 @@ Public Class QuickSiP
         'Setting up test trials to run
         PlanQuickSiPTrials(SelectedSoundPropagationType, RandomSeed)
 
-        If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
+        If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And OstfBase.DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
             Return New Tuple(Of Boolean, String)(False, "The measurement requires a directional simulation set to be selected!")
         End If
 
@@ -302,7 +302,7 @@ Public Class QuickSiP
         If RandomSeed.HasValue Then CurrentSipTestMeasurement.Randomizer = New Random(RandomSeed)
 
         'Getting the preset
-        Dim Preset = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName).Members
+        Dim Preset = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPreset(PresetName).Members
 
         'Ordering presets as intended
         'mark_märk_mörk, fyr_skyr_syr, sitt_sytt_sött, kil_fil_sil
@@ -484,7 +484,7 @@ Public Class QuickSiP
         Dim TestSound As Audio.Sound = CreateInitialSound(SelectedMediaSets(0))
 
         'Plays sound
-        SoundPlayer.SwapOutputSounds(TestSound)
+        OstfBase.SoundPlayer.SwapOutputSounds(TestSound)
 
         'Premixing the first 10 sounds 
         CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)

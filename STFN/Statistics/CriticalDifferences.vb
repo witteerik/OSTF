@@ -1,4 +1,6 @@
-﻿Public Module CriticalDifferences
+﻿Imports STFN.Core.Utils
+
+Public Module CriticalDifferences
 
     Public Enum OutputUnits
         TrialCount
@@ -23,11 +25,11 @@
                                                Optional ByVal ShortHeadings As Boolean = False,
                                                Optional ByVal Decimals As Integer? = Nothing,
                                                Optional ByVal AgrestiCaffoCorrection As Boolean = False,
-                                               Optional ByVal Language As Utils.Languages = Utils.Languages.English) As String
+                                               Optional ByVal Language As Languages = Languages.English) As String
 
         If ConfidenceLevel <> 0.95 And AgrestiCaffoCorrection = True Then
             Select Case Language
-                Case Utils.Languages.Swedish
+                Case Languages.Swedish
                     Return "Agresti-Caffo korrektion är bara tillgängligt för en konfidensnivå på 95 %!"
                 Case Else
                     Return "Agresti-Caffo correction is only available for a confidence level of 95 %!"
@@ -44,7 +46,7 @@
                 CR = CalculateCriticalDifferenceScores_Proportions(n1, n2, ConfidenceLevel, AgrestiCaffoCorrection)
             Case Else
                 Select Case Language
-                    Case Utils.Languages.Swedish
+                    Case Languages.Swedish
                         Return "Ogiltigt utdataformat!"
                     Case Else
                         Return "Invalid output type!"
@@ -59,7 +61,7 @@
 
             'Adding headings
             Select Case Language
-                Case Utils.Languages.Swedish
+                Case Languages.Swedish
                     OutputList.Add("Kritiska skillnader för resultat på taluppfattningstest:")
                     OutputList.Add("")
                     OutputList.Add("Längd på lista 1 ( n1 ) = " & n1)
@@ -79,21 +81,21 @@
             Select Case OutputUnit
                 Case OutputUnits.TrialCount
                     Select Case Language
-                        Case Utils.Languages.Swedish
+                        Case Languages.Swedish
                             OutputList.Add("Enhet: Antal rätta svar")
                         Case Else
                             OutputList.Add("Output unit: Number of correct trials")
                     End Select
                 Case OutputUnits.Proportions
                     Select Case Language
-                        Case Utils.Languages.Swedish
+                        Case Languages.Swedish
                             OutputList.Add("Enhet: Andel rätta svar")
                         Case Else
                             OutputList.Add("Output unit: Proportion correct trials")
                     End Select
                 Case OutputUnits.Percentages
                     Select Case Language
-                        Case Utils.Languages.Swedish
+                        Case Languages.Swedish
                             OutputList.Add("Enhet: Procent korrekt")
                         Case Else
                             OutputList.Add("Output unit: Percent correct trials")
@@ -103,7 +105,7 @@
             OutputList.Add("")
 
             Select Case Language
-                Case Utils.Languages.Swedish
+                Case Languages.Swedish
                     OutputList.Add("Tolka resultaten enligt följande:")
                     OutputList.Add("För att skillnaden mellan två testresultat ska antas vara statistiskt signifikanta ska resultatet av det andra testet antingen a) vara högre än värdet som anges i den tredje kolumnen ('Övre'), eller b) lägre än värdet som agnes i den andra kolumnen ('Nedre')." &
                            "Den rad på vilken dessa värden ska avläsas anges av resultatet på det första testet, vilket ges i den första kolumnen.")
@@ -140,7 +142,7 @@
             OutputList.Add("")
 
             Select Case Language
-                Case Utils.Languages.Swedish
+                Case Languages.Swedish
 
                     OutputList.Add("Resultat")
                     OutputList.Add("" & vbTab & "Gränser")
@@ -223,7 +225,7 @@
             Return String.Join(vbCrLf, OutputList)
         Else
             Select Case Language
-                Case Utils.Languages.Swedish
+                Case Languages.Swedish
                     Return "Ett fel uppstod. Kan inte beräkna kritiska gränser för de angivna listlängderna och/eller konfidensinå."
                 Case Else
                     Return "An error occured. Unable to calculate critical diffrences for the requested list lengths and confidence level."

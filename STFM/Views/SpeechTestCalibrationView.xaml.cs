@@ -14,7 +14,7 @@ public partial class SpeechTestCalibrationView : ContentView
     private double SelectedLevel;
     private SortedList<string, string> CalibrationFileDescriptions = new SortedList<string, string>();
     private List<Sound> CalibrationSounds = new List<Sound>();
-    private OstfBase.AudioSystemSpecification SelectedTransducer = (OstfBase.AudioSystemSpecification)null;
+    private AudioSystemSpecification SelectedTransducer = (AudioSystemSpecification)null;
     private STFN.Core.Utils.EnumCollection.UserTypes UserType;
 
     private string CalibrationFilesDirectory = "";
@@ -234,7 +234,7 @@ public partial class SpeechTestCalibrationView : ContentView
 
         this.SoundSystem_RichTextBox.Text = "";
 
-        SelectedTransducer = (OstfBase.AudioSystemSpecification)this.Transducer_ComboBox.SelectedItem;
+        SelectedTransducer = (AudioSystemSpecification)this.Transducer_ComboBox.SelectedItem;
 
         if (SelectedTransducer == null)
         {
@@ -603,7 +603,7 @@ TODO! These instructions have not been updated to the latest version!
 
         string SoundDeviceInfoString = "";
 
-        if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.AudioTrackBased)
+        if (OstfBase.CurrentMediaPlayerType == AudioSystemSpecification.MediaPlayerTypes.AudioTrackBased)
         {
 #if ANDROID
             SoundDeviceInfoString = "Currently available sound devices:\n\n" + AndroidAudioTrackPlayer.GetAvaliableDeviceInformation();
@@ -685,7 +685,7 @@ TODO! These instructions have not been updated to the latest version!
 
         // If on android (using AudioTrackBased player), StfmBase.InitializeAudioTrackBasedPlayer() must also be called.
         bool AudioTrackBasedPlayerInitResult = true;
-        if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.AudioTrackBased)
+        if (OstfBase.CurrentMediaPlayerType == AudioSystemSpecification.MediaPlayerTypes.AudioTrackBased)
         {
 #if ANDROID
             AudioTrackBasedPlayerInitResult = await AndroidAudioTrackPlayer.InitializeAudioTrackBasedPlayer();

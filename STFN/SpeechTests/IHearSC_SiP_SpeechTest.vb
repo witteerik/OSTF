@@ -52,7 +52,7 @@ Public Class IHearSC_SiP_SpeechTest
 
     Public Overrides Function InitializeCurrentTest() As Tuple(Of Boolean, String)
 
-        Transducer = AvaliableTransducers(0)
+        Transducer = OstfBase.AvaliableTransducers(0)
 
         CurrentSipTestMeasurement = New SipTest.SipMeasurement(CurrentParticipantID, SpeechMaterial.ParentTestSpecification, SiPTestProcedure.AdaptiveTypes.Fixed, SelectedTestparadigm)
 
@@ -64,7 +64,7 @@ Public Class IHearSC_SiP_SpeechTest
             'Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
             'DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer, False)
 
-            Dim FoundDirSimulator As Boolean = DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, Transducer, False)
+            Dim FoundDirSimulator As Boolean = OstfBase.DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, Transducer, False)
             If FoundDirSimulator = False Then
                 Return New Tuple(Of Boolean, String)(False, "Unable to find the directional simulation set " & DirectionalSimulationSet)
             End If
@@ -76,7 +76,7 @@ Public Class IHearSC_SiP_SpeechTest
         'Setting up test trials to run
         PlanSiPTrials(SelectedSoundPropagationType, RandomSeed)
 
-        If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
+        If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And OstfBase.DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
             Return New Tuple(Of Boolean, String)(False, "The measurement requires a directional simulation set to be selected!")
         End If
 
@@ -105,7 +105,7 @@ Public Class IHearSC_SiP_SpeechTest
         If IsPractiseTest Then
             TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.GetAllRelativesAtLevel(SpeechMaterialComponent.LinguisticLevels.List, False, True)
         Else
-            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName).Members 'TODO! Specify correct members in text file
+            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPreset(PresetName).Members 'TODO! Specify correct members in text file
         End If
 
         'Getting the sound source locations
@@ -210,7 +210,7 @@ Public Class IHearSC_SiP_SpeechTest
         Dim TestSound As Sound = CreateInitialSound(SelectedMediaSets(0))
 
         'Plays sound
-        SoundPlayer.SwapOutputSounds(TestSound)
+        OstfBase.SoundPlayer.SwapOutputSounds(TestSound)
 
         'Premixing the first 10 sounds 
         CurrentSipTestMeasurement.PreMixTestTrialSoundsOnNewTread(Transducer, MinimumStimulusOnsetTime, MaximumStimulusOnsetTime, Randomizer, TrialSoundMaxDuration, UseBackgroundSpeech, 10)

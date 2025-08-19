@@ -247,9 +247,9 @@ public class ResponseView_MafcDragDrop : ResponseView
         // Checks for overlaps, only if direction response has not been given
         if (CurrentDirectionResponseGiven == false)
         {
-            SourceLocations OverlappedSourceLocation = OverlapsSoundSource(new Rect(frame.X + frame.TranslationX, frame.Y + frame.TranslationY, frame.Width, frame.Height));
+            string OverlappedSourceLocation = OverlapsSoundSource(new Rect(frame.X + frame.TranslationX, frame.Y + frame.TranslationY, frame.Width, frame.Height));
 
-            if (OverlappedSourceLocation != SourceLocations.None)
+            if (OverlappedSourceLocation != "None")
             {
                 //Hides the label
                 frame.IsVisible = false;
@@ -263,7 +263,7 @@ public class ResponseView_MafcDragDrop : ResponseView
     }
 
 
-    private SourceLocations OverlapsSoundSource(Rect responseRectangle)
+    private string OverlapsSoundSource(Rect responseRectangle)
     {
         foreach (var soundSource in CurrentSoundSources)
         {
@@ -276,7 +276,7 @@ public class ResponseView_MafcDragDrop : ResponseView
                 return soundSource.SourceLocationsName;
             }
         }
-        return SourceLocations.None;
+        return "None";
     }
 
 
@@ -293,11 +293,11 @@ public class ResponseView_MafcDragDrop : ResponseView
 
     }
 
-    private void ReportDirectionResult(SourceLocations RespondedSourceLocation)
+    private void ReportDirectionResult(string RespondedSourceLocation)
     {
         // Storing the raw response
         SpeechTestInputEventArgs args = new SpeechTestInputEventArgs();
-        args.DirectionResponse = RespondedSourceLocation;
+        args.DirectionResponseName = RespondedSourceLocation;
         args.DirectionResponseTime = DateTime.Now;
 
         // Raising the ResponseGiven event in the base class.

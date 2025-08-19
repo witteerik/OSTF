@@ -65,7 +65,7 @@ Public Class SipSpeechTest
             SipMeasurementRandomizer = New Random
         End If
 
-        Transducer = AvaliableTransducers(0)
+        Transducer = OstfBase.AvaliableTransducers(0)
 
         If SignalLocations.Count = 0 Then
             Return New Tuple(Of Boolean, String)(False, "You must select at least one signal sound source!")
@@ -98,8 +98,8 @@ Public Class SipSpeechTest
         If SimulatedSoundField = True Then
             SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
 
-            Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(Transducer)
-            DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), Transducer, PhaseAudiometry)
+            Dim AvailableSets = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSets(Transducer)
+            OstfBase.DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), Transducer, PhaseAudiometry)
 
         Else
             SelectedSoundPropagationType = SoundPropagationTypes.PointSpeakers
@@ -134,11 +134,11 @@ Public Class SipSpeechTest
         End Select
 
         'Checks to see if a simulation set is required
-        If SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
+        If SelectedSoundPropagationType = SoundPropagationTypes.SimulatedSoundField And OstfBase.DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
             Return New Tuple(Of Boolean, String)(False, "No directional simulation set selected!")
         End If
 
-        If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
+        If CurrentSipTestMeasurement.HasSimulatedSoundFieldTrials = True And OstfBase.DirectionalSimulator.SelectedDirectionalSimulationSetName = "" Then
             Return New Tuple(Of Boolean, String)(False, "The measurement requires a directional simulation set to be selected!")
         End If
 
@@ -179,7 +179,7 @@ Public Class SipSpeechTest
         If RandomSeed.HasValue Then SipTestMeasurement.Randomizer = New Random(RandomSeed)
 
         'Getting the preset
-        Dim Preset = SipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName).Members
+        Dim Preset = SipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPreset(PresetName).Members
 
         'Clearing any trials that may have been planned by a previous call
         SipTestMeasurement.ClearTrials()
@@ -337,7 +337,7 @@ Public Class SipSpeechTest
         Dim TestSound As Sound = CreateInitialSound(MediaSet)
 
         'Plays sound
-        SoundPlayer.SwapOutputSounds(TestSound)
+        OstfBase.SoundPlayer.SwapOutputSounds(TestSound)
 
         'Setting the interval to the first test stimulus using NewTrialTimer.Interval (N.B. The NewTrialTimer.Interval value has to be reset at the first tick, as the deafault value is overridden here)
         'StartTrialTimer.Interval = Math.Max(1, PretestSoundDuration * 1000)

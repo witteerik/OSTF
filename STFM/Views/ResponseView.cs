@@ -148,7 +148,7 @@ public abstract class ResponseView : ContentView
         public double Height = 0.1;
         public double Rotation = 0;
         public Label VisualObject = null;
-        public SourceLocations SourceLocationsName;
+        public string SourceLocationsName = "";
     }
 
 

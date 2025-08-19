@@ -24,7 +24,7 @@ public partial class ScreeningSuiteView : ContentView
         set { SharedSpeechTestObjects.CurrentSpeechTest = value; }
     }
 
-    OstfBase.AudioSystemSpecification SelectedTransducer = null;
+    AudioSystemSpecification SelectedTransducer = null;
 
     View CurrentTestOptionsView = null;
 
@@ -46,7 +46,7 @@ public partial class ScreeningSuiteView : ContentView
         if (STFM.StfmBase.IsInitialized == false)
         {
             // Initializing STFM
-            await STFM.StfmBase.InitializeSTFM(OstfBase.MediaPlayerTypes.Default);
+            await STFM.StfmBase.InitializeSTFM(AudioSystemSpecification.MediaPlayerTypes.Default);
 
             // Selecting transducer
             var LocalAvailableTransducers = OstfBase.AvaliableTransducers;
@@ -1126,8 +1126,8 @@ public partial class ScreeningSuiteView : ContentView
                             }
 
                             List<ResponseView.VisualizedSoundSource> soundSources = new List<ResponseView.VisualizedSoundSource>();
-                            soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.3, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = -15, Text = "S1", SourceLocationsName = SourceLocations.Left });
-                            soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.7, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = 15, Text = "S2", SourceLocationsName = SourceLocations.Right });
+                            soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.3, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = -15, Text = "S1", SourceLocationsName = "Left" });
+                            soundSources.Add(new ResponseView.VisualizedSoundSource { X = 0.7, Y = 0.15, Width = 0.1, Height = 0.1, Rotation = 15, Text = "S2", SourceLocationsName = "Right" });
                             CurrentResponseView.AddSourceAlternatives(soundSources.ToArray());
                             break;
 

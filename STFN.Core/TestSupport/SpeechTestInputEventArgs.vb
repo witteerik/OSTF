@@ -5,15 +5,12 @@
 
     Public Property LinguisticResponseTime As DateTime
 
-    Public Property DirectionResponse As SourceLocations
+    Public Property DirectionResponseLocations As New List(Of Audio.SoundScene.SoundSourceLocation)
+
+    Public Property DirectionResponseName As String
 
     Public Property DirectionResponseTime As DateTime
 
 End Class
 
 
-Public Enum SourceLocations
-    None
-    Left
-    Right
-End Enum

@@ -95,7 +95,7 @@ Public Class AdaptiveSiP
             'Dim AvailableSets = DirectionalSimulator.GetAvailableDirectionalSimulationSets(SelectedTransducer)
             'DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(AvailableSets(1), SelectedTransducer, False)
 
-            Dim FoundDirSimulator As Boolean = DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, Transducer, False)
+            Dim FoundDirSimulator As Boolean = OstfBase.DirectionalSimulator.TrySetSelectedDirectionalSimulationSet(DirectionalSimulationSet, Transducer, False)
             If FoundDirSimulator = False Then
                 Return New Tuple(Of Boolean, String)(False, "Unable to find the directional simulation set " & DirectionalSimulationSet)
             End If
@@ -159,9 +159,9 @@ Public Class AdaptiveSiP
         'Getting the preset
         Dim TestLists As List(Of SpeechMaterialComponent) = Nothing
         If IsPractiseTest = True Then
-            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName_PractiseTest).Members 'TODO! Specify correct members in text file
+            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPreset(PresetName_PractiseTest).Members 'TODO! Specify correct members in text file
         Else
-            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName).Members 'TODO! Specify correct members in text file
+            TestLists = CurrentSipTestMeasurement.ParentTestSpecification.SpeechMaterial.Presets.GetPreset(PresetName).Members 'TODO! Specify correct members in text file
         End If
 
 
@@ -388,7 +388,7 @@ Public Class AdaptiveSiP
         Dim TestSound As Audio.Sound = CreateInitialSound(SelectedMediaSets(0))
 
         'Plays sound
-        SoundPlayer.SwapOutputSounds(TestSound)
+        OstfBase.SoundPlayer.SwapOutputSounds(TestSound)
 
         'And also premixing the first sounds in each SipTestUnit
 

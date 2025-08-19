@@ -21,7 +21,7 @@ namespace STFM
 
             // Getting available devices
             // Getting the AudioSettings from the first available transducer
-            List<OstfBase.AudioSystemSpecification> AllTranducers = OstfBase.AvaliableTransducers;
+            List<AudioSystemSpecification> AllTranducers = OstfBase.AvaliableTransducers;
             AndroidAudioTrackPlayerSettings currentAudioSettings = null;
             if (AllTranducers.Count > 0)
             {

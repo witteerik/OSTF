@@ -1,83 +1,48 @@
-﻿Imports System.Runtime.InteropServices
-Imports STFN.Core.Audio
-Imports STFN.Core.Audio.AudioManagementExt
-Imports STFN.Core.Audio.SoundPlayers
+﻿Imports STFN.Core.Audio
 
-Public Module OstfBase
+Public Class OstfBase
 
-    Public Enum Platforms ' These reflects the platform names currently specified in NET MAUI. Not all will work with OSTF.
-        iOS
-        WinUI
-        UWP
-        Tizen
-        tvOS
-        MacCatalyst
-        macOS
-        watchOS
-        Unknown
-        Android
-    End Enum
+    Public Shared Property CurrentPlatForm As Platforms
 
-    Public Property CurrentPlatForm As Platforms
-
-    Public Enum MediaPlayerTypes
-        ''' <summary>
-        ''' A sound player MediaPlayerType using the Port Audio library
-        ''' </summary>
-        PaBased
-        ''' <summary>
-        ''' A sound player MediaPlayerType using Android AudioTrack feature
-        ''' </summary>
-        AudioTrackBased
-        ''' <summary>
-        ''' The default media player MediaPlayerType for the specified platform as defined by OSTF.
-        ''' </summary>
-        [Default]
-    End Enum
-
-    Public CurrentMediaPlayerType As MediaPlayerTypes
+    Public Shared CurrentMediaPlayerType As AudioSystemSpecification.MediaPlayerTypes
 
     'Optimization libraries
-    Public Property UseOptimizationLibraries As Boolean = False ' This can be used to determine if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
+    Public Shared Property UseOptimizationLibraries As Boolean = False ' This can be used to determine if C++ libraries should be called, such as the libostfdsp, instead of calling equivalent OSTF functions implemented in the managed (.NET) code.
 
 
     'Other basic settings
-    Public Property AllowDirectionalSimulation As Boolean = True
+    Public Shared Property AllowDirectionalSimulation As Boolean = True
 
-    Public Property UseExtraWindows As Boolean = True
+    Public Shared Property UseExtraWindows As Boolean = True
 
 
     ''' <summary>
     ''' Determines if a calibration check control should be displayed in the test settings.
     ''' </summary>
     ''' <returns></returns>
-    Public Property ShowCalibrationCheck As Boolean = False
+    Public Shared Property ShowCalibrationCheck As Boolean = False
 
-
-    Public Property LogAllPlayedSoundFiles As Boolean = False
-
-    ' Log location 
-
+    Public Shared Property LogAllPlayedSoundFiles As Boolean = False
 
     ' Program location
-    Public Property MediaRootDirectory As String = "" '= IO.Path.Combine("C:\", "OSTFMedia") 'Indicates the root path. Other paths given in the project setting files are relative (subpaths) to this path only if they begin with .\ otherwise they are taken as absolute paths.
-    Public Property DefaultMediaRootFolderName As String = "OSTFMedia"
+    Public Shared Property MediaRootDirectory As String = "" '= IO.Path.Combine("C:\", "OSTFMedia") 'Indicates the root path. Other paths given in the project setting files are relative (subpaths) to this path only if they begin with .\ otherwise they are taken as absolute paths.
+    Public Shared Property DefaultMediaRootFolderName As String = "OSTFMedia"
 
-    Public Property WasStartedFromVisualStudio As Boolean = False
+    Public Shared Property WasStartedFromVisualStudio As Boolean = False
 
-    Public Property AvailableSpeechMaterialsSubFolder As String = "AvailableSpeechMaterials"
-    Public Property CalibrationSignalSubDirectory As String = "CalibrationSignals"
-    Public Property AudioSystemSubDirectory As String = "AudioSystem"
-    Public Property AudioSystemSettingsFile As String = IO.Path.Combine(AudioSystemSubDirectory, "AudioSystemSpecification.txt")
-    Public Property RoomImpulsesSubDirectory As String = "RoomImpulses"
-    Public Property AvailableImpulseResponseSetsFile As String = IO.Path.Combine(RoomImpulsesSubDirectory, "AvailableImpulseResponseSets.txt")
+    Public Shared Property AvailableSpeechMaterialsSubFolder As String = "AvailableSpeechMaterials"
+    Public Shared Property CalibrationSignalSubDirectory As String = "CalibrationSignals"
+    Public Shared Property AudioSystemSubDirectory As String = "AudioSystem"
+    Public Shared Property AudioSystemSettingsFile As String = IO.Path.Combine(AudioSystemSubDirectory, "AudioSystemSpecification.txt")
+    Public Shared Property RoomImpulsesSubDirectory As String = "RoomImpulses"
+    Public Shared Property AvailableImpulseResponseSetsFile As String = IO.Path.Combine(RoomImpulsesSubDirectory, "AvailableImpulseResponseSets.txt")
 
-    Public Property AvailableSpeechMaterials As New List(Of SpeechMaterialSpecification)
+    Public Shared Property AvailableSpeechMaterials As New List(Of SpeechMaterialSpecification)
 
-    Public Property AvailableTestsSubDirectory As String = "AvailableTests"
+    Public Shared Property AvailableTestsSubDirectory As String = "AvailableTests"
 
-    Private Property _AvailableTests As List(Of String) = Nothing
-    Public ReadOnly Property AvailableTests As List(Of String)
+    Protected Shared Property _AvailableTests As List(Of String) = Nothing
+    Public Shared ReadOnly Property AvailableTests As List(Of String)
         Get
             If _AvailableTests Is Nothing Then
                 'Loading available tests, on first call
@@ -94,30 +59,43 @@ Public Module OstfBase
     ''' <summary>
     ''' The SoundPlayer shared between all STFN applications. Each application that uses it, is responsible of initiating it, with the settings required by the specific application. As well as disposing it when the application is closed.
     ''' </summary>
-    Public WithEvents SoundPlayer As Audio.SoundPlayers.iSoundPlayer
+    Public Shared WithEvents SoundPlayer As Audio.SoundPlayers.iSoundPlayer
 
-    Public Function InitializeSoundPlayer(ByRef SoundPlayer As Audio.SoundPlayers.iSoundPlayer) As Boolean
+    Public Shared Function InitializeSoundPlayer(ByRef SoundPlayer As Audio.SoundPlayers.iSoundPlayer) As Boolean
         OstfBase.SoundPlayer = SoundPlayer
         Return SoundPlayerIsInitialized()
     End Function
 
-    Public Function SoundPlayerIsInitialized() As Boolean
+    Public Shared Function SoundPlayerIsInitialized() As Boolean
         Return _SoundPlayer IsNot Nothing
     End Function
 
 
-    Private _PortAudioIsInitialized As Boolean = False
+    Protected Shared _PortAudioIsInitialized As Boolean = False
     ''' <summary>
     ''' Returns True if the PortAudio library has been successfylly initialized by call the the OstfBase function InitializeOSTF.
     ''' </summary>
     ''' <returns></returns>
-    Public ReadOnly Property PortAudioIsInitialized As Boolean
+    Public Shared ReadOnly Property PortAudioIsInitialized As Boolean
         Get
             Return _PortAudioIsInitialized
         End Get
     End Property
 
-    Private OstfIsInitialized As Boolean = False
+    Protected Shared OstfIsInitialized As Boolean = False
+
+    Protected Shared _DirectionalSimulator As DirectionalSimulation = Nothing
+
+    Public Shared ReadOnly Property DirectionalSimulator As DirectionalSimulation
+        Get
+            If AllowDirectionalSimulation = True Then
+                If _DirectionalSimulator Is Nothing Then _DirectionalSimulator = New DirectionalSimulation()
+                Return _DirectionalSimulator
+            Else
+                Return Nothing
+            End If
+        End Get
+    End Property
 
     ''' <summary>
     ''' This sub needs to be called upon startup of all OSTF applications. (Any subsequent calls to this Sub will be ignored.)
@@ -125,70 +103,7 @@ Public Module OstfBase
     ''' <param name="PlatForm"></param>
     ''' <param name="MediaRootDirectory"></param>
     ''' <param name="MediaPlayerType"></param>
-    Public Sub InitializeOSTF(ByVal PlatForm As Platforms, ByVal MediaPlayerType As MediaPlayerTypes, Optional ByVal MediaRootDirectory As String = "")
-
-        ''Using this place to debug android optimization library
-        'Try
-
-        '    For LL = 14 To 14
-
-        '        Dim Length As Integer = 2 ^ LL
-        '        Dim Loops As Integer = 50
-
-        '        Dim x1(Length - 1) As Double
-        '        Dim y1(Length - 1) As Double
-        '        Dim x2(Length - 1) As Double
-        '        Dim y2(Length - 1) As Double
-        '        Dim xx(Length - 1) As Double
-        '        Dim rnd As New Random(42)
-
-        '        For i = 0 To x1.Length - 1
-        '            x1(i) = rnd.NextDouble
-        '            x2(i) = x1(i)
-        '            xx(i) = x1(i)
-        '        Next
-
-        '        Dim Direction = Audio.DSP.TransformationsExt.FftDirections.Backward
-        '        Dim TrigDict = Audio.DSP.GetRadix2TrigonomerticValues(Length, Direction)
-
-        '        CurrentPlatForm = Platforms.Android
-
-        '        STFN.Audio.DSP.FftRadix2(x1, y1, Direction)
-        '        LibOstfDsp_VB.Fft_complex(x2, y2, x2.Length, Direction)
-
-        '        Dim TimeSpanList As New List(Of String)
-        '        Dim StopWatch As New Stopwatch
-        '        StopWatch.Start()
-
-        '        For i = 0 To Loops - 1
-        '            STFN.Audio.DSP.FftRadix2(x1, y1, Direction)
-        '        Next
-
-        '        StopWatch.Stop()
-        '        TimeSpanList.Add(StopWatch.ElapsedMilliseconds)
-        '        StopWatch.Reset()
-        '        StopWatch.Start()
-
-        '        For i = 0 To Loops - 1
-        '            LibOstfDsp_VB.Fft_complex(x2, y2, x2.Length, Direction)
-        '        Next
-
-        '        StopWatch.Stop()
-        '        TimeSpanList.Add(StopWatch.ElapsedMilliseconds)
-        '        StopWatch.Reset()
-
-        '        Dim Diffs As Integer = 0
-        '        For j = 0 To x1.Length - 1
-        '            If (x1(j) = x2(j)) = False Then Diffs += 1
-        '        Next
-
-        '        Messager.MsgBox(LL & " " & String.Join(" ", TimeSpanList))
-
-        '    Next
-
-        'Catch ex As Exception
-        '    Messager.MsgBox(ex.ToString)
-        'End Try
+    Public Shared Sub InitializeOSTF(ByVal PlatForm As Platforms, ByVal MediaPlayerType As AudioSystemSpecification.MediaPlayerTypes, Optional ByVal MediaRootDirectory As String = "")
 
         'Exits the sub to avoid multiple calls (which should be avoided, especially to the Audio.PortAudio.Pa_Initialize function).
         If OstfIsInitialized = True Then Exit Sub
@@ -210,23 +125,23 @@ Public Module OstfBase
 
             'Determining which media player MediaPlayerType to use
             Select Case CurrentMediaPlayerType
-                Case MediaPlayerTypes.Default
+                Case AudioSystemSpecification.MediaPlayerTypes.Default
 
                     'Selecting default media player MediaPlayerType depending on the current platform
                     Select Case CurrentPlatForm
                         Case Platforms.WinUI, Platforms.UWP
                             'Selects Port Audio based sound player as media player MediaPlayerType
-                            CurrentMediaPlayerType = MediaPlayerTypes.PaBased
+                            CurrentMediaPlayerType = AudioSystemSpecification.MediaPlayerTypes.PaBased
                         Case Platforms.Android
                             'Selects MAUI community toolkit media element as media player MediaPlayerType
-                            CurrentMediaPlayerType = MediaPlayerTypes.AudioTrackBased
+                            CurrentMediaPlayerType = AudioSystemSpecification.MediaPlayerTypes.AudioTrackBased
                         Case Platforms.Unknown
                             Throw New Exception("Unable to initialize media player for " & CurrentPlatForm.ToString & " platform MediaPlayerType! The application may not work as intended!")
                         Case Else
                             Throw New Exception("There is no supported OSTF sound player for the " & CurrentPlatForm.ToString & " platform! The application may not work as intended!")
                     End Select
 
-                Case MediaPlayerTypes.PaBased
+                Case AudioSystemSpecification.MediaPlayerTypes.PaBased
 
                     'Checks that the current platform supports MediaPlayerType PaBased
                     Select Case CurrentPlatForm
@@ -237,7 +152,7 @@ Public Module OstfBase
                             Throw New Exception("Unable to initialize media player for " & CurrentPlatForm.ToString & " platform MediaPlayerType! The application may not work as intended!")
                     End Select
 
-                Case MediaPlayerTypes.AudioTrackBased
+                Case AudioSystemSpecification.MediaPlayerTypes.AudioTrackBased
 
                     'Checks that the current platform supports the selected MediaPlayerType
                     Select Case CurrentPlatForm
@@ -254,7 +169,7 @@ Public Module OstfBase
 
 
             'Initiating PortAudio if PaBased MediaPlayerType is used
-            If CurrentMediaPlayerType = MediaPlayerTypes.PaBased Then
+            If CurrentMediaPlayerType = AudioSystemSpecification.MediaPlayerTypes.PaBased Then
 
                 'Initializing the port audio library
                 If Audio.PortAudio.Pa_GetDeviceCount = Audio.PortAudio.PaError.paNotInitialized Then
@@ -306,7 +221,7 @@ Public Module OstfBase
             End If
 
             'Initializing the sound player
-            If OstfBase.CurrentMediaPlayerType = MediaPlayerTypes.PaBased Then
+            If OstfBase.CurrentMediaPlayerType = AudioSystemSpecification.MediaPlayerTypes.PaBased Then
                 Dim SoundPlayer As Audio.SoundPlayers.iSoundPlayer = New Audio.PortAudioVB.PortAudioBasedSoundPlayer(False, False, False, False)
                 InitializeSoundPlayer(SoundPlayer)
             End If
@@ -322,12 +237,12 @@ Public Module OstfBase
     ''' <summary>
     ''' This sub needs to be called when closing the last OSTF application.
     ''' </summary>
-    Public Sub TerminateOSTF()
+    Public Shared Sub TerminateOSTF()
 
         'Disposing the sound player. 
         If SoundPlayerIsInitialized() = True Then SoundPlayer.Dispose()
 
-        If OstfBase.CurrentMediaPlayerType = MediaPlayerTypes.PaBased Then
+        If OstfBase.CurrentMediaPlayerType = AudioSystemSpecification.MediaPlayerTypes.PaBased Then
             'Terminating Port Audio
             If PortAudioIsInitialized Then Audio.PortAudio.Pa_Terminate()
         End If
@@ -338,7 +253,7 @@ Public Module OstfBase
     ''' Returns the logotype path if a logotype file exists, otherwise returns an empty string.
     ''' </summary>
     ''' <returns></returns>
-    Public Function GetLogotypePath() As String
+    Public Shared Function GetLogotypePath() As String
 
         Dim LogotypePath As String = IO.Path.Combine(MediaRootDirectory, "Logo", "Logotype.jpg")
 
@@ -350,7 +265,7 @@ Public Module OstfBase
 
     End Function
 
-    Public Sub LoadAvailableSpeechMaterialSpecifications()
+    Public Shared Sub LoadAvailableSpeechMaterialSpecifications()
 
         Dim TestSpecificationFolder As String = IO.Path.Combine(MediaRootDirectory, AvailableSpeechMaterialsSubFolder)
 
@@ -377,7 +292,7 @@ Public Module OstfBase
 
     End Sub
 
-    Private Function LoadAvailableTests() As Boolean
+    Protected Shared Function LoadAvailableTests() As Boolean
 
         Dim TestSpecificationFile As String = IO.Path.Combine(MediaRootDirectory, AvailableTestsSubDirectory, "AvailableTests.txt")
 
@@ -404,21 +319,21 @@ Public Module OstfBase
     End Function
 
 
-    Private _AvaliableTransducers As List(Of AudioSystemSpecification) = Nothing
-    Public ReadOnly Property AvaliableTransducers As List(Of AudioSystemSpecification)
+    Protected Shared _AvaliableTransducers As List(Of AudioSystemSpecification) = Nothing
+    Public Shared ReadOnly Property AvaliableTransducers As List(Of AudioSystemSpecification)
         Get
             If _AvaliableTransducers Is Nothing Then LoadAudioSystemSpecificationFile()
             Return _AvaliableTransducers
         End Get
     End Property
 
-    Public Sub ClearAudioSpecifications()
+    Public Shared Sub ClearAudioSpecifications()
 
         _AvaliableTransducers.Clear()
 
     End Sub
 
-    Private Sub LoadAudioSystemSpecificationFile()
+    Protected Shared Sub LoadAudioSystemSpecificationFile()
 
         Dim AudioSystemSpecificationFilePath = Utils.GeneralIO.NormalizeCrossPlatformPath(IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AudioSystemSettingsFile))
         ''Getting calibration file descriptions from the text file
@@ -434,12 +349,12 @@ Public Module OstfBase
     ''' </summary>
     ''' <param name="InputLines">An array of (text) lines in the audio system specification (.txt) file. </param>
     ''' <param name="AudioSystemSpecificationFilePath">The file path to the audio systems specifications file (used only for error reporting)</param>
-    Public Sub LoadAudioSystemSpecifications(ByVal InputLines() As String, ByVal AudioSystemSpecificationFilePath As String)
+    Public Shared Sub LoadAudioSystemSpecifications(ByVal InputLines() As String, ByVal AudioSystemSpecificationFilePath As String)
 
 
         'Reads first all lines and sort them into a player-MediaPlayerType specific dictionary
-        Dim PlayerTypeDictionary As New SortedList(Of MediaPlayerTypes, String())
-        Dim CurrentPlayerType As MediaPlayerTypes? = Nothing
+        Dim PlayerTypeDictionary As New SortedList(Of AudioSystemSpecification.MediaPlayerTypes, String())
+        Dim CurrentPlayerType As AudioSystemSpecification.MediaPlayerTypes? = Nothing
 
         Dim CurrentSoundPlayerList As List(Of String) = Nothing
         For i = 0 To InputLines.Length - 1
@@ -455,7 +370,7 @@ Public Module OstfBase
                 'Creating a new CurrentSoundPlayerList 
                 CurrentSoundPlayerList = New List(Of String)
             ElseIf Line.StartsWith("MediaPlayerType") Then
-                CurrentPlayerType = InputFileSupport.InputFileEnumValueParsing(Line, GetType(MediaPlayerTypes), AudioSystemSpecificationFilePath, True)
+                CurrentPlayerType = InputFileSupport.InputFileEnumValueParsing(Line, GetType(AudioSystemSpecification.MediaPlayerTypes), AudioSystemSpecificationFilePath, True)
             ElseIf Line.Trim = "" Then
                 'Just ignores empty lines
             Else
@@ -510,7 +425,7 @@ Public Module OstfBase
                     'End If
                     If Line.StartsWith("<New transducer>") Then Exit For
 
-                    If OstfBase.CurrentMediaPlayerType = MediaPlayerTypes.PaBased Then
+                    If OstfBase.CurrentMediaPlayerType = AudioSystemSpecification.MediaPlayerTypes.PaBased Then
                         If Line.StartsWith("ApiName") Then ApiName = InputFileSupport.GetInputFileValue(Line, True)
                     End If
 
@@ -526,7 +441,7 @@ Public Module OstfBase
 
                 Dim AudioSettings As Audio.AudioSettings = Nothing
 
-                If OstfBase.CurrentMediaPlayerType = MediaPlayerTypes.PaBased Then
+                If OstfBase.CurrentMediaPlayerType = AudioSystemSpecification.MediaPlayerTypes.PaBased Then
 
                     Dim DeviceLoadSuccess As Boolean = True
                     If OutputDeviceName = "" And InputDeviceName = "" And OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
@@ -633,7 +548,7 @@ Public Module OstfBase
                         'End If
                     End If
 
-                ElseIf OstfBase.CurrentMediaPlayerType = MediaPlayerTypes.AudioTrackBased Then
+                ElseIf OstfBase.CurrentMediaPlayerType = AudioSystemSpecification.MediaPlayerTypes.AudioTrackBased Then
 
                     Dim DeviceLoadSuccess As Boolean = True
                     If OutputDeviceName = "" Then
@@ -756,7 +671,7 @@ Public Module OstfBase
 
     End Sub
 
-    Public Function GetAudioSystemSpecificationFieldsDescriptions() As List(Of String)
+    Public Shared Function GetAudioSystemSpecificationFieldsDescriptions() As List(Of String)
 
         Dim Output As New List(Of String)
 
@@ -793,416 +708,10 @@ Public Module OstfBase
 
     End Function
 
-    Private Sub LoadAudioSystemSpecificationFile_OLD()
 
-        Dim AudioSystemSpecificationFilePath = IO.Path.Combine(OstfBase.MediaRootDirectory, OstfBase.AudioSystemSettingsFile)
 
-        'Reads the API settings, and tries to select the API and device if available, otherwise lets the user select a device manually
 
-        ''Getting calibration file descriptions from the text file SignalDescriptions.txt
-        Dim LinesRead As Integer = 0
-        Dim InputLines() As String = System.IO.File.ReadAllLines(AudioSystemSpecificationFilePath, System.Text.Encoding.UTF8)
 
-        Dim ApiName As String = "MME"
-        Dim OutputDeviceName As String = "Högtalare (2- Realtek(R) Audio)"
-        Dim OutputDeviceNames As New List(Of String) ' Used for MME multiple device support
-        Dim InputDeviceName As String = ""
-        Dim InputDeviceNames As New List(Of String) ' Used for MME multiple device support
-        Dim BufferSize As Integer = 2048
+End Class
 
 
-        For i = 0 To InputLines.Length - 1
-            LinesRead += 1
-            Dim Line As String = InputLines(i).Trim
-
-            'Skips empty and outcommented lines
-            If Line = "" Then Continue For
-            If Line.StartsWith("//") Then Continue For
-
-            If Line = "<AudioDevices>" Then
-                'No need to do anything?
-                Continue For
-            End If
-            If Line = "<New transducer>" Then Exit For
-
-            If Line.StartsWith("ApiName") Then ApiName = InputFileSupport.GetInputFileValue(Line, True)
-            If Line.Replace(" ", "").StartsWith("OutputDevice=") Then OutputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
-            If Line.Replace(" ", "").StartsWith("OutputDevices=") Then OutputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
-            If Line.Replace(" ", "").StartsWith("InputDevice=") Then InputDeviceName = InputFileSupport.GetInputFileValue(Line, True)
-            If Line.Replace(" ", "").StartsWith("InputDevices=") Then InputDeviceNames = InputFileSupport.InputFileListOfStringParsing(Line, False, True)
-            If Line.StartsWith("BufferSize") Then BufferSize = InputFileSupport.InputFileIntegerValueParsing(Line, True, AudioSystemSpecificationFilePath)
-
-        Next
-
-        Dim DeviceLoadSuccess As Boolean = True
-        If OutputDeviceName = "" And InputDeviceName = "" And OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
-            'No device names have been specified
-            DeviceLoadSuccess = False
-        End If
-
-        If ApiName <> "MME" Then
-            If OutputDeviceNames IsNot Nothing Or InputDeviceNames IsNot Nothing Then
-                DeviceLoadSuccess = False
-                MsgBox("When specifying multiple sound (input or output) devices in the file " & AudioSystemSpecificationFilePath & ", the sound API must be MME ( not " & ApiName & ")!", MsgBoxStyle.Exclamation, "Sound device specification error!")
-            End If
-        End If
-
-        If OutputDeviceNames IsNot Nothing And OutputDeviceName <> "" Then
-            DeviceLoadSuccess = False
-            MsgBox("Either (not both) of single or multiple sound output devices must be specified in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
-        End If
-
-        If InputDeviceNames IsNot Nothing And InputDeviceName <> "" Then
-            DeviceLoadSuccess = False
-            MsgBox("Either (not both) of single or multiple sound input devices must be specified in the file " & AudioSystemSpecificationFilePath & "!", MsgBoxStyle.Exclamation, "Sound device specification error!")
-        End If
-
-        'Tries to setup the PortAudioApiSettings using the loaded data
-        Dim AudioApiSettings As New Audio.PortAudioApiSettings
-        If DeviceLoadSuccess = True Then
-            If ApiName = "ASIO" Then
-                DeviceLoadSuccess = AudioApiSettings.SetAsioSoundDevice(OutputDeviceName, BufferSize)
-            Else
-                If OutputDeviceNames Is Nothing And InputDeviceNames Is Nothing Then
-                    DeviceLoadSuccess = AudioApiSettings.SetNonAsioSoundDevice(ApiName, OutputDeviceName, InputDeviceName, BufferSize)
-                Else
-                    DeviceLoadSuccess = AudioApiSettings.SetMmeMultipleDevices(InputDeviceNames, OutputDeviceNames, BufferSize)
-                End If
-            End If
-        End If
-
-        If DeviceLoadSuccess = False Then
-
-            If OutputDeviceNames Is Nothing Then OutputDeviceNames = New List(Of String)
-            If InputDeviceNames Is Nothing Then InputDeviceNames = New List(Of String)
-
-            MsgBox("The Open Speech Test Framework (OSTF) was unable to load the sound API (" & ApiName & ") and device/s indicated in the file " & AudioSystemSpecificationFilePath & vbCrLf & vbCrLf &
-                "Output device: " & OutputDeviceName & vbCrLf &
-                "Output devices: " & String.Join(", ", OutputDeviceNames) & vbCrLf &
-                "Input device: " & InputDeviceName & vbCrLf &
-                "Input devices: " & String.Join(", ", InputDeviceNames) & vbCrLf & vbCrLf &
-                "Click OK to manually select audio input/output devices." & vbCrLf & vbCrLf &
-                "IMPORTANT: Sound tranducer calibration and/or routing may not be correct when manually selected sound devices are used!", MsgBoxStyle.Exclamation, "OSTF sound device not found!")
-
-            'Using default settings, as their is not yet any GUI for selecting settings such as the NET FrameWork AudioSettingsDialog 
-
-            'Dim NewAudioSettingsDialog As New AudioSettingsDialog()
-            'Dim AudioSettingsDialogResult = NewAudioSettingsDialog.ShowDialog()
-            'If AudioSettingsDialogResult = Windows.Forms.DialogResult.OK Then
-            '    PortAudioApiSettings = NewAudioSettingsDialog.CurrentAudioApiSettings
-            'Else
-            '    MsgBox("You pressed cancel. Default sound settings will be used", MsgBoxStyle.Exclamation, "Select sound device!")
-            AudioApiSettings.SelectDefaultAudioDevice()
-            'End If
-        End If
-
-        'Reads the remains of the file
-        _AvaliableTransducers = New List(Of AudioSystemSpecification)
-
-        'Backs up one line
-        LinesRead = Math.Max(0, LinesRead - 1)
-
-        Dim CurrentTransducer As AudioSystemSpecification = Nothing
-        For i = LinesRead To InputLines.Length - 1
-            Dim Line As String = InputLines(i).Trim
-
-            'Skips empty and outcommented lines
-            If Line = "" Then Continue For
-            If Line.StartsWith("//") Then Continue For
-
-            If Line = "<New transducer>" Then
-                If CurrentTransducer Is Nothing Then
-                    'Creates the first transducer
-                    CurrentTransducer = New AudioSystemSpecification(CurrentMediaPlayerType, AudioApiSettings)
-                Else
-                    'Stores the transducer
-                    _AvaliableTransducers.Add(CurrentTransducer)
-                    'Creates a new one
-                    CurrentTransducer = New AudioSystemSpecification(CurrentMediaPlayerType, AudioApiSettings)
-                End If
-            End If
-
-            If Line.StartsWith("Name") Then CurrentTransducer.Name = InputFileSupport.GetInputFileValue(Line, True)
-            If Line.StartsWith("LoudspeakerAzimuths") Then CurrentTransducer.LoudspeakerAzimuths = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
-            If Line.StartsWith("LoudspeakerElevations") Then CurrentTransducer.LoudspeakerElevations = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
-            If Line.StartsWith("LoudspeakerDistances") Then CurrentTransducer.LoudspeakerDistances = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
-            If Line.StartsWith("HardwareOutputChannels") Then CurrentTransducer.HardwareOutputChannels = InputFileSupport.InputFileListOfIntegerParsing(Line, True, AudioSystemSpecificationFilePath)
-            If Line.StartsWith("CalibrationGain") Then CurrentTransducer.CalibrationGain = InputFileSupport.InputFileListOfDoubleParsing(Line, True, AudioSystemSpecificationFilePath)
-            If Line.StartsWith("LimiterThreshold") Then CurrentTransducer.LimiterThreshold = InputFileSupport.InputFileDoubleValueParsing(Line, True, AudioSystemSpecificationFilePath)
-
-        Next
-
-        'Stores the last transducer
-        If CurrentTransducer IsNot Nothing Then _AvaliableTransducers.Add(CurrentTransducer)
-
-        'Adding a default transducer if none were sucessfully read
-        If _AvaliableTransducers.Count = 0 Then _AvaliableTransducers.Add(New AudioSystemSpecification(CurrentMediaPlayerType, AudioApiSettings))
-
-        If OstfBase.CurrentMediaPlayerType <> MediaPlayerTypes.AudioTrackBased Then
-            'This has to be made later in STFM for the AudioTrackBased player
-            For Each Transducer In _AvaliableTransducers
-                Transducer.SetupMixer()
-            Next
-        End If
-
-        'Checking calibration gain values and issues warnings if calibration gain is above 30 dB
-        For Each Transducer In _AvaliableTransducers
-            For i = 0 To Transducer.CalibrationGain.Count - 1
-                If Transducer.CalibrationGain(i) > 30 Then
-                    MsgBox("Calibration gain number " & i & " for the audio transducer '" & Transducer.Name & "' exceeds 30 dB. " & vbCrLf & vbCrLf &
-                           "Make sure that this is really correct before you continue and be cautios not to inflict personal injuries or damage your equipment if you continue! " & vbCrLf & vbCrLf &
-                           "This calibration value is set in the audio system specifications file: " & AudioSystemSpecificationFilePath, MsgBoxStyle.Exclamation, "Warning - High calibration gain value!")
-                End If
-            Next
-        Next
-
-    End Sub
-
-
-
-    Public Enum SoundPropagationTypes
-        PointSpeakers
-        SimulatedSoundField
-        Ambisonics
-    End Enum
-
-    Public Class AudioSystemSpecification
-        Public Property Name As String = "Default"
-        Public ReadOnly Property MediaPlayerType As OstfBase.MediaPlayerTypes
-        Public ReadOnly Property ParentAudioApiSettings As Audio.AudioSettings
-        Public Property Mixer As STFN.Core.Audio.SoundScene.DuplexMixer
-        Public Property LoudspeakerAzimuths As New List(Of Double) From {-90, 90}
-        Public Property LoudspeakerElevations As New List(Of Double) From {0, 0}
-        Public Property LoudspeakerDistances As New List(Of Double) From {0, 0}
-        Public Property HardwareOutputChannels As New List(Of Integer) From {1, 2}
-        Public Property CalibrationGain As New List(Of Double) From {0, 0}
-
-        Private _HostVolumeOutputLevel As Integer? = Nothing
-
-        ''' <summary>
-        ''' Holds calibration gain for a pure tone audiometry transducer (frequency, gain)
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property PtaCalibrationGain As New SortedList(Of Integer, Double)
-
-        Public Property PtaCalibrationGainFrequencies As New List(Of Integer)
-        Public Property PtaCalibrationGainValues As New List(Of Double)
-        Public Property RETSPL_Speech As Double = 0
-
-
-
-        ''' <summary>
-        ''' If supported by the sound player used, this value is used to set and maintain the volume of the selected output sound unit (e.g. sound card) while the player is active. Value represent percentages (0-100).
-        ''' </summary>
-        ''' <returns></returns>
-        Public Property HostVolumeOutputLevel As Integer?
-            Get
-                Return _HostVolumeOutputLevel
-            End Get
-            Set(value As Integer?)
-                If value.HasValue Then
-                    _HostVolumeOutputLevel = Math.Clamp(value.Value, 0, 100)
-                Else
-                    _HostVolumeOutputLevel = Nothing
-                End If
-            End Set
-        End Property
-        Public Property LimiterThreshold As Double? = Nothing
-
-        Private _CanPlay As Boolean = False
-        Public ReadOnly Property CanPlay As Boolean
-            Get
-                Return _CanPlay
-            End Get
-        End Property
-
-        Private _CanRecord As Boolean = False
-        Public ReadOnly Property CanRecord As Boolean
-            Get
-                Return _CanRecord
-            End Get
-        End Property
-
-        Public Sub New(ByVal MediaPlayerType As OstfBase.MediaPlayerTypes, Optional ByRef ParentAudioApiSettings As Audio.AudioSettings = Nothing)
-
-            Me.MediaPlayerType = MediaPlayerType
-
-            Select Case MediaPlayerType
-                Case MediaPlayerTypes.PaBased, MediaPlayerTypes.AudioTrackBased
-                    If ParentAudioApiSettings Is Nothing Then
-                        Throw New ArgumentException("The argument ParentAudioApiSettings cannot be Nothing when the media player MediaPlayerType is PaBased or AudioTrackBased!")
-                    Else
-                        Me.ParentAudioApiSettings = ParentAudioApiSettings
-                    End If
-                Case MediaPlayerTypes.Default
-                    Throw New ArgumentException("The argument ParentAudioApiSettings cannot be Default when initiating an AudioSystemSpecification!")
-            End Select
-
-        End Sub
-
-        Public Sub SetupMixer()
-            'Setting up the mixer
-            Mixer = New Audio.SoundScene.DuplexMixer(Me)
-
-            CheckCanPlayRecord()
-
-        End Sub
-        Public Sub CheckCanPlayRecord()
-
-            'Checks if the transducerss will play/record
-            If Me.Mixer.OutputRouting.Keys.Count > 0 And Me.ParentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
-                    If Me.Mixer.OutputRouting.Keys.Max <= Me.ParentAudioApiSettings.NumberOfOutputChannels Then
-                        Me._CanPlay = True
-                    End If
-                End If
-                If Me.Mixer.InputRouting.Keys.Count > 0 And Me.ParentAudioApiSettings.NumberOfInputChannels.HasValue = True Then
-                    If Me.Mixer.InputRouting.Keys.Max <= Me.ParentAudioApiSettings.NumberOfInputChannels Then
-                        Me._CanRecord = True
-                    End If
-                End If
-
-        End Sub
-
-        Public Sub OverrideCanPlay(ByVal Value As Boolean)
-            _CanPlay = Value
-        End Sub
-
-        Public Function NumberOfApiOutputChannels() As Integer
-
-            If Me.ParentAudioApiSettings.NumberOfOutputChannels.HasValue = True Then
-                Return Me.ParentAudioApiSettings.NumberOfOutputChannels
-            Else
-                Return 0
-                End If
-
-        End Function
-
-        Public Function NumberOfApiInputChannels() As Integer
-
-            If Me.ParentAudioApiSettings.NumberOfInputChannels.HasValue = True Then
-                Return Me.ParentAudioApiSettings.NumberOfInputChannels
-            Else
-                Return 0
-            End If
-
-        End Function
-
-        ''' <summary>
-        ''' Checks to see if the transducers connected to HardWareChannelLeft and HardWareChannelRight are headphones, assuming that the first two specified channels are the headphone channels.
-        ''' </summary>
-        ''' <param name="HardWareChannelLeft"></param>
-        ''' <param name="HardWareChannelRight"></param>
-        ''' <returns></returns>
-        Public Function IsHeadphones() As Boolean
-
-            'Returns false if there is only one output channel
-            If HardwareOutputChannels.Count < 2 Then Return False
-
-            'Tries to determine which is left and which is right
-            Dim LeftChannelIndex As Integer
-            Dim RightChannelIndex As Integer
-            If LoudspeakerAzimuths(0) < 0 And LoudspeakerAzimuths(1) > 0 Then
-                LeftChannelIndex = 0
-                RightChannelIndex = 1
-            ElseIf LoudspeakerAzimuths(0) > 0 And LoudspeakerAzimuths(1) < 0 Then
-                LeftChannelIndex = 1
-                RightChannelIndex = 0
-            Else
-                'The channel azimuths does not seem to be stereo. Returning False
-                Return False
-            End If
-
-            'Requres azimuths to be -90 and 90
-            If LoudspeakerAzimuths(LeftChannelIndex) <> -90 Then Return False
-            If LoudspeakerAzimuths(RightChannelIndex) <> 90 Then Return False
-
-            'Requires distance to be 0
-            If LoudspeakerDistances(LeftChannelIndex) <> 0 Then Return False
-            If LoudspeakerDistances(RightChannelIndex) <> 0 Then Return False
-
-            'Requires elevation to be 0
-            If LoudspeakerElevations(LeftChannelIndex) <> 0 Then Return False
-            If LoudspeakerElevations(RightChannelIndex) <> 0 Then Return False
-
-            'All checks passed, it is headphones
-            Return True
-
-        End Function
-
-        Public Function GetVisualSoundSourceLocations() As List(Of Audio.SoundScene.VisualSoundSourceLocation)
-
-            'Adding the appropriate sound sources into the selection views, based on the selected transducer
-            Dim SignalLocationCandidateList As New List(Of Audio.SoundScene.VisualSoundSourceLocation)
-
-            'Adding real speaker locations as selectable sound source candidates
-            For s = 0 To LoudspeakerAzimuths.Count - 1
-                SignalLocationCandidateList.Add(New Audio.SoundScene.VisualSoundSourceLocation(New Audio.SoundScene.SoundSourceLocation With {
-                .HorizontalAzimuth = LoudspeakerAzimuths(s),
-                .Elevation = LoudspeakerElevations(s),
-                .Distance = LoudspeakerDistances(s)}))
-            Next
-
-            Return SignalLocationCandidateList
-
-        End Function
-
-        Public Function GetSoundSourceLocations() As List(Of Audio.SoundScene.SoundSourceLocation)
-
-            'Adding the appropriate sound sources into the selection views, based on the selected transducer
-            Dim SignalLocationCandidateList As New List(Of Audio.SoundScene.SoundSourceLocation)
-
-            'Adding real speaker locations as selectable sound source candidates
-            For s = 0 To LoudspeakerAzimuths.Count - 1
-                SignalLocationCandidateList.Add(New Audio.SoundScene.SoundSourceLocation With {
-                .HorizontalAzimuth = LoudspeakerAzimuths(s),
-                .Elevation = LoudspeakerElevations(s),
-                .Distance = LoudspeakerDistances(s)})
-            Next
-
-            Return SignalLocationCandidateList
-
-        End Function
-
-
-        Public Overrides Function ToString() As String
-            If Name <> "" Then
-                Return Name
-            Else
-                Return MyBase.ToString()
-            End If
-        End Function
-
-        Public Function GetDescriptionString() As String
-            Dim OutputList As New List(Of String)
-
-            OutputList.Add("Name: " & Name)
-            OutputList.Add("Loudspeaker azimuths: " & String.Join(", ", LoudspeakerAzimuths))
-            OutputList.Add("Hardware output channels: " & String.Join(", ", HardwareOutputChannels))
-            OutputList.Add("CalibrationGain: " & String.Join(", ", CalibrationGain))
-            If LimiterThreshold.HasValue Then
-                OutputList.Add("Limiter threshold: " & LimiterThreshold.ToString)
-            Else
-                OutputList.Add("Limiter threshold: (none)")
-            End If
-            'OutputList.Add(vbCrLf & "Sound device info: " & vbCrLf & ParentAudioApiSettings.ToShorterString)
-
-            Return String.Join(vbCrLf, OutputList)
-        End Function
-
-    End Class
-
-
-    Private _DirectionalSimulator As DirectionalSimulation = Nothing
-
-    Public ReadOnly Property DirectionalSimulator As DirectionalSimulation
-        Get
-            If AllowDirectionalSimulation = True Then
-                If _DirectionalSimulator Is Nothing Then _DirectionalSimulator = New DirectionalSimulation()
-                Return _DirectionalSimulator
-            Else
-                Return Nothing
-            End If
-        End Get
-    End Property
-
-End Module

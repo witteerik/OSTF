@@ -56,7 +56,7 @@ namespace STFM
                     speechTestInitiator.TestResultsView = new TestResultView_Adaptive();
 
                     // Determining the GuiLayoutState
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
+                    if (OstfBase.CurrentPlatForm == Platforms.WinUI & OstfBase.UseExtraWindows == true)
                     {
                         speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
                         speechTestInitiator.UseExtraWindow = true;
@@ -138,7 +138,7 @@ namespace STFM
                     speechTestInitiator.TestResultsView = new TestResultView_QuickSiP();
 
                     // Determining the GuiLayoutState
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
+                    if (OstfBase.CurrentPlatForm == Platforms.WinUI & OstfBase.UseExtraWindows == true)
                     {
                         speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
                         speechTestInitiator.UseExtraWindow = true;
@@ -176,7 +176,7 @@ namespace STFM
                     speechTestInitiator.TestResultsView = new TestResultView_AdaptiveSiP();
 
                     // Determining the GuiLayoutState
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
+                    if (OstfBase.CurrentPlatForm == Platforms.WinUI & OstfBase.UseExtraWindows == true)
                     {
                         speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
                         speechTestInitiator.UseExtraWindow = true;
@@ -216,7 +216,7 @@ namespace STFM
                     speechTestInitiator.TestResultsView = new TestResultView_AdaptiveSiP();
 
                     // Determining the GuiLayoutState
-                    if (OstfBase.CurrentPlatForm == OstfBase.Platforms.WinUI & OstfBase.UseExtraWindows == true)
+                    if (OstfBase.CurrentPlatForm == Platforms.WinUI & OstfBase.UseExtraWindows == true)
                     {
                         speechTestInitiator.GuiLayoutState = SpeechTestView.GuiLayoutStates.TestOptions_StartButton_TestResultsOffForm;
                         speechTestInitiator.UseExtraWindow = true;

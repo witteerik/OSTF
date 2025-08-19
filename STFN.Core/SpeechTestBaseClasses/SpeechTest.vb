@@ -200,7 +200,7 @@ Public MustInherit Class SpeechTest
                     SupportedIrNames = OstfBase.DirectionalSimulator.GetAvailableDirectionalSimulationSetNames(AvailableMediasets(0).WaveFileSampleRate)
                 End If
 
-                Dim AvaliableSets = DirectionalSimulator.GetAllDirectionalSimulationSets()
+                Dim AvaliableSets = OstfBase.DirectionalSimulator.GetAllDirectionalSimulationSets()
                 For Each AvaliableSet In AvaliableSets
                     If SupportedIrNames.Contains(AvaliableSet.Key) Then
                         Output.Add(AvaliableSet.Value)
@@ -217,9 +217,9 @@ Public MustInherit Class SpeechTest
     ''' </summary>
     ''' <returns></returns>
     <ExludeFromPropertyListing>
-    Public ReadOnly Property CurrentlySupportedTransducers As List(Of OstfBase.AudioSystemSpecification)
+    Public ReadOnly Property CurrentlySupportedTransducers As List(Of AudioSystemSpecification)
         Get
-            Dim Output = New List(Of OstfBase.AudioSystemSpecification)
+            Dim Output = New List(Of AudioSystemSpecification)
             Dim AllTransducers = OstfBase.AvaliableTransducers
 
             'Adding only transducers that can be used with the current sound system.
@@ -1540,12 +1540,12 @@ Public MustInherit Class SpeechTest
 
 
     'Returns the selected SelectedPresentationMode indirectly based on the UseSimulatedSoundField property. In the future if more options are supported, this will have to be exposed to the GUI.
-    Public ReadOnly Property PresentationMode As SoundPropagationTypes
+    Public ReadOnly Property PresentationMode As Utils.SoundPropagationTypes
         Get
             If SimulatedSoundField = False Then
-                Return SoundPropagationTypes.PointSpeakers
+                Return Utils.SoundPropagationTypes.PointSpeakers
             Else
-                Return SoundPropagationTypes.SimulatedSoundField
+                Return Utils.SoundPropagationTypes.SimulatedSoundField
             End If
         End Get
     End Property
@@ -2082,9 +2082,9 @@ Public MustInherit Class SpeechTest
         End If
 
 
-        Dim CurrentSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
+        Dim CurrentSoundPropagationType As Utils.SoundPropagationTypes = Utils.SoundPropagationTypes.PointSpeakers
         If SimulatedSoundField Then
-            CurrentSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
+            CurrentSoundPropagationType = Utils.SoundPropagationTypes.SimulatedSoundField
             'TODO: This needs to be modified if/when more SoundPropagationTypes are starting to be supported
         End If
 
@@ -2187,9 +2187,9 @@ Public MustInherit Class SpeechTest
             Return Nothing
         End If
 
-        Dim CurrentSoundPropagationType As SoundPropagationTypes = SoundPropagationTypes.PointSpeakers
+        Dim CurrentSoundPropagationType As Utils.SoundPropagationTypes = Utils.SoundPropagationTypes.PointSpeakers
         If SimulatedSoundField Then
-            CurrentSoundPropagationType = SoundPropagationTypes.SimulatedSoundField
+            CurrentSoundPropagationType = Utils.SoundPropagationTypes.SimulatedSoundField
             'TODO: This needs to be modified if/when more SoundPropagationTypes are starting to be supported
         End If
 

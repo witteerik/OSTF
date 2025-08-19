@@ -1,4 +1,6 @@
 ﻿
+
+
 Namespace Utils
 
     Public Module EnumCollection
@@ -30,6 +32,27 @@ Namespace Utils
             Clinical
         End Enum
 
+        Public Enum SoundPropagationTypes
+            PointSpeakers
+            SimulatedSoundField
+            Ambisonics
+        End Enum
+
     End Module
 
 End Namespace
+
+
+'Enums directly available under STFN.Core
+Public Enum Platforms ' These reflects the platform names currently specified in NET MAUI. Not all will work with OSTF.
+    iOS
+    WinUI
+    UWP
+    Tizen
+    tvOS
+    MacCatalyst
+    macOS
+    watchOS
+    Unknown
+    Android
+End Enum

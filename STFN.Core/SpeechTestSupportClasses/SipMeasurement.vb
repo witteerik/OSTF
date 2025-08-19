@@ -108,19 +108,19 @@ Namespace SipTest
         Public Function HasSimulatedSoundFieldTrials() As Boolean
 
             For Each Trial In PlannedTrials
-                If Trial.SoundPropagationType = SoundPropagationTypes.SimulatedSoundField Then Return True
+                If Trial.SoundPropagationType = Utils.SoundPropagationTypes.SimulatedSoundField Then Return True
             Next
 
             For Each Trial In ObservedTrials
-                If Trial.SoundPropagationType = SoundPropagationTypes.SimulatedSoundField Then Return True
+                If Trial.SoundPropagationType = Utils.SoundPropagationTypes.SimulatedSoundField Then Return True
             Next
 
             For Each TestUnit In TestUnits
                 For Each Trial In TestUnit.PlannedTrials
-                    If Trial.SoundPropagationType = SoundPropagationTypes.SimulatedSoundField Then Return True
+                    If Trial.SoundPropagationType = Utils.SoundPropagationTypes.SimulatedSoundField Then Return True
                 Next
                 For Each Trial In TestUnit.ObservedTrials
-                    If Trial.SoundPropagationType = SoundPropagationTypes.SimulatedSoundField Then Return True
+                    If Trial.SoundPropagationType = Utils.SoundPropagationTypes.SimulatedSoundField Then Return True
                 Next
             Next
 

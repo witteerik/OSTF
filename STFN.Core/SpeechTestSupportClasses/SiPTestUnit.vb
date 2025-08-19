@@ -28,7 +28,7 @@ Namespace SipTest
             Me.Description = Description
         End Sub
 
-        Public Sub PlanTrials(ByRef MediaSet As MediaSet, ByVal SoundPropagationType As SoundPropagationTypes,
+        Public Sub PlanTrials(ByRef MediaSet As MediaSet, ByVal SoundPropagationType As Utils.SoundPropagationTypes,
             ByVal TargetLocation As SoundSourceLocation,
                               ByVal MaskerLocations As SoundSourceLocation(),
                               ByVal BackgroundLocations As SoundSourceLocation())

@@ -21,7 +21,7 @@ namespace STFM
 
         public static bool IsInitialized = false;
 
-        public static async Task InitializeSTFM(STFN.Core.OstfBase.MediaPlayerTypes MediaPlayerType = OstfBase.MediaPlayerTypes.Default, bool RequestExternalStoragePermission = true)
+        public static async Task InitializeSTFM(STFN.Core.AudioSystemSpecification.MediaPlayerTypes MediaPlayerType = AudioSystemSpecification.MediaPlayerTypes.Default, bool RequestExternalStoragePermission = true)
         {
 
             // Returning if already called
@@ -55,7 +55,7 @@ namespace STFM
             // Initializing OSTF
             OstfBase.InitializeOSTF(GetCurrentPlatform(), MediaPlayerType, OstfBase.MediaRootDirectory);
 
-            if (OstfBase.CurrentMediaPlayerType == OstfBase.MediaPlayerTypes.AudioTrackBased)
+            if (OstfBase.CurrentMediaPlayerType == AudioSystemSpecification.MediaPlayerTypes.AudioTrackBased)
             {
 #if ANDROID
 
@@ -72,18 +72,18 @@ namespace STFM
         }
 
 
-        static OstfBase.Platforms GetCurrentPlatform()
+        static Platforms GetCurrentPlatform()
         {
 
-            if (DeviceInfo.Current.Platform == DevicePlatform.iOS) { return OstfBase.Platforms.iOS; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.WinUI) { return OstfBase.Platforms.WinUI; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.Tizen) { return OstfBase.Platforms.Tizen; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.tvOS) { return OstfBase.Platforms.tvOS; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst) { return OstfBase.Platforms.MacCatalyst; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.macOS) { return OstfBase.Platforms.macOS; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.watchOS) { return OstfBase.Platforms.watchOS; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.Unknown) { return OstfBase.Platforms.Unknown; }
-            else if (DeviceInfo.Current.Platform == DevicePlatform.Android) { return OstfBase.Platforms.Android; }
+            if (DeviceInfo.Current.Platform == DevicePlatform.iOS) { return Platforms.iOS; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.WinUI) { return Platforms.WinUI; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Tizen) { return Platforms.Tizen; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.tvOS) { return Platforms.tvOS; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.MacCatalyst) { return Platforms.MacCatalyst; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.macOS) { return Platforms.macOS; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.watchOS) { return Platforms.watchOS; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Unknown) { return Platforms.Unknown; }
+            else if (DeviceInfo.Current.Platform == DevicePlatform.Android) { return Platforms.Android; }
             else { throw new Exception("Failed to resolve the current platform type."); }
 
         }

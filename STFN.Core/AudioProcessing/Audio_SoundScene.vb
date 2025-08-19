@@ -183,7 +183,7 @@ Namespace Audio.SoundScene
         ''' <param name="ExportSounds">Can be used to debug or analyse presented sounds. Default value is False. Sounds are stored into the current log folder.</param>
         ''' <returns></returns>
         Public Function CreateSoundScene(ByRef Input As List(Of SoundSceneItem), ByVal UseNominalLevels As Boolean, ByVal UseRetSPLCorrection As Boolean,
-                                         ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal LimiterThreshold As Double? = 100,
+                                         ByVal SoundPropagationType As Utils.SoundPropagationTypes, Optional ByVal LimiterThreshold As Double? = 100,
                                          Optional ExportSounds As Boolean = False, Optional ExportPrefix As String = "") As Audio.Sound
 
             Try
@@ -377,7 +377,7 @@ Namespace Audio.SoundScene
                 'Inserting/adding sounds to the output sound
                 'OutputSound.
                 Select Case SoundPropagationType
-                    Case SoundPropagationTypes.PointSpeakers
+                    Case Utils.SoundPropagationTypes.PointSpeakers
 
                         'TODO, perhaps SoundPropagationTypes.Headphones should be treated separately from sound field speakers?
 
@@ -403,14 +403,14 @@ Namespace Audio.SoundScene
 
                         Next
 
-                    Case SoundPropagationTypes.Ambisonics
+                    Case Utils.SoundPropagationTypes.Ambisonics
 
                         Throw New NotImplementedException("Ambisonics presentation is not yet supported.")
 
-                    Case SoundPropagationTypes.SimulatedSoundField
+                    Case Utils.SoundPropagationTypes.SimulatedSoundField
 
                         'Simulating the speaker locations into stereo headphones
-                        SimulateSoundSourceLocation(DirectionalSimulator.SelectedDirectionalSimulationSetName, SoundSceneItemList)
+                        SimulateSoundSourceLocation(OstfBase.DirectionalSimulator.SelectedDirectionalSimulationSetName, SoundSceneItemList)
 
                         'Getting the length of the complete mix (This must be done separately depending on the value of TransducerType, as FIR filterring changes the lengths of the sounds!)
                         OutputSound = GetEmptyOutputSound(SoundSceneItemList, WaveFormat)
@@ -699,7 +699,7 @@ Namespace Audio.SoundScene
                     Array.Copy(SoundSceneItem.Sound.WaveData.SampleData(1), NewSound.WaveData.SampleData(2), OriginalSoundLength)
 
                     'Attains a copy of the appropriate directional FIR-filter kernel
-                    Dim SelectedSimulationKernel = DirectionalSimulator.GetStereoKernel(ImpulseReponseSetName, SoundSceneItem.SourceLocation.HorizontalAzimuth, SoundSceneItem.SourceLocation.Elevation, SoundSceneItem.SourceLocation.Distance)
+                    Dim SelectedSimulationKernel = OstfBase.DirectionalSimulator.GetStereoKernel(ImpulseReponseSetName, SoundSceneItem.SourceLocation.HorizontalAzimuth, SoundSceneItem.SourceLocation.Elevation, SoundSceneItem.SourceLocation.Distance)
                     Dim CurrentKernel = SelectedSimulationKernel.BinauralIR.CreateSoundDataCopy
                     Dim SelectedActualPoint = SelectedSimulationKernel.Point
                     Dim SelectedActualBinauralDelay = SelectedSimulationKernel.BinauralDelay

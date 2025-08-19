@@ -3,8 +3,8 @@
 'Should we neutralize TPD per testord instead of per recording in the SiP-test model?
 'We have To fix the randomizers In the SIPtest. There are randomizers at several levels!
 
-
 Imports STFN.Core
+Imports STFN.Core.Utils
 Imports STFN.Core.Audio
 Imports STFN.Core.Audio.SoundScene
 Imports STFN.Core.Audio.Formats
@@ -33,7 +33,7 @@ Namespace SipTest
 
         Public Sub PlanTestTrials(ByRef AvailableMediaSet As MediaSetLibrary, ByVal PresetName As String, ByVal MediaSetName As String, ByVal SoundPropagationType As SoundPropagationTypes, Optional ByVal RandomSeed As Integer? = Nothing)
 
-            Dim Preset = ParentTestSpecification.SpeechMaterial.Presets.GetPretest(PresetName).Members
+            Dim Preset = ParentTestSpecification.SpeechMaterial.Presets.GetPreset(PresetName).Members
 
             PlanTestTrials(AvailableMediaSet, Preset, MediaSetName, SoundPropagationType, RandomSeed)
 

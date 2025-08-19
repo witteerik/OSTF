@@ -25,14 +25,6 @@ Public Class SpeechMaterialSpecification
 
     Public Property MediaSets As New MediaSetLibrary
 
-    Public Function GetAvailableTestSituationNames() As List(Of String)
-        Dim OutputList As New List(Of String)
-        For Each TestSituation In MediaSets
-            OutputList.Add(TestSituation.ToString)
-        Next
-        Return OutputList
-    End Function
-
 
     Public Function GetTestsDirectory() As String
         Return IO.Path.Combine(OstfBase.MediaRootDirectory, SpeechMaterialsDirectory)
@@ -118,21 +110,7 @@ Public Class SpeechMaterialSpecification
 
     End Function
 
-    Public Sub LoadSpeechMaterialComponentsFile()
 
-        Try
-            SpeechMaterial = SpeechMaterialComponent.LoadSpeechMaterial(GetSpeechMaterialFilePath, GetTestRootPath)
-
-            'Referencing the Me as ParentTestSpecification in the loaded SpeechMaterial 
-            If SpeechMaterial IsNot Nothing Then
-                SpeechMaterial.ParentTestSpecification = Me
-            End If
-
-        Catch ex As Exception
-            MsgBox("Failed to load speech material file: " & GetSpeechMaterialFilePath())
-        End Try
-
-    End Sub
 
     Public Sub LoadAvailableMediaSetSpecifications()
 
@@ -176,41 +154,6 @@ Public Class SpeechMaterialSpecification
         Return Name
 
     End Function
-
-    Public Sub WriteTextFile(Optional FilePath As String = "")
-
-        If FilePath = "" Then
-            FilePath = Utils.GeneralIO.GetSaveFilePath(,, {".txt"}, "Save OSTF test specification file as")
-        End If
-
-        Dim OutputList As New List(Of String)
-        OutputList.Add("// This file is an OSTF test specification file. Its first non-empty line which is not commented out (using double slashes) must be exacly " & FormatFlag)
-        OutputList.Add("// In order to make the test that this file specifies available in OSTF, put this file in the OSTF sub folder named: " & OstfBase.AvailableSpeechMaterialsSubFolder & ", and the restart the OSTF software.")
-        OutputList.Add("")
-        OutputList.Add(FormatFlag)
-        OutputList.Add("")
-
-        If Name.Trim = "" Then
-            OutputList.Add("// Name = [Add name here, and remove the double slashes]")
-        Else
-            OutputList.Add("Name = " & Name)
-        End If
-
-        If DirectoryName.Trim = "" Then
-            OutputList.Add("// DirectoryName = Tests\ [Add the DirectoryName here, and remove the double slashes]")
-        Else
-            OutputList.Add("DirectoryName = " & DirectoryName)
-        End If
-
-        If TestPresetsSubFilePath.Trim = "" Then
-            OutputList.Add("// TestPresetsSubFilePath =  [Add the file path to the TestPresets file here, and remove the double slashes]")
-        Else
-            OutputList.Add("TestPresetsSubFilePath = TestPresetsSubFilePath")
-        End If
-
-        Logging.SendInfoToLog(String.Join(vbCrLf, OutputList), IO.Path.GetFileNameWithoutExtension(FilePath), IO.Path.GetDirectoryName(FilePath), True, True)
-
-    End Sub
 
 End Class
 

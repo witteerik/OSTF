@@ -1,10 +1,7 @@
 ﻿Imports STFN.Core
+Imports STFN.Core.Utils
 Imports STFN.Core.Audio.SoundScene
 Imports STFN.Core.Audio
-Imports STFN.Core.Audio.Formats
-Imports System.Reflection
-Imports System.Runtime.Serialization
-'Imports STFN.Core.SipTest
 
 
 Namespace SipTest
@@ -547,7 +544,7 @@ Namespace SipTest
                     If Me.IsBmldTrial = True Then
 
                         'Attains a copy of the appropriate directional FIR-filter kernel
-                        Dim FrontalTwoLeftEarsKernel = DirectionalSimulator.GetStereoKernel(DirectionalSimulator.SelectedDirectionalSimulationSetName, 0, 0, 3).TwoLeftEarsKernel
+                        Dim FrontalTwoLeftEarsKernel = OstfBase.DirectionalSimulator.GetStereoKernel(OstfBase.DirectionalSimulator.SelectedDirectionalSimulationSetName, 0, 0, 3).TwoLeftEarsKernel
                         'Dim SelectedSimulationKernel = DirectionalSimulator.GetStereoKernel(ImpulseReponseSetName, SoundSceneItem.SourceLocation.HorizontalAzimuth, SoundSceneItem.SourceLocation.Elevation, SoundSceneItem.SourceLocation.Distance)
                         Dim CurrentKernel = FrontalTwoLeftEarsKernel.BinauralIR.CreateSoundDataCopy
                         Dim SelectedActualPoint = FrontalTwoLeftEarsKernel.Point
