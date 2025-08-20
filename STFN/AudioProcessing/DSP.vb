@@ -8,6 +8,683 @@ Imports STFN.Core.Audio
 Public Class DSP
     Inherits STFN.Core.DSP
 
+
+    ''' <summary>
+    ''' Calculates the sound level in the input sound using frequency domain calculations.
+    ''' </summary>
+    ''' <param name="InputSound"></param>
+    ''' <param name="Channel"></param>
+    ''' <param name="FftFormat"></param>
+    ''' <returns></returns>
+    Public Shared Function CalculateSoundLevelFromFrequencyDomain(ByRef InputSound As Sound, ByVal Channel As Integer,
+                                            Optional ByRef FftFormat As Formats.FftFormat = Nothing) As Double
+
+        Try
+
+            'Setting up FFT format
+            If FftFormat Is Nothing Then FftFormat = New Formats.FftFormat(4 * 2048,, 1024, WindowingType.Hamming, False)
+
+            'Calculating spectra
+            InputSound.FFT = SpectralAnalysis(InputSound, FftFormat)
+            InputSound.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
+
+            Dim ActualLowerLimitFrequency As Double
+            Dim ActualUpperLimitFrequency As Double
+
+            Dim WindowLevelArray = CalculateWindowLevels(InputSound,,,
+                                                                          ,
+                                                                          ,
+                                                                      FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
+                                                                      False, False,
+                                                                      ActualLowerLimitFrequency,
+                                                                      ActualUpperLimitFrequency)
+
+            Dim AverageBandLevel_FS As Double = WindowLevelArray.Average
+
+            Return AverageBandLevel_FS
+
+        Catch ex As Exception
+            AudioError(ex.ToString)
+            Return Nothing
+        End Try
+
+    End Function
+
+
+
+    ''' <summary>
+    ''' Calculates band levels of the specified channel in the input sound. .
+    ''' </summary>
+    ''' <param name="InputSound"></param>
+    ''' <param name="Channel"></param>
+    ''' <param name="BandBank">If left as Nothing a default SII Critical Band bank will be created, used and referenced upon return.</param>
+    ''' <param name="FftFormat"></param>
+    ''' <param name="ActualLowerLimitFrequencyList ">Upon return, contains the actual lower band limits used.</param>
+    ''' <param name="ActualUpperLimitFrequencyList">Upon return, contains the actual upper band limits used.</param>
+    ''' <returns></returns>
+    Public Shared Function CalculateBandLevels(ByRef InputSound As Sound, ByVal Channel As Integer,
+                                            Optional ByRef BandBank As BandBank = Nothing,
+                                            Optional ByRef FftFormat As STFN.Core.Audio.Formats.FftFormat = Nothing,
+                                            Optional ByRef ActualLowerLimitFrequencyList As List(Of Double) = Nothing,
+                                            Optional ByRef ActualUpperLimitFrequencyList As List(Of Double) = Nothing) As List(Of Double)
+
+        Try
+
+            'Setting default band frequencies
+            If BandBank Is Nothing Then BandBank = BandBank.GetSiiCriticalRatioBandBank
+
+            'Setting up FFT format
+            If FftFormat Is Nothing Then FftFormat = New STFN.Core.Audio.Formats.FftFormat(4 * 2048,, 1024, WindowingType.Hamming, False)
+
+            'Creating an output list
+            Dim BandLevelList As New List(Of Double)
+
+            'Creating a list to hold actual band limits
+            ActualLowerLimitFrequencyList = New List(Of Double)
+            ActualUpperLimitFrequencyList = New List(Of Double)
+
+            'Calculating spectra
+            InputSound.FFT = SpectralAnalysis(InputSound, FftFormat)
+            InputSound.FFT.CalculatePowerSpectrum(True, True, True, 0.25)
+
+            For Each band In BandBank
+
+                Dim ActualLowerLimitFrequency As Double
+                Dim ActualUpperLimitFrequency As Double
+
+                Dim WindowLevelArray = CalculateWindowLevels(InputSound,,,
+                                                                      band.LowerFrequencyLimit,
+                                                                      band.UpperFrequencyLimit,
+                                                                      FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
+                                                                      False, False,
+                                                                      ActualLowerLimitFrequency,
+                                                                      ActualUpperLimitFrequency)
+
+                Dim AverageBandLevel_FS As Double = WindowLevelArray.Average
+                BandLevelList.Add(AverageBandLevel_FS)
+
+                ActualLowerLimitFrequencyList.Add(ActualLowerLimitFrequency)
+                ActualUpperLimitFrequencyList.Add(ActualUpperLimitFrequency)
+
+            Next
+
+            Return BandLevelList
+
+        Catch ex As Exception
+            AudioError(ex.ToString)
+            Return Nothing
+        End Try
+
+    End Function
+
+    ''' <summary>
+    ''' Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+    ''' </summary>
+    ''' <param name="BandLevel_SPL"></param>
+    ''' <param name="BandWidth"></param>
+    ''' <returns></returns>
+    Public Shared Function BandLevel2SpectrumLevel(ByVal BandLevel_SPL As Double, ByVal BandWidth As Double) As Double
+
+        'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+        Return BandLevel_SPL - 10 * Math.Log10(BandWidth / 1)
+
+    End Function
+
+
+    ''' <summary>
+    ''' Calculates spectrum levels
+    ''' </summary>
+    ''' <param name="InputSound"></param>
+    ''' <param name="Channel"></param>
+    ''' <param name="BandBank">If left as Nothing a default SII Critical Band bank will be created, used and referenced upon return.</param>
+    ''' <param name="FftFormat"></param>
+    ''' <param name="ActualLowerLimitFrequencyList ">Upon return, contains the actual lower band limits used.</param>
+    ''' <param name="ActualUpperLimitFrequencyList">Upon return, contains the actual upper band limits used.</param>
+    ''' <param name="dBSPL_FSdifference"></param>
+    ''' <returns></returns>
+    Public Shared Function CalculateSpectrumLevels(ByRef InputSound As Sound, ByVal Channel As Integer,
+                                                Optional ByRef BandBank As BandBank = Nothing,
+                                                Optional ByRef FftFormat As STFN.Core.Audio.Formats.FftFormat = Nothing,
+                                                Optional ByRef ActualLowerLimitFrequencyList As List(Of Double) = Nothing,
+                                                Optional ByRef ActualUpperLimitFrequencyList As List(Of Double) = Nothing,
+                                                Optional ByRef dBSPL_FSdifference As Double? = Nothing) As List(Of Double)
+
+
+        'Setting default dBSPL_FSdifference 
+        If dBSPL_FSdifference Is Nothing Then dBSPL_FSdifference = Standard_dBFS_dBSPL_Difference
+
+        'Calculates band levels
+        Dim BandLevels = CalculateBandLevels(InputSound, Channel, BandBank, FftFormat, ActualLowerLimitFrequencyList, ActualUpperLimitFrequencyList)
+
+        'Getting the band widths
+        Dim BandWidths = BandBank.GetBandWidths
+
+        'Creating a list to store the spectrum levels
+        Dim SpectrumLevelList As New List(Of Double)
+
+        For i = 0 To BandLevels.Count - 1
+
+            'Converting dB FS to dB SPL
+            Dim BandLevel_SPL As Double = BandLevels(i) + dBSPL_FSdifference
+
+            'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+            Dim SpectrumLevel As Double = BandLevel2SpectrumLevel(BandLevel_SPL, BandWidths(i))
+            SpectrumLevelList.Add(SpectrumLevel)
+        Next
+
+        Return SpectrumLevelList
+
+    End Function
+
+
+    ''' <summary>
+    ''' Calculating the average RMS sound level in all InputSounds (as if they were one long sound)
+    ''' </summary>
+    ''' <param name="InputSounds"></param>
+    ''' <param name="SoundChannel"></param>
+    ''' <param name="FrequencyWeighting"></param>
+    ''' <returns></returns>
+    Public Shared Function GetSoundLevelOfConcatenatedSoundsRecordings(ByVal InputSounds As List(Of Sound), ByVal SoundChannel As Integer,
+                                                              ByVal FrequencyWeighting As FrequencyWeightings) As Double
+
+        Dim SumOfSquaresList As New List(Of Tuple(Of Double, Integer))
+
+        For Each TestWordRecording In InputSounds
+
+            'Measures the test word region of each sound
+            Dim SumOfSquareData As Tuple(Of Double, Integer) = Nothing
+            MeasureSectionLevel(TestWordRecording, SoundChannel, 0, TestWordRecording.WaveData.SampleData(SoundChannel).Length,,, FrequencyWeighting, True, SumOfSquareData)
+            'Adds the sum-of-square data
+            SumOfSquaresList.Add(SumOfSquareData)
+
+        Next
+
+        'Calculating a weighted average sum of squares. 
+        Dim SumOfSquares As Double = 0
+        Dim TotalLength As Double = 0
+        For n = 0 To SumOfSquaresList.Count - 1
+            SumOfSquares += SumOfSquaresList(n).Item1
+            TotalLength += SumOfSquaresList(n).Item2
+        Next
+
+        'Calculating mean square
+        Dim MeanSquare As Double = SumOfSquares / TotalLength
+
+        'Calculating RMS by taking the root of the mean of the MeanSquare
+        Dim RMS As Double = MeanSquare ^ (1 / 2)
+
+        'Converting to dB
+        Dim RMSLevel As Double = dBConversion(RMS, dBConversionDirection.to_dB, InputSounds(0).WaveFormat)
+
+        Return RMSLevel
+
+    End Function
+
+
+    Public Enum SearchDirections
+        Later
+        Earlier
+        Closest
+    End Enum
+
+    ''' <summary>
+    ''' Looks up the closest sample on which a zero crossing occurs. If there is no sample exactly on the zerocrossing, the sample index with the lowest sample value of the two samples closest to the zero crossing is returned.
+    ''' </summary>
+    ''' <param name="InputSound"></param>
+    ''' <param name="channel"></param>
+    ''' <param name="InputSample"></param>
+    ''' <param name="SearchDirection">The direction in which the closest zero crossing sample should be detected. If Closest is selected, a search is done both forward and backwards from the InputSample, and the zero crossing clostest to the InputSample is returned.</param>
+    ''' <returns></returns>
+    Public Shared Function GetZeroCrossingSample(ByRef InputSound As Sound, ByVal Channel As Integer, ByVal InputSample As Integer, Optional SearchDirection As SearchDirections = SearchDirections.Closest) As Integer
+
+        'Checks if the InputSample is outside the sound array, in such cases, 0 or the index of the last sample is returned.
+        If InputSample < 0 Then Return 0
+        If InputSample > InputSound.WaveData.SampleData(Channel).Length - 1 Then Return InputSound.WaveData.SampleData(Channel).Length - 1
+
+        'Checks if the input sample is zero
+        If InputSound.WaveData.SampleData(Channel)(InputSample) = 0 Then Return InputSample
+
+        Select Case SearchDirection
+            Case SearchDirections.Earlier
+                'looking earlier in the sound for a zero crossing
+                Dim CurrentSample As Integer = 0
+                For inverse_Sample = 0 To InputSample - 1
+                    CurrentSample = InputSample - 1 - inverse_Sample
+
+                    'Checking if the current sample is zero
+                    If InputSound.WaveData.SampleData(Channel)(CurrentSample) = 0 Then Return CurrentSample
+
+                    'Checking if the signs have changed between the current and the following sample
+                    If Math.Sign(InputSound.WaveData.SampleData(Channel)(CurrentSample)) <>
+                        Math.Sign(InputSound.WaveData.SampleData(Channel)(CurrentSample + 1)) Then
+
+                        'Determining which of the two samples closest to the zero crossing that are closest to zero and returns it.
+                        If Math.Abs(InputSound.WaveData.SampleData(Channel)(CurrentSample)) < Math.Abs(InputSound.WaveData.SampleData(Channel)(CurrentSample + 1)) Then
+                            Return CurrentSample
+                        Else
+                            Return CurrentSample + 1
+                        End If
+                    End If
+                Next
+
+                'Returns 0 if no zero crossing was found
+                Return 0
+
+            Case SearchDirections.Later
+                'looking later in the sound for a zero crossing
+                For CurrentSample = InputSample + 1 To InputSound.WaveData.SampleData(Channel).Length - 1
+
+                    'Checking if the current sample is zero
+                    If InputSound.WaveData.SampleData(Channel)(CurrentSample) = 0 Then Return CurrentSample
+
+                    'Checking if the signs have changed between the current and the previuos sample
+                    If Math.Sign(InputSound.WaveData.SampleData(Channel)(CurrentSample - 1)) <>
+                    Math.Sign(InputSound.WaveData.SampleData(Channel)(CurrentSample)) Then
+
+                        'Determining which of the two samples closest to the zero crossing that are closest to zero and returns it.
+                        If Math.Abs(InputSound.WaveData.SampleData(Channel)(CurrentSample)) < Math.Abs(InputSound.WaveData.SampleData(Channel)(CurrentSample - 1)) Then
+                            Return CurrentSample
+                        Else
+                            Return CurrentSample - 1
+                        End If
+                    End If
+
+                Next
+
+                'Returns the last sample index if no zero crossing was found
+                Return InputSound.WaveData.SampleData(Channel).Length - 1
+
+            Case SearchDirections.Closest
+
+                Dim EarlierClostestSample As Integer = 0
+                Dim LaterClostestSample As Integer = 0
+                Dim ZeroCrossingDetected As Boolean = False
+
+                'looking earlier in the sound for a zero crossing
+                Dim CurrentSample1 As Integer = 0
+                For inverse_Sample = 0 To InputSample - 1
+                    CurrentSample1 = InputSample - 1 - inverse_Sample
+
+                    'Checking if the current sample is zero
+                    If InputSound.WaveData.SampleData(Channel)(CurrentSample1) = 0 Then
+                        EarlierClostestSample = CurrentSample1
+                        ZeroCrossingDetected = True
+                        Exit For
+                    End If
+
+                    'Checking if the signs have changed between the current and the following sample
+                    If Math.Sign(InputSound.WaveData.SampleData(Channel)(CurrentSample1)) <>
+                        Math.Sign(InputSound.WaveData.SampleData(Channel)(CurrentSample1 + 1)) Then
+
+                        'Determining which of the two samples closest to the zero crossing that are closest to zero and returns it.
+                        If Math.Abs(InputSound.WaveData.SampleData(Channel)(CurrentSample1)) < Math.Abs(InputSound.WaveData.SampleData(Channel)(CurrentSample1 + 1)) Then
+                            EarlierClostestSample = CurrentSample1
+                        Else
+                            EarlierClostestSample = CurrentSample1 + 1
+                        End If
+
+                        ZeroCrossingDetected = True
+                        Exit For
+                    End If
+                Next
+
+                'looking later in the sound for a zero crossing
+                For CurrentSample2 = InputSample + 1 To InputSound.WaveData.SampleData(Channel).Length - 1
+
+                    'Checking if the current sample is zero
+                    If InputSound.WaveData.SampleData(Channel)(CurrentSample2) = 0 Then
+                        LaterClostestSample = CurrentSample2
+                        ZeroCrossingDetected = True
+                        Exit For
+                    End If
+
+                    'Checking if the signs have changed between the current and the previuos sample
+                    If Math.Sign(InputSound.WaveData.SampleData(Channel)(CurrentSample2 - 1)) <>
+                    Math.Sign(InputSound.WaveData.SampleData(Channel)(CurrentSample2)) Then
+
+                        'Determining which of the two samples closest to the zero crossing that are closest to zero and returns it.
+                        If Math.Abs(InputSound.WaveData.SampleData(Channel)(CurrentSample2)) < Math.Abs(InputSound.WaveData.SampleData(Channel)(CurrentSample2 - 1)) Then
+                            LaterClostestSample = CurrentSample2
+                        Else
+                            LaterClostestSample = CurrentSample2 - 1
+                        End If
+
+                        ZeroCrossingDetected = True
+                        Exit For
+                    End If
+                Next
+
+                'Returns 0 if no zero crossing was found
+                If ZeroCrossingDetected = False Then Return 0
+
+                'Looks for the closest zero crossing
+                If (LaterClostestSample - InputSample) < (InputSample - EarlierClostestSample) Then
+                    'Returns the sample index of the later clostest zero crossing sample.
+                    Return LaterClostestSample
+                Else
+                    'Returns the sample index of the earlier zero crossing index. N.B. This is the default if both distances are equal!
+                    Return EarlierClostestSample
+                End If
+
+            Case Else
+                Throw New NotImplementedException
+        End Select
+
+    End Function
+
+
+
+    ''' <summary>
+    ''' Amplifys a section of the sound.
+    ''' </summary>
+    ''' <param name="InputSound">The sound to modify.</param>
+    ''' <param name="ChannelGain">A List containing the amount of gain applied to the specified section of each channel (The channel indices are zero-based (with gain for channel 1 at index 0, gain for channel 2 at index 1, etc.). The gain unit is set to dB or linear with the parameter GainUnit).</param>
+    ''' <param name="StartSample">Start sample of the section to be amplified.</param>
+    ''' <param name="SectionLength">Length (in samples) of the section to be amplified.</param>
+    ''' <param name="GainUnit">The unit of the gain paramameter (dB or linear)</param>
+    Public Overloads Shared Sub AmplifySection(ByRef InputSound As Sound, ByVal ChannelGain As List(Of Double),
+                                   Optional ByVal StartSample As Integer = 0, Optional ByVal SectionLength As Integer? = Nothing,
+                                   Optional ByVal GainUnit As SoundDataUnit = SoundDataUnit.dB)
+
+        Try
+
+            Dim InputSoundWaveFormat = InputSound.WaveFormat
+            Dim InputSoundLength As Integer = InputSound.WaveData.ShortestChannelSampleCount
+
+            'Determining if channels have equal length, or if there are more than 3 channels (as the faster version for eaqual length below is not yet implemented)
+            If InputSound.WaveData.IsEqualChannelLength() = False Or InputSound.WaveFormat.Channels > 3 Then
+
+                For c = 1 To InputSound.WaveFormat.Channels
+
+                    If ChannelGain.Count <> 1 Then Throw New ArgumentException("ChannelGain must contain one gain value.")
+
+                    'Calculating gain for each channel
+                    Dim gainFactor As Double = 0
+                    Select Case GainUnit
+                        Case SoundDataUnit.dB
+                            gainFactor = 10 ^ (ChannelGain(0) / 20)
+                        Case SoundDataUnit.linear
+                            gainFactor = ChannelGain(0)
+                        Case Else
+                            Throw New NotImplementedException("Unsupported SoundDataUnit. Use either SoundDataUnit.dB Or .Linear.")
+                    End Select
+
+                    'Applies the gain
+                    Dim ChannelArray = InputSound.WaveData.SampleData(c)
+
+                    Dim CorrectedStartSample = StartSample
+                    Dim CorrectedSectionLength = SectionLength
+                    CheckAndCorrectSectionLength(ChannelArray.Length, CorrectedStartSample, CorrectedSectionLength)
+
+                    For n = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+                        ChannelArray(n) *= gainFactor
+                    Next
+
+                Next
+
+            Else
+
+                Dim CorrectedStartSample = StartSample
+                Dim CorrectedSectionLength = SectionLength
+                CheckAndCorrectSectionLength(InputSound.WaveData.SampleData(1).Length, CorrectedStartSample, CorrectedSectionLength)
+
+                'Treating three channel sounds
+                Select Case InputSound.WaveFormat.Channels
+
+                    Case 1
+
+                        If ChannelGain.Count <> 1 Then Throw New ArgumentException("ChannelGain must contain one gain value.")
+
+                        'Calculating gain for each channel
+                        Dim gainFactor_Channel1 As Double = 0
+                        Select Case GainUnit
+                            Case SoundDataUnit.dB
+                                gainFactor_Channel1 = 10 ^ (ChannelGain(0) / 20)
+                            Case SoundDataUnit.linear
+                                gainFactor_Channel1 = ChannelGain(0)
+                            Case Else
+                                Throw New NotImplementedException("Unsupported SoundDataUnit. Use either SoundDataUnit.dB Or .Linear.")
+                        End Select
+
+
+                        'Applies the gain
+                        Dim Channel1Array = InputSound.WaveData.SampleData(1)
+                        For n = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+                            Channel1Array(n) *= gainFactor_Channel1
+                        Next
+
+                    Case 2
+
+                        If ChannelGain.Count <> 2 Then Throw New ArgumentException("ChannelGain must contain two gain values, one for each channel.")
+
+                        'Calculating gain for each channel
+                        Dim gainFactor_Channel1 As Double = 0
+                        Select Case GainUnit
+                            Case SoundDataUnit.dB
+                                gainFactor_Channel1 = 10 ^ (ChannelGain(0) / 20)
+                            Case SoundDataUnit.linear
+                                gainFactor_Channel1 = ChannelGain(0)
+                            Case Else
+                                Throw New NotImplementedException("Unsupported SoundDataUnit. Use either SoundDataUnit.dB Or .Linear.")
+                        End Select
+
+                        Dim gainFactor_Channel2 As Double = 0
+                        Select Case GainUnit
+                            Case SoundDataUnit.dB
+                                gainFactor_Channel2 = 10 ^ (ChannelGain(1) / 20)
+                            Case SoundDataUnit.linear
+                                gainFactor_Channel2 = ChannelGain(1)
+                            Case Else
+                                Throw New NotImplementedException("Unsupported SoundDataUnit. Use either SoundDataUnit.dB Or .Linear.")
+                        End Select
+
+                        'Applies the gain
+                        Dim Channel1Array = InputSound.WaveData.SampleData(1)
+                        Dim Channel2Array = InputSound.WaveData.SampleData(2)
+
+                        For n = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+                            Channel1Array(n) *= gainFactor_Channel1
+                            Channel2Array(n) *= gainFactor_Channel2
+                        Next
+
+                    Case 3
+
+                        If ChannelGain.Count <> 3 Then Throw New ArgumentException("ChannelGain must contain three gain values, one for each channel.")
+
+                        'Calculating gain for each channel
+                        Dim gainFactor_Channel1 As Double = 0
+                        Select Case GainUnit
+                            Case SoundDataUnit.dB
+                                gainFactor_Channel1 = 10 ^ (ChannelGain(0) / 20)
+                            Case SoundDataUnit.linear
+                                gainFactor_Channel1 = ChannelGain(0)
+                            Case Else
+                                Throw New NotImplementedException("Unsupported SoundDataUnit. Use either SoundDataUnit.dB Or .Linear.")
+                        End Select
+
+                        Dim gainFactor_Channel2 As Double = 0
+                        Select Case GainUnit
+                            Case SoundDataUnit.dB
+                                gainFactor_Channel2 = 10 ^ (ChannelGain(1) / 20)
+                            Case SoundDataUnit.linear
+                                gainFactor_Channel2 = ChannelGain(1)
+                            Case Else
+                                Throw New NotImplementedException("Unsupported SoundDataUnit. Use either SoundDataUnit.dB Or .Linear.")
+                        End Select
+
+                        Dim gainFactor_Channel3 As Double = 0
+                        Select Case GainUnit
+                            Case SoundDataUnit.dB
+                                gainFactor_Channel3 = 10 ^ (ChannelGain(2) / 20)
+                            Case SoundDataUnit.linear
+                                gainFactor_Channel3 = ChannelGain(2)
+                            Case Else
+                                Throw New NotImplementedException("Unsupported SoundDataUnit. Use either SoundDataUnit.dB Or .Linear.")
+                        End Select
+
+                        'Applies the gain
+                        Dim Channel1Array = InputSound.WaveData.SampleData(1)
+                        Dim Channel2Array = InputSound.WaveData.SampleData(2)
+                        Dim Channel3Array = InputSound.WaveData.SampleData(3)
+
+                        For n = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+                            Channel1Array(n) *= gainFactor_Channel1
+                            Channel2Array(n) *= gainFactor_Channel2
+                            Channel3Array(n) *= gainFactor_Channel3
+                        Next
+
+                    Case Else
+
+                        AudioError("Amplify section is not yet implemented for " & InputSoundWaveFormat.Channels & " sounds. Exporting a silent sound!")
+
+                        'Creates an empty sound with the length of the input sound if something went wrong
+                        Dim SilentSound = CreateSilence(InputSoundWaveFormat, , InputSoundLength, TimeUnits.samples)
+
+                        InputSound = SilentSound
+
+                End Select
+
+            End If
+
+        Catch ex As Exception
+            Throw New NotImplementedException("AmplifySection failed with the following error message:" & vbCrLf & vbCrLf & ex.ToString)
+        End Try
+
+    End Sub
+
+
+    Public Overloads Shared Function IIRFilter(ByVal inputSound As Sound, ByVal ACoefficients() As Double, ByVal BCoefficients() As Double,
+                     Optional ByVal channelToFilter As Integer? = Nothing) As Sound
+
+        'Setting a default value of A0 to 1 if not set
+        If ACoefficients(0) = vbNull Then ACoefficients(0) = 1
+
+        Dim outputSound As Sound = IIR(inputSound, ACoefficients, BCoefficients, , channelToFilter)
+        If Not outputSound Is Nothing Then
+            Return outputSound
+        Else
+            Return Nothing
+        End If
+
+    End Function
+
+
+    ''' <summary>
+    ''' Superpositions the input sounds to a new sound. The wave format (including channel count) are required to be the same in all input sounds. The lengths of the different channels, however, need not be the same.
+    ''' </summary>
+    ''' <param name="InputSounds"></param>
+    ''' <returns></returns>
+    Public Shared Function SuperpositionSounds(ByRef InputSounds As List(Of Sound)) As Sound
+
+        If InputSounds.Count = 0 Then Return Nothing
+
+        Dim WaveFormat = InputSounds(0).WaveFormat
+        For i = 1 To InputSounds.Count - 1
+            If WaveFormat.IsEqual(InputSounds(i).WaveFormat) = False Then Throw New ArgumentException("All wave formats need to be the same!")
+        Next
+
+        Dim OutputSound As New Sound(WaveFormat)
+
+        For c = 1 To WaveFormat.Channels
+
+            'Getting the sound index and channel length of the longest channel c in all sounds
+            Dim LongestChannelLength As Integer = 0
+            Dim LongestSoundIndex As Integer = 0
+            For i = 0 To InputSounds.Count - 1
+                If InputSounds(i).WaveData.SampleData(c).Length > LongestChannelLength Then
+                    LongestChannelLength = InputSounds(i).WaveData.SampleData(c).Length
+                    LongestSoundIndex = i
+                End If
+            Next
+
+            'Creates an array in which to store the superpositioned sound
+            Dim NewChannelArray(LongestChannelLength - 1) As Single
+            'Copies the longest channel 
+            Array.Copy(InputSounds(LongestSoundIndex).WaveData.SampleData(c), NewChannelArray, NewChannelArray.Length)
+
+            'Superpositions all sounds but the longest (which is already added)
+            For i = 0 To InputSounds.Count - 1
+
+                'Skipping the longest sound
+                If i = LongestSoundIndex Then Continue For
+
+                'Referencing the current channel array
+                Dim CurrentChannelArray = InputSounds(i).WaveData.SampleData(c)
+                'Superpositioning sample values until the end of the current channel  in the current sound
+                For s = 0 To CurrentChannelArray.Length - 1
+                    NewChannelArray(s) += CurrentChannelArray(s)
+                Next
+            Next
+
+            OutputSound.WaveData.SampleData(c) = NewChannelArray
+
+        Next
+
+        Return OutputSound
+
+    End Function
+
+    ''' <summary>
+    ''' Removes the DC component from a sound by subtracting the average sample value from each sample.
+    ''' </summary>
+    ''' <param name="InputSound">The sound to modify.</param>
+    ''' <param name="Channel">The channel to modify, or Nothing to modify all channels.</param>
+    Public Shared Sub RemoveDcComponent(ByRef InputSound As Sound, Optional ByVal Channel As Integer? = Nothing)
+
+        Dim FirstChannel As Integer? = Channel
+        Dim LastChannel As Integer? = Channel
+
+        If Channel Is Nothing Then
+            FirstChannel = 1
+            LastChannel = InputSound.WaveFormat.Channels
+        End If
+
+        'Checking channel values
+        If FirstChannel < 0 Then Throw New ArgumentException("Channel cannot be lower than 1.")
+        If LastChannel > InputSound.WaveFormat.Channels Then Throw New ArgumentException("Channel cannot be higher than the available channel count.")
+
+        For c = FirstChannel To LastChannel
+
+            'Referencing the current sample array
+            Dim ChannelArray = InputSound.WaveData.SampleData(c)
+
+            'Calculating the average sample value
+            Dim AverageSampleValue As Single = ChannelArray.Average
+
+            'Skipping modification if the average sample value is zero
+            If AverageSampleValue <> 0 Then
+                'Subtracting the average sample value from each sample, to remove the DC component
+                For s = 0 To ChannelArray.Length - 1
+                    ChannelArray(s) -= AverageSampleValue
+                Next
+            End If
+
+        Next
+
+    End Sub
+
+
+    ''' <summary>
+    ''' Calculates the signal level based on the noise level and the signal to noise ratio.
+    ''' </summary>
+    ''' <param name="SignalLevel"></param>
+    ''' <param name="SNR"></param>
+    ''' <returns></returns>
+    Public Shared Function GetSignalLevel(ByVal NoiseLevel As Double, ByVal SNR As Double)
+        Return NoiseLevel + SNR
+    End Function
+
+    ''' <summary>
+    ''' Calculates the noise level based on the signal level and the signal to noise ratio.
+    ''' </summary>
+    ''' <param name="NoiseLevel"></param>
+    ''' <param name="SNR"></param>
+    ''' <returns></returns>
+    Public Shared Function GetNoiseLevel(ByVal SignalLevel As Double, ByVal SNR As Double)
+        Return SignalLevel - SNR
+    End Function
+
+
     ''' <summary>
     ''' Measures the added sound level of the indicated channels in the specified section of the input sound.
     ''' </summary>
@@ -6627,6 +7304,123 @@ Public Class DSP
         End Try
 
     End Function
+
+
+    Public Structure SiiCriticalBands
+        ''' <summary>
+        ''' Critical band centre frequencies according to table 1 in ANSI S3.5-1997
+        ''' </summary>
+        Public Shared CentreFrequencies As Double() = {150, 250, 350, 450, 570, 700, 840, 1000, 1170, 1370, 1600, 1850, 2150, 2500, 2900, 3400, 4000, 4800, 5800, 7000, 8500}
+        Public Shared LowerCutoffFrequencies As Double() = {100, 200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720, 2000, 2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700}
+        Public Shared UpperCutoffFrequencies As Double() = {200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720, 2000, 2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700, 9500}
+    End Structure
+
+    Public Class BandBank
+        Inherits List(Of BandInfo)
+
+        Public Function GetCentreFrequencies() As Double()
+            Dim Output As New List(Of Double)
+            For Each band In Me
+                Output.Add(band.CentreFrequency)
+            Next
+            Return Output.ToArray
+        End Function
+
+        Public Function GetBandWidths() As Double()
+            Dim Output As New List(Of Double)
+            For Each band In Me
+                Output.Add(band.Bandwidth)
+            Next
+            Return Output.ToArray
+        End Function
+
+
+        ''' <summary>
+        ''' Calculates and returns the spectrum levels equivalent to band levels of 0 dB SPL. Keys represent frequencies and values represent spectrum levels.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Function GetReferenceSpectrumLevels() As SortedList(Of Double, Double)
+
+            'Getting the band widths
+            Dim BandWidths = GetBandWidths()
+
+            Dim CentreFrequencies = GetCentreFrequencies()
+
+            'Creating a list to store the spectrum levels
+            Dim SpectrumLevelList As New SortedList(Of Double, Double)
+
+            For i = 0 To BandWidths.Count - 1
+
+                'Sets band levels to 0 dB SPL
+                Dim BandLevel_SPL As Double = 0
+
+                'Calculating spectrum level according to equation 3 in ANSI S3.5-1997 (The SII-standard)
+                Dim SpectrumLevel As Double = BandLevel2SpectrumLevel(BandLevel_SPL, BandWidths(i))
+                SpectrumLevelList.Add(CentreFrequencies(i), SpectrumLevel)
+            Next
+
+            Return SpectrumLevelList
+
+        End Function
+
+        Public Class BandInfo
+            Public CentreFrequency As Double
+            Public LowerFrequencyLimit As Double
+            Public UpperFrequencyLimit As Double
+
+            Public Sub New(ByVal CentreFrequency As Double, ByVal LowerFrequencyLimit As Double,
+                       ByVal UpperFrequencyLimit As Double)
+
+                Me.CentreFrequency = CentreFrequency
+                Me.LowerFrequencyLimit = LowerFrequencyLimit
+                Me.UpperFrequencyLimit = UpperFrequencyLimit
+            End Sub
+
+            Public Function Bandwidth() As Double
+                Return UpperFrequencyLimit - LowerFrequencyLimit
+            End Function
+        End Class
+
+        Public Shared Function GetSiiCriticalRatioBandBank() As BandBank
+
+            Dim OutputBankBank As New BandBank
+
+            'Adding critical band specifications
+            For n = 0 To SiiCriticalBands.CentreFrequencies.Length - 1
+                OutputBankBank.Add(New BandInfo(SiiCriticalBands.CentreFrequencies(n),
+                                                SiiCriticalBands.LowerCutoffFrequencies(n),
+                                                SiiCriticalBands.UpperCutoffFrequencies(n)))
+            Next
+
+            ''Adding critical band specifications
+            'OutputBankBank.Add(New BandInfo(150, 100, 200))
+            'OutputBankBank.Add(New BandInfo(250, 200, 300))
+            'OutputBankBank.Add(New BandInfo(350, 300, 400))
+            'OutputBankBank.Add(New BandInfo(450, 400, 510))
+            'OutputBankBank.Add(New BandInfo(570, 510, 630))
+            'OutputBankBank.Add(New BandInfo(700, 630, 770))
+            'OutputBankBank.Add(New BandInfo(840, 770, 920))
+            'OutputBankBank.Add(New BandInfo(1000, 920, 1080))
+            'OutputBankBank.Add(New BandInfo(1170, 1080, 1270))
+            'OutputBankBank.Add(New BandInfo(1370, 1270, 1480))
+            'OutputBankBank.Add(New BandInfo(1600, 1480, 1720))
+            'OutputBankBank.Add(New BandInfo(1850, 1720, 2000))
+            'OutputBankBank.Add(New BandInfo(2150, 2000, 2320))
+            'OutputBankBank.Add(New BandInfo(2500, 2320, 2700))
+            'OutputBankBank.Add(New BandInfo(2900, 2700, 3150))
+            'OutputBankBank.Add(New BandInfo(3400, 3150, 3700))
+            'OutputBankBank.Add(New BandInfo(4000, 3700, 4400))
+            'OutputBankBank.Add(New BandInfo(4800, 4400, 5300))
+            'OutputBankBank.Add(New BandInfo(5800, 5300, 6400))
+            'OutputBankBank.Add(New BandInfo(7000, 6400, 7700))
+            'OutputBankBank.Add(New BandInfo(8500, 7700, 9500))
+
+            Return OutputBankBank
+
+        End Function
+
+    End Class
+
 
 #Region "Math"
 

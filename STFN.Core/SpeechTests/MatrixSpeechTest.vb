@@ -165,14 +165,14 @@ Public Class MatrixSpeechTest
                 TestMode = TestModes.AdaptiveNoise
                 TargetLevel = 65
                 MaskingLevel = 65
-                StartAdaptiveLevel = SignalToNoiseRatio(TargetLevel, MaskingLevel)
+                StartAdaptiveLevel = DSP.SignalToNoiseRatio(TargetLevel, MaskingLevel)
                 TestLength = 20
 
             Case Else
 
                 If HasNoise = True Then
                     'It's a speech in noise test, using adaptive SNR
-                    StartAdaptiveLevel = SignalToNoiseRatio(TargetLevel, MaskingLevel)
+                    StartAdaptiveLevel = DSP.SignalToNoiseRatio(TargetLevel, MaskingLevel)
                 Else
                     'It's a speech only test, using adaptive speech level
                     StartAdaptiveLevel = TargetLevel

@@ -18,6 +18,10 @@ Namespace SipTest
     Public Class SipMeasurement
         Inherits STFN.Core.SipTest.SipMeasurement
 
+        Public Property SelectedAudiogramData As AudiogramData = Nothing
+
+        Public Property HearingAidGain As HearingAidGainData = Nothing
+
 
         Public Sub New(ByRef ParticipantID As String, ByRef ParentTestSpecification As SpeechMaterialSpecification, Optional AdaptiveType As SiPTestProcedure.AdaptiveTypes = SiPTestProcedure.AdaptiveTypes.Fixed,
                        Optional ByVal TestParadigm As SiPTestProcedure.SiPTestparadigm = SiPTestProcedure.SiPTestparadigm.Slow, Optional RandomSeed As Integer? = Nothing)

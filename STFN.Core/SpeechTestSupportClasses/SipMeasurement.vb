@@ -19,9 +19,6 @@ Namespace SipTest
 
         Public Property ParticipantID As String
 
-        Public Property SelectedAudiogramData As AudiogramData = Nothing
-
-        Public Property HearingAidGain As HearingAidGainData = Nothing
 
         Public Property ParentTestSpecification As SpeechMaterialSpecification
 

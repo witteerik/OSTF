@@ -125,7 +125,7 @@ Public Class SipSpeechTest
                 'End If
 
                 'Setting up test trials to run
-                SelectedPNRs.Add(SignalToNoiseRatio(TargetLevel, MaskingLevel))
+                SelectedPNRs.Add(DSP.SignalToNoiseRatio(TargetLevel, MaskingLevel))
 
                 PlanDirectionalTestTrials(CurrentSipTestMeasurement, ReferenceLevel, Preset.Name, {MediaSet}.ToList, SelectedPNRs, NumberOfSimultaneousMaskers, SelectedSoundPropagationType, RandomSeed)
 

@@ -2,8 +2,6 @@
 
     Public CurrentParticipantID As String = ""
 
-    Public CurrentParticipantAudiogram As STFN.Core.AudiogramData
-
     Public Const NoTestId As String = "zz9999"
 
     Public CurrentSpeechTest As SpeechTest
