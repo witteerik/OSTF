@@ -495,52 +495,52 @@ Public Class AudiogramData
         AudiogramDecibelType = AudiogramDecibelTypes.dBSPL
 
         For Each TonePiont In Me.AC_Left
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel += ConversionValue
         Next
 
         For Each TonePiont In Me.AC_Right
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel += ConversionValue
         Next
 
         For Each TonePiont In Me.AC_Left_Masked
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel += ConversionValue
         Next
 
         For Each TonePiont In Me.AC_Right_Masked
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel += ConversionValue
         Next
 
         For Each TonePiont In Me.BC_Left
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel += ConversionValue
         Next
 
         For Each TonePiont In Me.BC_Right
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel += ConversionValue
         Next
 
         For Each TonePiont In Me.BC_Left_Masked
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel += ConversionValue
         Next
 
         For Each TonePiont In Me.BC_Right_Masked
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel += ConversionValue
         Next
 
         For Each TonePiont In Me.UCL_Left
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel += ConversionValue
         Next
 
         For Each TonePiont In Me.UCL_Right
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel += ConversionValue
         Next
 
@@ -587,52 +587,52 @@ Public Class AudiogramData
         AudiogramDecibelType = AudiogramDecibelTypes.dBHL
 
         For Each TonePiont In Me.AC_Left
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel -= ConversionValue
         Next
 
         For Each TonePiont In Me.AC_Right
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel -= ConversionValue
         Next
 
         For Each TonePiont In Me.AC_Left_Masked
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel -= ConversionValue
         Next
 
         For Each TonePiont In Me.AC_Right_Masked
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel -= ConversionValue
         Next
 
         For Each TonePiont In Me.BC_Left
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel -= ConversionValue
         Next
 
         For Each TonePiont In Me.BC_Right
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel -= ConversionValue
         Next
 
         For Each TonePiont In Me.BC_Left_Masked
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel -= ConversionValue
         Next
 
         For Each TonePiont In Me.BC_Right_Masked
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel -= ConversionValue
         Next
 
         For Each TonePiont In Me.UCL_Left
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel -= ConversionValue
         Next
 
         For Each TonePiont In Me.UCL_Right
-            Dim ConversionValue = Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
+            Dim ConversionValue = STFN.Core.Audio.GlobalAudioData.HL_2_SPL(TonePiont.StimulusFrequency)
             TonePiont.StimulusLevel -= ConversionValue
         Next
 

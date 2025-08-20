@@ -43,14 +43,14 @@ public partial class WelcomePageR : ContentView
 
     private void SelectedLanguage_Picker_SelectedIndexChanged(object sender, EventArgs e)
     {
-        SharedSpeechTestObjects.GuiLanguage = (STFN.Core.Utils.EnumCollection.Languages)SelectedLanguage_Picker.SelectedItem;
+        STFN.Core.SharedSpeechTestObjects.GuiLanguage = (STFN.Core.Utils.EnumCollection.Languages)SelectedLanguage_Picker.SelectedItem;
         UpdateLanguageStrings();
     }
 
     private void UpdateLanguageStrings()
     {
 
-        switch (SharedSpeechTestObjects.GuiLanguage)
+        switch (STFN.Core.SharedSpeechTestObjects.GuiLanguage)
         {
             case STFN.Core.Utils.EnumCollection.Languages.English:
 
@@ -59,7 +59,7 @@ public partial class WelcomePageR : ContentView
                 SelectedLanguage_Picker.Title = "";
                 //SelectedLanguage_Picker.Title = "Select language";
                 ParticipantCode_Label.Text = "Enter participant code";
-                DemoCode_Label.Text = "(use " + SharedSpeechTestObjects.NoTestId + " for demo mode)";
+                DemoCode_Label.Text = "(use " + STFN.Core.SharedSpeechTestObjects.NoTestId + " for demo mode)";
                 //SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
                 ScreeningTest_Checkbox_Label.Text = "Run screening test";
                 Submit_Button.Text = "Continue";
@@ -73,7 +73,7 @@ public partial class WelcomePageR : ContentView
                 SelectLangage_Label.Text = "Select language";
                 SelectedLanguage_Picker.Title = "";
                 ParticipantCode_Label.Text = "Fyll i deltagarkod";
-                DemoCode_Label.Text = "(använd " + SharedSpeechTestObjects.NoTestId + " för demoläge)";
+                DemoCode_Label.Text = "(använd " + STFN.Core.SharedSpeechTestObjects.NoTestId + " för demoläge)";
                 //SoundFieldSimulation_Label.Text = "Tillåt ljudfältssimulering i hörlurar (kan göra appen långsam)";
                 ScreeningTest_Checkbox_Label.Text = "Kör screeningtest";
                 Submit_Button.Text = "Fortsätt";
@@ -87,7 +87,7 @@ public partial class WelcomePageR : ContentView
                 SelectLangage_Label.Text = "Select language";
                 SelectedLanguage_Picker.Title = "";
                 ParticipantCode_Label.Text = "Enter participant code";
-                DemoCode_Label.Text = "(use " + SharedSpeechTestObjects.NoTestId + " for demo mode)";
+                DemoCode_Label.Text = "(use " + STFN.Core.SharedSpeechTestObjects.NoTestId + " for demo mode)";
                 //SoundFieldSimulation_Label.Text = "Allow sound field simulation in headphones (may slow down processing)";
                 Submit_Button.Text = "Continue";
                 Calibrator_Button.Text = "Calibration";
@@ -146,7 +146,7 @@ public partial class WelcomePageR : ContentView
             }
         }
 
-        if (ptcCode == SharedSpeechTestObjects.NoTestId)
+        if (ptcCode == STFN.Core.SharedSpeechTestObjects.NoTestId)
         {
            bool demoModeQuestionResult = await Messager.MsgBoxAcceptQuestion("You have entered the code for demo mode.\n\n TEST RESULTS WILL NOT BE SAVED! \n\n Use this for demonstration purpose only!","Warning! Starting demo mode", "OK", "Abort");
            if (demoModeQuestionResult == false)
@@ -161,7 +161,7 @@ public partial class WelcomePageR : ContentView
         {
 
             // Storing the current userID
-            SharedSpeechTestObjects.CurrentParticipantID = ptcCode;
+            STFN.Core.SharedSpeechTestObjects.CurrentParticipantID = ptcCode;
 
             // All ok, raising the AllDone handler
             EventHandler<EventArgs> handler = AllDone;
@@ -177,7 +177,7 @@ public partial class WelcomePageR : ContentView
         }
         else
         {
-            switch (SharedSpeechTestObjects.GuiLanguage)
+            switch (STFN.Core.SharedSpeechTestObjects.GuiLanguage)
             {
                 case STFN.Core.Utils.EnumCollection.Languages.English:
                     Messager.MsgBox("Invalid participant code! The code must consist of two letters followed by four digits.", Messager.MsgBoxStyle.Information, "Invalid participant code!");
@@ -197,7 +197,7 @@ public partial class WelcomePageR : ContentView
     private void Calibrator_Button_Clicked(object sender, EventArgs e)
     {
 
-        switch (SharedSpeechTestObjects.GuiLanguage)
+        switch (STFN.Core.SharedSpeechTestObjects.GuiLanguage)
         {
             case STFN.Core.Utils.EnumCollection.Languages.English:
                 Messager.MsgBox("Loading calibration view. It may take some time before it becomes responsive! Hang tight!", Messager.MsgBoxStyle.Information, "Loading calibration view!");

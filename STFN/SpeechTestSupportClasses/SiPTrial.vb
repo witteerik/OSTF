@@ -811,15 +811,15 @@ Namespace SipTest
 
             For i = 0 To DSP.SiiCriticalBands.CentreFrequencies.Length - 1
                 'TODO: should we allow for the lack of gain data here, or should we always use a gain of zero when no hearing aid is used?
-                Dim AidedThreshold_Left As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i).Gain
-                Dim AidedThreshold_Right As Double = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i) - Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i).Gain
+                Dim AidedThreshold_Left As Double = DirectCast(Me.ParentTestUnit.ParentMeasurement, SipMeasurement).SelectedAudiogramData.Cb_Left_AC(i) - DirectCast(Me.ParentTestUnit.ParentMeasurement, SipMeasurement).HearingAidGain.LeftSideGain(i).Gain
+                Dim AidedThreshold_Right As Double = DirectCast(Me.ParentTestUnit.ParentMeasurement, SipMeasurement).SelectedAudiogramData.Cb_Right_AC(i) - DirectCast(Me.ParentTestUnit.ParentMeasurement, SipMeasurement).HearingAidGain.RightSideGain(i).Gain
 
                 If AidedThreshold_Left < AidedThreshold_Right Then
-                    Thresholds(i) = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Left_AC(i)
-                    Gain(i) = Me.ParentTestUnit.ParentMeasurement.HearingAidGain.LeftSideGain(i).Gain
+                    Thresholds(i) = DirectCast(Me.ParentTestUnit.ParentMeasurement, SipMeasurement).SelectedAudiogramData.Cb_Left_AC(i)
+                    Gain(i) = DirectCast(Me.ParentTestUnit.ParentMeasurement, SipMeasurement).HearingAidGain.LeftSideGain(i).Gain
                 Else
-                    Thresholds(i) = Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData.Cb_Right_AC(i)
-                    Gain(i) = Me.ParentTestUnit.ParentMeasurement.HearingAidGain.RightSideGain(i).Gain
+                    Thresholds(i) = DirectCast(Me.ParentTestUnit.ParentMeasurement, SipMeasurement).SelectedAudiogramData.Cb_Right_AC(i)
+                    Gain(i) = DirectCast(Me.ParentTestUnit.ParentMeasurement, SipMeasurement).HearingAidGain.RightSideGain(i).Gain
                 End If
             Next
 
@@ -1049,7 +1049,7 @@ Namespace SipTest
             'TrialDataList.Add(TestWordLevelLimit)
             'TrialDataList.Add(ContextSpeechLimit)
 
-            If Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
+            If DirectCast(Me.ParentTestUnit.ParentMeasurement, SipMeasurement).SelectedAudiogramData IsNot Nothing Then
                 TrialDataList.Add(Me.EstimatedSuccessProbability(False))
                 TrialDataList.Add(Me.AdjustedSuccessProbability)
             Else
@@ -1179,7 +1179,7 @@ Namespace SipTest
             '    TrialDataList.Add(0)
             'End If
             'TrialDataList.Add(Me.IsTestTrial.ToString)
-            If Me.ParentTestUnit.ParentMeasurement.SelectedAudiogramData IsNot Nothing Then
+            If DirectCast(Me.ParentTestUnit.ParentMeasurement, SipMeasurement).SelectedAudiogramData IsNot Nothing Then
                 TrialDataList.Add(Me.PhonemeDiscriminabilityLevel(False))
             Else
                 TrialDataList.Add("No audiogram stored")
