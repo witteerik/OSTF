@@ -8,6 +8,407 @@ Imports STFN.Core.Audio
 Public Class DSP
     Inherits STFN.Core.DSP
 
+    Public Shared Function CreateSpecialTypeImpulseResponse(ByRef waveFormat As Formats.WaveFormat,
+                                                  ByRef fftFormat As Formats.FftFormat,
+                                                  ByVal kernelSize As Integer,
+                                                  Optional ByVal channel As Integer? = Nothing,
+                                                     Optional ByVal IRType As FilterType = FilterType.LowPass,
+                                                  Optional ByRef CutOffFreq1 As Single = 1000,
+                                                  Optional ByRef CutOffFreq2 As Single = 2000,
+                                                  Optional ByVal StopBandLevel_dB As Single = -6,
+                                                  Optional ByVal passBandLevel_dB As Single = 0,
+                                                     Optional ByVal attenuationRate As Single = 6,
+        Optional ByVal windowFunction As WindowingType = WindowingType.Hamming,
+                                                     Optional InActivateWarnings As Boolean = False) As Sound
+
+        'The cut-off frequencies are modified (depending on the fftSize) by this sub and sent back, in the same variables
+
+        'Reference which parts of this code is based on:
+        'The Scientist And Engineer's Guide to
+        'Digital Signal Processing
+        'By Steven W. Smith, Ph.D.
+        'http://www.dspguide.com/ch17/1.htm
+
+        Try
+
+            Dim outputSound As New Sound(waveFormat)
+            Dim AudioOutputConstructor As New AudioOutputConstructor(waveFormat, channel)
+
+            Dim posFS As Double = waveFormat.PositiveFullScale
+
+            outputSound.FFT = New FftData(waveFormat, fftFormat)
+
+
+            'Checks that kernel size is not larger than fftSize, increases fftSize is that is the case
+            If kernelSize > fftFormat.FftWindowSize Then
+                CheckAndAdjustFFTSize(fftFormat.FftWindowSize, kernelSize, InActivateWarnings)
+            End If
+
+            'Converting the stopbandlevel to linear form
+            Dim StopBandMagnitude As Double = dBConversion(StopBandLevel_dB, dBConversionDirection.from_dB, waveFormat)
+
+            Dim StopBandLevel As Double = StopBandMagnitude / posFS 'OBS STämmer detta verkligen , kan maninte bara använda StopBandMagnitude istället nedan
+
+            'Converting the passbandlevel to linear form
+            Dim passBandMagnitude As Double = dBConversion(passBandLevel_dB, dBConversionDirection.from_dB, waveFormat)
+            Dim passBandLevel As Double = passBandMagnitude / posFS
+
+            'Extracting the sample rate
+            Dim SR As Integer = waveFormat.SampleRate
+
+            'Setting k values equivalant to the cut-off frequencies
+            Dim kForCF1 As Integer = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, CutOffFreq1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
+            Dim kForCF2 As Integer = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, CutOffFreq2, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
+
+            'Calculating the cutoff frequencies being used, depending on the fftSize
+            CutOffFreq1 = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, kForCF1, SR, fftFormat.FftWindowSize)
+            CutOffFreq2 = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, kForCF2, SR, fftFormat.FftWindowSize)
+
+
+            'Main section
+            Select Case waveFormat.BitDepth
+                Case 16, 32
+
+                    For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
+
+                        Dim magnitudeArray(fftFormat.FftWindowSize - 1) As Double
+                        Dim phaseArray(fftFormat.FftWindowSize - 1) As Double
+
+                        Select Case IRType
+                            Case FilterType.RandomPhase
+                                'Setting magnitude values
+                                For n = 1 To magnitudeArray.Length - 1
+                                    magnitudeArray(n) = 10
+                                Next
+                                'setting the magnitude of special frequencies
+                                magnitudeArray(0) = 0
+                                magnitudeArray(magnitudeArray.Length / 2) = 0
+
+
+                                'creating an array with random phases, with the length fftsize
+                                phaseArray(0) = 0
+                                phaseArray(fftFormat.FftWindowSize / 2) = Math.PI 'ska denna vara PI ???, eller 0, eller vad som helst?
+
+
+                                Dim rnd As New Random
+                                For q = 1 To phaseArray.Length / 2 - 1
+                                    phaseArray(q) = (rnd.Next(-Math.PI * 1000000, Math.PI * 1000000)) / 1000000
+                                    'RandomPhaseArray(RandomPhaseArray.Length - q) = -RandomPhaseArray(q) 'denna behövs inte
+                                Next
+
+
+                                'Adjusting phase
+
+                                '1. justerar faserna till intervallet -PI til PI, phase unwrapping. Behövs nog inte här!
+                                For n = 1 To phaseArray.Length / 2 - 1
+                                    If phaseArray(n) < -Math.PI Then phaseArray(n) += twopi
+                                    If phaseArray(n) > Math.PI Then phaseArray(n) -= twopi
+                                Next
+
+                                '2. Kopierar fasinformationen till de negativa frekvenserna
+                                For q = 1 To phaseArray.Length / 2 - 1
+                                    phaseArray(phaseArray.Length - q) = -phaseArray(q)
+                                Next
+
+                            Case FilterType.LowPass
+
+                                'Setting the passband magnitudes
+                                For k = 0 To kForCF1 '- 1
+                                    magnitudeArray(k) = passBandLevel
+                                Next
+
+                                'Fine tuning the cut-off frequency by adjusting the dft bin closest to the intended cut-off frequency 
+                                'magnitudeArray(kForCF1) = interpolateCutOffFrequency(passBandMagnitude, StopBandLevel, CutOffFreq1, kForCF1, fftSize, SR)
+
+                                'Setting the stopband magnitudes
+                                For k = kForCF1 + 1 To magnitudeArray.Length / 2 - 1
+                                    magnitudeArray(k) = StopBandLevel
+                                Next
+
+                                'Setting the phases to zero
+                                For q = 0 To phaseArray.Length - 1
+                                    phaseArray(q) = 0
+                                Next
+
+                                'setting the magnitude of special frequencies
+                                magnitudeArray(0) = passBandLevel
+                                magnitudeArray(magnitudeArray.Length / 2) = 0
+
+                            Case FilterType.HighPass
+
+                                'Setting the magnitudes
+                                For k = 0 To kForCF1 - 1
+                                    magnitudeArray(k) = StopBandLevel
+                                Next
+                                For k = kForCF1 To magnitudeArray.Length / 2 - 1
+                                    magnitudeArray(k) = passBandLevel
+                                Next
+
+                                'Setting the phases to zero
+                                For q = 0 To phaseArray.Length - 1
+                                    phaseArray(q) = 0
+                                Next
+
+                                'setting the magnitude of special frequencies
+                                magnitudeArray(0) = 0
+                                magnitudeArray(magnitudeArray.Length / 2) = passBandLevel
+
+                            Case FilterType.BandPass
+
+                                'Setting the magnitudes
+                                For k = 0 To kForCF1 - 1
+                                    magnitudeArray(k) = StopBandLevel
+                                Next
+                                For k = kForCF1 To kForCF2
+                                    magnitudeArray(k) = passBandLevel
+                                Next
+                                For k = kForCF2 + 1 To magnitudeArray.Length / 2 - 1
+                                    magnitudeArray(k) = StopBandLevel
+                                Next
+
+                                'Setting the phases to zero
+                                For q = 0 To phaseArray.Length - 1
+                                    phaseArray(q) = 0
+                                Next
+
+                            Case FilterType.BandStop
+
+                                'Setting the magnitudes
+                                For k = 0 To kForCF1 - 1
+                                    magnitudeArray(k) = passBandLevel
+                                Next
+                                For k = kForCF1 To kForCF2
+                                    magnitudeArray(k) = StopBandLevel
+                                Next
+                                For k = kForCF2 + 1 To magnitudeArray.Length / 2 - 1
+                                    magnitudeArray(k) = passBandLevel
+                                Next
+
+                                'Setting the phases to zero
+                                For q = 0 To phaseArray.Length - 1
+                                    phaseArray(q) = 0
+                                Next
+
+                            Case FilterType.LinearAttenuationBelowCF_dBPerOctave
+
+                                'Setting the magnitudes below cut-off frequency 1
+                                For k = 0 To kForCF1 - 1
+                                    Dim frequency As Single = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, k, waveFormat.SampleRate, fftFormat.FftWindowSize, RoundingMethods.DoNotRound)
+                                    Dim attenuationIn_dB As Single = attenuationRate * GetBase_n_Log(frequency, 2) - attenuationRate * GetBase_n_Log(CutOffFreq1, 2)
+                                    Dim attenuationFactor As Single = dBConversion(attenuationIn_dB, dBConversionDirection.from_dB, waveFormat) / posFS
+                                    magnitudeArray(k) = passBandLevel * attenuationFactor
+                                Next
+
+                                'Setting the magnitudes above cut-off frequency 1
+                                For k = kForCF1 To magnitudeArray.Length / 2 - 1
+                                    magnitudeArray(k) = passBandLevel
+                                Next
+
+                                'Setting the phases to zero
+                                For q = 0 To phaseArray.Length - 1
+                                    phaseArray(q) = 0
+                                Next
+
+                            Case FilterType.LinearAttenuationAboveCF_dBPerOctave
+
+                                'Setting the magnitudes below cut-off frequency 1
+                                For k = 0 To kForCF1
+                                    magnitudeArray(k) = passBandLevel
+                                Next
+
+                                'Setting the magnitudes above cut-off frequency 1
+                                For k = kForCF1 + 1 To magnitudeArray.Length / 2 - 1
+                                    Dim frequency As Single = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, k, waveFormat.SampleRate, fftFormat.FftWindowSize, RoundingMethods.DoNotRound)
+                                    Dim attenuationIn_dB As Single = attenuationRate * GetBase_n_Log(CutOffFreq1, 2) - attenuationRate * GetBase_n_Log(frequency, 2)
+                                    Dim attenuationFactor As Single = dBConversion(attenuationIn_dB, dBConversionDirection.from_dB, waveFormat) / posFS
+                                    magnitudeArray(k) = passBandLevel * attenuationFactor
+
+                                Next
+
+                                'Setting the phases to zero
+                                For q = 0 To phaseArray.Length - 1
+                                    phaseArray(q) = 0
+                                Next
+
+
+                        End Select
+
+                        'Copies the magnitude information to the negative frequencies
+                        For q = 1 To magnitudeArray.Length / 2 - 1
+                            magnitudeArray(magnitudeArray.Length - q) = magnitudeArray(q)
+                        Next
+
+
+                        Dim NewMagnitudeTimeWindow As New FftData.TimeWindow
+                        NewMagnitudeTimeWindow.WindowData = magnitudeArray
+                        outputSound.FFT.AmplitudeSpectrum(c, 0) = NewMagnitudeTimeWindow
+
+                        Dim NewPhaseTimeWindow As New FftData.TimeWindow
+                        NewPhaseTimeWindow.WindowData = phaseArray
+                        outputSound.FFT.PhaseSpectrum(c, 0) = NewPhaseTimeWindow
+
+                        'Skapar DFT bins
+                        'Dim FFT_X(fftFormat.FftWindowSize - 1) As Single
+                        'Dim FFT_Y(fftFormat.FftWindowSize - 1) As Single
+
+                        'Try
+                        'SaveNumericArrayToTextFile(phaseArray, standardOutputDirectory & "phaseArray.txt")
+                        'Catch ex As Exception
+                        'MsgBox(ex.ToString)
+                        'End Try
+
+                        'Transforms to rectangular form
+                        outputSound.FFT.CalculateRectangualForm()
+                        'getRectangualForm(magnitudeArray, phaseArray, FFT_X, FFT_Y)
+
+                        'Performing an inverse dft on the magnitude and phase arrays
+                        DSP.FastFourierTransform(DSP.FftDirections.Backward, outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData, outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData)
+
+                        'Shifting + truncating
+                        Dim kernelArray(kernelSize - 1) As Single
+                        Dim index As Integer = 0
+                        For n = 0 To kernelSize / 2 - 1
+                            kernelArray(index) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(fftFormat.FftWindowSize - (kernelSize / 2 - n))
+                            index += 1
+                        Next
+                        For n = 0 To kernelSize / 2 - 1
+                            kernelArray(index) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(n)
+                            index += 1
+                        Next
+
+                        'Scaling the kernel sample values by fft length
+                        For n = 0 To kernelArray.Length - 1
+                            kernelArray(n) /= fftFormat.FftWindowSize
+                        Next
+
+                        'Windowing
+                        WindowingFunction(kernelArray, windowFunction)
+
+                        'wIO.SaveArrayToTextFile(averageMagnitudes, "C:\VB_Test_Folder\array1")
+                        'Dim SaveToTextFile As Boolean = False
+                        'If SaveToTextFile = True Then SaveNumericArrayToTextFile(kernelArray, "C:\VB_Test_Folder\array2")
+
+                        'Storing sound
+                        outputSound.WaveData.SampleData(c) = kernelArray
+
+                    Next
+
+                Case Else
+                    Throw New NotImplementedException(waveFormat.BitDepth & " bit depth Is Not yet supported.")
+
+            End Select
+
+            Return outputSound
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+            Return Nothing
+        End Try
+
+    End Function
+
+    Public Shared Function GetImpulseResponseFromSound(ByRef InputSound As Sound,
+                                                ByRef fftFormat As Formats.FftFormat,
+                                                ByVal kernelSize As Integer,
+                                                Optional ByVal channel As Integer? = Nothing,
+                                                Optional ByVal startSample As Integer = 0, Optional ByVal sectionLength As Integer? = Nothing,
+                                                Optional NormalizeOutputSound As Boolean = False,
+                                                Optional ByVal SkipFinalWindowing As Boolean = False) As Sound ' Optional normalizingSpectralMagnidutes As Boolean = True
+
+        'Reference which this code is based on:
+        'The Scientist And Engineer's Guide to
+        'Digital Signal Processing
+        'By Steven W. Smith, Ph.D.
+        'http://www.dspguide.com/ch17/1.htm
+
+        'Prepares an outout sound
+        Dim outputSound As New Sound(InputSound.WaveFormat)
+        Dim AudioOutputConstructor As New AudioOutputConstructor(InputSound.WaveFormat, channel)
+
+        'Checks that kernel size is not larger than fftSize, increases fftSize is that is the case
+        If kernelSize > fftFormat.FftWindowSize Then
+            CheckAndAdjustFFTSize(fftFormat.FftWindowSize, kernelSize)
+        End If
+
+        'Main section
+        'Ser till att windowSize alltid är ett jämnt tal
+        If fftFormat.FftWindowSize Mod 2 = 1 Then fftFormat.FftWindowSize += 1
+
+        'Analysing input sound
+        'Performs a dft on the input file
+        InputSound.FFT = DSP.SpectralAnalysis(InputSound, fftFormat, , startSample, sectionLength)
+
+        'Calculating magnitudes
+        InputSound.FFT.CalculateAmplitudeSpectrum(False, False, False)
+
+        For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
+
+            'Calculates average magnitudes
+            Dim averageMagnitudes(fftFormat.FftWindowSize - 1) As Double
+            For n = 0 To fftFormat.FftWindowSize - 1
+                Dim accumulator As Double = 0
+                For windowNumber = 0 To InputSound.FFT.WindowCount(c) - 1
+                    accumulator += InputSound.FFT.AmplitudeSpectrum(c, windowNumber).WindowData(n)
+                Next
+                averageMagnitudes(n) = accumulator / fftFormat.FftWindowSize
+            Next
+
+            'Dim maxAverageMagnitude As Double
+            'If normalizingSpectralMagnidutes = True Then 'Normalising the max amplitude of averageAmplitudeArray to 1
+            'maxAverageMagnitude = (averageMagnitudes.Max)
+            'For n = 0 To averageMagnitudes.Length - 1
+            'If Not maxAverageMagnitude = 0 Then
+            'averageMagnitudes(n) = averageMagnitudes(n) / maxAverageMagnitude
+            'Else
+            'Throw New Exception("GetImpulseResponseFromFile tried to normalise the spectral amplitudes. However the input sound file was silent!")
+            'End If
+            'Next
+            'End If
+
+
+            'Since the phase can be set to 0, the real part of the signal is equal to the magnitudes
+            Dim temporaryIMX(fftFormat.FftWindowSize - 1) As Double
+
+            'Performing an inverse dft on the magnitudes
+            DSP.FastFourierTransform(DSP.FftDirections.Backward, averageMagnitudes, temporaryIMX)
+
+            'Shifting + truncate
+            Dim kernelArray(kernelSize - 1) As Single
+            Dim index As Integer = 0
+            For n = 0 To kernelSize / 2 - 1
+                kernelArray(index) = averageMagnitudes(fftFormat.FftWindowSize - (kernelSize / 2 - n))
+                index += 1
+            Next
+            For n = 0 To kernelSize / 2 - 1
+                kernelArray(index) = averageMagnitudes(n)
+                index += 1
+            Next
+
+            ''Scaling the kernel sample values by fft length
+            'For n = 0 To kernelArray.Length - 1
+            '    kernelArray(n) /= fftFormat.FftWindowSize
+            'Next
+
+            'Windowing
+            If SkipFinalWindowing = False Then
+                WindowingFunction(kernelArray, WindowingType.Hamming)
+            End If
+
+            'Storing output sound
+            outputSound.WaveData.SampleData(c) = kernelArray
+
+        Next
+
+        'Normalizing
+        If NormalizeOutputSound = True Then DSP.MaxAmplitudeNormalizeSection(outputSound)
+
+        'Resetting InputSound.FFT
+        InputSound.FFT = Nothing
+
+        Return outputSound
+
+    End Function
+
 
     ''' <summary>
     ''' Calculates the sound level in the input sound using frequency domain calculations.
@@ -2509,6 +2910,261 @@ Public Class DSP
             End Try
 
         End Function
+
+
+
+        ''' <summary>
+        ''' Creates an inpulse response based on the supplied FrequencyResponse.
+        ''' </summary>
+        ''' <param name="FrequencyResponse"></param>
+        ''' <param name="PhaseRandomizationDegrees"></param>
+        ''' <param name="waveFormat"></param>
+        ''' <param name="fftFormat"></param>
+        ''' <param name="kernelSize"></param>
+        ''' <param name="windowFunction"></param>
+        ''' <param name="InActivateWarnings"></param>
+        ''' <param name="FrequencyResponseIsLinear">Set to True to specify frequency response in dB, or False to specify linear frequency response.</param>
+        ''' <returns></returns>
+        Public Shared Function CreateCustumImpulseResponse(ByRef FrequencyResponse As List(Of Tuple(Of Single, Single)),
+                                                ByRef PhaseRandomizationDegrees As List(Of Tuple(Of Single, Single)),
+                                                ByRef waveFormat As Formats.WaveFormat,
+                                                ByRef fftFormat As Formats.FftFormat,
+                                                ByVal kernelSize As Integer,
+                                                Optional ByVal windowFunction As WindowingType = WindowingType.Hamming,
+                                                Optional ByVal InActivateWarnings As Boolean = False,
+                                                Optional ByVal FrequencyResponseIsLinear As Boolean = False) As Sound
+
+            'Reference which parts of this code is based on:
+            'The Scientist And Engineer's Guide to
+            'Digital Signal Processing
+            'By Steven W. Smith, Ph.D.
+            'http://www.dspguide.com/ch17/1.htm
+
+            Try
+
+                If FrequencyResponse Is Nothing Then FrequencyResponse = New List(Of Tuple(Of Single, Single))
+                If PhaseRandomizationDegrees Is Nothing Then PhaseRandomizationDegrees = New List(Of Tuple(Of Single, Single))
+
+                Dim outputSound As New Sound(New Formats.WaveFormat(waveFormat.SampleRate, waveFormat.BitDepth, 1,, waveFormat.Encoding))
+
+                Dim posFS As Double = waveFormat.PositiveFullScale
+                outputSound.FFT = New FftData(waveFormat, fftFormat)
+
+
+                'Checks that kernel size is not larger than fftSize, increases fftSize is that is the case
+                If kernelSize > fftFormat.FftWindowSize Then
+                    CheckAndAdjustFFTSize(fftFormat.FftWindowSize, kernelSize, InActivateWarnings)
+                End If
+
+                'Noting the current sample rate
+                Dim SR As Integer = waveFormat.SampleRate
+
+                'Setting k values equivalent to the frequency response centre frequencies
+                Dim FrequencyResponseBinIndices As New SortedList(Of Double, Double)
+                If FrequencyResponse.Count > 0 Then
+                    'Adding values for the the lowest bin
+                    'FrequencyResponseBinIndices.Add(FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, FrequencyResponse(0).Item1, SR, fftFormat.FftWindowSize, roundingMethods.getClosestValue), FrequencyResponse(0).Item2)
+                    ''Adding 0 dB to bin 0, and the first available value to bin 1
+                    'FrequencyResponseBinIndices.Add(0, 0)
+                    FrequencyResponseBinIndices.Add(1, FrequencyResponse(0).Item2)
+
+                    'Adding intermediate bin indices
+                    For Each CentreFrequency In FrequencyResponse
+                        Dim Key As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, CentreFrequency.Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
+                        If Not FrequencyResponseBinIndices.ContainsKey(Key) Then FrequencyResponseBinIndices.Add(Key, CentreFrequency.Item2)
+                    Next
+
+                    'Adding values for the highest bin
+                    Dim LastKey As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, FrequencyResponse(FrequencyResponse.Count - 1).Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
+                    If Not FrequencyResponseBinIndices.ContainsKey(LastKey) Then FrequencyResponseBinIndices.Add(LastKey, FrequencyResponse(FrequencyResponse.Count - 1).Item2)
+
+                End If
+
+                ''The code below can be used to get the actual centre frequencies
+                'For Each CentreFrequency In FrequencyResponseBinIndices
+                '    Dim CF = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, CentreFrequency, SR, fftFormat.FftWindowSize)
+                'Next
+
+                'Setting k values equivalent to the phase response 
+                Dim PhaseResponseBinIndices As New SortedList(Of Double, Double)
+                If PhaseRandomizationDegrees.Count > 0 Then
+                    'Adding values for the the lowest bin
+                    'PhaseResponseBinIndices.Add(FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, PhaseRandomizationDegrees(0).Item1, SR, fftFormat.FftWindowSize, roundingMethods.getClosestValue), PhaseRandomizationDegrees(0).Item2)
+                    ''Adding phase 0 to bin 0, and the first available value to bin 1
+                    'PhaseResponseBinIndices.Add(0, 0)
+                    PhaseResponseBinIndices.Add(1, PhaseRandomizationDegrees(0).Item2)
+
+                    'Adding intermediate bin indices
+                    For Each CentreFrequency In PhaseRandomizationDegrees
+                        Dim Key As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, CentreFrequency.Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
+                        If Not PhaseResponseBinIndices.ContainsKey(Key) Then PhaseResponseBinIndices.Add(Key, CentreFrequency.Item2)
+                    Next
+
+                    'Adding values for the highest bin
+                    Dim LastKey As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, PhaseRandomizationDegrees(PhaseRandomizationDegrees.Count - 1).Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
+                    If Not PhaseResponseBinIndices.ContainsKey(LastKey) Then PhaseResponseBinIndices.Add(LastKey, PhaseRandomizationDegrees(PhaseRandomizationDegrees.Count - 1).Item2)
+                End If
+
+
+
+                'Main section
+                Dim c As Integer = 1 ' Sound channel
+                Select Case waveFormat.BitDepth
+                    Case 16, 32
+
+                        Dim magnitudeArray(fftFormat.FftWindowSize - 1) As Double
+                        Dim phaseArray(fftFormat.FftWindowSize - 1) As Double
+
+                        If FrequencyResponse.Count > 0 Then
+
+                            'Setting magnitudes (including CD and Nyquist)
+                            For k = 0 To magnitudeArray.Length / 2
+
+                                Dim CurrentInterpolatedResponse As Double = LinearInterpolation_GetY(k, FrequencyResponseBinIndices)
+
+                                'Converting the frequency responses to linear form
+                                Dim LinearMagnitude As Double
+                                If FrequencyResponseIsLinear = False Then
+                                    LinearMagnitude = dBConversion(CurrentInterpolatedResponse, dBConversionDirection.from_dB, waveFormat) / posFS ' OBS ska man verkligen dividera med posFS här? Testa!
+                                Else
+                                    LinearMagnitude = CurrentInterpolatedResponse
+                                End If
+
+                                'Storing the linear magnitude
+                                magnitudeArray(k) = LinearMagnitude
+                            Next
+
+                            'Copies the magnitude information to the negative frequencies
+                            For q = 1 To magnitudeArray.Length / 2 - 1
+                                magnitudeArray(magnitudeArray.Length - q) = magnitudeArray(q)
+                            Next
+
+                        Else
+
+                            'Setting default magnitude values (of no gain)
+                            For n = 1 To magnitudeArray.Length - 1
+                                magnitudeArray(n) = 1
+                            Next
+                            'setting the magnitude of special frequencies
+                            magnitudeArray(0) = 1
+                            magnitudeArray(magnitudeArray.Length / 2) = 1
+
+                        End If
+
+
+                        If PhaseRandomizationDegrees.Count > 0 Then
+
+                            'Randomizing phases                    
+
+                            'creating an array with random phases, with the length fftsize
+                            phaseArray(0) = 0
+                            phaseArray(fftFormat.FftWindowSize / 2) = Math.PI 'ska denna vara PI ???, eller 0, eller vad som helst?
+
+                            Dim rnd As New Random
+
+                            'Setting magnitudes
+                            For k = 0 To magnitudeArray.Length / 2 - 1
+
+                                'Interpolating a current phase radnomization degree
+                                Dim CurrentInterpolatedPhaseShiftDegree As Double = Math.Min(1, Math.Max(0, LinearInterpolation_GetY(k, PhaseResponseBinIndices)))
+
+                                'Storing the phase
+                                phaseArray(k) = CurrentInterpolatedPhaseShiftDegree * (rnd.NextDouble - 0.5) * 2 * Math.PI
+                            Next
+
+                            'Copies the phase data to the negative frequencies
+                            For q = 1 To phaseArray.Length / 2 - 1
+                                phaseArray(phaseArray.Length - q) = -phaseArray(q)
+                            Next
+
+                        Else
+
+                            'Setting default phases (to zero)
+                            For q = 0 To phaseArray.Length - 1
+                                phaseArray(q) = 0
+                            Next
+
+                        End If
+
+                        'Utils.SendInfoToLog(vbCrLf & String.Join(vbCrLf, magnitudeArray), "IR_Magnitudes")
+                        'Utils.SendInfoToLog(vbCrLf & String.Join(vbCrLf, phaseArray), "IR_Phases")
+
+                        Dim NewMagnitudeTimeWindow As New FftData.TimeWindow
+                        NewMagnitudeTimeWindow.WindowData = magnitudeArray
+                        outputSound.FFT.AmplitudeSpectrum(c, 0) = NewMagnitudeTimeWindow
+
+                        Dim NewPhaseTimeWindow As New FftData.TimeWindow
+                        NewPhaseTimeWindow.WindowData = phaseArray
+                        outputSound.FFT.PhaseSpectrum(c, 0) = NewPhaseTimeWindow
+
+                        'Transforms to rectangular form
+                        outputSound.FFT.CalculateRectangualForm()
+
+                        'Copyiong to double arrays, so that FFT can be run on the Double datatype instead of Single
+                        Dim X_Re(outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData.Length - 1) As Double
+                        Dim X_Im(outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData.Length - 1) As Double
+
+                        For s = 0 To X_Re.Length - 1
+                            X_Re(s) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(s)
+                        Next
+                        For s = 0 To X_Im.Length - 1
+                            X_Im(s) = outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData(s)
+                        Next
+
+                        'Performing an inverse dft on the magnitude and phase arrays
+                        DSP.FastFourierTransform(DSP.FftDirections.Backward, X_Re, X_Im)
+
+                        'Shifting + truncating
+                        Dim kernelArray(kernelSize - 1) As Single
+                        Dim index As Integer = 0
+                        For n = 0 To kernelSize / 2 - 1
+                            kernelArray(index) = X_Re(fftFormat.FftWindowSize - (kernelSize / 2 - n))
+                            index += 1
+                        Next
+                        For n = 0 To kernelSize / 2 - 1
+                            kernelArray(index) = X_Re(n)
+                            index += 1
+                        Next
+
+                        'Out-commented code for FFT with Single datatype
+                        'Dim kernelArray(kernelSize - 1) As Single
+                        'Dim index As Integer = 0
+                        'For n = 0 To kernelSize / 2 - 1
+                        '    kernelArray(index) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(fftFormat.FftWindowSize - (kernelSize / 2 - n))
+                        '    index += 1
+                        'Next
+                        'For n = 0 To kernelSize / 2 - 1
+                        '    kernelArray(index) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(n)
+                        '    index += 1
+                        'Next
+
+                        'Scaling the kernel sample values by fft length
+                        For n = 0 To kernelArray.Length - 1
+                            kernelArray(n) /= fftFormat.FftWindowSize
+                        Next
+
+                        'Windowing
+                        WindowingFunction(kernelArray, windowFunction)
+
+                        'Storing sound
+                        outputSound.WaveData.SampleData(c) = kernelArray
+
+                    Case Else
+                        Throw New NotImplementedException(waveFormat.BitDepth & " bit depth Is Not yet supported.")
+
+                End Select
+
+                Return outputSound
+
+            Catch ex As Exception
+                MsgBox(ex.ToString)
+                Return Nothing
+            End Try
+
+        End Function
+
+
+
 
         ''' <summary>
         ''' Calculates acoustic distance based on dynamic time warping.  For reference to the principles behind this code, see Jurafsky and Martin (p 333), and Gold, Morgan, Ellis (pp 340).
