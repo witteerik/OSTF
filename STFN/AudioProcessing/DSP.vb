@@ -5,8 +5,1047 @@ Imports STFN.Core
 Imports STFN.Core.Audio
 
 
+
 Public Class DSP
     Inherits STFN.Core.DSP
+
+
+    Public Enum FilterType
+        LowPass
+        BandPass
+        HighPass
+        BandStop
+        RandomPhase
+        LinearAttenuationBelowCF_dBPerOctave
+        LinearAttenuationAboveCF_dBPerOctave
+    End Enum
+
+
+    Public Enum TriangularWaveTypes
+        FullRange
+        InverseFullRange
+        PositiveHalfRange
+        NegativeHalfRange
+    End Enum
+
+    Public Enum TimeUnitConversionDirection
+        samplesToSeconds
+        secondsToSamples
+    End Enum
+
+    Public Enum FftBinFrequencyConversionDirection
+        FrequencyToBinIndex
+        BinIndexToFrequency
+    End Enum
+
+    ''' <summary>
+    ''' Returns equivalent noise bandwidth data pre-calculated in matlab version R2017a
+    ''' </summary>
+    ''' <param name="WindowLength"></param>
+    ''' <param name="WindowingType"></param>
+    ''' <returns></returns>
+    Public Shared Function GetEquivalentNoiseBandwidth(ByRef WindowLength As Integer, ByRef WindowingType As WindowingType,
+                                            Optional ByRef Tukey_r As Double? = Nothing) As Double
+
+        Select Case WindowingType
+            Case WindowingType.Hamming
+                Select Case WindowLength
+                    Case 64
+                        Return 1.3783
+                    Case 128
+                        Return 1.3705
+                    Case 256
+                        Return 1.3667
+                    Case 512
+                        Return 1.3647
+                    Case 1024
+                        Return 1.3638
+                    Case 2048
+                        Return 1.3633
+                    Case 4096
+                        Return 1.3631
+                    Case 8192
+                        Return 1.3629
+                    Case 16384
+                        Return 1.3629
+                    Case Else
+                        Throw New NotImplementedException
+
+                End Select
+            Case WindowingType.Hanning
+
+                Select Case WindowLength
+                    Case 64
+                        Return 1.5238
+                    Case 128
+                        Return 1.5118
+                    Case 256
+                        Return 1.5059
+                    Case 512
+                        Return 1.5029
+                    Case 1024
+                        Return 1.5015
+                    Case 2048
+                        Return 1.5007
+                    Case 4096
+                        Return 1.5004
+                    Case 8192
+                        Return 1.5002
+                    Case 16384
+                        Return 1.5001
+                    Case Else
+                        Throw New NotImplementedException
+                End Select
+
+            Case WindowingType.Tukey
+
+                If Tukey_r Is Nothing Then Throw New ArgumentException("If Tukey window is used, also a Tukey r is needed.")
+                Select Case Tukey_r
+                    Case 0.5
+
+                        Select Case WindowLength
+                            Case 128
+                                Return 1.2318
+                            Case 256
+                                Return 1.227
+                            Case 512
+                                Return 1.2246
+                            Case 1024
+                                Return 1.2234
+                            Case 2048
+                                Return 1.2228
+                            Case 4096
+                                Return 1.2225
+                            Case 8192
+                                Return 1.2224
+                            Case 16384
+                                Return 1.2223
+                            Case Else
+                                Throw New NotImplementedException
+                        End Select
+
+                    Case Else
+                        Throw New NotImplementedException("Values has not been added for the current Tukey window r.")
+                End Select
+
+
+            Case Else
+                Throw New NotImplementedException
+
+        End Select
+
+
+    End Function
+
+
+
+
+    ''' <summary>
+    ''' Applies a windowing function to the whole input array
+    ''' </summary>
+    ''' <param name="inputArray">The array to be modified.</param>
+    ''' <param name="type">Type of windowing function.</param>
+    ''' <param name="analysisWindowSize">The length of the array starting from index 0 that should be multiplied by the windowing function. If left to default (-1) the whole input array is windowed.</param>
+    Public Shared Sub WindowingFunction(ByRef inputArray() As Single, ByVal type As WindowingType,
+                             Optional ByVal analysisWindowSize As Integer = -1, Optional Tukey_r As Double = 0.5)
+
+        'Setting analysis window size
+        If analysisWindowSize = -1 Then analysisWindowSize = inputArray.Length
+
+
+        'For reference see: Bateman, A. & Paterson-Stephens, I. (2002). The DSP Handbook. Algorithms, Applications and Design Techniques.
+        'chapter 6, p350.(Where also desciptions can be found for Triangular, Kaiser, Blackman, and Tukey windows)
+
+        Select Case type
+            Case WindowingType.Hamming
+                For n = 0 To analysisWindowSize - 1
+                    inputArray(n) = inputArray(n) * (0.54 - 0.46 * Math.Cos(twopi * n / (analysisWindowSize - 1)))
+                Next
+            Case WindowingType.Hanning
+                For n = 0 To analysisWindowSize - 1
+                    inputArray(n) = inputArray(n) * (0.5 - 0.5 * Math.Cos(twopi * n / (analysisWindowSize - 1)))
+                Next
+            Case WindowingType.Sine 'My own type
+                For n = 0 To analysisWindowSize - 1
+                    inputArray(n) = inputArray(n) * (Math.Sin(Math.PI * n / (analysisWindowSize - 1)))
+                Next
+            Case WindowingType.Rectangular
+                'Does nothing
+
+            Case WindowingType.Triangular
+                For n = 0 To analysisWindowSize - 1
+                    inputArray(n) = inputArray(n) * (((2 * Math.Abs(((analysisWindowSize - 1) / 2) - n)) / (analysisWindowSize - 1)) - 1) * -1
+                Next
+
+            Case WindowingType.Blackman 'Ref Lyons (2012) "Understanding digital signal processing", p187.
+                For k = 0 To analysisWindowSize - 1
+                    inputArray(k) = inputArray(k) * (0.42 - 0.5 * Math.Cos((twopi * k) / (analysisWindowSize - 1)) + 0.08 * Math.Cos((2 * twopi * k) / (analysisWindowSize - 1)))
+                Next
+
+            Case WindowingType.Tukey
+
+                'Fading up
+                For k = 0 To Int((Tukey_r / 2) * analysisWindowSize) - 1
+                    inputArray(k) *= 0.5 * (1 + Math.Cos(Math.PI * ((2 * k) / (Tukey_r * (analysisWindowSize - 1)) - 1)))
+                Next
+
+                'No change in the intermediate region
+                'For k = Int((Tukey_r / 2) * analysisWindowSize) To Int(1 - ((Tukey_r / 2) * analysisWindowSize)) - 1
+                '    inputArray(k) *= 1 
+                'Next
+
+                'Fading down
+                For k = Int((1 - (Tukey_r / 2)) * analysisWindowSize) To analysisWindowSize - 1
+                    inputArray(k) *= 0.5 * (1 + Math.Cos(Math.PI * ((2 * k) / (Tukey_r * (analysisWindowSize - 1)) - (2 / Tukey_r) + 1)))
+                Next
+
+        End Select
+
+    End Sub
+
+
+
+    ''' <summary>
+    ''' Applies a windowing function to the whole input array
+    ''' </summary>
+    ''' <param name="inputArray">The array to be modified.</param>
+    ''' <param name="type">Type of windowing function.</param>
+    ''' <param name="analysisWindowSize">The length of the array starting from index 0 that should be multiplied by the windowing function. If left to default (-1) the whole input array is windowed.</param>
+    Public Shared Sub WindowingFunction(ByRef inputArray() As Double, ByVal type As WindowingType,
+                             Optional ByVal analysisWindowSize As Integer = -1, Optional Tukey_r As Double = 0.5)
+
+        'Setting analysis window size
+        If analysisWindowSize = -1 Then analysisWindowSize = inputArray.Length
+
+
+        'For reference see: Bateman, A. & Paterson-Stephens, I. (2002). The DSP Handbook. Algorithms, Applications and Design Techniques.
+        'chapter 6, p350.(Where also desciptions can be found for Triangular, Kaiser, Blackman, and Tukey windows)
+
+        Select Case type
+            Case WindowingType.Hamming
+                For n = 0 To analysisWindowSize - 1
+                    inputArray(n) = inputArray(n) * (0.54 - 0.46 * Math.Cos(twopi * n / (analysisWindowSize - 1)))
+                Next
+            Case WindowingType.Hanning
+                For n = 0 To analysisWindowSize - 1
+                    inputArray(n) = inputArray(n) * (0.5 - 0.5 * Math.Cos(twopi * n / (analysisWindowSize - 1)))
+                Next
+            Case WindowingType.Sine 'My own type
+                For n = 0 To analysisWindowSize - 1
+                    inputArray(n) = inputArray(n) * (Math.Sin(Math.PI * n / (analysisWindowSize - 1)))
+                Next
+            Case WindowingType.Rectangular
+                'Does nothing
+
+            Case WindowingType.Triangular
+                For n = 0 To analysisWindowSize - 1
+                    inputArray(n) = (((2 * Math.Abs(((analysisWindowSize - 1) / 2) - n)) / (analysisWindowSize - 1)) - 1) * -1
+                Next
+
+            Case WindowingType.Blackman 'Ref Lyons (2012) "Understanding digital signal processing", p187.
+                For k = 0 To analysisWindowSize - 1
+                    inputArray(k) = inputArray(k) * (0.42 - 0.5 * Math.Cos((twopi * k) / (analysisWindowSize - 1)) + 0.08 * Math.Cos((2 * twopi * k) / (analysisWindowSize - 1)))
+                Next
+
+            Case WindowingType.Tukey
+
+                'Fading up
+                For k = 0 To Int((Tukey_r / 2) * analysisWindowSize) - 1
+                    inputArray(k) *= 0.5 * (1 + Math.Cos(Math.PI * ((2 * k) / (Tukey_r * (analysisWindowSize - 1)) - 1)))
+                Next
+
+                'No change in the intermediate region
+                'For k = Int((Tukey_r / 2) * analysisWindowSize) To Int(1 - ((Tukey_r / 2) * analysisWindowSize)) - 1
+                '    inputArray(k) *= 1 
+                'Next
+
+                'Fading down
+                For k = Int((1 - (Tukey_r / 2)) * analysisWindowSize) To analysisWindowSize - 1
+                    inputArray(k) *= 0.5 * (1 + Math.Cos(Math.PI * ((2 * k) / (Tukey_r * (analysisWindowSize - 1)) - (2 / Tukey_r) + 1)))
+                Next
+
+        End Select
+
+    End Sub
+
+
+    ''' <summary>
+    ''' Returns the centre frequencies of adjacent Bark filters.
+    ''' </summary>
+    ''' <param name="FilterOverlapRatio">A ratio between 0 and 99 % that the output filters may be overlapped on the frequency axis.</param>
+    ''' <param name="LowestIncludedFrequency"></param>
+    ''' <param name="HighestIncludedFrequency"></param>
+    ''' <returns></returns>
+    Public Shared Function GetBarkFilterCentreFrequencies(ByVal FilterOverlapRatio As Double,
+                                ByVal LowestIncludedFrequency As Double,
+                                ByVal HighestIncludedFrequency As Double,
+                                           Optional ByVal LogSelectedBands As Boolean = True) As SortedSet(Of Double)
+
+        'Checking for invalid values of FilterOverlapRatio
+        If FilterOverlapRatio < 0 Then Throw New ArgumentException("Lowest allowed bark filter overlap ratio Is 0")
+        If FilterOverlapRatio > 0.99 Then Throw New ArgumentException("Highest allowed bark filter overlap ratio Is 0.99")
+
+
+        'Creating a list of included filter centre frequencies
+        Dim CentreFrequencies As New SortedSet(Of Double)
+
+        CentreFrequencies.Add(LowestIncludedFrequency)
+        Do
+            Dim CurrentCentreFrequency As Double = CentreFrequencies(CentreFrequencies.Count - 1)
+            Dim CurrentBandWidth As Double = CenterFrequencyToBarkFilterBandwidth(CurrentCentreFrequency)
+
+            'Calculating the frequency of the next centre frequency by adding the band width of the previous filter to its centre frequency, and adjusting it to the right degree of overlap
+            Dim NextCentreFrequency As Double = CurrentCentreFrequency + CurrentBandWidth - (CurrentBandWidth * FilterOverlapRatio)
+
+            'Adding the new centre frequency if it is below the HighestIncludedFrequency, or exits the loop if the new centre frequency exceeds the HighestIncludedFrequency
+            If NextCentreFrequency < HighestIncludedFrequency Then
+                CentreFrequencies.Add(NextCentreFrequency)
+            Else
+                Exit Do
+            End If
+        Loop
+
+        If LogSelectedBands = True Then
+            'Exports centre frequencies
+            Dim ExportList As New List(Of String)
+            For p = 0 To CentreFrequencies.Count - 1
+                ExportList.Add(CentreFrequencies(p) & vbTab & CenterFrequencyToBarkFilterBandwidth(CentreFrequencies(p)))
+            Next
+            SendInfoToAudioLog(vbCrLf & String.Join(vbCrLf, ExportList), "CentreFrequencies_Count_" & CentreFrequencies.Count)
+        End If
+
+        Return CentreFrequencies
+
+    End Function
+
+
+    Public Shared Function TimeUnitConversion(ByVal InputValue As Object, ByVal ConversionDirection As TimeUnitConversionDirection,
+                          ByVal SampleRate As Integer)
+
+        Select Case ConversionDirection
+            Case TimeUnitConversionDirection.samplesToSeconds
+                Return InputValue / SampleRate
+            Case TimeUnitConversionDirection.secondsToSamples
+                Return Int(InputValue * SampleRate)
+            Case Else
+                Throw New NotImplementedException("Incorrecly specified conversion direction. The enumerator ConversionDirection.timeUnitConversionDirection should be used by the calling code.")
+        End Select
+
+    End Function
+
+
+    ''' <summary>
+    ''' Copies all elements of a array of single.
+    '''     ''' </summary>
+    ''' <param name="inputArray">The source array to be copied.</param>
+    ''' <returns>Returns a new array, which is a copy of the input array.</returns>
+    Public Shared Function CopyArrayOfSingle(ByRef inputArray() As Single)
+
+        Dim copy(inputArray.Length - 1) As Single
+        For index = 0 To inputArray.Length - 1
+            copy(index) = inputArray(index)
+        Next
+        Return copy
+
+    End Function
+
+    ''' <summary>
+    ''' Extands the input array so that FFT can be run on all overlapping windows, and returns the number of zero-padding samples
+    ''' </summary>
+    ''' <param name="soundArray"></param>
+    ''' <param name="fftFormat"></param>
+    Public Shared Function ExtendSoundArrayToWindowLengthMultiple(ByRef soundArray() As Single, ByVal fftFormat As Formats.FftFormat) As Integer
+
+        Dim OriginalLength As Integer = soundArray.Length
+
+        Dim windowDistance As Integer = fftFormat.AnalysisWindowSize - fftFormat.OverlapSize
+
+        Dim inputSoundLength As Integer = soundArray.Length
+        Dim numberOfWindows As Integer = Rounding(inputSoundLength / windowDistance, RoundingMethods.AlwaysUp)
+        ReDim Preserve soundArray(numberOfWindows * windowDistance + fftFormat.AnalysisWindowSize - 1)
+
+        Return soundArray.Length - OriginalLength
+
+    End Function
+
+
+    Public Shared Function CreateDeltaPulse(ByRef format As Formats.WaveFormat, Optional ByVal channel As Integer? = Nothing,
+                                Optional ByVal level As Double = 1, Optional ByVal duration As Double = 1,
+                                     Optional durationTimeUnit As TimeUnits = TimeUnits.seconds) As Sound
+
+        Try
+
+            If level > 1 Then
+                level = 1
+                MsgBox("Level was outside allowed value (-1 through 1)" & vbCr & vbCr & "The level was adjusted To 1", "Waring from createSineWave")
+            End If
+
+            If level < -1 Then
+                level = -1
+                MsgBox("Level was outside allowed value (-1 through 1)" & vbCr & vbCr & "The level was adjusted To -1", "Waring from createSineWave")
+            End If
+
+            Dim outputSound As New Sound(format)
+            Dim AudioOutputConstructor As New AudioOutputConstructor(format, channel)
+
+            Dim posFS As Double = format.PositiveFullScale
+            Dim negFS As Double = format.NegativeFullScale
+
+            Dim dataLength As Long = 0
+            Select Case durationTimeUnit
+                Case TimeUnits.seconds
+                    dataLength = duration * format.SampleRate
+                Case TimeUnits.samples
+                    dataLength = duration
+            End Select
+
+            Dim rnd As New Random
+
+            'Main section
+            Select Case format.Encoding
+                Case Formats.WaveFormat.WaveFormatEncodings.IeeeFloatingPoints
+
+                    For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
+
+                        Dim channelArray(dataLength - 1) As Single
+
+                        Select Case format.BitDepth
+                            Case 32
+
+                                channelArray(0) = level
+                                For n = 1 To channelArray.Length - 1
+                                    channelArray(n) = 0
+                                Next
+
+                            Case Else
+                                Throw New NotImplementedException
+
+                        End Select
+
+                        outputSound.WaveData.SampleData(c) = channelArray
+
+                    Next
+
+
+                Case Formats.WaveFormat.WaveFormatEncodings.PCM
+
+                    For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
+
+                        Dim channelArray(dataLength - 1) As Single
+
+                        Select Case format.BitDepth
+
+                            Case 16
+                                channelArray(0) = level * Short.MaxValue
+
+                            Case 32
+                                channelArray(0) = level * Integer.MaxValue
+
+                        End Select
+
+                        For n = 1 To channelArray.Length - 1
+                            channelArray(n) = 0
+                        Next
+
+
+                        outputSound.WaveData.SampleData(c) = channelArray
+
+                    Next
+
+            End Select
+
+            Return outputSound
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+            Return Nothing
+        End Try
+
+    End Function
+
+
+    ''' <summary>
+    ''' 
+    ''' </summary>
+    ''' <param name="InputSound"></param>
+    ''' <param name="StartWindow"></param>
+    ''' <param name="AnalysisLength"></param>
+    ''' <param name="LowerInclusiveLimit">If set, determines the lowest frequency/fft bin included in the calculation.</param>
+    ''' <param name="UpperLimit">If set, determines the highest frequency/fft bin included in the calculation.</param>
+    ''' <param name="InputType">Determines whether LowerInclusiveLimit and UpperInclusiveLimit are defined as fft-bin indices or frequencies in Hz</param>
+    ''' <returns></returns>
+    Public Shared Function CalculateWindowLevels(ByRef InputSound As Sound, Optional ByVal StartWindow As Integer = 0,
+                                           Optional ByVal AnalysisLength As Integer? = Nothing,
+                                          Optional ByVal LowerInclusiveLimit As Single? = Nothing,
+                                     Optional ByVal UpperLimit As Single? = Nothing,
+                                     Optional ByRef InputType As GetSpectrumLevel_InputType = GetSpectrumLevel_InputType.FftBinIndex,
+                                          Optional ByVal LowerLimitIsInclusive As Boolean = True,
+                                          Optional ByVal UpperLimitIsInclusive As Boolean = True,
+                                          Optional ByRef ActualLowerLimitFrequency As Single? = Nothing,
+                                          Optional ByRef ActualUpperLimitFrequency As Single? = Nothing) As Double()
+
+        Dim AvaliableWindowsCount As Integer = InputSound.FFT.WindowCount(1)
+        If StartWindow < 0 Then StartWindow = 0
+        If AnalysisLength Is Nothing Then AnalysisLength = AvaliableWindowsCount
+        If StartWindow + AnalysisLength > AvaliableWindowsCount Then
+            AnalysisLength = AvaliableWindowsCount - StartWindow
+        End If
+        If AnalysisLength < 1 Then Return Nothing 'Returns Nothing if not enough data exists
+
+        'Calculating window levels
+        Dim LevelArray(AnalysisLength - 1) As Double
+        For w = StartWindow To AnalysisLength - 1
+            LevelArray(w) = InputSound.FFT.GetSpectrumLevel(1, w, SpectrumTypes.PowerSpectrum,
+                                                            LowerInclusiveLimit, UpperLimit, InputType,
+                                                                  GetSpectrumLevel_OutputType.SpectrumLevel_dB,
+                                                                  ActualLowerLimitFrequency,
+                                                                  ActualUpperLimitFrequency,
+                                                                  LowerLimitIsInclusive,
+                                                                  UpperLimitIsInclusive)
+        Next
+
+        Return LevelArray
+
+    End Function
+
+
+
+
+    ''' <summary>
+    ''' Silences the indicated section of the input sound.
+    ''' </summary>
+    ''' <param name="inputSound"></param>
+    ''' <param name="startSample"></param>
+    ''' <param name="sectionLength">If left to nothing, the rest of the sound is silenced.</param>
+    ''' <param name="Channel">The channel to silence. If left to -1 all channels will be silenced.</param>
+    Public Shared Sub SilenceSection(ByRef InputSound As Sound,
+                     Optional ByVal StartSample As Integer = 0,
+                           Optional ByVal SectionLength As Integer? = Nothing,
+                              Optional ByVal Channel As Integer = -1)
+
+        Try
+
+            If Channel = -1 Then
+
+                'Silences the sound in all channels
+                For c = 1 To InputSound.WaveFormat.Channels
+                    Dim InputSoundArray() As Single = InputSound.WaveData.SampleData(c)
+
+                    Dim CorrectedStartSample = StartSample
+                    Dim CorrectedSectionLength = SectionLength
+                    CheckAndCorrectSectionLength(InputSoundArray.Length, CorrectedStartSample, CorrectedSectionLength)
+
+                    For s = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+                        InputSoundArray(s) = 0
+                    Next
+                Next
+            Else
+
+                'Silences the sound
+                Dim InputSoundArray() As Single = InputSound.WaveData.SampleData(Channel)
+
+                Dim CorrectedStartSample = StartSample
+                Dim CorrectedSectionLength = SectionLength
+                CheckAndCorrectSectionLength(InputSoundArray.Length, CorrectedStartSample, CorrectedSectionLength)
+
+                For s = CorrectedStartSample To CorrectedStartSample + CorrectedSectionLength - 1
+                    InputSoundArray(s) = 0
+                Next
+            End If
+
+        Catch ex As Exception
+            AudioError(ex.ToString)
+        End Try
+
+    End Sub
+
+
+
+    ''' <summary>
+    ''' Deleting a specified section of the sound from sound (in all channels)
+    ''' </summary>
+    ''' <param name="InputSound"></param>
+    ''' <param name="StartSample"></param>
+    ''' <param name="SectionLength"></param>
+    Public Shared Sub DeleteSection(ByRef InputSound As Sound,
+                     Optional ByVal StartSample As Integer = 0,
+                           Optional ByVal SectionLength As Integer? = Nothing)
+
+        Try
+
+            'Main section
+            For c = 1 To InputSound.WaveFormat.Channels
+
+                Dim InputSoundArray() As Single = InputSound.WaveData.SampleData(c)
+
+                Dim CorrectedStartSample = StartSample
+                Dim CorrectedSectionLength = SectionLength
+                CheckAndCorrectSectionLength(InputSound.WaveData.SampleData(c).Length, CorrectedStartSample, CorrectedSectionLength)
+
+                'Getting a copy of sound without the selected samples
+                Dim newArray(InputSoundArray.Length - CorrectedSectionLength - 1) As Single
+
+                For sample = 0 To CorrectedStartSample - 1
+                    newArray(sample) = InputSoundArray(sample)
+                Next
+                For sample = CorrectedStartSample To newArray.Length - 1
+                    newArray(sample) = InputSoundArray(sample + CorrectedSectionLength)
+                Next
+
+                InputSound.WaveData.SampleData(c) = newArray
+
+            Next
+
+        Catch ex As Exception
+            AudioError(ex.ToString)
+        End Try
+
+
+    End Sub
+
+
+    ''' <summary>
+    ''' Insert a section of silence, with the specified startsample and length into all channels of the input sound
+    ''' </summary>
+    ''' <param name="InputSound"></param>
+    ''' <param name="StartSample"></param>
+    ''' <param name="SectionLength"></param>
+    Public Shared Sub InsertSilentSection(ByRef InputSound As Sound,
+                     Optional ByVal StartSample As Integer = 0,
+                           Optional ByVal SectionLength As Integer? = Nothing)
+
+        Try
+
+            'Main section
+            For c = 1 To InputSound.WaveFormat.Channels
+
+                Dim InputSoundArray() As Single = InputSound.WaveData.SampleData(c)
+
+                Dim CorrectedStartSample = StartSample
+                Dim CorrectedSectionLength = SectionLength
+                CheckAndCorrectSectionLength(InputSoundArray.Length, CorrectedStartSample, CorrectedSectionLength)
+
+                'Getting a copy of sound without the selected samples
+                Dim newArray(InputSoundArray.Length + CorrectedSectionLength - 1) As Single
+                For sample = 0 To CorrectedStartSample - 1
+                    newArray(sample) = InputSoundArray(sample)
+                Next
+                For sample = CorrectedStartSample To InputSoundArray.Length - 1
+                    newArray(sample + CorrectedSectionLength) = InputSoundArray(sample)
+                Next
+
+                InputSound.WaveData.SampleData(c) = newArray
+
+            Next
+
+        Catch ex As Exception
+            AudioError(ex.ToString)
+        End Try
+
+
+    End Sub
+
+
+    ''' <summary>
+    ''' Caluculated frequency domain data from the time domain data stored in the specified Sound. The frequency domain data may be stored in the Sound properties
+    ''' FFT (which should be done by the calling code).
+    ''' </summary>
+    ''' <param name="sound">The input sound.</param>
+    ''' <param name="fftFormat">The format used to create the frequency domain data. N.B. that overlap may be used, as well as windowing. A shorter analysis window than the input FFT size 
+    ''' may be used to increase the frequency resolution without lengthening the analysis window.</param>
+    ''' <param name="channel">The channel in the input sound to be analysed. If lenft to default, all channels will be analysed.</param>
+    ''' <param name="startSample">This parameter can be used if only a section of the sound file should be analysed. If left empty, the sound will be analysed starting from the first sample.</param>
+    ''' <param name="sectionLength">This parameter can be used if only a section of the sound file should be analysed. If left empty, the sound will be analysed from the start sample to the last sample.</param>
+    ''' <returns>Returns a new instance of FftData with the frequency domain data stored in the properties FrequencyDomainRealData and FrequencyDomainImaginaryData.</returns>
+    Public Shared Function SpectralAnalysis(ByRef sound As Sound, ByRef fftFormat As Formats.FftFormat,
+                                     Optional ByVal channel As Integer? = Nothing,
+                                     Optional ByVal startSample As Integer = 0, Optional ByVal sectionLength As Integer? = Nothing) As FftData
+
+        Try
+
+
+            'Allowing different channel lengths during processing to avoid unnecessary redims
+
+            Dim AudioOutputConstructor As New AudioOutputConstructor(sound.WaveFormat, channel)
+            Dim localFftData As New FftData(sound.WaveFormat, fftFormat)
+            Dim windowDistance As Integer = fftFormat.AnalysisWindowSize - fftFormat.OverlapSize
+
+            'Main section
+            For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
+
+                Dim inputArray() As Single = sound.WaveData.SampleData(c)
+
+                If startSample > 0 Or sectionLength IsNot Nothing Then
+                    Dim CorrectedStartSample = startSample
+                    Dim CorrectedSectionLength = sectionLength
+                    CheckAndCorrectSectionLength(inputArray.Length, CorrectedStartSample, CorrectedSectionLength)
+                    inputArray = inputArray.ToList.GetRange(CorrectedStartSample, CorrectedSectionLength).ToArray
+                End If
+
+                Dim originalInputSoundLength As Integer = inputArray.Length
+
+
+                'Extends the input array and determines the number of (overlapping) windows  
+                Dim numberOfWindows As Integer
+                numberOfWindows = Rounding(inputArray.Length / (windowDistance), RoundingMethods.AlwaysUp)
+                Dim EndOfSoundZeroPadding As Integer = ExtendSoundArrayToWindowLengthMultiple(inputArray, fftFormat)
+
+                For windowNumber = 0 To numberOfWindows - 1
+                    Dim localREXArray(fftFormat.FftWindowSize - 1) As Double
+                    Dim fftIndex As Integer = 0
+                    Dim startReadSample As Integer = windowNumber * (windowDistance)
+                    For sample = startReadSample To startReadSample + fftFormat.AnalysisWindowSize - 1
+                        localREXArray(fftIndex) = inputArray(sample)
+                        fftIndex += 1
+                    Next
+                    'For sample = fftIndex To localREXArray.Length - 1
+                    'localREXArray(fftIndex) = 0 'Perhaps this is not needed ?
+                    'Next
+
+                    'Windowing of localDftInputArray comes here
+                    WindowingFunction(localREXArray, fftFormat.WindowingType, fftFormat.AnalysisWindowSize)
+
+                    'Preparing for FFT
+                    'Creating an imaginary time domain signal consisting of zeros, same length as the real signal
+                    Dim localIMXArray(fftFormat.FftWindowSize - 1) As Double
+
+                    'Caluculating FFT
+                    FastFourierTransform(FftDirections.Forward, localREXArray, localIMXArray)
+
+                    'Storing the DFT data
+                    localFftData.FrequencyDomainRealData(c, windowNumber).WindowData = localREXArray
+                    localFftData.FrequencyDomainImaginaryData(c, windowNumber).WindowData = localIMXArray
+
+                    'Storing the description
+                    localFftData.FrequencyDomainRealData(c, windowNumber).WindowingType = fftFormat.WindowingType
+                    localFftData.FrequencyDomainImaginaryData(c, windowNumber).WindowingType = localFftData.FrequencyDomainRealData(c, windowNumber).WindowingType
+
+                    Dim CurrentEndOfSoundZeroPadding As Integer = Math.Max(0, startReadSample + fftFormat.AnalysisWindowSize - originalInputSoundLength) 'TODO Check that this really gets the right amount of zero padding caused by the extension of the sound to an integer multiple of the fft-window length!!!
+                    localFftData.FrequencyDomainRealData(c, windowNumber).ZeroPadding = fftFormat.FftWindowSize - fftFormat.AnalysisWindowSize + CurrentEndOfSoundZeroPadding
+                    localFftData.FrequencyDomainImaginaryData(c, windowNumber).ZeroPadding = localFftData.FrequencyDomainRealData(c, windowNumber).ZeroPadding
+
+                Next
+
+                'Restoring original sound length
+                ReDim Preserve inputArray(originalInputSoundLength - 1)
+
+            Next
+
+            Return localFftData
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+            Return Nothing
+        End Try
+
+    End Function
+
+
+    ''' <summary>
+    ''' Normalizes the absolute maximum amplitude of a section of the full scale value of the current sound format.
+    ''' </summary>
+    ''' <param name="InputSound"></param>
+    ''' <param name="channel"></param>
+    ''' <param name="startSample"></param>
+    ''' <param name="sectionLength"></param>
+    ''' <param name="NormalizeChannelsSeparately">If set to true, the channels will be indivudually normalized. If left to false, the same amout of gain will be appplied to all channels.</param>
+    Public Shared Sub MaxAmplitudeNormalizeSection(ByRef InputSound As Sound, Optional ByVal channel As Integer? = Nothing,
+                                    Optional ByVal startSample As Integer = 0, Optional ByVal sectionLength As Integer? = Nothing,
+                                                 Optional NormalizeChannelsSeparately As Boolean = False)
+
+        Dim AudioOutputConstructor As New AudioOutputConstructor(InputSound.WaveFormat, channel)
+
+        'Main section
+        Dim AbsoluteMaxAmplitudeBothChannels As Double = 0
+        For c = AudioOutputConstructor.FirstChannelIndex To AudioOutputConstructor.LastChannelIndex
+
+            Dim CorrectedStartSample = startSample
+            Dim CorrectedSectionLength = sectionLength
+            CheckAndCorrectSectionLength(InputSound.WaveData.SampleData(c).Length, CorrectedStartSample, CorrectedSectionLength)
+
+            'Measures the level of the channel section
+            Dim AbsoluteMaxAmplitude As Double = MeasureSectionLevel(InputSound, c, CorrectedStartSample, CorrectedSectionLength, SoundDataUnit.linear,
+                                                              SoundMeasurementType.AbsolutePeakAmplitude, FrequencyWeightings.Z)
+
+
+            If NormalizeChannelsSeparately = True Then
+
+                'Calculating the needed gain
+                Dim Gain As Double = AbsoluteMaxAmplitude / InputSound.WaveFormat.PositiveFullScale
+
+                'Amplifies the section
+                AmplifySection(InputSound, Gain, c, CorrectedStartSample, CorrectedSectionLength, SoundDataUnit.linear)
+
+            Else
+                If AbsoluteMaxAmplitude > AbsoluteMaxAmplitudeBothChannels Then AbsoluteMaxAmplitudeBothChannels = AbsoluteMaxAmplitude
+            End If
+
+        Next
+
+        If NormalizeChannelsSeparately = False Then
+
+            'Calculating the needed gain
+            Dim Gain As Double = InputSound.WaveFormat.PositiveFullScale / AbsoluteMaxAmplitudeBothChannels
+
+            'Amplifies the section
+            AmplifySection(InputSound, Gain, , startSample, sectionLength, SoundDataUnit.linear)
+
+        End If
+
+    End Sub
+
+
+    ''' <summary>
+    ''' Creates an inpulse response based on the supplied FrequencyResponse.
+    ''' </summary>
+    ''' <param name="FrequencyResponse"></param>
+    ''' <param name="PhaseRandomizationDegrees"></param>
+    ''' <param name="waveFormat"></param>
+    ''' <param name="fftFormat"></param>
+    ''' <param name="kernelSize"></param>
+    ''' <param name="windowFunction"></param>
+    ''' <param name="InActivateWarnings"></param>
+    ''' <param name="FrequencyResponseIsLinear">Set to True to specify frequency response in dB, or False to specify linear frequency response.</param>
+    ''' <returns></returns>
+    Public Shared Function CreateCustumImpulseResponse(ByRef FrequencyResponse As List(Of Tuple(Of Single, Single)),
+                                                ByRef PhaseRandomizationDegrees As List(Of Tuple(Of Single, Single)),
+                                                ByRef waveFormat As Formats.WaveFormat,
+                                                ByRef fftFormat As Formats.FftFormat,
+                                                ByVal kernelSize As Integer,
+                                                Optional ByVal windowFunction As WindowingType = WindowingType.Hamming,
+                                                Optional ByVal InActivateWarnings As Boolean = False,
+                                                Optional ByVal FrequencyResponseIsLinear As Boolean = False) As Sound
+
+        'Reference which parts of this code is based on:
+        'The Scientist And Engineer's Guide to
+        'Digital Signal Processing
+        'By Steven W. Smith, Ph.D.
+        'http://www.dspguide.com/ch17/1.htm
+
+        Try
+
+            If FrequencyResponse Is Nothing Then FrequencyResponse = New List(Of Tuple(Of Single, Single))
+            If PhaseRandomizationDegrees Is Nothing Then PhaseRandomizationDegrees = New List(Of Tuple(Of Single, Single))
+
+            Dim outputSound As New Sound(New Formats.WaveFormat(waveFormat.SampleRate, waveFormat.BitDepth, 1,, waveFormat.Encoding))
+
+            Dim posFS As Double = waveFormat.PositiveFullScale
+            outputSound.FFT = New FftData(waveFormat, fftFormat)
+
+
+            'Checks that kernel size is not larger than fftSize, increases fftSize is that is the case
+            If kernelSize > fftFormat.FftWindowSize Then
+                CheckAndAdjustFFTSize(fftFormat.FftWindowSize, kernelSize, InActivateWarnings)
+            End If
+
+            'Noting the current sample rate
+            Dim SR As Integer = waveFormat.SampleRate
+
+            'Setting k values equivalent to the frequency response centre frequencies
+            Dim FrequencyResponseBinIndices As New SortedList(Of Double, Double)
+            If FrequencyResponse.Count > 0 Then
+                'Adding values for the the lowest bin
+                'FrequencyResponseBinIndices.Add(FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, FrequencyResponse(0).Item1, SR, fftFormat.FftWindowSize, roundingMethods.getClosestValue), FrequencyResponse(0).Item2)
+                ''Adding 0 dB to bin 0, and the first available value to bin 1
+                'FrequencyResponseBinIndices.Add(0, 0)
+                FrequencyResponseBinIndices.Add(1, FrequencyResponse(0).Item2)
+
+                'Adding intermediate bin indices
+                For Each CentreFrequency In FrequencyResponse
+                    Dim Key As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, CentreFrequency.Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
+                    If Not FrequencyResponseBinIndices.ContainsKey(Key) Then FrequencyResponseBinIndices.Add(Key, CentreFrequency.Item2)
+                Next
+
+                'Adding values for the highest bin
+                Dim LastKey As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, FrequencyResponse(FrequencyResponse.Count - 1).Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
+                If Not FrequencyResponseBinIndices.ContainsKey(LastKey) Then FrequencyResponseBinIndices.Add(LastKey, FrequencyResponse(FrequencyResponse.Count - 1).Item2)
+
+            End If
+
+            ''The code below can be used to get the actual centre frequencies
+            'For Each CentreFrequency In FrequencyResponseBinIndices
+            '    Dim CF = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, CentreFrequency, SR, fftFormat.FftWindowSize)
+            'Next
+
+            'Setting k values equivalent to the phase response 
+            Dim PhaseResponseBinIndices As New SortedList(Of Double, Double)
+            If PhaseRandomizationDegrees.Count > 0 Then
+                'Adding values for the the lowest bin
+                'PhaseResponseBinIndices.Add(FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, PhaseRandomizationDegrees(0).Item1, SR, fftFormat.FftWindowSize, roundingMethods.getClosestValue), PhaseRandomizationDegrees(0).Item2)
+                ''Adding phase 0 to bin 0, and the first available value to bin 1
+                'PhaseResponseBinIndices.Add(0, 0)
+                PhaseResponseBinIndices.Add(1, PhaseRandomizationDegrees(0).Item2)
+
+                'Adding intermediate bin indices
+                For Each CentreFrequency In PhaseRandomizationDegrees
+                    Dim Key As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, CentreFrequency.Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
+                    If Not PhaseResponseBinIndices.ContainsKey(Key) Then PhaseResponseBinIndices.Add(Key, CentreFrequency.Item2)
+                Next
+
+                'Adding values for the highest bin
+                Dim LastKey As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, PhaseRandomizationDegrees(PhaseRandomizationDegrees.Count - 1).Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
+                If Not PhaseResponseBinIndices.ContainsKey(LastKey) Then PhaseResponseBinIndices.Add(LastKey, PhaseRandomizationDegrees(PhaseRandomizationDegrees.Count - 1).Item2)
+            End If
+
+
+
+            'Main section
+            Dim c As Integer = 1 ' Sound channel
+            Select Case waveFormat.BitDepth
+                Case 16, 32
+
+                    Dim magnitudeArray(fftFormat.FftWindowSize - 1) As Double
+                    Dim phaseArray(fftFormat.FftWindowSize - 1) As Double
+
+                    If FrequencyResponse.Count > 0 Then
+
+                        'Setting magnitudes (including CD and Nyquist)
+                        For k = 0 To magnitudeArray.Length / 2
+
+                            Dim CurrentInterpolatedResponse As Double = LinearInterpolation_GetY(k, FrequencyResponseBinIndices)
+
+                            'Converting the frequency responses to linear form
+                            Dim LinearMagnitude As Double
+                            If FrequencyResponseIsLinear = False Then
+                                LinearMagnitude = dBConversion(CurrentInterpolatedResponse, dBConversionDirection.from_dB, waveFormat) / posFS ' OBS ska man verkligen dividera med posFS här? Testa!
+                            Else
+                                LinearMagnitude = CurrentInterpolatedResponse
+                            End If
+
+                            'Storing the linear magnitude
+                            magnitudeArray(k) = LinearMagnitude
+                        Next
+
+                        'Copies the magnitude information to the negative frequencies
+                        For q = 1 To magnitudeArray.Length / 2 - 1
+                            magnitudeArray(magnitudeArray.Length - q) = magnitudeArray(q)
+                        Next
+
+                    Else
+
+                        'Setting default magnitude values (of no gain)
+                        For n = 1 To magnitudeArray.Length - 1
+                            magnitudeArray(n) = 1
+                        Next
+                        'setting the magnitude of special frequencies
+                        magnitudeArray(0) = 1
+                        magnitudeArray(magnitudeArray.Length / 2) = 1
+
+                    End If
+
+
+                    If PhaseRandomizationDegrees.Count > 0 Then
+
+                        'Randomizing phases                    
+
+                        'creating an array with random phases, with the length fftsize
+                        phaseArray(0) = 0
+                        phaseArray(fftFormat.FftWindowSize / 2) = Math.PI 'ska denna vara PI ???, eller 0, eller vad som helst?
+
+                        Dim rnd As New Random
+
+                        'Setting magnitudes
+                        For k = 0 To magnitudeArray.Length / 2 - 1
+
+                            'Interpolating a current phase radnomization degree
+                            Dim CurrentInterpolatedPhaseShiftDegree As Double = Math.Min(1, Math.Max(0, LinearInterpolation_GetY(k, PhaseResponseBinIndices)))
+
+                            'Storing the phase
+                            phaseArray(k) = CurrentInterpolatedPhaseShiftDegree * (rnd.NextDouble - 0.5) * 2 * Math.PI
+                        Next
+
+                        'Copies the phase data to the negative frequencies
+                        For q = 1 To phaseArray.Length / 2 - 1
+                            phaseArray(phaseArray.Length - q) = -phaseArray(q)
+                        Next
+
+                    Else
+
+                        'Setting default phases (to zero)
+                        For q = 0 To phaseArray.Length - 1
+                            phaseArray(q) = 0
+                        Next
+
+                    End If
+
+                    'Utils.SendInfoToLog(vbCrLf & String.Join(vbCrLf, magnitudeArray), "IR_Magnitudes")
+                    'Utils.SendInfoToLog(vbCrLf & String.Join(vbCrLf, phaseArray), "IR_Phases")
+
+                    Dim NewMagnitudeTimeWindow As New FftData.TimeWindow
+                    NewMagnitudeTimeWindow.WindowData = magnitudeArray
+                    outputSound.FFT.SetAmplitudeSpectrum(c, NewMagnitudeTimeWindow, 0)
+
+                    Dim NewPhaseTimeWindow As New FftData.TimeWindow
+                    NewPhaseTimeWindow.WindowData = phaseArray
+                    outputSound.FFT.SetPhaseSpectrum(c, NewPhaseTimeWindow, 0)
+
+                    'Transforms to rectangular form
+                    outputSound.FFT.CalculateRectangualForm()
+
+                    'Copyiong to double arrays, so that FFT can be run on the Double datatype instead of Single
+                    Dim X_Re(outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData.Length - 1) As Double
+                    Dim X_Im(outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData.Length - 1) As Double
+
+                    For s = 0 To X_Re.Length - 1
+                        X_Re(s) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(s)
+                    Next
+                    For s = 0 To X_Im.Length - 1
+                        X_Im(s) = outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData(s)
+                    Next
+
+                    'Performing an inverse dft on the magnitude and phase arrays
+                    DSP.FastFourierTransform(DSP.FftDirections.Backward, X_Re, X_Im)
+
+                    'Shifting + truncating
+                    Dim kernelArray(kernelSize - 1) As Single
+                    Dim index As Integer = 0
+                    For n = 0 To kernelSize / 2 - 1
+                        kernelArray(index) = X_Re(fftFormat.FftWindowSize - (kernelSize / 2 - n))
+                        index += 1
+                    Next
+                    For n = 0 To kernelSize / 2 - 1
+                        kernelArray(index) = X_Re(n)
+                        index += 1
+                    Next
+
+                    'Out-commented code for FFT with Single datatype
+                    'Dim kernelArray(kernelSize - 1) As Single
+                    'Dim index As Integer = 0
+                    'For n = 0 To kernelSize / 2 - 1
+                    '    kernelArray(index) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(fftFormat.FftWindowSize - (kernelSize / 2 - n))
+                    '    index += 1
+                    'Next
+                    'For n = 0 To kernelSize / 2 - 1
+                    '    kernelArray(index) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(n)
+                    '    index += 1
+                    'Next
+
+                    'Scaling the kernel sample values by fft length
+                    For n = 0 To kernelArray.Length - 1
+                        kernelArray(n) /= fftFormat.FftWindowSize
+                    Next
+
+                    'Windowing
+                    WindowingFunction(kernelArray, windowFunction)
+
+                    'Storing sound
+                    outputSound.WaveData.SampleData(c) = kernelArray
+
+                Case Else
+                    Throw New NotImplementedException(waveFormat.BitDepth & " bit depth Is Not yet supported.")
+
+            End Select
+
+            Return outputSound
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+            Return Nothing
+        End Try
+
+    End Function
+
+
 
     Public Shared Function CreateSpecialTypeImpulseResponse(ByRef waveFormat As Formats.WaveFormat,
                                                   ByRef fftFormat As Formats.FftFormat,
@@ -241,11 +1280,11 @@ Public Class DSP
 
                         Dim NewMagnitudeTimeWindow As New FftData.TimeWindow
                         NewMagnitudeTimeWindow.WindowData = magnitudeArray
-                        outputSound.FFT.AmplitudeSpectrum(c, 0) = NewMagnitudeTimeWindow
+                        outputSound.FFT.SetAmplitudeSpectrum(c, NewMagnitudeTimeWindow, 0)
 
                         Dim NewPhaseTimeWindow As New FftData.TimeWindow
                         NewPhaseTimeWindow.WindowData = phaseArray
-                        outputSound.FFT.PhaseSpectrum(c, 0) = NewPhaseTimeWindow
+                        outputSound.FFT.SetPhaseSpectrum(c, NewPhaseTimeWindow, 0)
 
                         'Skapar DFT bins
                         'Dim FFT_X(fftFormat.FftWindowSize - 1) As Single
@@ -348,7 +1387,7 @@ Public Class DSP
             For n = 0 To fftFormat.FftWindowSize - 1
                 Dim accumulator As Double = 0
                 For windowNumber = 0 To InputSound.FFT.WindowCount(c) - 1
-                    accumulator += InputSound.FFT.AmplitudeSpectrum(c, windowNumber).WindowData(n)
+                    accumulator += InputSound.FFT.GetAmplitudeSpectrum(c, windowNumber).WindowData(n)
                 Next
                 averageMagnitudes(n) = accumulator / fftFormat.FftWindowSize
             Next
@@ -435,7 +1474,7 @@ Public Class DSP
             Dim WindowLevelArray = CalculateWindowLevels(InputSound,,,
                                                                           ,
                                                                           ,
-                                                                      FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
+                                                                      GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
                                                                       False, False,
                                                                       ActualLowerLimitFrequency,
                                                                       ActualUpperLimitFrequency)
@@ -496,7 +1535,7 @@ Public Class DSP
                 Dim WindowLevelArray = CalculateWindowLevels(InputSound,,,
                                                                       band.LowerFrequencyLimit,
                                                                       band.UpperFrequencyLimit,
-                                                                      FftData.GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
+                                                                      GetSpectrumLevel_InputType.FftBinCentreFrequency_Hz,
                                                                       False, False,
                                                                       ActualLowerLimitFrequency,
                                                                       ActualUpperLimitFrequency)
@@ -1606,8 +2645,8 @@ Public Class DSP
             Dim Filtered_IR_TotalLevel As Double
 
             'Calculating average amplitude spectrum for the two sounds
-            Dim IR_Spectrum = IR.FFT.GetAverageSpectrum(c, FftData.SpectrumTypes.AmplitudeSpectrum, IR.WaveFormat, True, IR_TotalLevel)
-            Dim Filtered_IR_Spectrum = Filtered_IR.FFT.GetAverageSpectrum(c, FftData.SpectrumTypes.AmplitudeSpectrum, Filtered_IR.WaveFormat, True, Filtered_IR_TotalLevel)
+            Dim IR_Spectrum = IR.FFT.GetAverageSpectrum(c, SpectrumTypes.AmplitudeSpectrum, IR.WaveFormat, True, IR_TotalLevel)
+            Dim Filtered_IR_Spectrum = Filtered_IR.FFT.GetAverageSpectrum(c, SpectrumTypes.AmplitudeSpectrum, Filtered_IR.WaveFormat, True, Filtered_IR_TotalLevel)
 
             Dim ChannelDifferenceSpectrum As New SortedList(Of Double, Double)
             For Each f In IR_Spectrum
@@ -1780,7 +2819,7 @@ Public Class DSP
                                                Optional ByVal AnalysisLength As Integer? = Nothing,
                                                Optional ByRef TotalLevel As Double = Double.NegativeInfinity) As FftData.TimeWindow
 
-            Dim BarkBinCount As Integer = InputSound.FFT.BarkSpectrumTimeWindowData(1, 0).WindowData.Length
+            Dim BarkBinCount As Integer = InputSound.FFT.GetBarkSpectrumTimeWindowData(1, 0).WindowData.Length
             Dim AvaliableWindowsCount As Integer = InputSound.FFT.WindowCount(1)
             If StartWindow < 0 Then StartWindow = 0
             If AnalysisLength Is Nothing Then AnalysisLength = AvaliableWindowsCount
@@ -1798,7 +2837,7 @@ Public Class DSP
 
             For f = 0 To BarkBinCount - 1
                 For w = StartWindow To StartWindow + AnalysisLength - 1
-                    FrequencyArray(f) += InputSound.FFT.BarkSpectrumTimeWindowData(1, w).WindowData(f)
+                    FrequencyArray(f) += InputSound.FFT.GetBarkSpectrumTimeWindowData(1, w).WindowData(f)
                 Next
                 FrequencyArray(f) /= AnalysisLength
             Next
@@ -1912,12 +2951,12 @@ Public Class DSP
 
                         'Calculating average Bark spectra, and stores in the FFT.TemporaryData Object, for re-use in the next analyses
                         Dim AverageData As New FftData.TimeWindow
-                        Dim FrequencyArray(Sound1.FFT.BarkSpectrumTimeWindowData(1, 0).WindowData.Length - 1) As Double
+                        Dim FrequencyArray(Sound1.FFT.GetBarkSpectrumTimeWindowData(1, 0).WindowData.Length - 1) As Double
                         AverageData.WindowData = FrequencyArray
 
                         For f = 0 To FrequencyArray.Length - 1
                             For w = 0 To Sound1.FFT.WindowCount(1) - 1
-                                FrequencyArray(f) += Sound1.FFT.BarkSpectrumTimeWindowData(1, w).WindowData(f)
+                                FrequencyArray(f) += Sound1.FFT.GetBarkSpectrumTimeWindowData(1, w).WindowData(f)
                             Next
                             FrequencyArray(f) /= Sound1.FFT.WindowCount(1)
                         Next
@@ -1935,8 +2974,8 @@ Public Class DSP
                             FrequencyArray(f) = dBConversion(FrequencyArray(f), dBConversionDirection.to_dB, Sound1.WaveFormat, dBTypes.SoundPressure)
                         Next
 
-                        Sound1.FFT.TemporaryData = New List(Of FftData.TimeWindow)
-                        Sound1.FFT.TemporaryData.Add(AverageData)
+                        Sound1.FFT.SetTemporaryData(New List(Of FftData.TimeWindow))
+                        Sound1.FFT.GetTemporaryData.Add(AverageData)
 
                         'Exporting Bark spectra for file 1 along with headings
                         If ExportBarkSpectra = True Then
@@ -1954,7 +2993,7 @@ Public Class DSP
                             End If
 
                             'Exporting the sound power data
-                            SendInfoToAudioLog(Sound1.FileName & vbTab & vbTab & String.Join(vbTab, Sound1.FFT.TemporaryData(0).WindowData), "BarkSpectra", LogOutputFolder, True, True)
+                            SendInfoToAudioLog(Sound1.FileName & vbTab & vbTab & String.Join(vbTab, Sound1.FFT.GetTemporaryData(0).WindowData), "BarkSpectra", LogOutputFolder, True, True)
 
                         End If
 
@@ -1991,12 +3030,12 @@ Public Class DSP
 
                         'Calculating average Bark spectra, and stores in the FFT.TemporaryData Object, for re-use in the next analyses
                         Dim AverageData As New FftData.TimeWindow
-                        Dim FrequencyArray(Sound2.FFT.BarkSpectrumTimeWindowData(1, 0).WindowData.Length - 1) As Double
+                        Dim FrequencyArray(Sound2.FFT.GetBarkSpectrumTimeWindowData(1, 0).WindowData.Length - 1) As Double
                         AverageData.WindowData = FrequencyArray
 
                         For f = 0 To FrequencyArray.Length - 1
                             For w = 0 To Sound2.FFT.WindowCount(1) - 1
-                                FrequencyArray(f) += Sound2.FFT.BarkSpectrumTimeWindowData(1, w).WindowData(f)
+                                FrequencyArray(f) += Sound2.FFT.GetBarkSpectrumTimeWindowData(1, w).WindowData(f)
                             Next
                             FrequencyArray(f) /= Sound2.FFT.WindowCount(1)
                         Next
@@ -2014,8 +3053,8 @@ Public Class DSP
                             FrequencyArray(f) = dBConversion(FrequencyArray(f), dBConversionDirection.to_dB, Sound2.WaveFormat, dBTypes.SoundPressure)
                         Next
 
-                        Sound2.FFT.TemporaryData = New List(Of FftData.TimeWindow)
-                        Sound2.FFT.TemporaryData.Add(AverageData)
+                        Sound2.FFT.SetTemporaryData(New List(Of FftData.TimeWindow))
+                        Sound2.FFT.GetTemporaryData.Add(AverageData)
 
                         'Releases the spinlock
                         If SpinLock2Taken = True Then AverageBarkSpectrumDistanceSpinLock2.Exit()
@@ -2027,9 +3066,9 @@ Public Class DSP
                 Dim Distance As Double
                 If SkipDistanceCalculation = False Then
                     If IrrelevantDifferenceThreshold Is Nothing Then
-                        Distance = GetEuclideanDistance(Sound1.FFT.TemporaryData(0).WindowData, Sound2.FFT.TemporaryData(0).WindowData)
+                        Distance = GetEuclideanDistance(Sound1.FFT.GetTemporaryData(0).WindowData, Sound2.FFT.GetTemporaryData(0).WindowData)
                     Else
-                        Distance = GetEuclideanDistance(Sound1.FFT.TemporaryData(0).WindowData, Sound2.FFT.TemporaryData(0).WindowData, IrrelevantDifferenceThreshold)
+                        Distance = GetEuclideanDistance(Sound1.FFT.GetTemporaryData(0).WindowData, Sound2.FFT.GetTemporaryData(0).WindowData, IrrelevantDifferenceThreshold)
                     End If
                 End If
 
@@ -2038,13 +3077,13 @@ Public Class DSP
                 If ExportBarkSpectra = True Then
 
                     'Exporting the sound power data
-                    SendInfoToAudioLog(Sound2.FileName & vbTab & Distance & vbTab & String.Join(vbTab, Sound2.FFT.TemporaryData(0).WindowData), "BarkSpectra", LogOutputFolder, True, True)
+                    SendInfoToAudioLog(Sound2.FileName & vbTab & Distance & vbTab & String.Join(vbTab, Sound2.FFT.GetTemporaryData(0).WindowData), "BarkSpectra", LogOutputFolder, True, True)
 
                 End If
 
                 'Referencing Sound1BarkSpectrum and Sound2BarkSpectrum
-                Sound1BarkSpectrum = Sound1.FFT.TemporaryData(0).WindowData
-                Sound2BarkSpectrum = Sound2.FFT.TemporaryData(0).WindowData
+                Sound1BarkSpectrum = Sound1.FFT.GetTemporaryData(0).WindowData
+                Sound2BarkSpectrum = Sound2.FFT.GetTemporaryData(0).WindowData
 
                 Return Distance
 
@@ -2585,9 +3624,9 @@ Public Class DSP
                                     End If
 
                                     'Checking that HighestIncludedBinIndex is not too high, due to always rounding bin index up. If so, it is simply skipped.
-                                    If fb > FftData.AmplitudeSpectrum(1, 0).WindowData.Length - 1 Then Continue For
+                                    If fb > FftData.GetAmplitudeSpectrum(1, 0).WindowData.Length - 1 Then Continue For
 
-                                    Dim CurrentBandMagnitude = FftData.AmplitudeSpectrum(1, w).WindowData(fb)
+                                    Dim CurrentBandMagnitude = FftData.GetAmplitudeSpectrum(1, w).WindowData(fb)
                                     CurrentBandMagnitude = 2 * (100 ^ (Math.Log10(CurrentBandMagnitude)))
 
                                     BandMagnitudes(CentreFrequencyIndex) += myFilter(CurrentFilterIndex) * CurrentBandMagnitude
@@ -2608,9 +3647,9 @@ Public Class DSP
                                     End If
 
                                     'Checking that HighestIncludedBinIndex is not too high, due to always rounding bin index up. If so, it is simply skipped.
-                                    If fb > FftData.AmplitudeSpectrum(1, 0).WindowData.Length - 1 Then Continue For
+                                    If fb > FftData.GetAmplitudeSpectrum(1, 0).WindowData.Length - 1 Then Continue For
 
-                                    BandMagnitudes(CentreFrequencyIndex) += myFilter(CurrentFilterIndex) * FftData.AmplitudeSpectrum(1, w).WindowData(fb)
+                                    BandMagnitudes(CentreFrequencyIndex) += myFilter(CurrentFilterIndex) * FftData.GetAmplitudeSpectrum(1, w).WindowData(fb)
                                     CurrentFilterIndex += 1
                                 Next
 
@@ -2632,9 +3671,9 @@ Public Class DSP
                                     End If
 
                                     'Checking that HighestIncludedBinIndex is not too high
-                                    If fb > FftData.PowerSpectrumData(1, 0).WindowData.Length - 1 Then Continue For
+                                    If fb > FftData.GetPowerSpectrumData(1, 0).WindowData.Length - 1 Then Continue For
 
-                                    BandMagnitudes(CentreFrequencyIndex) += myFilter(CurrentFilterIndex) * FftData.PowerSpectrumData(1, w).WindowData(fb) * 2 ' Multiplied by 2 due to skipping of negative frequencies
+                                    BandMagnitudes(CentreFrequencyIndex) += myFilter(CurrentFilterIndex) * FftData.GetPowerSpectrumData(1, w).WindowData(fb) * 2 ' Multiplied by 2 due to skipping of negative frequencies
                                     CurrentFilterIndex += 1
                                 Next
 
@@ -2652,9 +3691,9 @@ Public Class DSP
                                     End If
 
                                     'Checking that HighestIncludedBinIndex is not too high
-                                    If fb > FftData.PowerSpectrumData(1, 0).WindowData.Length - 1 Then Continue For
+                                    If fb > FftData.GetPowerSpectrumData(1, 0).WindowData.Length - 1 Then Continue For
 
-                                    BandMagnitudes(CentreFrequencyIndex) += myFilter(CurrentFilterIndex) * FftData.PowerSpectrumData(1, w).WindowData(fb)
+                                    BandMagnitudes(CentreFrequencyIndex) += myFilter(CurrentFilterIndex) * FftData.GetPowerSpectrumData(1, w).WindowData(fb)
                                     CurrentFilterIndex += 1
                                 Next
 
@@ -2769,11 +3808,11 @@ Public Class DSP
                                             Optional ByVal Sound1Length As Double? = Nothing,
                                             Optional ByVal Sound2Length As Double? = Nothing,
                                             Optional ByRef CurrentIsoPhonFilter As IsoPhonFilter = Nothing,
-                                            Optional ByRef CurrentAuditoryFilters As FftData.AuditoryFilters = Nothing,
-                                            Optional ByRef CurrentSpreadOfMaskingFilters As FftData.SpreadOfMaskingFilters = Nothing,
+                                            Optional ByRef CurrentAuditoryFilters As AuditoryFilters = Nothing,
+                                            Optional ByRef CurrentSpreadOfMaskingFilters As SpreadOfMaskingFilters = Nothing,
                                             Optional ByRef dbFSToSplDifference As Double = 88,
-                                            Optional ByRef LoudnessFunction As FftData.LoudnessFunctions = FftData.LoudnessFunctions.ZwickerType,
-                                            Optional ByRef CurrentBandTemplateList As FftData.BarkSpectrum.BandTemplateList = Nothing,
+                                            Optional ByRef LoudnessFunction As LoudnessFunctions = LoudnessFunctions.ZwickerType,
+                                            Optional ByRef CurrentBandTemplateList As BarkSpectrum.BandTemplateList = Nothing,
                                             Optional ByRef SoneScalingFactor As Double? = Nothing,
                                             Optional ByVal DoDynamicTimeWarping As Boolean = True) As Double
 
@@ -2852,7 +3891,7 @@ Public Class DSP
 
                 'Exporting stuff
                 If ExportDetails = True And MatrixOutputFolder <> "" Then
-                    Dim FilterredBandPowerArray1 As SortedList(Of Integer, Single()) = Sound1.FFT.BarkSpectrumData(1)
+                    Dim FilterredBandPowerArray1 As SortedList(Of Integer, Single()) = Sound1.FFT.GetBarkSpectrumData(1)
                     Dim newDoubleArray(FilterredBandPowerArray1.Count - 1, FilterredBandPowerArray1(0).Length - 1) As Double
                     For p = 0 To FilterredBandPowerArray1.Count - 1
                         For q = 0 To FilterredBandPowerArray1(0).Length - 1
@@ -2861,7 +3900,7 @@ Public Class DSP
                     Next
                     Utils.GeneralIO.SaveMatrixToFile(newDoubleArray, IO.Path.Combine(MatrixOutputFolder, "BarkSpectrum_" & FileComparisonID & "A.txt"))
 
-                    Dim FilterredBandPowerArray2 As SortedList(Of Integer, Single()) = Sound2.FFT.BarkSpectrumData(1)
+                    Dim FilterredBandPowerArray2 As SortedList(Of Integer, Single()) = Sound2.FFT.GetBarkSpectrumData(1)
                     Dim newDoubleArray2(FilterredBandPowerArray2.Count - 1, FilterredBandPowerArray2(0).Length - 1) As Double
                     For p = 0 To FilterredBandPowerArray2.Count - 1
                         For q = 0 To FilterredBandPowerArray2(0).Length - 1
@@ -2913,258 +3952,6 @@ Public Class DSP
 
 
 
-        ''' <summary>
-        ''' Creates an inpulse response based on the supplied FrequencyResponse.
-        ''' </summary>
-        ''' <param name="FrequencyResponse"></param>
-        ''' <param name="PhaseRandomizationDegrees"></param>
-        ''' <param name="waveFormat"></param>
-        ''' <param name="fftFormat"></param>
-        ''' <param name="kernelSize"></param>
-        ''' <param name="windowFunction"></param>
-        ''' <param name="InActivateWarnings"></param>
-        ''' <param name="FrequencyResponseIsLinear">Set to True to specify frequency response in dB, or False to specify linear frequency response.</param>
-        ''' <returns></returns>
-        Public Shared Function CreateCustumImpulseResponse(ByRef FrequencyResponse As List(Of Tuple(Of Single, Single)),
-                                                ByRef PhaseRandomizationDegrees As List(Of Tuple(Of Single, Single)),
-                                                ByRef waveFormat As Formats.WaveFormat,
-                                                ByRef fftFormat As Formats.FftFormat,
-                                                ByVal kernelSize As Integer,
-                                                Optional ByVal windowFunction As WindowingType = WindowingType.Hamming,
-                                                Optional ByVal InActivateWarnings As Boolean = False,
-                                                Optional ByVal FrequencyResponseIsLinear As Boolean = False) As Sound
-
-            'Reference which parts of this code is based on:
-            'The Scientist And Engineer's Guide to
-            'Digital Signal Processing
-            'By Steven W. Smith, Ph.D.
-            'http://www.dspguide.com/ch17/1.htm
-
-            Try
-
-                If FrequencyResponse Is Nothing Then FrequencyResponse = New List(Of Tuple(Of Single, Single))
-                If PhaseRandomizationDegrees Is Nothing Then PhaseRandomizationDegrees = New List(Of Tuple(Of Single, Single))
-
-                Dim outputSound As New Sound(New Formats.WaveFormat(waveFormat.SampleRate, waveFormat.BitDepth, 1,, waveFormat.Encoding))
-
-                Dim posFS As Double = waveFormat.PositiveFullScale
-                outputSound.FFT = New FftData(waveFormat, fftFormat)
-
-
-                'Checks that kernel size is not larger than fftSize, increases fftSize is that is the case
-                If kernelSize > fftFormat.FftWindowSize Then
-                    CheckAndAdjustFFTSize(fftFormat.FftWindowSize, kernelSize, InActivateWarnings)
-                End If
-
-                'Noting the current sample rate
-                Dim SR As Integer = waveFormat.SampleRate
-
-                'Setting k values equivalent to the frequency response centre frequencies
-                Dim FrequencyResponseBinIndices As New SortedList(Of Double, Double)
-                If FrequencyResponse.Count > 0 Then
-                    'Adding values for the the lowest bin
-                    'FrequencyResponseBinIndices.Add(FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, FrequencyResponse(0).Item1, SR, fftFormat.FftWindowSize, roundingMethods.getClosestValue), FrequencyResponse(0).Item2)
-                    ''Adding 0 dB to bin 0, and the first available value to bin 1
-                    'FrequencyResponseBinIndices.Add(0, 0)
-                    FrequencyResponseBinIndices.Add(1, FrequencyResponse(0).Item2)
-
-                    'Adding intermediate bin indices
-                    For Each CentreFrequency In FrequencyResponse
-                        Dim Key As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, CentreFrequency.Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
-                        If Not FrequencyResponseBinIndices.ContainsKey(Key) Then FrequencyResponseBinIndices.Add(Key, CentreFrequency.Item2)
-                    Next
-
-                    'Adding values for the highest bin
-                    Dim LastKey As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, FrequencyResponse(FrequencyResponse.Count - 1).Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
-                    If Not FrequencyResponseBinIndices.ContainsKey(LastKey) Then FrequencyResponseBinIndices.Add(LastKey, FrequencyResponse(FrequencyResponse.Count - 1).Item2)
-
-                End If
-
-                ''The code below can be used to get the actual centre frequencies
-                'For Each CentreFrequency In FrequencyResponseBinIndices
-                '    Dim CF = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, CentreFrequency, SR, fftFormat.FftWindowSize)
-                'Next
-
-                'Setting k values equivalent to the phase response 
-                Dim PhaseResponseBinIndices As New SortedList(Of Double, Double)
-                If PhaseRandomizationDegrees.Count > 0 Then
-                    'Adding values for the the lowest bin
-                    'PhaseResponseBinIndices.Add(FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, PhaseRandomizationDegrees(0).Item1, SR, fftFormat.FftWindowSize, roundingMethods.getClosestValue), PhaseRandomizationDegrees(0).Item2)
-                    ''Adding phase 0 to bin 0, and the first available value to bin 1
-                    'PhaseResponseBinIndices.Add(0, 0)
-                    PhaseResponseBinIndices.Add(1, PhaseRandomizationDegrees(0).Item2)
-
-                    'Adding intermediate bin indices
-                    For Each CentreFrequency In PhaseRandomizationDegrees
-                        Dim Key As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, CentreFrequency.Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
-                        If Not PhaseResponseBinIndices.ContainsKey(Key) Then PhaseResponseBinIndices.Add(Key, CentreFrequency.Item2)
-                    Next
-
-                    'Adding values for the highest bin
-                    Dim LastKey As Double = FftBinFrequencyConversion(FftBinFrequencyConversionDirection.FrequencyToBinIndex, PhaseRandomizationDegrees(PhaseRandomizationDegrees.Count - 1).Item1, SR, fftFormat.FftWindowSize, RoundingMethods.GetClosestValue)
-                    If Not PhaseResponseBinIndices.ContainsKey(LastKey) Then PhaseResponseBinIndices.Add(LastKey, PhaseRandomizationDegrees(PhaseRandomizationDegrees.Count - 1).Item2)
-                End If
-
-
-
-                'Main section
-                Dim c As Integer = 1 ' Sound channel
-                Select Case waveFormat.BitDepth
-                    Case 16, 32
-
-                        Dim magnitudeArray(fftFormat.FftWindowSize - 1) As Double
-                        Dim phaseArray(fftFormat.FftWindowSize - 1) As Double
-
-                        If FrequencyResponse.Count > 0 Then
-
-                            'Setting magnitudes (including CD and Nyquist)
-                            For k = 0 To magnitudeArray.Length / 2
-
-                                Dim CurrentInterpolatedResponse As Double = LinearInterpolation_GetY(k, FrequencyResponseBinIndices)
-
-                                'Converting the frequency responses to linear form
-                                Dim LinearMagnitude As Double
-                                If FrequencyResponseIsLinear = False Then
-                                    LinearMagnitude = dBConversion(CurrentInterpolatedResponse, dBConversionDirection.from_dB, waveFormat) / posFS ' OBS ska man verkligen dividera med posFS här? Testa!
-                                Else
-                                    LinearMagnitude = CurrentInterpolatedResponse
-                                End If
-
-                                'Storing the linear magnitude
-                                magnitudeArray(k) = LinearMagnitude
-                            Next
-
-                            'Copies the magnitude information to the negative frequencies
-                            For q = 1 To magnitudeArray.Length / 2 - 1
-                                magnitudeArray(magnitudeArray.Length - q) = magnitudeArray(q)
-                            Next
-
-                        Else
-
-                            'Setting default magnitude values (of no gain)
-                            For n = 1 To magnitudeArray.Length - 1
-                                magnitudeArray(n) = 1
-                            Next
-                            'setting the magnitude of special frequencies
-                            magnitudeArray(0) = 1
-                            magnitudeArray(magnitudeArray.Length / 2) = 1
-
-                        End If
-
-
-                        If PhaseRandomizationDegrees.Count > 0 Then
-
-                            'Randomizing phases                    
-
-                            'creating an array with random phases, with the length fftsize
-                            phaseArray(0) = 0
-                            phaseArray(fftFormat.FftWindowSize / 2) = Math.PI 'ska denna vara PI ???, eller 0, eller vad som helst?
-
-                            Dim rnd As New Random
-
-                            'Setting magnitudes
-                            For k = 0 To magnitudeArray.Length / 2 - 1
-
-                                'Interpolating a current phase radnomization degree
-                                Dim CurrentInterpolatedPhaseShiftDegree As Double = Math.Min(1, Math.Max(0, LinearInterpolation_GetY(k, PhaseResponseBinIndices)))
-
-                                'Storing the phase
-                                phaseArray(k) = CurrentInterpolatedPhaseShiftDegree * (rnd.NextDouble - 0.5) * 2 * Math.PI
-                            Next
-
-                            'Copies the phase data to the negative frequencies
-                            For q = 1 To phaseArray.Length / 2 - 1
-                                phaseArray(phaseArray.Length - q) = -phaseArray(q)
-                            Next
-
-                        Else
-
-                            'Setting default phases (to zero)
-                            For q = 0 To phaseArray.Length - 1
-                                phaseArray(q) = 0
-                            Next
-
-                        End If
-
-                        'Utils.SendInfoToLog(vbCrLf & String.Join(vbCrLf, magnitudeArray), "IR_Magnitudes")
-                        'Utils.SendInfoToLog(vbCrLf & String.Join(vbCrLf, phaseArray), "IR_Phases")
-
-                        Dim NewMagnitudeTimeWindow As New FftData.TimeWindow
-                        NewMagnitudeTimeWindow.WindowData = magnitudeArray
-                        outputSound.FFT.AmplitudeSpectrum(c, 0) = NewMagnitudeTimeWindow
-
-                        Dim NewPhaseTimeWindow As New FftData.TimeWindow
-                        NewPhaseTimeWindow.WindowData = phaseArray
-                        outputSound.FFT.PhaseSpectrum(c, 0) = NewPhaseTimeWindow
-
-                        'Transforms to rectangular form
-                        outputSound.FFT.CalculateRectangualForm()
-
-                        'Copyiong to double arrays, so that FFT can be run on the Double datatype instead of Single
-                        Dim X_Re(outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData.Length - 1) As Double
-                        Dim X_Im(outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData.Length - 1) As Double
-
-                        For s = 0 To X_Re.Length - 1
-                            X_Re(s) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(s)
-                        Next
-                        For s = 0 To X_Im.Length - 1
-                            X_Im(s) = outputSound.FFT.FrequencyDomainImaginaryData(c, 0).WindowData(s)
-                        Next
-
-                        'Performing an inverse dft on the magnitude and phase arrays
-                        DSP.FastFourierTransform(DSP.FftDirections.Backward, X_Re, X_Im)
-
-                        'Shifting + truncating
-                        Dim kernelArray(kernelSize - 1) As Single
-                        Dim index As Integer = 0
-                        For n = 0 To kernelSize / 2 - 1
-                            kernelArray(index) = X_Re(fftFormat.FftWindowSize - (kernelSize / 2 - n))
-                            index += 1
-                        Next
-                        For n = 0 To kernelSize / 2 - 1
-                            kernelArray(index) = X_Re(n)
-                            index += 1
-                        Next
-
-                        'Out-commented code for FFT with Single datatype
-                        'Dim kernelArray(kernelSize - 1) As Single
-                        'Dim index As Integer = 0
-                        'For n = 0 To kernelSize / 2 - 1
-                        '    kernelArray(index) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(fftFormat.FftWindowSize - (kernelSize / 2 - n))
-                        '    index += 1
-                        'Next
-                        'For n = 0 To kernelSize / 2 - 1
-                        '    kernelArray(index) = outputSound.FFT.FrequencyDomainRealData(c, 0).WindowData(n)
-                        '    index += 1
-                        'Next
-
-                        'Scaling the kernel sample values by fft length
-                        For n = 0 To kernelArray.Length - 1
-                            kernelArray(n) /= fftFormat.FftWindowSize
-                        Next
-
-                        'Windowing
-                        WindowingFunction(kernelArray, windowFunction)
-
-                        'Storing sound
-                        outputSound.WaveData.SampleData(c) = kernelArray
-
-                    Case Else
-                        Throw New NotImplementedException(waveFormat.BitDepth & " bit depth Is Not yet supported.")
-
-                End Select
-
-                Return outputSound
-
-            Catch ex As Exception
-                MsgBox(ex.ToString)
-                Return Nothing
-            End Try
-
-        End Function
-
-
-
 
         ''' <summary>
         ''' Calculates acoustic distance based on dynamic time warping.  For reference to the principles behind this code, see Jurafsky and Martin (p 333), and Gold, Morgan, Ellis (pp 340).
@@ -3186,8 +3973,8 @@ Public Class DSP
 
 
                 'Setting up a distance matrix containing the distances between every time window in the two input sounds
-                Dim FilterredBandPowerArray1 As SortedList(Of Integer, Single()) = Sound1.FFT.BarkSpectrumData(1)
-                Dim FilterredBandPowerArray2 As SortedList(Of Integer, Single()) = Sound2.FFT.BarkSpectrumData(1)
+                Dim FilterredBandPowerArray1 As SortedList(Of Integer, Single()) = Sound1.FFT.GetBarkSpectrumData(1)
+                Dim FilterredBandPowerArray2 As SortedList(Of Integer, Single()) = Sound2.FFT.GetBarkSpectrumData(1)
                 Dim ColumnCount As Integer = FilterredBandPowerArray1.Count
                 Dim RowCount As Integer = FilterredBandPowerArray2.Count
                 Dim DistanceMatrix(ColumnCount - 1, RowCount - 1) As Double
@@ -4794,6 +5581,100 @@ Public Class DSP
 
 
     ''' <summary>
+    ''' Converts between fft bin number and frequency.
+    ''' </summary>
+    ''' <param name="conversionDirection"></param>
+    ''' <param name="inputValue"></param>
+    ''' <param name="sampleRate"></param>
+    ''' <param name="fftSize"></param>
+    ''' <param name="roundingMethod"></param>
+    ''' <param name="Actualvalue">When conversionDirection is FrequencyToBinIndex, this parameters holds the frequency of the actual selected fft bin.</param>
+    ''' <returns></returns>
+    Public Shared Function FftBinFrequencyConversion(ByVal conversionDirection As FftBinFrequencyConversionDirection,
+                                      ByVal inputValue As Single, ByVal sampleRate As Integer, ByVal fftSize As Integer,
+                                      Optional ByVal roundingMethod As RoundingMethods = RoundingMethods.GetClosestValue,
+                                      Optional ByRef Actualvalue As Single = Nothing) As Single
+        Try
+
+
+            Select Case conversionDirection
+                Case FftBinFrequencyConversionDirection.BinIndexToFrequency
+
+                    Try
+                        Dim frequency As Single = (inputValue * sampleRate) / fftSize
+                        Return frequency
+
+                    Catch ex As Exception
+                        AudioError("Error in FftBinFrequencyConversion" & vbCr & ex.ToString)
+                        Return Nothing
+                    End Try
+
+                Case FftBinFrequencyConversionDirection.FrequencyToBinIndex
+
+                    Try
+                        Dim binIndex As Single
+                        Select Case roundingMethod
+                            Case RoundingMethods.GetClosestValue
+                                binIndex = Math.Round((inputValue * fftSize) / sampleRate)
+                            Case RoundingMethods.AlwaysDown
+                                binIndex = Int((inputValue * fftSize) / sampleRate)
+                            Case RoundingMethods.DoNotRound
+                                binIndex = (inputValue * fftSize) / sampleRate
+                            Case RoundingMethods.AlwaysUp
+                                binIndex = 1 + Int((inputValue * fftSize) / sampleRate)
+                            Case Else
+                                Throw New NotImplementedException("Unsupported rounding method.")
+                        End Select
+
+                        'Calculates the actual cut-off frequency value used
+                        Dim NewActualvalue As Single = 0
+                        FftBinFrequencyConversion(FftBinFrequencyConversionDirection.BinIndexToFrequency, binIndex, sampleRate, fftSize,, NewActualvalue)
+                        Actualvalue = NewActualvalue
+
+                        Return binIndex
+
+                    Catch ex As Exception
+
+                        AudioError("Error in FftBinFrequencyConversion" & vbCr & ex.ToString)
+                        Return Nothing
+                    End Try
+
+                Case Else
+                    Throw New NotImplementedException
+
+            End Select
+
+        Catch ex As Exception
+            MsgBox(ex.ToString)
+            Return Nothing
+        End Try
+
+    End Function
+
+    ''' <summary>
+    ''' Returns the gain needed to compensate for the scaling applied by windowing an array.
+    ''' </summary>
+    ''' <param name="WindowLength"></param>
+    ''' <param name="WindowingType"></param>
+    ''' <returns></returns>
+    Public Shared Function GetInverseWindowingScalingFactor(ByRef WindowLength As Integer, ByRef WindowingType As WindowingType)
+
+        If WindowLength < 1 Then Throw New ArgumentException("Window length cannot be lower than 1.")
+
+        'Creating a windowed array with 1 as the unwindowed values
+        Dim WindowArray(WindowLength - 1) As Double
+        For n = 0 To WindowArray.Length - 1
+            WindowArray(n) = 1
+        Next
+        WindowingFunction(WindowArray, WindowingType)
+
+        'Returning the inverse of the scaling applied by the window
+        Return 1 / WindowArray.Average
+
+    End Function
+
+
+    ''' <summary>
     ''' Caluculated cepstrum of the time domain data stored in the specified Sound. The frequency domain data may be stored in the Sound properties
     ''' FFT (which should be done by the calling code).
     ''' </summary>
@@ -4823,8 +5704,8 @@ Public Class DSP
             'Zeroing the phase
             For c = 1 To sound.FFT.ChannelCount
                 For w = 0 To sound.FFT.WindowCount(c) - 1
-                    For n = 0 To sound.FFT.AmplitudeSpectrum(c, w).WindowData.Length - 1
-                        sound.FFT.PhaseSpectrum(c, w).WindowData(n) = 0
+                    For n = 0 To sound.FFT.GetAmplitudeSpectrum(c, w).WindowData.Length - 1
+                        sound.FFT.GetPhaseSpectrum(c, w).WindowData(n) = 0
                     Next
                 Next
             Next
@@ -4834,8 +5715,8 @@ Public Class DSP
             Throw New NotImplementedException("Should it be log or log10 below? Check!")
             For c = 1 To sound.FFT.ChannelCount
                 For w = 0 To sound.FFT.WindowCount(c) - 1
-                    For n = 0 To sound.FFT.AmplitudeSpectrum(c, w).WindowData.Length - 1
-                        sound.FFT.AmplitudeSpectrum(c, w).WindowData(n) = Math.Log(sound.FFT.AmplitudeSpectrum(c, w).WindowData(n))
+                    For n = 0 To sound.FFT.GetAmplitudeSpectrum(c, w).WindowData.Length - 1
+                        sound.FFT.GetAmplitudeSpectrum(c, w).WindowData(n) = Math.Log(sound.FFT.GetAmplitudeSpectrum(c, w).WindowData(n))
                     Next
                 Next
             Next
@@ -4865,8 +5746,8 @@ Public Class DSP
             'Zeroing the phase
             For c = 1 To Cepstrum.FFT.ChannelCount
                 For w = 0 To Cepstrum.FFT.WindowCount(c) - 1
-                    For n = 0 To Cepstrum.FFT.AmplitudeSpectrum(c, w).WindowData.Length - 1
-                        Cepstrum.FFT.PhaseSpectrum(c, w).WindowData(n) = 0
+                    For n = 0 To Cepstrum.FFT.GetAmplitudeSpectrum(c, w).WindowData.Length - 1
+                        Cepstrum.FFT.GetPhaseSpectrum(c, w).WindowData(n) = 0
                     Next
                 Next
             Next
@@ -4874,8 +5755,8 @@ Public Class DSP
             'Taking the antilog of the magnitudes
             For c = 1 To Cepstrum.FFT.ChannelCount
                 For w = 0 To Cepstrum.FFT.WindowCount(c) - 1
-                    For n = 0 To Cepstrum.FFT.AmplitudeSpectrum(c, w).WindowData.Length - 1
-                        Cepstrum.FFT.AmplitudeSpectrum(c, w).WindowData(n) = Math.E ^ Cepstrum.FFT.AmplitudeSpectrum(c, w).WindowData(n)
+                    For n = 0 To Cepstrum.FFT.GetAmplitudeSpectrum(c, w).WindowData.Length - 1
+                        Cepstrum.FFT.GetAmplitudeSpectrum(c, w).WindowData(n) = Math.E ^ Cepstrum.FFT.GetAmplitudeSpectrum(c, w).WindowData(n)
                     Next
                 Next
             Next
@@ -5316,11 +6197,11 @@ Public Class DSP
             For c = 1 To TargetSound.WaveFormat.Channels
 
                 'Summing coefficient values
-                Dim AverageTargetSoundSpectrum(TargetSound.FFT.AmplitudeSpectrum(c, 0).WindowData.Length - 1) As Double
+                Dim AverageTargetSoundSpectrum(TargetSound.FFT.GetAmplitudeSpectrum(c, 0).WindowData.Length - 1) As Double
                 Dim CurrentWindowCount As Integer = TargetSound.FFT.WindowCount(c)
                 For t = 0 To CurrentWindowCount - 1
                     For k = 0 To AverageTargetSoundSpectrum.Length - 1
-                        AverageTargetSoundSpectrum(k) += TargetSound.FFT.AmplitudeSpectrum(c, t).WindowData(k)
+                        AverageTargetSoundSpectrum(k) += TargetSound.FFT.GetAmplitudeSpectrum(c, t).WindowData(k)
                     Next
                 Next
 
@@ -5331,7 +6212,7 @@ Public Class DSP
 
                 'Storing it in the first time window of the original sound so that it may be re-used from there
                 For k = 0 To AverageTargetSoundSpectrum.Length - 1
-                    TargetSound.FFT.AmplitudeSpectrum(c, 0).WindowData(k) = AverageTargetSoundSpectrum(k)
+                    TargetSound.FFT.GetAmplitudeSpectrum(c, 0).WindowData(k) = AverageTargetSoundSpectrum(k)
                 Next
             Next
         End If
@@ -5340,7 +6221,7 @@ Public Class DSP
         If InputSound Is Nothing Then Return Nothing
 
         'Referencing the target spectrum (using only the spectrum of channel 1)
-        Dim TargetSpectrum() As Double = TargetSound.FFT.AmplitudeSpectrum(1, 0).WindowData
+        Dim TargetSpectrum() As Double = TargetSound.FFT.GetAmplitudeSpectrum(1, 0).WindowData
 
         'Getting the spectrum of the signal
         InputSound.FFT = SpectralAnalysis(InputSound, FftFormat)
@@ -5354,8 +6235,8 @@ Public Class DSP
         For w = 0 To InputSound.FFT.WindowCount(1) - 1
             'For k = 0 To TargetSpectrum.Length - 1
 
-            For k = 0 To InputSound.FFT.AmplitudeSpectrum(1, w).WindowData.Length - 1
-                InputSound.FFT.AmplitudeSpectrum(1, w).WindowData(k) = TargetSpectrum(k)
+            For k = 0 To InputSound.FFT.GetAmplitudeSpectrum(1, w).WindowData.Length - 1
+                InputSound.FFT.GetAmplitudeSpectrum(1, w).WindowData(k) = TargetSpectrum(k)
             Next
 
             ''Positive half
@@ -5374,7 +6255,7 @@ Public Class DSP
         Dim rnd As New Random
         For w = 0 To InputSound.FFT.WindowCount(1) - 1
             For k = 0 To TargetSpectrum.Length - 1
-                InputSound.FFT.PhaseSpectrum(1, w).WindowData(k) = 0
+                InputSound.FFT.GetPhaseSpectrum(1, w).WindowData(k) = 0
                 'InputSound.FFT.PhaseSpectrum(1, w).WindowData(k) = 2 * (rnd.NextDouble() - 0.5) * Math.PI
             Next
         Next
@@ -6000,7 +6881,7 @@ Public Class DSP
         'Exporting the sound to file
         Dim TempSoundOriginalFileName As String = "TemporarySoundOriginal"
         Dim TempSoundResampledFileName As String = "TemporarySoundResampled"
-        AudioIOs.SaveToWaveFile(InputSound, Path.Combine(WorkFolder, TempSoundOriginalFileName))
+        STFN.Audio.AudioIOs.SaveToWaveFile(InputSound, Path.Combine(WorkFolder, TempSoundOriginalFileName))
 
         'Creating resampled file
 
@@ -6020,7 +6901,7 @@ Public Class DSP
         sp.Close()
 
         'Reading the resample files from file
-        Dim ResampledSignalSound = AudioIOs.ReadWaveFile(Path.Combine(WorkFolder, TempSoundResampledFileName) & ".wav")
+        Dim ResampledSignalSound = STFN.Audio.AudioIOs.ReadWaveFile(Path.Combine(WorkFolder, TempSoundResampledFileName) & ".wav")
 
         'Deleting the temporary files
         File.Delete(Path.Combine(WorkFolder, TempSoundOriginalFileName) & ".wav")
@@ -7278,7 +8159,7 @@ Public Class DSP
             'Calculates average magnitudes
             'Sound1
             Dim BinSpectrum_1(InputSound1.FFT.FftFormat.FftWindowSize - 1) As Single
-            For k = 0 To InputSound1.FFT.AmplitudeSpectrum(c, 0).WindowData.Length - 1
+            For k = 0 To InputSound1.FFT.GetAmplitudeSpectrum(c, 0).WindowData.Length - 1
 
                 For TimeWindow = 0 To InputSound1.FFT.WindowCount(c) - 1
 
@@ -7286,7 +8167,7 @@ Public Class DSP
                     'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10((Math.Sqrt(2) * AmplitudeSpectrum(channel, TimeWindow).WindowData(k)) / Math.Sqrt(2))) / 10)
                     'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10(AmplitudeSpectrum(channel, TimeWindow).WindowData(k))) / 10)
                     'Simplified to:
-                    BinSpectrum_1(k) += 100 ^ (Math.Log10(InputSound1.FFT.AmplitudeSpectrum(c, TimeWindow).WindowData(k)))
+                    BinSpectrum_1(k) += 100 ^ (Math.Log10(InputSound1.FFT.GetAmplitudeSpectrum(c, TimeWindow).WindowData(k)))
 
                 Next
 
@@ -7304,7 +8185,7 @@ Public Class DSP
             'Calculates average magnitudes
             'Sound2
             Dim BinSpectrum_2(InputSound2.FFT.FftFormat.FftWindowSize - 1) As Single
-            For k = 0 To InputSound2.FFT.AmplitudeSpectrum(c, 0).WindowData.Length - 1
+            For k = 0 To InputSound2.FFT.GetAmplitudeSpectrum(c, 0).WindowData.Length - 1
 
                 For TimeWindow = 0 To InputSound2.FFT.WindowCount(c) - 1
 
@@ -7312,7 +8193,7 @@ Public Class DSP
                     'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10((Math.Sqrt(2) * AmplitudeSpectrum(channel, TimeWindow).WindowData(k)) / Math.Sqrt(2))) / 10)
                     'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10(AmplitudeSpectrum(channel, TimeWindow).WindowData(k))) / 10)
                     'Simplified to:
-                    BinSpectrum_2(k) += 100 ^ (Math.Log10(InputSound2.FFT.AmplitudeSpectrum(c, TimeWindow).WindowData(k)))
+                    BinSpectrum_2(k) += 100 ^ (Math.Log10(InputSound2.FFT.GetAmplitudeSpectrum(c, TimeWindow).WindowData(k)))
 
                 Next
 
@@ -7502,7 +8383,7 @@ Public Class DSP
             'Calculates average magnitudes
             'Sound1
             Dim BinSpectrum_1(FlatSpectrumSound.FFT.FftFormat.FftWindowSize - 1) As Single
-            For k = 0 To FlatSpectrumSound.FFT.AmplitudeSpectrum(c, 0).WindowData.Length - 1
+            For k = 0 To FlatSpectrumSound.FFT.GetAmplitudeSpectrum(c, 0).WindowData.Length - 1
 
                 For TimeWindow = 0 To FlatSpectrumSound.FFT.WindowCount(c) - 1
 
@@ -7510,7 +8391,7 @@ Public Class DSP
                     'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10((Math.Sqrt(2) * AmplitudeSpectrum(channel, TimeWindow).WindowData(k)) / Math.Sqrt(2))) / 10)
                     'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10(AmplitudeSpectrum(channel, TimeWindow).WindowData(k))) / 10)
                     'Simplified to:
-                    BinSpectrum_1(k) += 100 ^ (Math.Log10(FlatSpectrumSound.FFT.AmplitudeSpectrum(c, TimeWindow).WindowData(k)))
+                    BinSpectrum_1(k) += 100 ^ (Math.Log10(FlatSpectrumSound.FFT.GetAmplitudeSpectrum(c, TimeWindow).WindowData(k)))
 
                 Next
 
@@ -7528,7 +8409,7 @@ Public Class DSP
             'Calculates average magnitudes
             'Sound2
             Dim BinSpectrum_2(InputSound.FFT.FftFormat.FftWindowSize - 1) As Single
-            For k = 0 To InputSound.FFT.AmplitudeSpectrum(c, 0).WindowData.Length - 1
+            For k = 0 To InputSound.FFT.GetAmplitudeSpectrum(c, 0).WindowData.Length - 1
 
                 For TimeWindow = 0 To InputSound.FFT.WindowCount(c) - 1
 
@@ -7536,7 +8417,7 @@ Public Class DSP
                     'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10((Math.Sqrt(2) * AmplitudeSpectrum(channel, TimeWindow).WindowData(k)) / Math.Sqrt(2))) / 10)
                     'SummedBinPowers += 2 * 10 ^ ((20 * Math.Log10(AmplitudeSpectrum(channel, TimeWindow).WindowData(k))) / 10)
                     'Simplified to:
-                    BinSpectrum_2(k) += 100 ^ (Math.Log10(InputSound.FFT.AmplitudeSpectrum(c, TimeWindow).WindowData(k)))
+                    BinSpectrum_2(k) += 100 ^ (Math.Log10(InputSound.FFT.GetAmplitudeSpectrum(c, TimeWindow).WindowData(k)))
 
                 Next
 
@@ -8076,6 +8957,361 @@ Public Class DSP
         End Function
 
     End Class
+
+
+#Region "IsoPhonFilters"
+
+
+    <Serializable>
+    Public Class IsoPhonFilter
+
+        Private SPLToPhonLookupTable As SortedList(Of Double, SortedList(Of Double, Double)) 'Frequency, SPL, Phon
+        Private SplAtZeroPhon As SortedList(Of Integer, Double) 'Frequency, SPL
+
+        'TODO: As of now (2017-07-13) the data below is taken from https://www.dsprelated.com/showcode/174.php , and not double checked with ISO 226.
+        Dim f As Double() = {20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315,
+        400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500}
+
+        Dim af As Double() = {0.532, 0.506, 0.48, 0.455, 0.432, 0.409, 0.387, 0.367,
+        0.349, 0.33, 0.315, 0.301, 0.288, 0.276, 0.267, 0.259, 0.253, 0.25, 0.246,
+        0.244, 0.243, 0.243, 0.243, 0.242, 0.242, 0.245, 0.254, 0.271, 0.301}
+
+        Dim Lu As Double() = {-31.6, -27.2, -23, -19.1, -15.9, -13, -10.3, -8.1,
+        -6.2, -4.5, -3.1, -2, -1.1, -0.4, 0, 0.3, 0.5, 0, -2.7, -4.1, -1, 1.7,
+        2.5, 1.2, -2.1, -7.1, -11.2, -10.7, -3.1}
+
+        Dim Tf As Double() = {78.5, 68.7, 59.5, 51.1, 44, 37.5, 31.5, 26.5, 22.1,
+        17.9, 14.4, 11.4, 8.6, 6.2, 4.4, 3, 2.2, 2.4, 3.5, 1.7, -1.3, -4.2, -6,
+        -5.4, -1.5, 6, 12.6, 13.9, 12.3}
+
+        Dim LevelResolution As Double
+        Dim LevelDecimalPoints As Integer
+        Dim Lowest_Level As Double
+        Dim Highest_Level As Double
+
+        ''' <summary>
+        ''' May be changed to False if also negative frequencies need to be filterred. Default value is True.
+        ''' </summary>
+        ''' <returns></returns>
+        Public Property SkipNegativeFrequencies As Boolean = True
+
+        Public Enum FilterTypes
+            Adaptive
+            A_Filter
+            B_Filter
+            C_Filter
+        End Enum
+
+
+
+        ''' <summary>
+        ''' Creates a new instance of IsoPhonConversion.
+        ''' </summary>
+        ''' <param name="LookupFrequencies "></param>
+        ''' <param name="SetLevelDecimalPoints"></param>
+        Public Sub New(ByVal LookupFrequencies As List(Of Double),
+                                 Optional ByVal SetLevelDecimalPoints As Integer = 1,
+                                 Optional ByVal SetLowest_Level As Double = -100,
+                                 Optional ByVal SetHighest_Level As Double = 110)
+
+            LevelDecimalPoints = SetLevelDecimalPoints
+            LevelResolution = 10 ^ -LevelDecimalPoints
+            Lowest_Level = SetLowest_Level
+            Highest_Level = SetHighest_Level
+
+            'Creating a list containing the SPL at each frequency at 0 Phon
+            SplAtZeroPhon = New SortedList(Of Integer, Double)
+            For freqIndex = 0 To f.Length - 1
+                'Calculating SPL value for 0 phon
+                SplAtZeroPhon.Add(freqIndex, GetPhonToSpl(0, freqIndex))
+            Next
+
+            SPLToPhonLookupTable = New SortedList(Of Double, SortedList(Of Double, Double)) 'Frequency, SPL, Phon
+
+            For Each freq In LookupFrequencies
+
+                'Adding Frequency key to the table
+                SPLToPhonLookupTable.Add(freq, New SortedList(Of Double, Double))
+
+                'Getting the lower and higher frequencies for interpolation
+                Dim NearestAvailableFrequencies = GetNearestIndices(freq, f)
+
+                Dim LowerFrequencyIndex As Integer? = NearestAvailableFrequencies.NearestLowerIndex
+                Dim HigherFrequencyIndex As Integer? = NearestAvailableFrequencies.NearestHigherIndex
+
+                'Setting the interpolation frequencies to the closest possible if frequency value is outside the interpolation range
+                If LowerFrequencyIndex Is Nothing Then
+                    LowerFrequencyIndex = 0
+                    HigherFrequencyIndex = 1
+                ElseIf HigherFrequencyIndex Is Nothing Then
+                    LowerFrequencyIndex = f.Length - 2
+                    HigherFrequencyIndex = f.Length - 1
+                End If
+
+                'Checking if interpolation between frequencies is needed
+                If LowerFrequencyIndex = HigherFrequencyIndex Then
+
+                    'No interpolation needed since the current frequency is in the f array
+                    For CurrentSPL As Double = Lowest_Level To Highest_Level Step LevelResolution
+
+                        Dim roundedSPL As Double = Math.Round(CurrentSPL, LevelDecimalPoints)
+
+                        'Calculating Phon value
+                        SPLToPhonLookupTable(freq).Add(roundedSPL, roundedSPL - GetSPLToPhon(roundedSPL, LowerFrequencyIndex)) 'N.B. LowerFrequencyIndex can be used since it is the same as HigherFrequencyIndex
+
+                    Next
+
+                Else
+
+                    'Interpolation is needed
+                    'Getting the lower and higher Phon values for interpolation
+                    Dim LowerPhons As New SortedList(Of Double, Double)
+                    Dim HigherPhons As New SortedList(Of Double, Double)
+
+                    For CurrentSPL As Double = Lowest_Level To Highest_Level Step LevelResolution
+
+                        Dim roundedSPL As Double = Math.Round(CurrentSPL, LevelDecimalPoints)
+
+                        'Calculating lower Phon values
+                        LowerPhons.Add(roundedSPL, roundedSPL - GetSPLToPhon(roundedSPL, LowerFrequencyIndex))
+
+                        'Calculating higher Phon values
+                        HigherPhons.Add(roundedSPL, roundedSPL - GetSPLToPhon(roundedSPL, HigherFrequencyIndex))
+                    Next
+
+                    'Interpolating the current frequency data (all SPL To Phons for the current frequency)
+                    For CurrentSPL As Double = Lowest_Level To Highest_Level Step LevelResolution
+
+                        Dim roundedSPL As Double = Math.Round(CurrentSPL, LevelDecimalPoints)
+                        SPLToPhonLookupTable(freq).Add(roundedSPL, LinearInterpolation(freq, f(LowerFrequencyIndex), LowerPhons(roundedSPL), f(HigherFrequencyIndex), HigherPhons(roundedSPL), True))
+                    Next
+                End If
+
+            Next
+
+
+        End Sub
+
+        ''' <summary>
+        ''' Returns the Phon value of an input SPL, at the indicated frequency (Based on ISO 226).
+        ''' </summary>
+        ''' <param name="InputValue"></param>
+        ''' <returns></returns>
+        Private Function GetEqualLoudness(ByVal InputValue As Double, ByVal Frequency As Double) As Double
+
+            Dim RoundedSIL As Double = Math.Round(InputValue, LevelDecimalPoints) 'Rounded SPL is rounded to the number of level decimal point used in setting up the SPLToPhonLookupTable
+
+            'Checking if the value is lower than the minimum generated range
+            If RoundedSIL < Lowest_Level Then
+                RoundedSIL = Lowest_Level 'Setting it to the lowest generated value
+            End If
+
+            If RoundedSIL > Highest_Level Then RoundedSIL = Highest_Level 'Setting it to the highest generated value
+
+            'If SPLToPhonLookupTable(RoundedFrequency).ContainsKey(RoundedSIL) Then
+            Return SPLToPhonLookupTable(Frequency)(RoundedSIL)
+            'Else
+            'Throws an exception if no key larger enough has been generated
+            'Throw New Exception("The SPL value was outside the generated range. Please increase the Highest_Level set when setting up the SPLToPhonLookupTable!")
+            'End If
+
+        End Function
+
+        Public Function GetAttenuation(ByVal FilterLevel As Double, ByVal Frequency As Double) As Double
+
+            Dim RoundedSIL As Double = Math.Round(FilterLevel, LevelDecimalPoints) 'Rounded SPL is rounded to the number of level decimal point used in setting up the SPLToPhonLookupTable
+
+            'Checking if the value is lower than the minimum generated range
+            If RoundedSIL < Lowest_Level Then
+                RoundedSIL = Lowest_Level 'Setting it to the lowest generated value
+            End If
+
+            If RoundedSIL > Highest_Level Then
+                RoundedSIL = Highest_Level 'Setting it to the highest generated value
+                Throw New Exception("The SPL value was outside the generated range. Please increase the Highest_Level set when setting up the SPLToPhonLookupTable!")
+            End If
+            Try
+                Return SPLToPhonLookupTable(Frequency)(RoundedSIL)
+            Catch ex As Exception
+                MsgBox(ex.ToString)
+                Return Nothing
+            End Try
+
+        End Function
+
+
+
+        ''' <summary>
+        ''' Returns the Phon value for the specified input SPL, at the frequency specified in f(FrequencyIndex).
+        ''' </summary>
+        ''' <param name="InputSIL"></param>
+        ''' <param name="FrequencyIndex">The specified index in the public frequency array f.</param>
+        ''' <returns></returns>
+        Private Function GetSPLToPhon(ByVal InputSIL As Double, ByVal FrequencyIndex As Double) As Double
+
+            'If the function is fed by an SIL value that would fall below the SPL values genererated at zero phon, 
+            'the function returns the sum of zero phon minus the difference between the SIL value for zero phon and the input SIL value.
+            'The reason this procedure is used is that the PhonToSPL equation is not valid for (actually freaks out!) below 0 phons. 
+
+            Dim ZeroPhonValue As Double = SplAtZeroPhon(FrequencyIndex)
+            If InputSIL < ZeroPhonValue Then
+
+                Dim Lp_InputSILDifference As Double = ZeroPhonValue - InputSIL
+
+                'Returning 0 phon minus the Lp_InputSILDifference
+                Return -Lp_InputSILDifference
+
+            Else
+                Dim Lp As Double = InputSIL
+                Dim AAf As Double = 10 ^ ((af(FrequencyIndex) * (Lp + Lu(FrequencyIndex) - 94)) / 10)
+                Dim Ln As Double = (Math.Log10(((AAf - ((0.4 * 10 ^ (((Tf(FrequencyIndex) + Lu(FrequencyIndex)) / 10) - 9)) ^ af(FrequencyIndex))) / (4.47 * 10 ^ (-3))) + 1.14)) / 0.025
+
+                Return Ln
+            End If
+
+        End Function
+
+        ''' <summary>
+        ''' Returns the SPL value for the specified input Phon value, at the frequency specified in f(FrequencyIndex).
+        ''' </summary>
+        ''' <param name="InputPhon"></param>
+        ''' <param name="FrequencyIndex">The specified index in the public frequency array f.</param>
+        ''' <returns></returns>
+        Private Function GetPhonToSpl(ByVal InputPhon As Double, ByVal FrequencyIndex As Double) As Double
+
+            'Calculating Phon value
+            Dim Ln As Double = InputPhon
+            Dim AAf As Double = (4.47 * 10 ^ -3) * (10 ^ (0.025 * Ln) - 1.14) + (0.4 * 10 ^ ((Tf(FrequencyIndex) + Lu(FrequencyIndex)) / 10 - 9)) ^ af(FrequencyIndex)
+            Dim Lp As Double = ((10 / af(FrequencyIndex)) * Math.Log10(AAf)) - Lu(FrequencyIndex) + 94
+            Return Lp
+
+        End Function
+
+        ''' <summary>
+        ''' Filters the power spectrum of a Sound using the current Iso-Phon filter.
+        ''' </summary>
+        ''' <param name="InputSound"></param>
+        Public Sub FilterPowerSpectrum(ByRef InputSound As Sound, ByVal dbFSToSplDifference As Double,
+                                       Optional FilterType As FilterTypes = FilterTypes.Adaptive)
+
+            Dim BinCount As Integer = InputSound.FFT.BinIndexToFrequencyList(SkipNegativeFrequencies).Count
+
+            For channel = 1 To InputSound.FFT.ChannelCount
+                For TimeWindow = 0 To InputSound.FFT.WindowCount(channel) - 1
+
+                    Dim FilterLevel As Double
+                    Select Case FilterType
+                        Case FilterTypes.Adaptive
+                            'Getting the total power of the current time window
+                            InputSound.FFT.GetPowerSpectrumData(channel, TimeWindow).CalculateTotalPower()
+                            Dim TotalPower As Double = InputSound.FFT.GetPowerSpectrumData(channel, TimeWindow).TotalPower
+                            Dim TotalPowerIn_dBFS As Double = 10 * Math.Log10(TotalPower / InputSound.WaveFormat.PositiveFullScale)
+                            Dim TotalPowerIn_dBSIL As Double = (TotalPowerIn_dBFS + dbFSToSplDifference)
+                            FilterLevel = TotalPowerIn_dBSIL
+                        Case FilterTypes.A_Filter
+                            FilterLevel = 40
+
+                        Case FilterTypes.B_Filter
+                            FilterLevel = 70
+
+                        Case FilterTypes.C_Filter
+                            FilterLevel = 100
+
+                    End Select
+
+                    For k = 0 To BinCount - 1
+
+                        'Converting values to dB scale, and shifts the Levels to SIL range
+                        Dim CurrentBandValue As Double = InputSound.FFT.GetPowerSpectrumData(channel, TimeWindow).WindowData(k)
+                        Dim ValueIn_dBFS As Double = 10 * Math.Log10(CurrentBandValue / InputSound.WaveFormat.PositiveFullScale)
+                        Dim ValueIn_dBSIL As Double = (ValueIn_dBFS + dbFSToSplDifference)
+
+                        'Getting the attenuation for the current SIL / frequency combination
+                        Dim CurrentAttenuation As Double = GetAttenuation(FilterLevel, InputSound.FFT.BinIndexToFrequencyList()(k))
+                        Dim CurrentPhonValue As Double = ValueIn_dBSIL - CurrentAttenuation
+
+                        'Leaving it in the SIL range and not taking -dbFSToSplDifference
+
+                        'Shifting back to Linear scale (I= Ir * 10^(LI/10))
+                        Dim LinearLoudness As Double = STFN.Core.Audio.ReferenceSoundIntensityLevel * 10 ^ (CurrentPhonValue / 10)
+
+                        'Storing the new value
+                        InputSound.FFT.GetPowerSpectrumData(channel, TimeWindow).WindowData(k) = LinearLoudness
+
+                    Next
+                Next
+            Next
+
+        End Sub
+
+
+        Public Sub ExportSplToPhonData(Optional ByVal OutputFolder As String = "", Optional ByVal FileName As String = "SplToPhonData",
+                                       Optional ByVal ExportLevelStep As Double? = Nothing)
+
+            If OutputFolder = "" Then OutputFolder = Logging.LogFileDirectory
+
+            Dim OutputList As New List(Of String)
+
+            Dim TempLevelStep As Double = LevelResolution
+            If ExportLevelStep IsNot Nothing Then TempLevelStep = ExportLevelStep
+
+            For InputLevel As Double = Lowest_Level To Highest_Level Step TempLevelStep
+                Dim RoundedSIL As Double = Math.Round(InputLevel, LevelDecimalPoints) 'Rounded SPL is rounded to the number of level decimal point used in setting up the SPLToPhonLookupTable
+                For Each Frequency In SPLToPhonLookupTable
+                    OutputList.Add(InputLevel & vbTab & Frequency.Key & vbTab & SPLToPhonLookupTable(Frequency.Key)(RoundedSIL))
+                Next
+            Next
+
+            SendInfoToAudioLog(vbCrLf & String.Join(vbCrLf, OutputList), FileName, OutputFolder)
+
+        End Sub
+
+        Public Sub ExportIsoPhonCurves(Optional ByVal OutputFolder As String = "", Optional ByVal FileName As String = "IsoPhoneData")
+
+            If OutputFolder = "" Then OutputFolder = Logging.LogFileDirectory
+
+            Dim OutputList As New List(Of String)
+
+            OutputList.Add("Phon" & vbTab & "Frequency" & vbTab & "SPL (dB)")
+            For InputPhon As Double = -100 To 100 Step 10
+                For FrequencyIndex = 0 To f.Length - 1
+                    OutputList.Add(InputPhon & vbTab & f(FrequencyIndex) & vbTab & GetPhonToSpl(InputPhon, FrequencyIndex))
+                Next
+            Next
+
+            SendInfoToAudioLog(vbCrLf & String.Join(vbCrLf, OutputList), FileName, OutputFolder)
+
+        End Sub
+
+        Public Sub ExportInverseIsoPhonCurves(Optional ByVal OutputFolder As String = "",
+                                              Optional ByVal FileName As String = "InverseIsoPhonData",
+                                              Optional ByVal ShowAsAttenuation As Boolean = False)
+
+            If OutputFolder = "" Then OutputFolder = Logging.LogFileDirectory
+
+            Dim OutputList As New List(Of String)
+
+            OutputList.Add("SPL" & vbTab & "Frequency" & vbTab & "Phon")
+            For InputSPL As Double = -100 To 100 Step 10
+                For FrequencyIndex = 0 To f.Length - 1
+                    If ShowAsAttenuation = False Then
+                        OutputList.Add(InputSPL & vbTab & f(FrequencyIndex) & vbTab & GetSPLToPhon(InputSPL, FrequencyIndex))
+                    Else
+                        OutputList.Add(InputSPL & vbTab & f(FrequencyIndex) & vbTab & InputSPL - GetSPLToPhon(InputSPL, FrequencyIndex))
+                    End If
+                Next
+            Next
+
+            SendInfoToAudioLog(vbCrLf & String.Join(vbCrLf, OutputList), FileName, OutputFolder)
+
+        End Sub
+
+
+    End Class
+
+#End Region
+
+
 
 
 #Region "Math"
